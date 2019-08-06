@@ -1,0 +1,41 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "ru.citeck.ecos.notifications",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "6.0.1",
+    "applicationType": "microservice",
+    "baseName": "notifications",
+    "packageName": "ru.citeck.ecos.notifications",
+    "packageFolder": "ru/citeck/ecos/notifications",
+    "serverPort": "8013",
+    "authenticationType": "jwt",
+    "cacheProvider": "hazelcast",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "postgresql",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": "eureka",
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "OWRiNjU2Yzc0MTg5YzQ5YmI0NTA4ZTYzZjU3ZjViZGFhY2I5MDM3OWM1YmE2ZmNhMjUzNjVjNTEwNTZkMjRhNTljZDFjYjExYTYxYzA4NDYzMTAwZWFlMTE1NWQ3ZWEyMzVmNzNjZWQ0MTc4YTg3ZWQyYTc1Y2Y2NTY1N2VkZmI=",
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "clientPackageManager": "npm",
+    "nativeLanguage": "en",
+    "languages": [
+      "en",
+      "ru"
+    ],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}
