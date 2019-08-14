@@ -192,8 +192,8 @@ jhipster:
 
 # application:
 firebase:
-    credential-class-path: work-rest-firebase-adminsdk-bm5dp-e1ae19b218.json
-    data-base-url: https://work-rest.firebaseio.com
+    credential-class-path:
+    data-base-url:
 
 event:
     host: localhost
