@@ -45,10 +45,10 @@ public class FirebaseConfig {
         }
 
         if (options != null) {
-            log.info("Firebase App successfully initialize.");
+            log.info("Firebase App options is found");
             FirebaseApp.initializeApp(options);
         } else {
-            log.warn("Firebase App not initialized.");
+            log.warn("Firebase App options not found");
         }
     }
 
