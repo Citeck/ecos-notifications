@@ -162,5 +162,5 @@ jhipster:
 # application:
 
 firebase:
-    credential-class-path: /opt/credentials/citeck-ecos-firebase-adminsdk.json
+    credential-class-path: /credentials/citeck-ecos-firebase-adminsdk.json
     data-base-url: https://citeck-ecos-integration.firebaseio.com
