@@ -1,15 +1,11 @@
 package ru.citeck.ecos.notifications.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.SubscriberId;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
-import ru.citeck.ecos.notifications.repository.ActionRepository;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
@@ -41,17 +37,17 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
 
     private final SubscriberService subscriberService;
     private final SubscriberDtoFactory factory;
-    private final ActionRepository actionRepository;
+    private final ActionService actionService;
 
     {
         setId(ID);
     }
 
     public SubscriptionActionRecords(SubscriberService subscriberService, SubscriberDtoFactory factory,
-                                     ActionRepository actionRepository) {
+                                     ActionService actionService) {
         this.subscriberService = subscriberService;
         this.factory = factory;
-        this.actionRepository = actionRepository;
+        this.actionService = actionService;
     }
 
     @Override
@@ -70,7 +66,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
             .map(id ->
                 Optional.of(id)
                     .filter(str -> !str.isEmpty())
-                    .map(x -> subscriberService.getActionById(x)
+                    .map(x -> actionService.findById(Long.valueOf(x))
                         .orElseThrow(() -> new IllegalArgumentException(
                             String.format("Subscriber with id <%s> not found!", id))))
                     .orElseGet(Action::new))
@@ -117,18 +113,18 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
                 newAction.setConfigJSON(config);
                 newAction.setCondition(condition);
 
-                resultAction = actionRepository.save(newAction);
+                resultAction = actionService.save(newAction);
 
                 subscriberService.addActionToSubscriber(subscriberService.transformId(subscriberId), eventType,
                     resultAction);
             } else {
-                Action exists = actionRepository.findById(Long.valueOf(id))
+                Action exists = actionService.findById(Long.valueOf(id))
                     .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
                 exists.setType(Action.Type.valueOf(actionType));
                 exists.setConfigJSON(config);
                 exists.setCondition(condition);
 
-                actionRepository.save(exists);
+                actionService.save(exists);
 
                 resultAction = exists;
             }
@@ -151,7 +147,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
         RecordsDelResult result = new RecordsDelResult();
 
         recordsDeletion.getRecords().forEach(ref -> {
-            subscriberService.deleteSubscribeAction(Long.valueOf(ref.getId()));
+            actionService.deleteById(Long.valueOf(ref.getId()));
             result.addRecord(new RecordMeta(ref));
         });
 
