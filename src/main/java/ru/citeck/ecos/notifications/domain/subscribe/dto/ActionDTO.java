@@ -14,5 +14,6 @@ public class ActionDTO {
     private Long id;
     private Action.Type type;
     private JsonNode config = NullNode.getInstance();
+    private String condition;
 
 }

@@ -40,6 +40,14 @@ public class SubscriberService implements ApplicationContextAware {
         return subscriberRepository.findById(transformId(id));
     }
 
+    public Optional<Action> getActionById(String id) {
+        if (StringUtils.isBlank(id)) {
+            return Optional.empty();
+        }
+
+        return actionRepository.findById(Long.valueOf(id));
+    }
+
     public SubscriberId transformId(String id) {
         String[] splitted = StringUtils.split(id, SubscriberId.SEPARATOR);
         if (splitted.length != 2) {
@@ -60,7 +68,7 @@ public class SubscriberService implements ApplicationContextAware {
         return getById(id.toString());
     }
 
-    public void addSubscribeAction(SubscriberId id, String event, Action action) {
+    public void addActionToSubscriber(SubscriberId id, String event, Action action) {
         Optional<Subscriber> optSubscriber = getById(id);
 
         Subscriber subscriber;
@@ -100,17 +108,6 @@ public class SubscriberService implements ApplicationContextAware {
         Map<String, AbstractEventHandlersRegistrar> beansOfType = applicationContext.getBeansOfType(
             AbstractEventHandlersRegistrar.class);
         beansOfType.forEach((s, eventRegistrar) -> eventRegistrar.register(tenantId));
-    }
-
-    public void updateSubscribeAction(Long actionId, Action action) {
-        Action foundAction = actionRepository
-            .findById(actionId)
-            .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found.", actionId)));
-
-        foundAction.setType(action.getType());
-        foundAction.setConfigJSON(action.getConfigJSON());
-
-        actionRepository.save(foundAction);
     }
 
     public void deleteSubscribeAction(Long actionId) {

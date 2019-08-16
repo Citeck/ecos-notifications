@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.Subscription;
@@ -55,17 +56,20 @@ public class SubscriberDtoFactory {
         ActionDTO dto = new ActionDTO();
         dto.setId(action.getId());
         dto.setType(action.getType());
+        dto.setCondition(action.getCondition());
 
         String configJSON = action.getConfigJSON();
-        JsonNode jsonNode;
+        if (StringUtils.isNotBlank(configJSON)) {
+            JsonNode jsonNode;
 
-        try {
-            jsonNode = OBJECT_MAPPER.readValue(configJSON, JsonNode.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed read JSON from action", e);
+            try {
+                jsonNode = OBJECT_MAPPER.readValue(configJSON, JsonNode.class);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed read JSON from action", e);
+            }
+
+            dto.setConfig(jsonNode);
         }
-
-        dto.setConfig(jsonNode);
 
         return dto;
     }

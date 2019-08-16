@@ -27,6 +27,11 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void initFirebaseApp() {
+        if (!FirebaseApp.getApps().isEmpty()) {
+            log.info("Firebase App already initialized");
+            return;
+        }
+
         FirebaseOptions options = null;
 
         log.info("Init firebase app from credentials: " + firebaseProps.getCredentialClassPath());

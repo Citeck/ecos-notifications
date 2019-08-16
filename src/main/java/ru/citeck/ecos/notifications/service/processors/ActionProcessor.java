@@ -6,6 +6,7 @@ import com.rabbitmq.client.Delivery;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
@@ -19,6 +20,7 @@ import java.util.Map;
 /**
  * @author Roman Makarskiy
  */
+@Slf4j
 public abstract class ActionProcessor {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -55,6 +57,10 @@ public abstract class ActionProcessor {
         } catch (ScriptException e) {
             throw new RuntimeException("Failed eval groove script:\n" + conditionScript, e);
         }
+
+        log.debug(String.format("Evaluate groovy condition... \n" +
+            "script:\n%s\n" +
+            "result: <%s>", conditionScript, result));
 
         return Boolean.parseBoolean(result.toString());
     }
