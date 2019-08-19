@@ -20,19 +20,19 @@ import java.util.*;
 @Configuration
 public class EventConfig {
 
-    private final EventProps eventProps;
+    private final ApplicationProperties appProps;
 
-    public EventConfig(EventProps eventProps) {
-        this.eventProps = eventProps;
+    public EventConfig(ApplicationProperties appProps) {
+        this.appProps = appProps;
     }
 
     @Bean
     public EventConnection eventConnection() {
         return new EventConnection.Builder()
-            .host(eventProps.getHost())
-            .port(eventProps.getPort())
-            .username(eventProps.getUsername())
-            .password(eventProps.getPassword())
+            .host(appProps.getEvent().getHost())
+            .port(appProps.getEvent().getPort())
+            .username(appProps.getEvent().getUsername())
+            .password(appProps.getEvent().getPassword())
             .build();
     }
 

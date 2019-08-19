@@ -13,7 +13,7 @@ import org.thymeleaf.context.Context;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
-import ru.citeck.ecos.notifications.config.TemplateProps;
+import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 
 import java.io.IOException;
@@ -41,16 +41,16 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private static final String PARAM_DOCUMENT =  "documentRef";
 
     private final TemplateEngine templateEngine;
-    private final TemplateProps templateProps;
+    private final ApplicationProperties appProps;
 
     {
         setId(ID);
     }
 
     public FirebaseNotificationProcessor(@Qualifier("eventsTemplateEngine") TemplateEngine templateEngine,
-                                         TemplateProps templateProps) {
+                                         ApplicationProperties appProps) {
         this.templateEngine = templateEngine;
-        this.templateProps = templateProps;
+        this.appProps = appProps;
     }
 
     @Override
@@ -145,13 +145,13 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private String getDefaultTitleTemplate(String eventType) {
         switch (TaskEventType.resolve(eventType)) {
             case ASSIGN:
-                return templateProps.getDefaultFirebaseTaskAssignTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignTitle();
             case CREATE:
-                return templateProps.getDefaultFirebaseTaskCreateTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateTitle();
             case COMPLETE:
-                return templateProps.getDefaultFirebaseTaskCompleteTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteTitle();
             case DELETE:
-                return templateProps.getDefaultFirebaseTaskDeleteTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteTitle();
             default:
                 log.warn(String.format("Event type: <%s> not supported", eventType));
                 return "unsupported event type";
@@ -161,13 +161,13 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private String getDefaultBodyTemplate(String eventType) {
         switch (TaskEventType.resolve(eventType)) {
             case ASSIGN:
-                return templateProps.getDefaultFirebaseTaskAssignBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignBody();
             case CREATE:
-                return templateProps.getDefaultFirebaseTaskCreateBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateBody();
             case COMPLETE:
-                return templateProps.getDefaultFirebaseTaskCompleteBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteBody();
             case DELETE:
-                return templateProps.getDefaultFirebaseTaskDeleteBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteBody();
             default:
                 log.warn(String.format("Event type: <%s> not supported", eventType));
                 return "unsupported event type";

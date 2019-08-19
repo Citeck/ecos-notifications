@@ -19,10 +19,10 @@ import java.io.InputStream;
 @Configuration
 public class FirebaseConfig {
 
-    private final FirebaseProps firebaseProps;
+    private final ApplicationProperties appProps;
 
-    public FirebaseConfig(FirebaseProps firebaseProps) {
-        this.firebaseProps = firebaseProps;
+    public FirebaseConfig(ApplicationProperties appProps) {
+        this.appProps = appProps;
     }
 
     @PostConstruct
@@ -34,15 +34,15 @@ public class FirebaseConfig {
 
         FirebaseOptions options = null;
 
-        log.info("Init firebase app from credentials: " + firebaseProps.getCredentialClassPath());
+        log.info("Init firebase app from credentials: " + appProps.getFirebase().getCredentialClassPath());
 
         try (InputStream credentials = new ClassPathResource(
-            firebaseProps.getCredentialClassPath()).getInputStream()) {
+            appProps.getFirebase().getCredentialClassPath()).getInputStream()) {
             options = getOptionsFromInputStream(credentials);
         } catch (IOException e) {
             log.info("Credentials from class path not found, trying to get from absolute path...");
 
-            try (InputStream credentials = new FileInputStream(firebaseProps.getCredentialClassPath())) {
+            try (InputStream credentials = new FileInputStream(appProps.getFirebase().getCredentialClassPath())) {
                 options = getOptionsFromInputStream(credentials);
             } catch (IOException ex) {
                 log.error("Failed to get credentials for firebase", e);
@@ -60,7 +60,7 @@ public class FirebaseConfig {
     private FirebaseOptions getOptionsFromInputStream(InputStream credentials) throws IOException {
         return new FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(credentials))
-            .setDatabaseUrl(firebaseProps.getDataBaseUrl())
+            .setDatabaseUrl(appProps.getFirebase().getDataBaseUrl())
             .build();
     }
 
