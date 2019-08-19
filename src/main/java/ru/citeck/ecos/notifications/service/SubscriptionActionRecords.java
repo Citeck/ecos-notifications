@@ -1,9 +1,12 @@
 package ru.citeck.ecos.notifications.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
+import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.records2.RecordMeta;
@@ -16,6 +19,7 @@ import ru.citeck.ecos.records2.request.query.RecordsQuery;
 import ru.citeck.ecos.records2.request.query.RecordsQueryResult;
 import ru.citeck.ecos.records2.source.dao.local.CrudRecordsDAO;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -104,6 +108,17 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
             String condition = actionNode.get(PARAM_ACTION_CONDITION) != null
                 ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
 
+            JsonNode customData = actionNode.get("customData");
+
+            ObjectMapper mapper =  new ObjectMapper();
+
+            CustomData[] customData1 = null;
+            try {
+                customData1 = mapper.treeToValue(customData, CustomData[].class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Can not parse CustomData", e);
+            }
+
             String id = meta.getId().getId();
             Action resultAction;
 
@@ -112,6 +127,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
                 newAction.setType(Action.Type.valueOf(actionType));
                 newAction.setConfigJSON(config);
                 newAction.setCondition(condition);
+                newAction.setCustomData(Arrays.asList(customData1));
 
                 resultAction = actionService.save(newAction);
 
@@ -123,6 +139,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
                 exists.setType(Action.Type.valueOf(actionType));
                 exists.setConfigJSON(config);
                 exists.setCondition(condition);
+                exists.setCustomData(Arrays.asList(customData1));
 
                 actionService.save(exists);
 

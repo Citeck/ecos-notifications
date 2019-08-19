@@ -2,8 +2,12 @@ package ru.citeck.ecos.notifications.domain.subscribe;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Roman Makarskiy
@@ -19,6 +23,11 @@ public class Action extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String condition;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "action")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomData> customData = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Type type;
