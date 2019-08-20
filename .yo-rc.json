@@ -4,7 +4,7 @@
       "packageName": "ru.citeck.ecos.notifications",
       "nativeLanguage": "en"
     },
-    "jhipsterVersion": "6.0.1",
+    "jhipsterVersion": "5.8.1",
     "applicationType": "microservice",
     "baseName": "notifications",
     "packageName": "ru.citeck.ecos.notifications",
@@ -22,7 +22,7 @@
     "serviceDiscoveryType": "eureka",
     "buildTool": "maven",
     "enableSwaggerCodegen": false,
-    "jwtSecretKey": "OWRiNjU2Yzc0MTg5YzQ5YmI0NTA4ZTYzZjU3ZjViZGFhY2I5MDM3OWM1YmE2ZmNhMjUzNjVjNTEwNTZkMjRhNTljZDFjYjExYTYxYzA4NDYzMTAwZWFlMTE1NWQ3ZWEyMzVmNzNjZWQ0MTc4YTg3ZWQyYTc1Y2Y2NTY1N2VkZmI=",
+    "jwtSecretKey": "Zjc3MGVkYThmZWNkYWM1MjAwNGFlZGZhOTM0MWIwNDFlZmVlMzE2NWRjMWE2NWM3Yzk0N2RlOWY5NGRhZDZiMGRlYWE0ZTNmMTQ4NTEwNTE5ODYxZTVjZTQwNWU4NWE4ZDA4MTgwNjRmYzQ5NWZmNGQ4YjQxNWQ5NGM3NTcxYTA=",
     "testFrameworks": [],
     "jhiPrefix": "jhi",
     "entitySuffix": "",

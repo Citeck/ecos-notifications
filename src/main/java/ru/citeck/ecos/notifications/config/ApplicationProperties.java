@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Properties are configured in the {@code application.yml} file.
  * See {@link io.github.jhipster.config.JHipsterProperties} for a good example.
  */
-@ConfigurationProperties(prefix = "ecos-notifications")
+@ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
     @Getter
@@ -23,10 +23,10 @@ public class ApplicationProperties {
     @Setter
     public static class Event {
 
-        private String host;
-        private int port;
-        private String username;
-        private String password;
+        private String host = NotificationsDefault.Event.HOST;
+        private int port = NotificationsDefault.Event.PORT;
+        private String username = NotificationsDefault.Event.USERNAME;
+        private String password = NotificationsDefault.Event.PASSWORD;
 
     }
 
@@ -34,8 +34,8 @@ public class ApplicationProperties {
     @Setter
     public static class Firebase {
 
-        private String credentialClassPath;
-        private String dataBaseUrl;
+        private String credentialClassPath = NotificationsDefault.Firebase.CREDENTIAL_CLASS_PATH;
+        private String dataBaseUrl = NotificationsDefault.Firebase.DATA_BASE_URL;
         private final Template template = new Template();
 
     }
@@ -45,14 +45,22 @@ public class ApplicationProperties {
     public static class Template {
 
         //TODO: get from default real templates
-        private String defaultFirebaseTaskCreateTitle;
-        private String defaultFirebaseTaskAssignTitle;
-        private String defaultFirebaseTaskCompleteTitle;
-        private String defaultFirebaseTaskDeleteTitle;
+        private String defaultFirebaseTaskCreateTitle = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_CREATE_TITLE;
+        private String defaultFirebaseTaskAssignTitle = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_ASSIGN_TITLE;
+        private String defaultFirebaseTaskCompleteTitle = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_COMPLETE_TITLE;
+        private String defaultFirebaseTaskDeleteTitle = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_DELETE_TITLE;
 
-        private String defaultFirebaseTaskCreateBody;
-        private String defaultFirebaseTaskAssignBody;
-        private String defaultFirebaseTaskCompleteBody;
-        private String defaultFirebaseTaskDeleteBody;
+        private String defaultFirebaseTaskCreateBody = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_CREATE_BODY;
+        private String defaultFirebaseTaskAssignBody = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_ASSIGN_BODY;
+        private String defaultFirebaseTaskCompleteBody = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_COMPLETE_BODY;
+        private String defaultFirebaseTaskDeleteBody = NotificationsDefault.Firebase.Template
+            .DEFAULT_FIREBASE_TASK_DELETE_BODY;
     }
 }
