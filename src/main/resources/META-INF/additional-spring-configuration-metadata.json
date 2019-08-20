@@ -7,8 +7,18 @@
     },
     {
       "name": "ecos-notifications.event.port",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Port for connect to ecos-events rabbitmq."
+    },
+    {
+      "name": "ecos-notifications.event.username",
+      "type": "java.lang.String",
+      "description": "Username for connect to ecos-events rabbitmq."
+    },
+    {
+      "name": "ecos-notifications.event.password",
+      "type": "java.lang.String",
+      "description": "Password for connect to ecos-events rabbitmq."
     },
     {
       "name": "ecos-notifications.firebase.credential-class-path",
