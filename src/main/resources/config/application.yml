@@ -191,22 +191,3 @@ jhipster:
 # ===================================================================
 
 # application:
-
-ecos-notifications:
-    event:
-        host: localhost
-        port: 0
-        username:
-        password:
-    firebsase:
-        credential-class-path:
-        data-base-url:
-        template:
-            default-firebase-task-create-title: Назначена задача
-            default-firebase-task-create-body: '[(${data.workflowDescription})]'
-            default-firebase-task-assign-title: Назначена задача
-            default-firebase-task-assign-body: '[(${data.workflowDescription})]'
-            default-firebase-task-complete-title: Завершена задача
-            default-firebase-task-complete-body: '[(${data.workflowDescription})]'
-            default-firebase-task-delete-title: Удалена задача
-            default-firebase-task-delete-body: '[(${data.workflowDescription})]'
