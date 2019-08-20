@@ -24,9 +24,8 @@ public class Action extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String condition;
 
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "action")
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<CustomData> customData = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

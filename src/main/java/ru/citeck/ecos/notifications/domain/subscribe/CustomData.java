@@ -18,7 +18,7 @@ public class CustomData extends BaseEntity {
 
     @ElementCollection
     @MapKeyColumn(name = "attr")
-    @Column(name="schema", length = 2048)
+    @Column(name = "schema", length = 4096)
     @CollectionTable(name = "custom_data_attributes", joinColumns = @JoinColumn(name = "custom_data_id"))
     private Map<String, String> attributes = new HashMap<>();
 
