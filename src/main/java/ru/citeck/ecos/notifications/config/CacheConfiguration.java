@@ -18,13 +18,13 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.*;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
+
+import javax.annotation.PreDestroy;
 
 @Configuration
 @EnableCaching
-public class CacheConfiguration implements DisposableBean {
+public class CacheConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
@@ -47,8 +47,8 @@ public class CacheConfiguration implements DisposableBean {
         this.registration = registration;
     }
 
-    @Override
-    public void destroy() throws Exception {
+    @PreDestroy
+    public void destroy() {
         log.info("Closing Cache Manager");
         Hazelcast.shutdownAll();
     }
@@ -78,7 +78,7 @@ public class CacheConfiguration implements DisposableBean {
             String serviceId = registration.getServiceId();
             log.debug("Configuring Hazelcast clustering for instanceId: {}", serviceId);
             // In development, everything goes through 127.0.0.1, with a different port
-            if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {
+            if (env.acceptsProfiles(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {
                 log.debug("Application is running with the \"dev\" profile, Hazelcast " +
                           "cluster will only work with localhost instances");
 
