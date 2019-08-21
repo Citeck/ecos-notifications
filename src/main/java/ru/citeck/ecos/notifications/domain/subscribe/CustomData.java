@@ -16,7 +16,7 @@ public class CustomData extends BaseEntity {
     private String variable;
     private String record;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attr")
     @Column(name = "schema", length = 4096)
     @CollectionTable(name = "custom_data_attributes", joinColumns = @JoinColumn(name = "custom_data_id"))

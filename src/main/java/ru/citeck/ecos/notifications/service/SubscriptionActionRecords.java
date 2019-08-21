@@ -110,9 +110,9 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
 
             JsonNode customData = actionNode.get("customData");
 
-            ObjectMapper mapper =  new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
 
-            CustomData[] customData1 = null;
+            CustomData[] customData1;
             try {
                 customData1 = mapper.treeToValue(customData, CustomData[].class);
             } catch (JsonProcessingException e) {

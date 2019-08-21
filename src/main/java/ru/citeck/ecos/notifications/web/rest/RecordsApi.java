@@ -1,15 +1,12 @@
 package ru.citeck.ecos.notifications.web.rest;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.citeck.ecos.records2.RecordsService;
-import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
-import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
+import ru.citeck.ecos.records2.request.rest.DeletionBody;
 import ru.citeck.ecos.records2.request.rest.MutationBody;
 import ru.citeck.ecos.records2.request.rest.QueryBody;
 import ru.citeck.ecos.records2.request.rest.RestHandler;
@@ -21,26 +18,26 @@ import ru.citeck.ecos.records2.request.rest.RestHandler;
 @RequiredArgsConstructor
 @RequestMapping("/api/records")
 public class RecordsApi {
-    private final RestHandler restQueryHandler;
 
-    private final RecordsService recordsService;
+    private RestHandler restHandler;
 
-    @PostMapping("/query")
-    public Object query(@RequestBody QueryBody queryBody) {
-        return restQueryHandler.queryRecords(queryBody);
+    @Autowired
+    public RecordsApi(RestHandler restHandler) {
+        this.restHandler = restHandler;
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<RecordsDelResult> delete(@RequestBody RecordsDeletion request) {
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON_UTF8)
-            .body(recordsService.delete(request));
+    @PostMapping("/query")
+    public Object recordsQuery(@RequestBody QueryBody body) {
+        return restHandler.queryRecords(body);
     }
 
     @PostMapping("/mutate")
-    public ResponseEntity<?> mutate(@RequestBody MutationBody request) {
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON_UTF8)
-            .body(restQueryHandler.mutateRecords(request));
+    public Object recordsMutate(@RequestBody MutationBody body) {
+        return restHandler.mutateRecords(body);
+    }
+
+    @PostMapping("/delete")
+    public Object recordsDelete(@RequestBody DeletionBody body) {
+        return restHandler.deleteRecords(body);
     }
 }
