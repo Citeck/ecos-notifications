@@ -36,9 +36,8 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private static final String BODY_TEMPLATE = "bodyTemplate";
     private static final String DEVICE_ANDROID = "android";
     private static final String DEVICE_IOS = "ios";
-    private static final String VAR_DATA = "data";
     private static final String PARAM_TASK_ID = "taskId";
-    private static final String PARAM_DOCUMENT =  "documentRef";
+    private static final String PARAM_DOCUMENT = "documentRef";
 
     private final TemplateEngine templateEngine;
     private final ApplicationProperties appProps;
@@ -54,7 +53,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     }
 
     @Override
-    protected void processImpl(Delivery message, EventDTO dto, Action action) {
+    protected void processImpl(Delivery message, EventDTO dto, Action action, Map<String, Object> model) {
         log.debug("Process DTO: \n" + dto);
         JsonNode config;
         try {
@@ -84,7 +83,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         }
 
         Context ctx = new Context();
-        ctx.setVariable(VAR_DATA, dto);
+        ctx.setVariables(model);
 
         String title = templateEngine.process(titleTemplate, ctx);
         String body = templateEngine.process(bodyTemplate, ctx);
@@ -114,6 +113,8 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
 
         String response;
         try {
+            log.debug(String.format("Trying send message to firebase...\ntitle: <%s>\nbody: <%s>\ncustomData: <%s>",
+                title, body, customData));
             response = FirebaseMessaging.getInstance().send(fireBaseMessage);
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException("Failed to send firebase message", e);

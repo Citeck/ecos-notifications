@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.Subscription;
-import ru.citeck.ecos.notifications.domain.subscribe.Subscriber;
-import ru.citeck.ecos.notifications.domain.subscribe.SubscriberId;
+import ru.citeck.ecos.notifications.domain.subscribe.*;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -70,6 +67,8 @@ public class SubscriberDtoFactory {
 
             dto.setConfig(jsonNode);
         }
+
+        dto.setCustomData(action.getCustomData());
 
         return dto;
     }

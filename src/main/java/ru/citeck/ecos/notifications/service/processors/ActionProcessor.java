@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.service.processors;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Delivery;
 import lombok.Getter;
@@ -8,13 +8,24 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
+import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
+import ru.citeck.ecos.records2.RecordMeta;
+import ru.citeck.ecos.records2.RecordRef;
+import ru.citeck.ecos.records2.RecordsService;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,36 +35,83 @@ import java.util.Map;
 public abstract class ActionProcessor {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String MODEL_EVENT = "event";
+    private static final String MODEL_CUSTOM_DATA = "customData";
+    private static final String GROOVY_ENGINE = "groovy";
+
+    private TemplateEngine templateEngine;
+    private RecordsService recordsService;
 
     @Getter
     @Setter
     protected String id;
 
-    protected abstract void processImpl(Delivery message, EventDTO dto, Action action);
+    protected abstract void processImpl(Delivery message, EventDTO dto, Action action, Map<String, Object> model);
 
     public void process(Delivery message, @NonNull EventDTO dto, @NonNull Action action) {
-        if (processRequired(action, dto)) {
-            processImpl(message, dto, action);
+        log.debug(String.format("============ Start process actions id: %s =============", action.getId()));
+        log.debug("Action: \n" + action);
+
+        Map<String, Object> model = new HashMap<>();
+
+        model.put(MODEL_EVENT, OBJECT_MAPPER.convertValue(dto, Map.class));
+        model.put(MODEL_CUSTOM_DATA, getProcessedCustomData(action, dto));
+
+        log.debug(String.format("Prepared model:\n%s", model));
+
+        if (processRequired(action, model)) {
+            processImpl(message, dto, action, model);
+        }
+
+        log.debug(String.format("============= End process actions id: %s ==============", action.getId()));
+    }
+
+    private Map<String, Object> getProcessedCustomData(Action action, EventDTO dto) {
+        Map<String, Object> result = new HashMap<>();
+
+        CustomData[] customData = getTemplatedData(action.getCustomData(), dto);
+
+        for (CustomData data : customData) {
+            RecordRef recordRef = RecordRef.valueOf(data.getRecord());
+            RecordMeta attributes = recordsService.getAttributes(recordRef, data.getAttributes());
+            result.put(data.getVariable(), attributes);
+        }
+
+        return result;
+    }
+
+    private CustomData[] getTemplatedData(List<CustomData> customData, EventDTO dto) {
+        String customDataToProcess;
+        try {
+            customDataToProcess = OBJECT_MAPPER.writeValueAsString(customData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed write custom data as string", e);
+        }
+
+        Context ctx = new Context();
+        ctx.setVariable(MODEL_EVENT, dto);
+
+        String processedCustomData = templateEngine.process(customDataToProcess, ctx);
+
+        try {
+            return OBJECT_MAPPER.readValue(processedCustomData, CustomData[].class);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed read custom data", e);
         }
     }
 
-    private boolean processRequired(Action action, EventDTO dto) {
+    private boolean processRequired(Action action, Map<String, Object> model) {
         String conditionScript = action.getCondition();
         if (StringUtils.isBlank(conditionScript)) {
             return true;
         }
 
-        JsonNode jsonNode = OBJECT_MAPPER.valueToTree(dto);
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> map = OBJECT_MAPPER.convertValue(jsonNode, Map.class);
-
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scriptEngine = manager.getEngineByName("groovy");
+        ScriptEngine scriptEngine = manager.getEngineByName(GROOVY_ENGINE);
         Object result;
         try {
             result = scriptEngine.eval(conditionScript,
-                new SimpleBindings(map));
+                new SimpleBindings(model));
         } catch (ScriptException e) {
             throw new RuntimeException("Failed eval groove script:\n" + conditionScript, e);
         }
@@ -65,4 +123,14 @@ public abstract class ActionProcessor {
         return Boolean.parseBoolean(result.toString());
     }
 
+    @Autowired
+    @Qualifier("eventsTemplateEngine")
+    public void setTemplateEngine(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
+
+    @Autowired
+    public void setRecordsService(RecordsService recordsService) {
+        this.recordsService = recordsService;
+    }
 }

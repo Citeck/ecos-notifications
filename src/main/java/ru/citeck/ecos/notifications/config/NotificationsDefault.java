@@ -34,13 +34,34 @@ public class NotificationsDefault {
             }
 
             public static final String DEFAULT_FIREBASE_TASK_CREATE_TITLE = "Назначена задача";
-            public static final String DEFAULT_FIREBASE_TASK_CREATE_BODY = "[(${data.workflowDescription})]";
+            public static final String DEFAULT_FIREBASE_TASK_CREATE_BODY = "[(${event.workflowDescription})]";
             public static final String DEFAULT_FIREBASE_TASK_ASSIGN_TITLE = "Назначена задача";
-            public static final String DEFAULT_FIREBASE_TASK_ASSIGN_BODY = "[(${data.workflowDescription})]";
+            public static final String DEFAULT_FIREBASE_TASK_ASSIGN_BODY = "[(${event.workflowDescription})]";
             public static final String DEFAULT_FIREBASE_TASK_COMPLETE_TITLE = "Завершена задача";
-            public static final String DEFAULT_FIREBASE_TASK_COMPLETE_BODY = "[(${data.workflowDescription})]";
+            public static final String DEFAULT_FIREBASE_TASK_COMPLETE_BODY = "[(${event.workflowDescription})]";
             public static final String DEFAULT_FIREBASE_TASK_DELETE_TITLE = "Удалена задача";
-            public static final String DEFAULT_FIREBASE_TASK_DELETE_BODY = "[(${data.workflowDescription})]";
+            public static final String DEFAULT_FIREBASE_TASK_DELETE_BODY = "[(${event.workflowDescription})]";
+
+        }
+
+    }
+
+    public class Alfresco {
+
+        private Alfresco() {
+
+        }
+
+        public static final String URL = "http://localhost:8080";
+
+        public class Authentication {
+
+            private Authentication() {
+
+            }
+
+            public static final String USERNAME = "admin";
+            public static final String PASSWORD = "admin";
 
         }
 

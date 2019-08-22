@@ -20,6 +20,9 @@ public class ApplicationProperties {
     private final Firebase firebase = new Firebase();
 
     @Getter
+    private final Alfresco alfresco = new Alfresco();
+
+    @Getter
     @Setter
     public static class Event {
 
@@ -62,5 +65,25 @@ public class ApplicationProperties {
             .DEFAULT_FIREBASE_TASK_COMPLETE_BODY;
         private String defaultFirebaseTaskDeleteBody = NotificationsDefault.Firebase.Template
             .DEFAULT_FIREBASE_TASK_DELETE_BODY;
+    }
+
+    @Getter
+    @Setter
+    public static class Alfresco {
+
+        private String URL = NotificationsDefault.Alfresco.URL;
+        private int connectionTimeout = 5_000;
+        private int readTimeout = 60_000;
+        private final Authentication authentication = new Authentication();
+
+    }
+
+    @Getter
+    @Setter
+    public static class Authentication {
+
+        public String username = NotificationsDefault.Alfresco.Authentication.USERNAME;
+        public String password = NotificationsDefault.Alfresco.Authentication.PASSWORD;
+
     }
 }
