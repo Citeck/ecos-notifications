@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.citeck.ecos.events.data.dto.EventDTO;
@@ -67,6 +68,9 @@ public abstract class ActionProcessor {
 
     private Map<String, Object> getProcessedCustomData(Action action, EventDTO dto) {
         Map<String, Object> result = new HashMap<>();
+        if (CollectionUtils.isEmpty(action.getCustomData())) {
+            return result;
+        }
 
         CustomData[] customData = getTemplatedData(action.getCustomData(), dto);
 

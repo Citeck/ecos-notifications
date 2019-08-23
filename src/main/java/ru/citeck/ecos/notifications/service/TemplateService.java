@@ -27,7 +27,8 @@ public class TemplateService {
 
     public String getBodyTemplate(String id) {
         if (UNI_TE_SUPERVISOR_FIREBASE_TEMPLATE.equals(id)) {
-            return "Требуется согласование. Заявка № ${customData.req.get('number')}. Сотрудник ${customData.req.get('employee')}.";
+            return "Требуется согласование. Заявка № ${customData.req.get('number')}. Сотрудник " +
+                "${customData.req.get('employee')}.";
         }
 
         return "";
