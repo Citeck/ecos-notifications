@@ -31,7 +31,7 @@ public class Action extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    public static enum Type {
+    public enum Type {
         FIREBASE_NOTIFICATION, EMAIL_NOTIFICATION
     }
 
