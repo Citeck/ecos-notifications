@@ -7,15 +7,13 @@ import com.rabbitmq.client.Delivery;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
+import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.notifications.service.TemplateService;
 
 import java.io.IOException;
@@ -41,8 +39,10 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private static final String DEVICE_IOS = "ios";
     private static final String PARAM_TASK_ID = "taskId";
     private static final String PARAM_DOCUMENT = "documentRef";
+    private static final String TITLE_TEMPLATE_KEY = "titleTemplate";
+    private static final String BODY_TEMPLATE_KEY = "bodyTemplate";
 
-    private final TemplateEngine templateEngine;
+    private final FreemarkerTemplateEngineService templateEngineService;
     private final TemplateService templateService;
     private final ApplicationProperties appProps;
 
@@ -50,9 +50,9 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         setId(ID);
     }
 
-    public FirebaseNotificationProcessor(@Qualifier("eventsTemplateEngine") TemplateEngine templateEngine,
+    public FirebaseNotificationProcessor(FreemarkerTemplateEngineService templateEngineService,
                                          TemplateService templateService, ApplicationProperties appProps) {
-        this.templateEngine = templateEngine;
+        this.templateEngineService = templateEngineService;
         this.templateService = templateService;
         this.appProps = appProps;
     }
@@ -76,17 +76,10 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         }
 
         String eventType = dto.getType();
-
         Template template = getTemplate(eventType, config);
 
-        Context ctx = new Context();
-        ctx.setVariables(model);
-
-        String title = templateEngine.process(template.getTitle(), ctx);
-        String body = templateEngine.process(template.getBody(), ctx);
-
-        log.debug(String.format("Processed template: \ntitle from <%s> to <%s>\nbody from <%s> to <%s>",
-            template.getTitle(), title, template.getBody(), body));
+        String title = templateEngineService.process(TITLE_TEMPLATE_KEY, template.getTitle(), model);
+        String body = templateEngineService.process(BODY_TEMPLATE_KEY, template.getBody(), model);
 
         String registrationToken = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText();
         String deviceType = config.get(PARAM_DEVICE_TYPE).asText();

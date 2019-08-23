@@ -9,12 +9,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
+import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.RecordsService;
@@ -38,9 +36,10 @@ public abstract class ActionProcessor {
     private static final String MODEL_EVENT = "event";
     private static final String MODEL_CUSTOM_DATA = "customData";
     private static final String GROOVY_ENGINE = "groovy";
+    private static final String CUSTOM_DATA_TEMPLATE_KEY = "customDataTemplate";
 
-    private TemplateEngine templateEngine;
     private RecordsService recordsService;
+    private FreemarkerTemplateEngineService templateEngineService;
 
     @Getter
     @Setter
@@ -88,10 +87,10 @@ public abstract class ActionProcessor {
             throw new RuntimeException("Failed write custom data as string", e);
         }
 
-        Context ctx = new Context();
-        ctx.setVariable(MODEL_EVENT, dto);
+        HashMap<String, Object> model = new HashMap<>();
+        model.put(MODEL_EVENT, dto);
 
-        String processedCustomData = templateEngine.process(customDataToProcess, ctx);
+        String processedCustomData = templateEngineService.process(CUSTOM_DATA_TEMPLATE_KEY, customDataToProcess, model);
 
         try {
             return OBJECT_MAPPER.readValue(processedCustomData, CustomData[].class);
@@ -124,13 +123,12 @@ public abstract class ActionProcessor {
     }
 
     @Autowired
-    @Qualifier("eventsTemplateEngine")
-    public void setTemplateEngine(TemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
+    public void setRecordsService(RecordsService recordsService) {
+        this.recordsService = recordsService;
     }
 
     @Autowired
-    public void setRecordsService(RecordsService recordsService) {
-        this.recordsService = recordsService;
+    public void setTemplateEngineService(FreemarkerTemplateEngineService templateEngineService) {
+        this.templateEngineService = templateEngineService;
     }
 }

@@ -10,9 +10,16 @@ public class TemplateService {
 
     private static final String UNI_TE_SUPERVISOR_FIREBASE_TEMPLATE = "unilever-te-supervisor-firebase-template";
 
-    public String getTitleTemplate (String id) {
+    public String getTitleTemplate(String id) {
         if (UNI_TE_SUPERVISOR_FIREBASE_TEMPLATE.equals(id)) {
-            return "some-title";
+            return "<#assign package = customData.req.get('package')>\n" +
+                "<#assign title = \"Пакет документов\"/>\n" +
+                "<#if package?contains(\"ter-advance-report\")>\n" +
+                "    <#assign title = \"Авансовый отчет\"/>\n" +
+                "<#elseif package?contains(\"ter-travel-order\")>\n" +
+                "    <#assign title = \"Приказ на командировку\"/>\n" +
+                "</#if>\n" +
+                "${title}";
         }
 
         return "";
@@ -20,8 +27,7 @@ public class TemplateService {
 
     public String getBodyTemplate(String id) {
         if (UNI_TE_SUPERVISOR_FIREBASE_TEMPLATE.equals(id)) {
-            //return "[(${customData.req.get('number')})], [(${customData.req.get('employee')})], [(${customData.req.get('package').contains('workspace://SpacesStore/ter-internal-write-off-act')})]";
-            return "[(${#arrays.contains(${#arrays.toArray(customData.req.get('package')), 'workspace://SpacesStore/ter-internal-write-off-act')})]";
+            return "Требуется согласование. Заявка № ${customData.req.get('number')}. Сотрудник ${customData.req.get('employee')}.";
         }
 
         return "";
