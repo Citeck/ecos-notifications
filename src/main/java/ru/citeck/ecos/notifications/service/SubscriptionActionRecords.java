@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
@@ -13,6 +14,7 @@ import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
+import ru.citeck.ecos.records2.request.error.ErrorUtils;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
 import ru.citeck.ecos.records2.request.query.RecordsQuery;
@@ -167,8 +169,13 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
         RecordsDelResult result = new RecordsDelResult();
 
         recordsDeletion.getRecords().forEach(ref -> {
-            actionService.deleteById(Long.valueOf(ref.getId()));
-            result.addRecord(new RecordMeta(ref));
+            try {
+                actionService.deleteById(Long.valueOf(ref.getId()));
+                result.addRecord(new RecordMeta(ref));
+            } catch (EmptyResultDataAccessException e) {
+                result.addError(ErrorUtils.convertException(e));
+            }
+
         });
 
         return result;

@@ -82,8 +82,8 @@ public class ApplicationProperties {
     @Setter
     public static class Authentication {
 
-        public String username = NotificationsDefault.Alfresco.Authentication.USERNAME;
-        public String password = NotificationsDefault.Alfresco.Authentication.PASSWORD;
+        private String username = NotificationsDefault.Alfresco.Authentication.USERNAME;
+        private String password = NotificationsDefault.Alfresco.Authentication.PASSWORD;
 
     }
 }
