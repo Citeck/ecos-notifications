@@ -13,6 +13,7 @@ import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
+import ru.citeck.ecos.notifications.service.ActionService;
 import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.notifications.service.TemplateService;
 
@@ -30,6 +31,8 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private static final String ID = "FIREBASE_NOTIFICATION";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private static final String ERROR_CODE_TOKEN_NOT_REGISTERED = "registration-token-not-registered";
+
     private static final String PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken";
     private static final String PARAM_DEVICE_TYPE = "deviceType";
     private static final String TEMPLATE_ID = "templateId";
@@ -45,16 +48,19 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private final FreemarkerTemplateEngineService templateEngineService;
     private final TemplateService templateService;
     private final ApplicationProperties appProps;
+    private final ActionService actionService;
 
     {
         setId(ID);
     }
 
     public FirebaseNotificationProcessor(FreemarkerTemplateEngineService templateEngineService,
-                                         TemplateService templateService, ApplicationProperties appProps) {
+                                         TemplateService templateService, ApplicationProperties appProps,
+                                         ActionService actionService) {
         this.templateEngineService = templateEngineService;
         this.templateService = templateService;
         this.appProps = appProps;
+        this.actionService = actionService;
     }
 
     @Override
@@ -106,11 +112,15 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
             log.debug(String.format("Trying send message to firebase...\ntitle: <%s>\nbody: <%s>\ncustomData: <%s>",
                 title, body, customData));
             response = FirebaseMessaging.getInstance().send(fireBaseMessage);
+            log.debug("Successfully sent message: " + response);
         } catch (FirebaseMessagingException e) {
-            throw new RuntimeException("Failed to send firebase message", e);
+            if (ERROR_CODE_TOKEN_NOT_REGISTERED.equals(e.getErrorCode())) {
+                log.info("Delete action, because token is not registered. Action:\n" + action);
+                actionService.deleteById(action.getId());
+            } else {
+                log.error("Failed to send firebase message", e);
+            }
         }
-
-        log.debug("Successfully sent message: " + response);
     }
 
     private Template getTemplate(String eventType, JsonNode config) {

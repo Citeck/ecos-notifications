@@ -49,35 +49,40 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
         try {
             eventConnection.receive(RECEIVE_ALL_KEY, QUEUE_NOTIFICATION_NAME, tenantId,
                 (consumerTag, message, channel) -> {
-                    String routingKey = message.getEnvelope().getRoutingKey();
+                    try {
+                        String routingKey = message.getEnvelope().getRoutingKey();
 
-                    //TODO: remove hard coded task processing, we need a some universal logic to find subscriptions
-                    if (routingKey.startsWith("task.")) {
-                        String msg = new String(message.getBody(), StandardCharsets.UTF_8);
+                        //TODO: remove hard coded task processing, we need a some universal logic to find subscriptions
+                        if (routingKey.startsWith("task.")) {
+                            String msg = new String(message.getBody(), StandardCharsets.UTF_8);
 
-                        TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
+                            TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
 
-                        Set<String> userSubscribers = getSubscribersUsers(dto);
-                        if (!userSubscribers.isEmpty()) {
-                            String requiredEventType = getEventTypeByRoutingKey(routingKey);
+                            Set<String> userSubscribers = getSubscribersUsers(dto);
+                            if (!userSubscribers.isEmpty()) {
+                                String requiredEventType = getEventTypeByRoutingKey(routingKey);
 
-                            List<Subscription> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
-                                tenantId, new ArrayList<>(userSubscribers), requiredEventType);
-                            usersSubscriptions.forEach(subscription -> {
-                                Set<Action> actions = subscription.getActions();
+                                List<Subscription> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
+                                    tenantId, new ArrayList<>(userSubscribers), requiredEventType);
+                                usersSubscriptions.forEach(subscription -> {
+                                    Set<Action> actions = subscription.getActions();
 
-                                actions.forEach(action -> {
-                                    Action.Type type = action.getType();
+                                    actions.forEach(action -> {
+                                        Action.Type type = action.getType();
 
-                                    List<ActionProcessor> processors = actionProcessors.get(type.toString());
-                                    if (CollectionUtils.isNotEmpty(processors)) {
-                                        processors.forEach(actionProcessor -> actionProcessor.process(message,
-                                            dto, action));
-                                    }
+                                        List<ActionProcessor> processors = actionProcessors.get(type.toString());
+                                        if (CollectionUtils.isNotEmpty(processors)) {
+                                            processors.forEach(actionProcessor -> actionProcessor.process(message,
+                                                dto, action));
+                                        }
 
+                                    });
                                 });
-                            });
+                            }
                         }
+                    } catch (Throwable e) {
+                        log.error("Failed process event", e);
+                        channel.basicNack(message.getEnvelope().getDeliveryTag(), false, false);
                     }
                     channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                 });
