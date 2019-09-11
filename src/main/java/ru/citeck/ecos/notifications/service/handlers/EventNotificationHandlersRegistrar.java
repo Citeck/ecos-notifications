@@ -59,6 +59,9 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                             TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
 
                             Set<String> userSubscribers = getSubscribersUsers(dto);
+
+                            log.debug("Found user subscribers:\n" + userSubscribers);
+
                             if (!userSubscribers.isEmpty()) {
                                 String requiredEventType = getEventTypeByRoutingKey(routingKey);
 
@@ -106,7 +109,10 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                 users.add(dto.getAssignee());
         }
 
-        return users.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        return users.stream()
+            .filter(StringUtils::isNotBlank)
+            .map(String::toLowerCase)
+            .collect(Collectors.toSet());
     }
 
     private String getEventTypeByRoutingKey(String routingKey) {
