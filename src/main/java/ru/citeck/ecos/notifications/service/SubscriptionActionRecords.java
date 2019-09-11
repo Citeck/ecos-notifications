@@ -36,6 +36,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
 
     private static final String ID = "subscription-action";
 
+    private static final String PARAM_ACTION_UPDATE_CONFIG = "updateActionConfig";
     private static final String PARAM_SUBSCRIBER_ID = "subscriberId";
     private static final String PARAM_EVENT_TYPE = "eventType";
     private static final String PARAM_ACTION = "action";
@@ -88,67 +89,16 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
         RecordsMutResult result = new RecordsMutResult();
 
         for (RecordMeta meta : mutation.getRecords()) {
-            String subscriberId = meta.get(PARAM_SUBSCRIBER_ID).asText();
-            if (StringUtils.isBlank(subscriberId)) {
-                throwParamIsMandatory(PARAM_SUBSCRIBER_ID);
-            }
-
-            String eventType = meta.get(PARAM_EVENT_TYPE).asText();
-            if (StringUtils.isBlank(eventType)) {
-                throwParamIsMandatory(PARAM_EVENT_TYPE);
-            }
-
-            JsonNode actionNode = meta.get(PARAM_ACTION);
-            if (actionNode.isMissingNode() || actionNode.isNull()) {
-                throwParamIsMandatory(PARAM_ACTION);
-            }
-
-            String actionType = actionNode.get(PARAM_ACTION_TYPE).asText();
-            if (StringUtils.isBlank(actionType)) {
-                throwParamIsMandatory(PARAM_ACTION_TYPE);
-            }
-
-            String config = actionNode.get(PARAM_ACTION_CONFIG) != null
-                ? actionNode.get(PARAM_ACTION_CONFIG).toString() : null;
-            String condition = actionNode.get(PARAM_ACTION_CONDITION) != null
-                ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
-
-            CustomData[] customData = new CustomData[0];
-
-            if (actionNode.hasNonNull(PARAM_CUSTOM_DATA)) {
-                JsonNode customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
-                try {
-                    customData = OBJECT_MAPPER.treeToValue(customDataNode, CustomData[].class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException("Can not parse CustomData", e);
-                }
-            }
-
-            String id = meta.getId().getId();
+            final String id = meta.getId().getId();
             Action resultAction;
 
-            if (StringUtils.isBlank(id)) {
-                Action newAction = new Action();
-                newAction.setType(Action.Type.valueOf(actionType));
-                newAction.setConfigJSON(config);
-                newAction.setCondition(condition);
-                newAction.setCustomData(Arrays.asList(customData));
+            String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG) != null
+                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).toString() : "";
 
-                resultAction = actionService.save(newAction);
-
-                subscriberService.addActionToSubscriber(subscriberService.transformId(subscriberId), eventType,
-                    resultAction);
+            if (StringUtils.isNotBlank(updateConfig)) {
+                resultAction = processUpdateActionConfig(id, updateConfig);
             } else {
-                Action exists = actionService.findById(Long.valueOf(id))
-                    .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
-                exists.setType(Action.Type.valueOf(actionType));
-                exists.setConfigJSON(config);
-                exists.setCondition(condition);
-                exists.setCustomData(Arrays.asList(customData));
-
-                actionService.save(exists);
-
-                resultAction = exists;
+                resultAction = processMutate(id, meta);
             }
 
             RecordRef recordRef = RecordRef.create(meta.getId().getAppName(), meta.getId().getSourceId(),
@@ -158,6 +108,80 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
         }
 
         return result;
+    }
+
+    private Action processUpdateActionConfig(String id, String updateConfig) {
+        Action action = actionService.findById(Long.valueOf(id))
+            .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
+        action.setConfigJSON(updateConfig);
+
+        return actionService.save(action);
+    }
+
+    private Action processMutate(String id, RecordMeta meta) {
+        Action resultAction;
+
+        String subscriberId = meta.get(PARAM_SUBSCRIBER_ID).asText();
+        if (StringUtils.isBlank(subscriberId)) {
+            throwParamIsMandatory(PARAM_SUBSCRIBER_ID);
+        }
+
+        String eventType = meta.get(PARAM_EVENT_TYPE).asText();
+        if (StringUtils.isBlank(eventType)) {
+            throwParamIsMandatory(PARAM_EVENT_TYPE);
+        }
+
+        JsonNode actionNode = meta.get(PARAM_ACTION);
+        if (actionNode.isMissingNode() || actionNode.isNull()) {
+            throwParamIsMandatory(PARAM_ACTION);
+        }
+
+        String actionType = actionNode.get(PARAM_ACTION_TYPE).asText();
+        if (StringUtils.isBlank(actionType)) {
+            throwParamIsMandatory(PARAM_ACTION_TYPE);
+        }
+
+        String config = actionNode.get(PARAM_ACTION_CONFIG) != null
+            ? actionNode.get(PARAM_ACTION_CONFIG).toString() : null;
+        String condition = actionNode.get(PARAM_ACTION_CONDITION) != null
+            ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
+
+        CustomData[] customData = new CustomData[0];
+
+        if (actionNode.hasNonNull(PARAM_CUSTOM_DATA)) {
+            JsonNode customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
+            try {
+                customData = OBJECT_MAPPER.treeToValue(customDataNode, CustomData[].class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Can not parse CustomData", e);
+            }
+        }
+
+        if (StringUtils.isBlank(id)) {
+            Action newAction = new Action();
+            newAction.setType(Action.Type.valueOf(actionType));
+            newAction.setConfigJSON(config);
+            newAction.setCondition(condition);
+            newAction.setCustomData(Arrays.asList(customData));
+
+            resultAction = actionService.save(newAction);
+
+            subscriberService.addActionToSubscriber(subscriberService.transformId(subscriberId), eventType,
+                resultAction);
+        } else {
+            Action exists = actionService.findById(Long.valueOf(id))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
+            exists.setType(Action.Type.valueOf(actionType));
+            exists.setConfigJSON(config);
+            exists.setCondition(condition);
+            exists.setCustomData(Arrays.asList(customData));
+
+            actionService.save(exists);
+
+            resultAction = exists;
+        }
+
+        return resultAction;
     }
 
     private void throwParamIsMandatory(String param) {
