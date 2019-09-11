@@ -45,7 +45,7 @@ public class FreemarkerTemplateEngineService {
         log.debug(String.format("Processed template <%s>" +
                 "\n-------> from" +
                 "\n%s" +
-                "\n------->to\n" +
+                "\n-------> to\n" +
                 "%s", templateKey, templateRepresentation,
             result));
 
