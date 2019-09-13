@@ -91,7 +91,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         String deviceType = config.get(PARAM_DEVICE_TYPE).asText();
 
         Message fireBaseMessage;
-        Map<String, Object> customData = prepareCustomData(dto);
+        Map<String, String> customData = prepareCustomData(dto);
 
         switch (deviceType) {
             case DEVICE_ANDROID: {
@@ -144,12 +144,12 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         return new Template(titleTemplate, bodyTemplate);
     }
 
-    private Map<String, Object> prepareCustomData(EventDTO dto) {
+    private Map<String, String> prepareCustomData(EventDTO dto) {
         if (!StringUtils.startsWith(dto.getType(), "task.")) {
             return new HashMap<>();
         }
         TaskEventDTO taskEventDTO = (TaskEventDTO) dto;
-        Map<String, Object> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
 
         String taskId = taskEventDTO.getTaskInstanceId();
         if (StringUtils.isNotBlank(taskId)) {
@@ -196,7 +196,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         }
     }
 
-    private Message buildAndroidMessage(String title, String body, String registrationToken, Map<String, Object> data) {
+    private Message buildAndroidMessage(String title, String body, String registrationToken, Map<String, String> data) {
         return Message.builder()
             .setNotification(new Notification(
                 title,
@@ -209,26 +209,26 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
                     .build())
                 .build())
             .setApnsConfig(ApnsConfig.builder()
-                .putAllCustomData(data)
                 .setAps(Aps.builder()
                     .setBadge(42)
                     .build())
                 .build())
+            .putAllData(data)
             .setToken(registrationToken)
             .build();
     }
 
-    private Message buildIosMessage(String title, String body, String registrationToken, Map<String, Object> data) {
+    private Message buildIosMessage(String title, String body, String registrationToken, Map<String, String> data) {
         return Message.builder()
             .setNotification(new Notification(
                 title,
                 body))
             .setApnsConfig(ApnsConfig.builder()
-                .putAllCustomData(data)
                 .setAps(Aps.builder()
                     .setBadge(42)
                     .build())
                 .build())
+            .putAllData(data)
             .setToken(registrationToken)
             .build();
     }
