@@ -16,10 +16,10 @@ import java.util.List;
 @Table(name = "actions")
 public class Action extends BaseEntity {
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String configJSON;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String condition;
 
     @JoinColumn(name = "action")
