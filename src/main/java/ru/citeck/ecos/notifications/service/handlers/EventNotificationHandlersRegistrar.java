@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.events.EventConnection;
@@ -34,7 +35,8 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
     private final SubscriptionRepository subscriptionRepository;
     private final Map<String, List<ActionProcessor>> actionProcessors;
 
-    public EventNotificationHandlersRegistrar(Set<String> tenantsRegistrar, EventConnection eventConnection,
+    public EventNotificationHandlersRegistrar(Set<String> tenantsRegistrar,
+                                              @Autowired(required = false) EventConnection eventConnection,
                                               SubscriptionRepository subscriptionRepository,
                                               @Qualifier("actionProcessorRegistry")
                                                   Map<String, List<ActionProcessor>> actionProcessors) {

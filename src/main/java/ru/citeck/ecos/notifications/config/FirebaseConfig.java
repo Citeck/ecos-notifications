@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import java.io.InputStream;
  */
 @Slf4j
 @Configuration
+@Profile("!test")
 public class FirebaseConfig {
 
     private final ApplicationProperties appProps;
