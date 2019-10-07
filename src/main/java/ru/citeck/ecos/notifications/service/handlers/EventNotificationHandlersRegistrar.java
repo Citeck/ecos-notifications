@@ -1,8 +1,10 @@
 package ru.citeck.ecos.notifications.service.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.events.EventConnection;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author Roman Makarskiy
  */
+@Slf4j
 @Component
 public class EventNotificationHandlersRegistrar extends AbstractEventHandlersRegistrar {
 
@@ -32,7 +35,8 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
     private final SubscriptionRepository subscriptionRepository;
     private final Map<String, List<ActionProcessor>> actionProcessors;
 
-    public EventNotificationHandlersRegistrar(Set<String> tenantsRegistrar, EventConnection eventConnection,
+    public EventNotificationHandlersRegistrar(Set<String> tenantsRegistrar,
+                                              @Autowired(required = false) EventConnection eventConnection,
                                               SubscriptionRepository subscriptionRepository,
                                               @Qualifier("actionProcessorRegistry")
                                                   Map<String, List<ActionProcessor>> actionProcessors) {
@@ -47,41 +51,45 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
         try {
             eventConnection.receive(RECEIVE_ALL_KEY, QUEUE_NOTIFICATION_NAME, tenantId,
                 (consumerTag, message, channel) -> {
-                    String routingKey = message.getEnvelope().getRoutingKey();
-
-                    //TODO: remove hard coded task processing, we need a some universal logic to find subscriptions
-                    if (routingKey.startsWith("task.")) {
-                        String msg = new String(message.getBody(), StandardCharsets.UTF_8);
-
-                        TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
-
-                        Set<String> userSubscribers = getSubscribersUsers(dto);
-                        if (!userSubscribers.isEmpty()) {
-                            String requiredEventType = getEventTypeByRoutingKey(routingKey);
-
-                            List<Subscription> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
-                                tenantId, new ArrayList<>(userSubscribers), requiredEventType);
-                            usersSubscriptions.forEach(subscription -> {
-                                Set<Action> actions = subscription.getActions();
-                                actions.forEach(action -> {
-                                    Action.Type type = action.getType();
-
-                                    List<ActionProcessor> processors = actionProcessors.get(type.toString());
-                                    if (CollectionUtils.isNotEmpty(processors)) {
-                                        processors.forEach(actionProcessor -> actionProcessor.process(message,
-                                            dto, action));
-                                    }
-                                });
-                            });
-                        }
-                    }
-
                     try {
-                        channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
-                    } catch (IOException e) {
-                        throw new RuntimeException("failed to basic ack message", e);
-                    }
+                        String routingKey = message.getEnvelope().getRoutingKey();
 
+                        //TODO: remove hard coded task processing, we need a some universal logic to find subscriptions
+                        if (routingKey.startsWith("task.")) {
+                            String msg = new String(message.getBody(), StandardCharsets.UTF_8);
+
+                            TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
+
+                            Set<String> userSubscribers = getSubscribersUsers(dto);
+
+                            log.debug("Found user subscribers:\n" + userSubscribers);
+
+                            if (!userSubscribers.isEmpty()) {
+                                String requiredEventType = getEventTypeByRoutingKey(routingKey);
+
+                                List<Subscription> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
+                                    tenantId, new ArrayList<>(userSubscribers), requiredEventType);
+                                usersSubscriptions.forEach(subscription -> {
+                                    Set<Action> actions = subscription.getActions();
+
+                                    actions.forEach(action -> {
+                                        Action.Type type = action.getType();
+
+                                        List<ActionProcessor> processors = actionProcessors.get(type.toString());
+                                        if (CollectionUtils.isNotEmpty(processors)) {
+                                            processors.forEach(actionProcessor -> actionProcessor.process(message,
+                                                dto, action));
+                                        }
+
+                                    });
+                                });
+                            }
+                        }
+                    } catch (Throwable e) {
+                        log.error("Failed process event", e);
+                        channel.basicNack(message.getEnvelope().getDeliveryTag(), false, false);
+                    }
+                    channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                 });
         } catch (IOException e) {
             throw new RuntimeException("Failed register receive", e);
@@ -103,7 +111,10 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                 users.add(dto.getAssignee());
         }
 
-        return users.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        return users.stream()
+            .filter(StringUtils::isNotBlank)
+            .map(String::toLowerCase)
+            .collect(Collectors.toSet());
     }
 
     private String getEventTypeByRoutingKey(String routingKey) {

@@ -1,0 +1,33 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="Roman (generated)" id="1566323109283-1">
+        <createTable tableName="custom_data">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="custom_dataPK"/>
+            </column>
+            <column name="record" type="VARCHAR(255)"/>
+            <column name="variable" type="VARCHAR(255)"/>
+            <column name="action" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Roman (generated)" id="1566323109283-2">
+        <createTable tableName="custom_data_attributes">
+            <column name="custom_data_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="schema" type="VARCHAR(4096)"/>
+            <column name="attr" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Roman (generated)" id="1566323109283-3">
+        <addPrimaryKey columnNames="custom_data_id, attr" tableName="custom_data_attributes"/>
+    </changeSet>
+    <changeSet author="Roman (generated)" id="1566323109283-4">
+        <addForeignKeyConstraint baseColumnNames="custom_data_id" baseTableName="custom_data_attributes" constraintName="FK2coqj1h5lwi59rs1jl2pi1eni" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="custom_data"/>
+    </changeSet>
+    <changeSet author="Roman (generated)" id="1566323109283-5">
+        <addForeignKeyConstraint baseColumnNames="action" baseTableName="custom_data" constraintName="FKf8b1yfl5rwx741vkrr4fl4eqe" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="actions"/>
+    </changeSet>
+</databaseChangeLog>

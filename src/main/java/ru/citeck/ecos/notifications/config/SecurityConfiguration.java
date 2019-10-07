@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.config;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,12 +14,14 @@ import ru.citeck.ecos.notifications.security.AuthoritiesConstants;
 import ru.citeck.ecos.notifications.security.jwt.JWTConfigurer;
 import ru.citeck.ecos.notifications.security.jwt.TokenProvider;
 
+@Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
+
     private final SecurityProblemSupport problemSupport;
 
     public SecurityConfiguration(TokenProvider tokenProvider, SecurityProblemSupport problemSupport) {
@@ -36,7 +39,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        // @formatter:off
         http
             .csrf()
             .disable()
@@ -56,11 +58,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/**").permitAll()
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/info").permitAll()
-            .antMatchers("/management/prometheus").permitAll()
             .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
         .and()
             .apply(securityConfigurerAdapter());
-        // @formatter:on
+
     }
 
     private JWTConfigurer securityConfigurerAdapter() {

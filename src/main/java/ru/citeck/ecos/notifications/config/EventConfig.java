@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import ru.citeck.ecos.events.EventConnection;
 import ru.citeck.ecos.notifications.repository.SubscriberRepository;
 import ru.citeck.ecos.notifications.service.handlers.AbstractEventHandlersRegistrar;
@@ -20,19 +21,20 @@ import java.util.*;
 @Configuration
 public class EventConfig {
 
-    private final EventProps eventProps;
+    private final ApplicationProperties appProps;
 
-    public EventConfig(EventProps eventProps) {
-        this.eventProps = eventProps;
+    public EventConfig(ApplicationProperties appProps) {
+        this.appProps = appProps;
     }
 
     @Bean
+    @Profile("!test")
     public EventConnection eventConnection() {
         return new EventConnection.Builder()
-            .host(eventProps.getHost())
-            .port(eventProps.getPort())
-            .username(eventProps.getUsername())
-            .password(eventProps.getPassword())
+            .host(appProps.getEvent().getHost())
+            .port(appProps.getEvent().getPort())
+            .username(appProps.getEvent().getUsername())
+            .password(appProps.getEvent().getPassword())
             .build();
     }
 

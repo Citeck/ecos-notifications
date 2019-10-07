@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Roman Makarskiy
@@ -14,16 +16,20 @@ import javax.persistence.*;
 @Table(name = "actions")
 public class Action extends BaseEntity {
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String configJSON;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String condition;
+
+    @JoinColumn(name = "action")
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<CustomData> customData = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    public static enum Type {
+    public enum Type {
         FIREBASE_NOTIFICATION, EMAIL_NOTIFICATION
     }
 

@@ -4,17 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.*;
 import com.rabbitmq.client.Delivery;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import ru.citeck.ecos.events.data.dto.EventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
-import ru.citeck.ecos.notifications.config.TemplateProps;
+import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
+import ru.citeck.ecos.notifications.service.ActionService;
+import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
+import ru.citeck.ecos.notifications.service.TemplateService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,31 +31,40 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private static final String ID = "FIREBASE_NOTIFICATION";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private static final String ERROR_CODE_TOKEN_NOT_REGISTERED = "registration-token-not-registered";
+
     private static final String PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken";
     private static final String PARAM_DEVICE_TYPE = "deviceType";
+    private static final String TEMPLATE_ID = "templateId";
     private static final String TITLE_TEMPLATE = "titleTemplate";
     private static final String BODY_TEMPLATE = "bodyTemplate";
     private static final String DEVICE_ANDROID = "android";
     private static final String DEVICE_IOS = "ios";
-    private static final String VAR_DATA = "data";
     private static final String PARAM_TASK_ID = "taskId";
-    private static final String PARAM_DOCUMENT =  "documentRef";
+    private static final String PARAM_DOCUMENT = "documentRef";
+    private static final String TITLE_TEMPLATE_KEY = "titleTemplate";
+    private static final String BODY_TEMPLATE_KEY = "bodyTemplate";
 
-    private final TemplateEngine templateEngine;
-    private final TemplateProps templateProps;
+    private final FreemarkerTemplateEngineService templateEngineService;
+    private final TemplateService templateService;
+    private final ApplicationProperties appProps;
+    private final ActionService actionService;
 
     {
         setId(ID);
     }
 
-    public FirebaseNotificationProcessor(@Qualifier("eventsTemplateEngine") TemplateEngine templateEngine,
-                                         TemplateProps templateProps) {
-        this.templateEngine = templateEngine;
-        this.templateProps = templateProps;
+    public FirebaseNotificationProcessor(FreemarkerTemplateEngineService templateEngineService,
+                                         TemplateService templateService, ApplicationProperties appProps,
+                                         ActionService actionService) {
+        this.templateEngineService = templateEngineService;
+        this.templateService = templateService;
+        this.appProps = appProps;
+        this.actionService = actionService;
     }
 
     @Override
-    protected void processImpl(Delivery message, EventDTO dto, Action action) {
+    protected void processImpl(Delivery message, EventDTO dto, Action action, Map<String, Object> model) {
         log.debug("Process DTO: \n" + dto);
         JsonNode config;
         try {
@@ -72,31 +82,16 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         }
 
         String eventType = dto.getType();
-        String titleTemplate = getDefaultTitleTemplate(eventType);
-        String bodyTemplate = getDefaultBodyTemplate(eventType);
+        Template template = getTemplate(eventType, config);
 
-        if (config.hasNonNull(TITLE_TEMPLATE)) {
-            titleTemplate = config.get(TITLE_TEMPLATE).asText();
-        }
-
-        if (config.hasNonNull(BODY_TEMPLATE)) {
-            bodyTemplate = config.get(BODY_TEMPLATE).asText();
-        }
-
-        Context ctx = new Context();
-        ctx.setVariable(VAR_DATA, dto);
-
-        String title = templateEngine.process(titleTemplate, ctx);
-        String body = templateEngine.process(bodyTemplate, ctx);
-
-        log.debug(String.format("Processed template: \ntitle from <%s> to <%s>\nbody from <%s> to <%s>",
-            titleTemplate, title, bodyTemplate, body));
+        String title = templateEngineService.process(TITLE_TEMPLATE_KEY, template.getTitle(), model);
+        String body = templateEngineService.process(BODY_TEMPLATE_KEY, template.getBody(), model);
 
         String registrationToken = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText();
         String deviceType = config.get(PARAM_DEVICE_TYPE).asText();
 
         Message fireBaseMessage;
-        Map<String, Object> customData = prepareCustomData(dto);
+        Map<String, String> customData = prepareCustomData(dto);
 
         switch (deviceType) {
             case DEVICE_ANDROID: {
@@ -114,20 +109,47 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
 
         String response;
         try {
+            log.debug(String.format("Trying send message to firebase...\ntitle: <%s>\nbody: <%s>\ncustomData: <%s>",
+                title, body, customData));
             response = FirebaseMessaging.getInstance().send(fireBaseMessage);
+            log.debug("Successfully sent message: " + response);
         } catch (FirebaseMessagingException e) {
-            throw new RuntimeException("Failed to send firebase message", e);
+            if (ERROR_CODE_TOKEN_NOT_REGISTERED.equals(e.getErrorCode())) {
+                log.info("Delete action, because token is not registered. Action:\n" + action);
+                actionService.deleteById(action.getId());
+            } else {
+                log.error("Failed to send firebase message", e);
+            }
         }
-
-        log.debug("Successfully sent message: " + response);
     }
 
-    private Map<String, Object> prepareCustomData(EventDTO dto) {
+    private Template getTemplate(String eventType, JsonNode config) {
+        String titleTemplate = getDefaultTitleTemplate(eventType);
+        String bodyTemplate = getDefaultBodyTemplate(eventType);
+
+        if (config.hasNonNull(TEMPLATE_ID)) {
+            String templateId = config.get(TEMPLATE_ID).asText();
+            titleTemplate = templateService.getTitleTemplate(templateId);
+            bodyTemplate = templateService.getBodyTemplate(templateId);
+        } else {
+            if (config.hasNonNull(TITLE_TEMPLATE)) {
+                titleTemplate = config.get(TITLE_TEMPLATE).asText();
+            }
+
+            if (config.hasNonNull(BODY_TEMPLATE)) {
+                bodyTemplate = config.get(BODY_TEMPLATE).asText();
+            }
+        }
+
+        return new Template(titleTemplate, bodyTemplate);
+    }
+
+    private Map<String, String> prepareCustomData(EventDTO dto) {
         if (!StringUtils.startsWith(dto.getType(), "task.")) {
             return new HashMap<>();
         }
         TaskEventDTO taskEventDTO = (TaskEventDTO) dto;
-        Map<String, Object> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
 
         String taskId = taskEventDTO.getTaskInstanceId();
         if (StringUtils.isNotBlank(taskId)) {
@@ -145,13 +167,13 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private String getDefaultTitleTemplate(String eventType) {
         switch (TaskEventType.resolve(eventType)) {
             case ASSIGN:
-                return templateProps.getDefaultFirebaseTaskAssignTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignTitle();
             case CREATE:
-                return templateProps.getDefaultFirebaseTaskCreateTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateTitle();
             case COMPLETE:
-                return templateProps.getDefaultFirebaseTaskCompleteTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteTitle();
             case DELETE:
-                return templateProps.getDefaultFirebaseTaskDeleteTitle();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteTitle();
             default:
                 log.warn(String.format("Event type: <%s> not supported", eventType));
                 return "unsupported event type";
@@ -161,20 +183,20 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     private String getDefaultBodyTemplate(String eventType) {
         switch (TaskEventType.resolve(eventType)) {
             case ASSIGN:
-                return templateProps.getDefaultFirebaseTaskAssignBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignBody();
             case CREATE:
-                return templateProps.getDefaultFirebaseTaskCreateBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateBody();
             case COMPLETE:
-                return templateProps.getDefaultFirebaseTaskCompleteBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteBody();
             case DELETE:
-                return templateProps.getDefaultFirebaseTaskDeleteBody();
+                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteBody();
             default:
                 log.warn(String.format("Event type: <%s> not supported", eventType));
                 return "unsupported event type";
         }
     }
 
-    private Message buildAndroidMessage(String title, String body, String registrationToken, Map<String, Object> data) {
+    private Message buildAndroidMessage(String title, String body, String registrationToken, Map<String, String> data) {
         return Message.builder()
             .setNotification(new Notification(
                 title,
@@ -187,27 +209,39 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
                     .build())
                 .build())
             .setApnsConfig(ApnsConfig.builder()
-                .putAllCustomData(data)
                 .setAps(Aps.builder()
                     .setBadge(42)
                     .build())
                 .build())
+            .putAllData(data)
             .setToken(registrationToken)
             .build();
     }
 
-    private Message buildIosMessage(String title, String body, String registrationToken, Map<String, Object> data) {
+    private Message buildIosMessage(String title, String body, String registrationToken, Map<String, String> data) {
         return Message.builder()
             .setNotification(new Notification(
                 title,
                 body))
             .setApnsConfig(ApnsConfig.builder()
-                .putAllCustomData(data)
                 .setAps(Aps.builder()
                     .setBadge(42)
                     .build())
                 .build())
+            .putAllData(data)
             .setToken(registrationToken)
             .build();
+    }
+
+    @Getter
+    private static class Template {
+
+        Template(String title, String body) {
+            this.title = title;
+            this.body = body;
+        }
+
+        private String title;
+        private String body;
     }
 }

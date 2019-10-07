@@ -14,7 +14,7 @@ services:
         volumes:
             - .\micro-volumes\ecos-ui\:/opt/ecos-ui/
     gateway-app:
-        image: nexus.citeck.ru/gateway:develop
+        image: nexus.citeck.ru/ecos-gateway:develop
         environment:
             - _JAVA_OPTIONS=-Xmx512m -Xms256m
             - SPRING_PROFILES_ACTIVE=dev,swagger
