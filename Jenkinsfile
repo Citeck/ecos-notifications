@@ -5,7 +5,7 @@ timestamps {
       stage('Checkout SCM') {
         checkout([
           $class: 'GitSCM',
-          branches: [[name: 'develop']],
+          branches: [[name: "${env.BRANCH_NAME}"]],
           doGenerateSubmoduleConfigurations: false,
           extensions: [],
           submoduleCfg: [],
@@ -24,7 +24,7 @@ timestamps {
           sh "mvn clean package -Pwar -Pprod -DskipTests=true -Djib.docker.image.tag=${project_version} jib:dockerBuild"
         }
       }
-      stage('Psuh docker image') {
+      stage('Push docker image') {
         docker.withRegistry('http://127.0.0.1:8082', '7d800357-2193-4474-b768-5c27b97a1030') {
           def microserviceImage = "ecos-notifications"+":"+"${project_version}"
           def current_microserviceImage = docker.image("${microserviceImage}")
