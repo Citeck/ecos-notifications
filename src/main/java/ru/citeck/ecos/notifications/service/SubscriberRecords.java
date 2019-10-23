@@ -1,11 +1,8 @@
 package ru.citeck.ecos.notifications.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.Subscriber;
-import ru.citeck.ecos.notifications.domain.subscribe.SubscriberId;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDTO;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.records2.RecordMeta;
@@ -27,10 +24,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
-
-    private static final String ADD_SUBSCRIBE_ACTION = "add-subscribe-action";
-    private static final String UPDATE_SUBSCRIBE_ACTION = "update-subscribe-action";
-    private static final String DELETE_SUBSCRIBE_ACTION = "delete-subscribe-action";
 
     private static final String ID = "subscribers";
 
@@ -72,129 +65,7 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
 
     @Override
     public RecordsMutResult mutate(RecordsMutation mutation) {
-        RecordsMutResult result = new RecordsMutResult();
-
-        for (RecordMeta meta : mutation.getRecords()) {
-            if (isAction(meta, ADD_SUBSCRIBE_ACTION)) {
-                String id = meta.getId().getId();
-                if (StringUtils.isBlank(id)) {
-                    throw new IllegalArgumentException("Subscriber id is mandatory parameter");
-                }
-
-                JsonNode subscribe = meta.getAttribute(ADD_SUBSCRIBE_ACTION);
-                if (!subscribe.hasNonNull("event")) {
-                    throw new IllegalArgumentException("Event is mandatory parameter");
-                }
-
-                if (!subscribe.hasNonNull("action")) {
-                    throw new IllegalArgumentException("Action is mandatory parameter");
-                }
-
-                JsonNode actionNode = subscribe.get("action");
-                if (!actionNode.hasNonNull("type")) {
-                    throw new IllegalArgumentException("Action - type is mandatory parameter");
-                }
-
-                String actionType = actionNode.get("type").asText();
-                JsonNode config = actionNode.get("config");
-
-                String configStr = "";
-                if (config != null && !config.isNull() && !config.isMissingNode()) {
-                    configStr = config.toString();
-                }
-
-
-                Action action = new Action();
-                action.setType(Action.Type.valueOf(actionType));
-                action.setConfigJSON(configStr);
-
-                JsonNode condition = actionNode.get("condition");
-                if (condition != null && !condition.isNull() && !condition.isMissingNode()) {
-                    action.setCondition(condition.asText());
-                }
-
-                SubscriberId subscriberId = subscriberService.transformId(id);
-
-                String event = subscribe.get("event").asText();
-                subscriberService.addSubscribeAction(subscriberId, event, action);
-
-                result.addRecord(new RecordMeta(id));
-                continue;
-            }
-
-            if (isAction(meta, UPDATE_SUBSCRIBE_ACTION)) {
-                String subscriberId = meta.getId().getId();
-                if (StringUtils.isBlank(subscriberId)) {
-                    throw new IllegalArgumentException("Subscriber id is mandatory parameter");
-                }
-
-                JsonNode subscribe = meta.getAttribute(UPDATE_SUBSCRIBE_ACTION);
-                if (!subscribe.hasNonNull("action")) {
-                    throw new IllegalArgumentException("Action is mandatory parameter");
-                }
-
-                JsonNode actionNode = subscribe.get("action");
-                if (!actionNode.hasNonNull("type")) {
-                    throw new IllegalArgumentException("Action - type is mandatory parameter");
-                }
-
-                if (!actionNode.hasNonNull("id")) {
-                    throw new IllegalArgumentException("Action - id is mandatory parameter");
-                }
-
-                Long id = actionNode.get("id").asLong();
-                String actionType = actionNode.get("type").asText();
-                JsonNode config = actionNode.get("config");
-
-                String configStr = "";
-                if (config != null && !config.isNull()) {
-                    configStr = config.toString();
-                }
-
-                Action action = new Action();
-                action.setType(Action.Type.valueOf(actionType));
-                action.setConfigJSON(configStr);
-
-                JsonNode condition = actionNode.get("condition");
-                if (condition != null && !condition.isNull() && !condition.isMissingNode()) {
-                    action.setCondition(condition.asText());
-                }
-
-                subscriberService.updateSubscribeAction(id, action);
-                result.addRecord(new RecordMeta(subscriberId));
-                continue;
-            }
-
-            if (isAction(meta, DELETE_SUBSCRIBE_ACTION)) {
-                String subscriberId = meta.getId().getId();
-                if (StringUtils.isBlank(subscriberId)) {
-                    throw new IllegalArgumentException("Subscriber id is mandatory parameter");
-                }
-
-                JsonNode subscribe = meta.getAttribute(DELETE_SUBSCRIBE_ACTION);
-                if (!subscribe.hasNonNull("action")) {
-                    throw new IllegalArgumentException("Action is mandatory parameter");
-                }
-
-                JsonNode actionNode = subscribe.get("action");
-                if (!actionNode.hasNonNull("id")) {
-                    throw new IllegalArgumentException("Action - id is mandatory parameter");
-                }
-
-                Long id = actionNode.get("id").asLong();
-                subscriberService.deleteSubscribeAction(id);
-                result.addRecord(new RecordMeta(subscriberId));
-            }
-
-        }
-
-        return result;
-    }
-
-
-    private boolean isAction(RecordMeta meta, String action) {
-        JsonNode actionNode = meta.getAttribute(action);
-        return actionNode != null && !actionNode.isMissingNode() && !actionNode.isNull();
+        return null;
     }
 
     @Override

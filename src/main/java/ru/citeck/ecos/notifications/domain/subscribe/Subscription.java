@@ -20,8 +20,7 @@ public class Subscription extends BaseEntity {
 
     private String eventType;
 
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "subscribe")
     private Set<Action> actions = new HashSet<>();
 

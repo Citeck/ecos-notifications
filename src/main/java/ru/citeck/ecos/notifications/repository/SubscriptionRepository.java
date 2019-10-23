@@ -13,8 +13,9 @@ import java.util.List;
 public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
 
     @Query(nativeQuery = true, value =
-        "SELECT * FROM subscriptions WHERE tenant_id = :tenantId AND username IN :users AND event_type = :eventType")
-    List<Subscription> findUsersSubscribes(@Param("tenantId") String tenantId, @Param("users") List<String> users,
+        "SELECT * FROM subscriptions WHERE tenant_id = :tenantId AND LOWER(username) IN :users AND event_type = :eventType")
+    List<Subscription> findUsersSubscribes(@Param("tenantId") String tenantId,
+                                           @Param("users") List<String> usersLowerCase,
                                            @Param("eventType") String eventType);
 
 }
