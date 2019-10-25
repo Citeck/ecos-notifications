@@ -9,9 +9,9 @@ import java.util.List;
  * @author Roman Makarskiy
  */
 @Data
-public class SubscriberDTO {
+public class SubscriberDto {
 
     private String id;
-    private List<SubscriptionDTO> subscribes = new ArrayList<>();
+    private List<SubscriptionDto> subscribes = new ArrayList<>();
 
 }

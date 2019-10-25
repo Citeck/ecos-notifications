@@ -8,7 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
-import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDTO;
+import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @author Roman Makarskiy
  */
 @Component
-public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
+public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -61,16 +61,16 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
     }
 
     @Override
-    public List<ActionDTO> getValuesToMutate(List<RecordRef> list) {
+    public List<ActionDto> getValuesToMutate(List<RecordRef> list) {
         return getValues(list);
     }
 
     @Override
-    public List<ActionDTO> getMetaValues(List<RecordRef> list) {
+    public List<ActionDto> getMetaValues(List<RecordRef> list) {
         return getValues(list);
     }
 
-    private List<ActionDTO> getValues(List<RecordRef> list) {
+    private List<ActionDto> getValues(List<RecordRef> list) {
         return list.stream()
             .map(RecordRef::getId)
             .map(id ->
@@ -206,12 +206,12 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDTO> {
     }
 
     @Override
-    public RecordsQueryResult<ActionDTO> getMetaValues(RecordsQuery recordsQuery) {
+    public RecordsQueryResult<ActionDto> getMetaValues(RecordsQuery recordsQuery) {
         return null;
     }
 
     @Override
-    public RecordsMutResult save(List<ActionDTO> list) {
+    public RecordsMutResult save(List<ActionDto> list) {
         return null;
     }
 }

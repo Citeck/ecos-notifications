@@ -6,14 +6,13 @@ import lombok.Data;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Roman Makarskiy
  */
 @Data
-public class ActionDTO {
+public class ActionDto {
 
     private Long id;
     private Action.Type type;

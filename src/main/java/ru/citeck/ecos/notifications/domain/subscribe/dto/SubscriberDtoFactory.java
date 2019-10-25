@@ -17,8 +17,8 @@ public class SubscriberDtoFactory {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public SubscriberDTO fromSubscriber(Subscriber subscriber) {
-        SubscriberDTO dto = new SubscriberDTO();
+    public SubscriberDto fromSubscriber(Subscriber subscriber) {
+        SubscriberDto dto = new SubscriberDto();
 
         SubscriberId id = new SubscriberId();
         id.setUsername(subscriber.getUsername());
@@ -35,8 +35,8 @@ public class SubscriberDtoFactory {
         return dto;
     }
 
-    public SubscriptionDTO fromSubscribe(Subscription subscription) {
-        SubscriptionDTO dto = new SubscriptionDTO();
+    public SubscriptionDto fromSubscribe(Subscription subscription) {
+        SubscriptionDto dto = new SubscriptionDto();
         dto.setId(subscription.getId());
         dto.setEventType(subscription.getEventType());
         dto.setActions(
@@ -49,8 +49,8 @@ public class SubscriberDtoFactory {
         return dto;
     }
 
-    public ActionDTO fromAction(Action action) {
-        ActionDTO dto = new ActionDTO();
+    public ActionDto fromAction(Action action) {
+        ActionDto dto = new ActionDto();
         dto.setId(action.getId());
         dto.setType(action.getType());
         dto.setCondition(action.getCondition());
