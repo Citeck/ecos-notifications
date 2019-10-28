@@ -27,6 +27,6 @@ public abstract class BaseEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return 31;
     }
 }
