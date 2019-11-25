@@ -9,10 +9,10 @@ import java.util.List;
  * @author Roman Makarskiy
  */
 @Data
-public class SubscriptionDTO {
+public class SubscriptionDto {
 
     private Long id;
     private String eventType;
-    private List<ActionDTO> actions = new ArrayList<>();
+    private List<ActionDto> actions = new ArrayList<>();
 
 }

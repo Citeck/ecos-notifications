@@ -1,9 +1,8 @@
 package ru.citeck.ecos.notifications.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.Subscriber;
-import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDTO;
+import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Roman Makarskiy
  */
 @Component
-public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
+public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
 
     private static final String ID = "subscribers";
 
@@ -40,16 +39,16 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
     }
 
     @Override
-    public List<SubscriberDTO> getValuesToMutate(List<RecordRef> records) {
+    public List<SubscriberDto> getValuesToMutate(List<RecordRef> records) {
         return getValues(records);
     }
 
     @Override
-    public List<SubscriberDTO> getMetaValues(List<RecordRef> records) {
+    public List<SubscriberDto> getMetaValues(List<RecordRef> records) {
         return getValues(records);
     }
 
-    private List<SubscriberDTO> getValues(List<RecordRef> records) {
+    private List<SubscriberDto> getValues(List<RecordRef> records) {
         return records.stream()
             .map(RecordRef::getId)
             .map(id ->
@@ -69,7 +68,7 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
     }
 
     @Override
-    public RecordsMutResult save(List<SubscriberDTO> list) {
+    public RecordsMutResult save(List<SubscriberDto> list) {
         return null;
     }
 
@@ -86,7 +85,7 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDTO> {
     }
 
     @Override
-    public RecordsQueryResult<SubscriberDTO> getMetaValues(RecordsQuery recordsQuery) {
+    public RecordsQueryResult<SubscriberDto> getMetaValues(RecordsQuery recordsQuery) {
         return null;
     }
 }
