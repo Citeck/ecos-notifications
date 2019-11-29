@@ -2,7 +2,6 @@ package ru.citeck.ecos.notifications.config;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -22,22 +21,20 @@ import java.util.*;
 @Configuration
 public class EventConfig {
 
-    @Value("${spring.rabbitmq.host}")
-    private String rabbitHost;
+    private final ApplicationProperties appProps;
 
-    @Value("${spring.rabbitmq.username}")
-    private String rabbitUsername;
-
-    @Value("${spring.rabbitmq.password}")
-    private String rabbitPassword;
+    public EventConfig(ApplicationProperties appProps) {
+        this.appProps = appProps;
+    }
 
     @Bean
     @Profile("!test")
     public EventConnection eventConnection() {
         return new EventConnection.Builder()
-            .host(rabbitHost)
-            .username(rabbitUsername)
-            .password(rabbitPassword)
+            .host(appProps.getEvent().getHost())
+            .port(appProps.getEvent().getPort())
+            .username(appProps.getEvent().getUsername())
+            .password(appProps.getEvent().getPassword())
             .build();
     }
 

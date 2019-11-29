@@ -14,10 +14,24 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
 
     @Getter
+    private final Event event = new Event();
+
+    @Getter
     private final Firebase firebase = new Firebase();
 
     @Getter
     private final Alfresco alfresco = new Alfresco();
+
+    @Getter
+    @Setter
+    public static class Event {
+
+        private String host = NotificationsDefault.Event.HOST;
+        private int port = NotificationsDefault.Event.PORT;
+        private String username = NotificationsDefault.Event.USERNAME;
+        private String password = NotificationsDefault.Event.PASSWORD;
+
+    }
 
     @Getter
     @Setter
