@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.events.EventConnection;
-import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
+import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
+import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.Subscription;
@@ -58,7 +59,7 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                         if (routingKey.startsWith("task.")) {
                             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
 
-                            TaskEventDTO dto = OBJECT_MAPPER.readValue(msg, TaskEventDTO.class);
+                            TaskEventDto dto = OBJECT_MAPPER.readValue(msg, TaskEventDto.class);
 
                             Set<String> userSubscribers = getSubscribersUsers(dto);
 
@@ -78,7 +79,7 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                                         List<ActionProcessor> processors = actionProcessors.get(type.toString());
                                         if (CollectionUtils.isNotEmpty(processors)) {
                                             processors.forEach(actionProcessor -> actionProcessor.process(message,
-                                                dto, action));
+                                                EventDtoFactory.toEventDto(dto), action));
                                         }
 
                                     });
@@ -96,7 +97,7 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
         }
     }
 
-    private Set<String> getSubscribersUsers(TaskEventDTO dto) {
+    private Set<String> getSubscribersUsers(TaskEventDto dto) {
         Set<String> users = new HashSet<>();
 
         switch (TaskEventType.resolve(dto.getType())) {

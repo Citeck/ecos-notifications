@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.citeck.ecos.events.data.dto.EventDTO;
+import ru.citeck.ecos.events.data.dto.EventDto;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
 import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
 import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
@@ -46,9 +46,9 @@ public abstract class ActionProcessor {
     @Setter
     protected String id;
 
-    protected abstract void processImpl(Delivery message, EventDTO dto, Action action, Map<String, Object> model);
+    protected abstract void processImpl(Delivery message, EventDto dto, Action action, Map<String, Object> model);
 
-    public void process(Delivery message, @NonNull EventDTO dto, @NonNull Action action) {
+    public void process(Delivery message, @NonNull EventDto dto, @NonNull Action action) {
         log.debug(String.format("============ Start process actions id: %s =============", action.getId()));
         log.debug("Action: \n" + action);
 
@@ -66,7 +66,7 @@ public abstract class ActionProcessor {
         log.debug(String.format("============= End process actions id: %s ==============", action.getId()));
     }
 
-    private Map<String, Object> getProcessedCustomData(Action action, EventDTO dto) {
+    private Map<String, Object> getProcessedCustomData(Action action, EventDto dto) {
         Map<String, Object> result = new HashMap<>();
         if (CollectionUtils.isEmpty(action.getCustomData())) {
             return result;
@@ -83,7 +83,7 @@ public abstract class ActionProcessor {
         return result;
     }
 
-    private CustomData[] getTemplatedData(List<CustomData> customData, EventDTO dto) {
+    private CustomData[] getTemplatedData(List<CustomData> customData, EventDto dto) {
         String customDataToProcess;
         try {
             customDataToProcess = OBJECT_MAPPER.writeValueAsString(customData);
