@@ -180,3 +180,7 @@ jhipster:
 # ===================================================================
 
 # application:
+spring.rabbitmq:
+    host: rabbitmq
+    username: admin
+    password: admin
