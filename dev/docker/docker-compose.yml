@@ -65,6 +65,23 @@ services:
             - uiserv-app-postgresql
         volumes:
             - .\micro-volumes\uiserv\:/default-menu-override
+    history-app:
+        image: nexus.citeck.ru/ecos-history:1.2.0-snapshot
+        environment:
+            - _JAVA_OPTIONS=-Xmx512m -Xms256m
+            - SPRING_PROFILES_ACTIVE=dev,swagger
+            - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+            - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+            - ECOS-HISTORY_EVENT_HOST=rabbitmq
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://history-psql:5432/history
+            - SPRING_DATA_MONGODB_URI=mongodb://history-mongodb:27017/history
+            - JHIPSTER_SLEEP=20
+        ports:
+            - 8086:8086
+        links:
+            - jhipster-registry
+            - history-mongodb
+            - history-psql
     rabbitmq:
         image: "rabbitmq:3-management"
         restart: on-failure:5
@@ -113,6 +130,7 @@ services:
             - psql_history:/var/lib/postgresql/data
     history-mongodb:
         image: mongo:4.0.2
+        hostname: mongo
         ports:
             - "27017:27017"
         volumes:
