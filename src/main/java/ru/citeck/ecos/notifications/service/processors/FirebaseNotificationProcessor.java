@@ -8,8 +8,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.events.data.dto.EventDTO;
-import ru.citeck.ecos.events.data.dto.task.TaskEventDTO;
+import ru.citeck.ecos.events.data.dto.EventDto;
+import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
+import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.Action;
@@ -64,7 +65,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     }
 
     @Override
-    protected void processImpl(Delivery message, EventDTO dto, Action action, Map<String, Object> model) {
+    protected void processImpl(Delivery message, EventDto dto, Action action, Map<String, Object> model) {
         log.debug("Process DTO: \n" + dto);
         JsonNode config;
         try {
@@ -81,7 +82,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
             throw new IllegalStateException("Action config does not contains device type");
         }
 
-        String eventType = dto.getType();
+        String eventType = dto.resolveType();
         Template template = getTemplate(eventType, config);
 
         String title = templateEngineService.process(TITLE_TEMPLATE_KEY, template.getTitle(), model);
@@ -144,11 +145,11 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
         return new Template(titleTemplate, bodyTemplate);
     }
 
-    private Map<String, String> prepareCustomData(EventDTO dto) {
-        if (!StringUtils.startsWith(dto.getType(), "task.")) {
+    private Map<String, String> prepareCustomData(EventDto dto) {
+        if (!StringUtils.startsWith(dto.resolveType(), "task.")) {
             return new HashMap<>();
         }
-        TaskEventDTO taskEventDTO = (TaskEventDTO) dto;
+        TaskEventDto taskEventDTO = EventDtoFactory.fromEventDto(dto);
         Map<String, String> data = new HashMap<>();
 
         String taskId = taskEventDTO.getTaskInstanceId();
