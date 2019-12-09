@@ -92,7 +92,7 @@ public abstract class ActionProcessor {
         }
 
         HashMap<String, Object> model = new HashMap<>();
-        model.put(MODEL_EVENT, dto);
+        model.put(MODEL_EVENT, dto.getData());
 
         String processedCustomData = templateEngineService.process(CUSTOM_DATA_TEMPLATE_KEY, customDataToProcess, model);
 
