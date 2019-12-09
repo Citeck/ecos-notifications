@@ -86,9 +86,10 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                         }
                     } catch (Throwable e) {
                         log.error("Failed process event message..." +
-                            "\ntenantId: {}" +
-                            "\nconsumerTag: {}" +
-                            "\nmessage: {}", tenantId, consumerTag, message, e);
+                                "\ntenantId: {}" +
+                                "\nconsumerTag: {}" +
+                                "\nmessage: {}", tenantId, consumerTag,
+                            new String(message.getBody(), StandardCharsets.UTF_8), e);
                     } finally {
                         channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                     }
