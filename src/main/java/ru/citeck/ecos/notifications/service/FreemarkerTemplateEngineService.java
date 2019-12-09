@@ -47,7 +47,7 @@ public class FreemarkerTemplateEngineService {
                 "\n-------> from" +
                 "\n%s" +
                 "\n-------> to\n" +
-                "%s", model, templateKey, templateRepresentation,
+                "%s", templateKey, model, templateRepresentation,
             result));
 
         return result;
