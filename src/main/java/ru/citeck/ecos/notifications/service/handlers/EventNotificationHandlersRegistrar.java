@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.service.handlers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,6 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
 
     private static final String QUEUE_NOTIFICATION_NAME = "notification";
     private static final String RECEIVE_ALL_KEY = "#";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final EventConnection eventConnection;
     private final SubscriptionRepository subscriptionRepository;
@@ -87,10 +85,13 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                             }
                         }
                     } catch (Throwable e) {
-                        log.error("Failed process event", e);
-                        channel.basicNack(message.getEnvelope().getDeliveryTag(), false, false);
+                        log.error("Failed process event message..." +
+                            "\ntenantId: {}" +
+                            "\nconsumerTag: {}" +
+                            "\nmessage: {}", tenantId, consumerTag, message, e);
+                    } finally {
+                        channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                     }
-                    channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                 });
         } catch (IOException e) {
             throw new RuntimeException("Failed register receive", e);
