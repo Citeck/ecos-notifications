@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.service.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Delivery;
 import lombok.Getter;
@@ -54,8 +55,10 @@ public abstract class ActionProcessor {
 
         Map<String, Object> model = new HashMap<>();
 
-        model.put(MODEL_EVENT, OBJECT_MAPPER.convertValue(dto, Map.class));
-        model.put(MODEL_CUSTOM_DATA, getProcessedCustomData(action, dto));
+        JsonNode dtoData = dto.getData();
+
+        model.put(MODEL_EVENT, OBJECT_MAPPER.convertValue(dtoData, Map.class));
+        model.put(MODEL_CUSTOM_DATA, getProcessedCustomData(action, dtoData));
 
         log.debug(String.format("Prepared model:\n%s", model));
 
@@ -66,13 +69,13 @@ public abstract class ActionProcessor {
         log.debug(String.format("============= End process actions id: %s ==============", action.getId()));
     }
 
-    private Map<String, Object> getProcessedCustomData(Action action, EventDto dto) {
+    private Map<String, Object> getProcessedCustomData(Action action, JsonNode dtoData) {
         Map<String, Object> result = new HashMap<>();
         if (CollectionUtils.isEmpty(action.getCustomData())) {
             return result;
         }
 
-        CustomData[] customData = getTemplatedData(action.getCustomData(), dto);
+        CustomData[] customData = getTemplatedData(action.getCustomData(), dtoData);
 
         for (CustomData data : customData) {
             RecordRef recordRef = RecordRef.valueOf(data.getRecord());
@@ -83,7 +86,7 @@ public abstract class ActionProcessor {
         return result;
     }
 
-    private CustomData[] getTemplatedData(List<CustomData> customData, EventDto dto) {
+    private CustomData[] getTemplatedData(List<CustomData> customData, JsonNode dtoData) {
         String customDataToProcess;
         try {
             customDataToProcess = OBJECT_MAPPER.writeValueAsString(customData);
@@ -92,7 +95,7 @@ public abstract class ActionProcessor {
         }
 
         HashMap<String, Object> model = new HashMap<>();
-        model.put(MODEL_EVENT, dto.getData());
+        model.put(MODEL_EVENT, dtoData);
 
         String processedCustomData = templateEngineService.process(CUSTOM_DATA_TEMPLATE_KEY, customDataToProcess, model);
 
