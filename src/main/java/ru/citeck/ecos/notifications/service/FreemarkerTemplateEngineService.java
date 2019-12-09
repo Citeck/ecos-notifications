@@ -4,6 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -32,25 +33,29 @@ public class FreemarkerTemplateEngineService {
                 templateKey, templateRepresentation), e);
         }
 
-        String result;
+        String processedStr;
 
         try (StringWriter stringWriter = new StringWriter()) {
             template.process(model, stringWriter);
-            result = stringWriter.toString();
+            processedStr = stringWriter.toString();
         } catch (TemplateException | IOException e) {
             throw new RuntimeException(String.format("Failed to process freemarker template. Key: <%s>, Template:\n%s",
                 templateKey, templateRepresentation), e);
         }
 
-        log.debug(String.format("Processed template <%s>" +
-                "\nmodel: %s" +
-                "\n-------> from" +
-                "\n%s" +
-                "\n-------> to\n" +
-                "%s", templateKey, model, templateRepresentation,
-            result));
+        //TODO: why freemarker return double quotes?
+        String removedDoubleQuotes = StringUtils.isNotBlank(processedStr) ? processedStr.replaceAll("\"\"", "\"") : "";
 
-        return result;
+        log.debug("Processed template {}" +
+            "\nmodel: {}" +
+            "\n-------> from" +
+            "\n{}" +
+            "\n-------> to" +
+            "\n{}" +
+            "\nremovedDoubleQuotes:" +
+            "\n{}", templateKey, model, templateRepresentation, processedStr, removedDoubleQuotes);
+
+        return removedDoubleQuotes;
     }
 
 }
