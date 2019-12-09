@@ -59,7 +59,7 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                         if (routingKey.startsWith("task.")) {
                             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
 
-                            TaskEventDto dto = OBJECT_MAPPER.readValue(msg, TaskEventDto.class);
+                            TaskEventDto dto = EventDtoFactory.fromEventDtoMsg(msg);
 
                             Set<String> userSubscribers = getSubscribersUsers(dto);
 
