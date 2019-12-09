@@ -96,6 +96,9 @@ public abstract class ActionProcessor {
 
         String processedCustomData = templateEngineService.process(CUSTOM_DATA_TEMPLATE_KEY, customDataToProcess, model);
 
+        //TODO: why freemarker return double quotes?
+        processedCustomData  = processedCustomData.replaceAll("\"\"", "\"");
+
         try {
             return OBJECT_MAPPER.readValue(processedCustomData, CustomData[].class);
         } catch (IOException e) {
