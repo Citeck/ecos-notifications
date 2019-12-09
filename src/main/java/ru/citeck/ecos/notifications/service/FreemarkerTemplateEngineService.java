@@ -52,7 +52,7 @@ public class FreemarkerTemplateEngineService {
             "\n{}" +
             "\n-------> to" +
             "\n{}" +
-            "\nremovedDoubleQuotes:" +
+            "\n-------> removedDoubleQuotes:" +
             "\n{}", templateKey, model, templateRepresentation, processedStr, removedDoubleQuotes);
 
         return removedDoubleQuotes;
