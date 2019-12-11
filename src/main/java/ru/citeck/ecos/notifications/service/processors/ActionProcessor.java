@@ -18,6 +18,7 @@ import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.RecordsService;
+import ru.citeck.ecos.records2.spring.RemoteRecordsUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -79,7 +80,9 @@ public abstract class ActionProcessor {
 
         for (CustomData data : customData) {
             RecordRef recordRef = RecordRef.valueOf(data.getRecord());
-            RecordMeta attributes = recordsService.getAttributes(recordRef, data.getAttributes());
+            RecordMeta attributes = RemoteRecordsUtils.runAsSystem(() ->
+                recordsService.getAttributes(recordRef, data.getAttributes())
+            );
             result.put(data.getVariable(), attributes);
         }
 
