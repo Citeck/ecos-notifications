@@ -117,12 +117,12 @@ public abstract class ActionProcessor {
 
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scriptEngine = manager.getEngineByName(GROOVY_ENGINE);
-        Object result;
+        Object result = false;
         try {
             result = scriptEngine.eval(conditionScript,
                 new SimpleBindings(model));
         } catch (ScriptException e) {
-            throw new RuntimeException("Failed eval groove script:\n" + conditionScript, e);
+            log.error("Failed eval groove script:\n" + conditionScript + "\n action:\n" + action , e);
         }
 
         log.debug(String.format("Evaluate groovy condition... \n" +
