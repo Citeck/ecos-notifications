@@ -1,7 +1,5 @@
 package ru.citeck.ecos.notifications.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,6 +10,7 @@ import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
+import ru.citeck.ecos.records2.objdata.DataValue;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
 import ru.citeck.ecos.records2.request.error.ErrorUtils;
@@ -20,6 +19,7 @@ import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
 import ru.citeck.ecos.records2.request.query.RecordsQuery;
 import ru.citeck.ecos.records2.request.query.RecordsQueryResult;
 import ru.citeck.ecos.records2.source.dao.local.CrudRecordsDAO;
+import ru.citeck.ecos.records2.utils.json.JsonUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -131,8 +131,8 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
             throwParamIsMandatory(PARAM_EVENT_TYPE);
         }
 
-        JsonNode actionNode = meta.get(PARAM_ACTION);
-        if (actionNode.isMissingNode() || actionNode.isNull()) {
+        DataValue actionNode = meta.get(PARAM_ACTION);
+        if (actionNode.isNull()) {
             throwParamIsMandatory(PARAM_ACTION);
         }
 
@@ -141,20 +141,17 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
             throwParamIsMandatory(PARAM_ACTION_TYPE);
         }
 
-        String config = actionNode.get(PARAM_ACTION_CONFIG) != null
+        String config = actionNode.get(PARAM_ACTION_CONFIG).isNotNull()
             ? actionNode.get(PARAM_ACTION_CONFIG).toString() : null;
-        String condition = actionNode.get(PARAM_ACTION_CONDITION) != null
+        String condition = actionNode.get(PARAM_ACTION_CONDITION).isNotNull()
             ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
 
         CustomData[] customData = new CustomData[0];
 
-        if (actionNode.hasNonNull(PARAM_CUSTOM_DATA)) {
-            JsonNode customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
-            try {
-                customData = OBJECT_MAPPER.treeToValue(customDataNode, CustomData[].class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Can not parse CustomData", e);
-            }
+        DataValue customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
+
+        if (customDataNode.isNotNull()) {
+            customData = JsonUtils.convert(customDataNode, CustomData[].class);
         }
 
         if (StringUtils.isBlank(id)) {
