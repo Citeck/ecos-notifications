@@ -93,7 +93,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
             Action resultAction;
 
             String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG) != null
-                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).toString() : "";
+                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).asText() : "";
 
             if (StringUtils.isNotBlank(updateConfig)) {
                 resultAction = processUpdateActionConfig(id, updateConfig);
@@ -142,7 +142,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
         }
 
         String config = actionNode.get(PARAM_ACTION_CONFIG).isNotNull()
-            ? actionNode.get(PARAM_ACTION_CONFIG).toString() : null;
+            ? actionNode.get(PARAM_ACTION_CONFIG).asText() : null;
         String condition = actionNode.get(PARAM_ACTION_CONDITION).isNotNull()
             ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
 
