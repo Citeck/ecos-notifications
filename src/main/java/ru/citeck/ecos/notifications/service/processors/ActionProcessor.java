@@ -18,7 +18,7 @@ import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.RecordsService;
-import ru.citeck.ecos.records2.spring.utils.RemoteRecordsUtils;
+import ru.citeck.ecos.records2.rest.RemoteRecordsUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;

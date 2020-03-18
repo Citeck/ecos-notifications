@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.citeck.ecos.records2.RecordsProperties;
 import ru.citeck.ecos.records2.RecordsServiceFactory;
-import ru.citeck.ecos.records2.source.dao.remote.RecordsRestConnection;
+import ru.citeck.ecos.records2.rest.RemoteRecordsRestApi;
 import ru.citeck.ecos.records2.source.dao.remote.RemoteRecordsDAO;
 
 import java.util.Collections;
@@ -39,12 +39,11 @@ public class RecordsConfig extends RecordsServiceFactory {
     }
 
     @Bean
-    public RemoteRecordsDAO createAlfrescoRecordsDao(RecordsRestConnection restConnection) {
-
+    public RemoteRecordsDAO createAlfrescoRecordsDao(RemoteRecordsRestApi restConnection) {
         RemoteRecordsDAO alfrescoRemote = new RemoteRecordsDAO();
         alfrescoRemote.setRecordsMethod("/alfresco/api/records/query");
         alfrescoRemote.setId(ALFRESCO_SOURCE_ID);
-        alfrescoRemote.setRestConnection(restConnection);
+        alfrescoRemote.setRestConnection(restConnection::jsonPost);
         return alfrescoRemote;
     }
 }
