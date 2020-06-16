@@ -462,6 +462,11 @@
             <version>2.3.29</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
