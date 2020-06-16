@@ -63,7 +63,7 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
     }
 
     @Override
-    public RecordsMutResult mutate(RecordsMutation mutation) {
+    public RecordsMutResult mutateImpl(RecordsMutation mutation) {
         return null;
     }
 
