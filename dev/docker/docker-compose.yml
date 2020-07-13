@@ -13,7 +13,7 @@ services:
     volumes:
       - .\micro-volumes\ecos-ui\:/opt/ecos-ui/
   gateway-app:
-    image: nexus.citeck.ru/ecos-gateway:1.9.0
+    image: nexus.citeck.ru/ecos-gateway:1.10.0-snapshot
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=dev,swagger
@@ -48,7 +48,7 @@ services:
       - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=native
       - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS=file:/central-config/docker-config/
   uiserv-app:
-    image: nexus.citeck.ru/ecos-uiserv:1.12.0
+    image: nexus.citeck.ru/ecos-uiserv:1.13.0-snapshot
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,swagger
@@ -87,6 +87,63 @@ services:
     volumes:
       - ./volumes/ecos-apps/:/ecos-apps
 
+  #=== ECOS MODEL ===#
+
+  emodel-app:
+    container_name: emodel-app
+    image: nexus.citeck.ru/ecos-model:1.10.0-snapshot
+    ports:
+      - 8094:8094
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://emodel-psql:5432/emodel
+      - ECOS_INIT_DELAY=30
+    depends_on:
+      - jhipster-registry
+      - emodel-psql
+      - rabbitmq
+
+  emodel-psql:
+    container_name: emodel-psql
+    image: postgres:10.4
+    ports:
+      - 5441:5432
+    environment:
+      - POSTGRES_USER=emodel
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_emodel:/var/lib/postgresql/data
+
+  #=== ECOS PROCESS ===#
+
+  eproc-app:
+    container_name: eproc-app
+    image: nexus.citeck.ru/ecos-process:1.2.0-snapshot
+    ports:
+      - 8098:8098
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATA_MONGODB_URI=mongodb://eproc-mongo:27018/eproc
+      - JHIPSTER_SLEEP=30
+    depends_on:
+      - eproc-mongo
+
+  eproc-mongo:
+    container_name: eproc-mongo
+    image: mongo:4.0.2
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_eproc:/data/db
+
   eapps-psql:
     container_name: eapps-psql
     image: postgres:10.4
@@ -103,6 +160,7 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
       - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
       - ECOS-HISTORY_EVENT_HOST=rabbitmq
@@ -182,4 +240,8 @@ volumes:
   rabbitmq_data:
     external: true
   psql_eapps:
+    external: true
+  psql_emodel:
+    external: true
+  mongo_eproc:
     external: true
