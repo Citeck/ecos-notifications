@@ -3,8 +3,8 @@ package ru.citeck.ecos.notifications.domain.subscribe.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import lombok.Data;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.CustomData;
 
 import java.util.List;
 

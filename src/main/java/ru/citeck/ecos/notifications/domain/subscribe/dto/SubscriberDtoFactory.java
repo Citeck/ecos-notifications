@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.subscribe.*;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscriber;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.SubscriberId;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscription;
 
 import java.io.IOException;
 import java.util.stream.Collectors;

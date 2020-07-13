@@ -13,8 +13,8 @@ import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.service.ActionService;
+import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
+import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
 import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.notifications.service.TemplateService;
 

@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications;
 
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.config.DefaultProfileUtil;
 
@@ -23,6 +24,7 @@ import java.util.Collection;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
+@EnableJpaRepositories("ru.citeck.ecos.notifications.domain.*.repository")
 @EnableDiscoveryClient
 public class NotificationsApp {
 

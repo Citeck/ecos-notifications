@@ -1,0 +1,28 @@
+id: notification-templates
+label: { ru: Шаблоны уведомлений, en: Notification templates }
+
+sourceId: notifications/template
+
+typeRef: emodel/type@notification-template
+
+attributes:
+  actionFormatter: '' #include include/legacy-actions.js
+  journalsListId: global-system
+
+actions:
+  - uiserv/action@ecos-module-download
+  - uiserv/action@delete
+  - uiserv/action@edit
+  - uiserv/action@module-copy
+
+columns:
+
+  - name: moduleId
+    type: text
+    label: { ru: Идентификатор, en: Id }
+
+  - name: _modified
+    label: { ru: Изменен, en: Modified }
+
+  - name: _modifier
+    label: { ru: Кем изменен, en: Modified by }

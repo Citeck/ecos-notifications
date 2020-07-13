@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import ru.citeck.ecos.events.EventConnection;
-import ru.citeck.ecos.notifications.repository.SubscriberRepository;
-import ru.citeck.ecos.notifications.service.handlers.AbstractEventHandlersRegistrar;
+import ru.citeck.ecos.notifications.domain.subscribe.repository.SubscriberRepository;
+import ru.citeck.ecos.notifications.domain.subscribe.handlers.AbstractEventHandlersRegistrar;
 import ru.citeck.ecos.notifications.service.processors.ActionProcessor;
 
 import java.util.*;
