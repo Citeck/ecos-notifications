@@ -43,7 +43,8 @@ public class NotificationTemplateModuleHandler implements EcosModuleHandler<BinM
         ObjectData meta = module.getMeta();
 
         dto.setId(meta.get("id").asText());
-        dto.setTitle(meta.get("title", MLText.class));
+        dto.setNotificationTitle(meta.get("notificationTitle", MLText.class));
+        dto.setName(meta.get("name").asText());
 
         EcosMemDir memDir = ZipUtils.extractZip(module.getData());
         dto.setData(getTemplateDataFromMemDir(memDir));

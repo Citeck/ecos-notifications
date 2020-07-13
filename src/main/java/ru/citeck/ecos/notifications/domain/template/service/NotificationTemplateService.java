@@ -1,53 +1,48 @@
 package ru.citeck.ecos.notifications.domain.template.service;
 
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import ru.citeck.ecos.commons.json.Json;
+import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto;
 import ru.citeck.ecos.notifications.domain.template.entity.NotificationTemplate;
-import ru.citeck.ecos.notifications.domain.template.entity.TemplateData;
 import ru.citeck.ecos.notifications.domain.template.repository.NotificationTemplateRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationTemplateService {
 
     private final NotificationTemplateRepository templateRepository;
-
-    public NotificationTemplateService(NotificationTemplateRepository templateRepository) {
-        this.templateRepository = templateRepository;
-    }
+    private final TemplateConverter templateConverter;
 
     public void update(@NotNull NotificationTemplateDto dto) {
-        templateRepository.save(toEntity(dto));
+        templateRepository.save(templateConverter.dtoToEntity(dto));
     }
 
-    private NotificationTemplate toEntity(@NotNull NotificationTemplateDto dto) {
-        NotificationTemplate entity = templateRepository.findOneByExtId(dto.getId()).orElse(new NotificationTemplate());
-        entity.setTitle(Json.getMapper().toString(dto.getTitle()));
-        entity.setExtId(dto.getId());
-
-        Map<String, TemplateData> updatedData = new HashMap<>();
-
-        dto.getData().forEach((lang, dataDto) -> {
-
-            TemplateData td = entity.getData().get(lang);
-            if (td == null) {
-                td = new TemplateData();
-            }
-            td.setLang(lang);
-            td.setName(dataDto.getName());
-            td.setData(dataDto.getData());
-            td.setTemplate(entity);
-
-            updatedData.put(lang, td);
-        });
-
-        entity.setData(updatedData);
-
-        return entity;
+    public void deleteById(String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new IllegalArgumentException("Id parameter is mandatory for template deletion");
+        }
+        templateRepository.findOneByExtId(id).ifPresent(templateRepository::delete);
     }
 
+    public Optional<NotificationTemplateDto> findById(String id) {
+        if (StringUtils.isBlank(id)) {
+            return Optional.empty();
+        }
+        return templateRepository.findOneByExtId(id)
+            .map(templateConverter::entityToDto);
+    }
+
+    public NotificationTemplateDto save(NotificationTemplateDto dto) {
+        if (StringUtils.isBlank(dto.getId())) {
+            dto.setId(UUID.randomUUID().toString());
+        }
+        NotificationTemplate saved = templateRepository.save(templateConverter.dtoToEntity(dto));
+        return templateConverter.entityToDto(saved);
+    }
 }

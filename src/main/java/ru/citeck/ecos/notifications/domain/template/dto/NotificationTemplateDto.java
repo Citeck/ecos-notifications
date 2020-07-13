@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.citeck.ecos.commons.data.MLText;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,10 +15,9 @@ import java.util.Map;
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 public class NotificationTemplateDto {
 
-    @NotNull
     private String id;
-
-    private MLText title;
+    private String name;
+    private MLText notificationTitle;
 
     private Map<String, TemplateDataDto> data = new HashMap<>();
 

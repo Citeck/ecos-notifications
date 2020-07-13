@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 @Data
 @Entity
@@ -24,7 +23,10 @@ public class NotificationTemplate extends AbstractAuditingEntity {
     @Column(name = "ext_id")
     private String extId;
 
-    private String title;
+    private String name;
+
+    @Column(name = "notification_title")
+    private String notificationTitle;
 
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
     @MapKey(name = "lang")
