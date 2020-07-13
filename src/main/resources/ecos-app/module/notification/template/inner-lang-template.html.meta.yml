@@ -1,2 +1,4 @@
 id: inner-lang-template
-title: lang title
+title:
+  en: en title
+  ru: ru title

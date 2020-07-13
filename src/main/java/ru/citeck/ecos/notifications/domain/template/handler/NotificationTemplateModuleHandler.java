@@ -8,6 +8,7 @@ import ru.citeck.ecos.apps.module.controller.type.binary.BinModule;
 import ru.citeck.ecos.apps.module.handler.EcosModuleHandler;
 import ru.citeck.ecos.apps.module.handler.ModuleMeta;
 import ru.citeck.ecos.apps.module.handler.ModuleWithMeta;
+import ru.citeck.ecos.commons.data.MLText;
 import ru.citeck.ecos.commons.data.ObjectData;
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir;
 import ru.citeck.ecos.commons.utils.ZipUtils;
@@ -42,7 +43,7 @@ public class NotificationTemplateModuleHandler implements EcosModuleHandler<BinM
         ObjectData meta = module.getMeta();
 
         dto.setId(meta.get("id").asText());
-        dto.setTitle(meta.get("title").asText());
+        dto.setTitle(meta.get("title", MLText.class));
 
         EcosMemDir memDir = ZipUtils.extractZip(module.getData());
         dto.setData(getTemplateDataFromMemDir(memDir));
