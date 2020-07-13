@@ -52,6 +52,10 @@ public class TemplateConverter {
         dto.setId(entity.getExtId());
         dto.setName(entity.getName());
         dto.setNotificationTitle(Json.getMapper().read(entity.getNotificationTitle(), MLText.class));
+        dto.setCreator(entity.getCreatedBy());
+        dto.setCreated(entity.getCreatedDate());
+        dto.setModifier(entity.getLastModifiedBy());
+        dto.setModified(entity.getLastModifiedDate());
 
         Map<String, TemplateDataDto> data = new HashMap<>();
         entity.getData().forEach((lang, templateData) -> {

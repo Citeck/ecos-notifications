@@ -17,12 +17,15 @@ actions:
 
 columns:
 
-  - name: moduleId
+  - name: id
     type: text
     label: { ru: Идентификатор, en: Id }
 
-  - name: _modified
+  - name: name
+    label: { ru: Имя, en: Name }
+
+  - name: modified
     label: { ru: Изменен, en: Modified }
 
-  - name: _modifier
+  - name: modifier
     label: { ru: Кем изменен, en: Modified by }
