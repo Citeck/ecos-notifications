@@ -144,6 +144,14 @@ public class NotificationTemplateRecords extends LocalRecordsDao implements
             super(dto);
         }
 
+        public String getModuleId() {
+            return getId();
+        }
+
+        public void setModuleId(String value) {
+            setId(value);
+        }
+
         @MetaAtt(".type")
         public RecordRef getEcosType() {
             return RecordRef.create("emodel", "type", "notification-template");

@@ -27,6 +27,7 @@
         "encrypted": false,
         "validate": {
           "required": true,
+          "pattern": "^[a-zA-Z0-9-*]+$",
           "customMessage": "",
           "json": "",
           "custom": "",
@@ -34,15 +35,14 @@
           "minLength": "",
           "maxLength": "",
           "minWords": "",
-          "maxWords": "",
-          "pattern": ""
+          "maxWords": ""
         },
-        "key": "id",
+        "key": "moduleId",
         "properties": {},
         "conditional": {
-          "json": "",
           "show": "",
           "when": "",
+          "json": "",
           "eq": ""
         },
         "customConditional": "",
@@ -88,11 +88,12 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "efmfdk"
+        "id": "ea7blua"
       },
       {
         "label": "Name",
         "disableInlineEdit": false,
+        "allowMultipleMasks": false,
         "showWordCount": false,
         "showCharCount": false,
         "tableView": true,
@@ -102,9 +103,9 @@
         "triggerChangeWhenCalculate": false,
         "encrypted": false,
         "validate": {
+          "required": true,
           "customMessage": "",
           "json": "",
-          "required": false,
           "custom": "",
           "customPrivate": false,
           "minLength": "",
@@ -116,9 +117,9 @@
         "key": "name",
         "properties": {},
         "conditional": {
-          "json": "",
           "show": "",
           "when": "",
+          "json": "",
           "eq": ""
         },
         "customConditional": "",
@@ -164,32 +165,26 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "ehuj8gr"
+        "id": "ennkkc"
       },
       {
         "label": "Notification Title",
-        "disableInlineEdit": false,
-        "autoExpand": false,
-        "isUploadEnabled": false,
-        "showWordCount": false,
-        "showCharCount": false,
+        "mask": false,
         "tableView": true,
         "alwaysEnabled": false,
-        "defaultValue": "",
-        "inputFormat": "plain",
-        "triggerChangeWhenCalculate": false,
+        "disableInlineEdit": false,
+        "defaultValue": {
+          "ru": "",
+          "en": ""
+        },
         "encrypted": false,
+        "triggerChangeWhenCalculate": false,
         "validate": {
           "customMessage": "",
           "json": "",
           "required": false,
           "custom": "",
-          "customPrivate": false,
-          "minLength": "",
-          "maxLength": "",
-          "minWords": "",
-          "maxWords": "",
-          "pattern": ""
+          "customPrivate": false
         },
         "key": "notificationTitle",
         "properties": {},
@@ -202,8 +197,7 @@
         "customConditional": "",
         "logic": [],
         "attributes": {},
-        "rows": 4,
-        "type": "textarea",
+        "type": "mlText",
         "input": true,
         "tags": [],
         "placeholder": "",
@@ -231,20 +225,11 @@
         "customDefaultValue": "",
         "calculateValue": "",
         "allowCalculateOverride": false,
-        "widget": {
-          "format": "yyyy-MM-dd hh:mm a",
-          "dateFormat": "yyyy-MM-dd hh:mm a",
-          "saveAs": "text"
-        },
+        "widget": null,
         "refreshOn": "",
         "clearOnRefresh": false,
         "validateOn": "change",
-        "mask": false,
-        "inputType": "text",
-        "inputMask": "",
-        "wysiwyg": false,
-        "editor": "",
-        "id": "edl7rhx"
+        "id": "e7h4w0x"
       },
       {
         "type": "button",
@@ -300,7 +285,7 @@
         "block": false,
         "action": "submit",
         "removeIndents": false,
-        "id": "e5cfro"
+        "id": "e89vxgo"
       }
     ]
   },
