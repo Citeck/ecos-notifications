@@ -26,15 +26,13 @@ class TemplateConverter {
         val updatedData: MutableMap<String, TemplateData> = HashMap()
 
         dto.data.forEach { (lang: String, dataDto: TemplateDataDto) ->
-            var td = entity.data[lang]
-            if (td == null) {
-                td = TemplateData(
-                    name = dataDto.name,
-                    lang = lang,
-                    data = dataDto.data,
-                    template = entity
-                )
-            }
+            val td = entity.data[lang] ?: TemplateData()
+
+            td.name = dataDto.name
+            td.lang = lang
+            td.data = dataDto.data
+            td.template = entity
+
             updatedData[lang] = td
         }
         entity.data = updatedData

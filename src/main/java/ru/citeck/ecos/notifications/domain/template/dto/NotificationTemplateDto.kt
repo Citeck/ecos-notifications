@@ -26,4 +26,16 @@ open class NotificationTemplateDto(
         dto.creator,
         dto.created
     )
+
+    override fun toString(): String {
+        return "NotificationTemplateDto(id='$id', " +
+            "name=$name, " +
+            "notificationTitle=$notificationTitle, " +
+            "data=$data, " +
+            "modifier=$modifier, " +
+            "modified=$modified, " +
+            "creator=$creator, " +
+            "created=$created)"
+    }
+
 }

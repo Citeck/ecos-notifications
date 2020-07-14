@@ -4,16 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.domain.notification.NotificationType
 
 @Service
-class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMailSender) {
+class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMailSender): NotificationProvider {
 
-    fun sendTest() {
+    override fun getType(): NotificationType {
+        return NotificationType.EMAIL_NOTIFICATION
+    }
+
+    override fun send(title: String, body: String, to: List<String>) {
+
         val message = SimpleMailMessage()
         message.setFrom("noreply@baeldung.com")
-        message.setTo("romanchabest55@gmail.com")
-        message.setSubject("its test message")
-        message.setText("Some body there")
+        message.setTo(to[0])
+        message.setSubject(title)
+        message.setText(body)
 
         emailSender.send(message)
     }

@@ -1,9 +1,10 @@
-package ru.citeck.ecos.notifications.service.providers;
+package ru.citeck.ecos.notifications.service.providers
 
-import java.util.List;
+import ru.citeck.ecos.notifications.domain.notification.NotificationType
 
-public interface NotificationProvider {
+interface NotificationProvider {
 
-    void send(String title, String body, List<String> to);
+    fun getType(): NotificationType
 
+    fun send(title: String, body: String, to: List<String>)
 }

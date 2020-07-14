@@ -5,6 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.commons.data.DataValue;
 import ru.citeck.ecos.commons.json.Json;
+import ru.citeck.ecos.notifications.domain.notification.NotificationType;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
@@ -150,7 +151,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
 
         if (StringUtils.isBlank(id)) {
             Action newAction = new Action();
-            newAction.setType(Action.Type.valueOf(actionType));
+            newAction.setType(NotificationType.valueOf(actionType));
             newAction.setConfigJSON(config);
             newAction.setCondition(condition);
             newAction.setCustomData(Arrays.asList(customData));
@@ -162,7 +163,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
         } else {
             Action exists = actionService.findById(Long.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
-            exists.setType(Action.Type.valueOf(actionType));
+            exists.setType(NotificationType.valueOf(actionType));
             exists.setConfigJSON(config);
             exists.setCondition(condition);
             exists.setCustomData(Arrays.asList(customData));

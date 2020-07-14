@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.handler
 
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.apps.module.controller.type.binary.BinModule
@@ -20,6 +21,12 @@ import java.util.regex.Pattern
 @Component
 class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
 
+    companion object {
+        private val LANG_KEY_PATTERN = Pattern.compile(".*_(\\w+).*")
+        private const val DEFAULT_LANG_KEY = "en"
+        private val log = KotlinLogging.logger {}
+    }
+
     @Autowired
     private lateinit var templateService: NotificationTemplateService
 
@@ -35,6 +42,16 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         dto.name = meta.get("name").asText()
         val memDir = extractZip(module.data)
         dto.data = getTemplateDataFromMemDir(memDir)
+
+        log.debug("Deploy new template module: $dto")
+        if (log.isDebugEnabled) {
+            memDir.getChildren().forEach {
+                val name = it.getName()
+                val content = it.readAsString()
+                log.debug("name: $name content: \n$content")
+            }
+        }
+
         return dto
     }
 
@@ -68,10 +85,5 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
 
     override fun prepareToDeploy(module: BinModule): ModuleWithMeta<BinModule>? {
         return getModuleMeta(module)
-    }
-
-    companion object {
-        private val LANG_KEY_PATTERN = Pattern.compile(".*_(\\w+).*")
-        private const val DEFAULT_LANG_KEY = "en"
     }
 }

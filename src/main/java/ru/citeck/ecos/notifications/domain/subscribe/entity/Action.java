@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.citeck.ecos.notifications.domain.BaseEntity;
+import ru.citeck.ecos.notifications.domain.notification.NotificationType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -28,10 +29,6 @@ public class Action extends BaseEntity {
     private List<CustomData> customData = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private Type type;
-
-    public enum Type {
-        FIREBASE_NOTIFICATION, EMAIL_NOTIFICATION
-    }
+    private NotificationType type;
 
 }

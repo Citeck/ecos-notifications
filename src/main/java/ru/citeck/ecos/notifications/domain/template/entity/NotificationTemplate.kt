@@ -41,7 +41,17 @@ class NotificationTemplate @JvmOverloads constructor(
 
     override fun hashCode() = 31
 
+    override fun toString(): String {
+        return "NotificationTemplate(id=$id, " +
+            "extId=$extId, " +
+            "name=$name, " +
+            "notificationTitle=$notificationTitle, " +
+            "data=$data)"
+    }
+
     companion object {
         private const val serialVersionUID = 1L
     }
+
+
 }

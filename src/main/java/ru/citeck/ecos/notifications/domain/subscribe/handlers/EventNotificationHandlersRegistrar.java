@@ -11,6 +11,7 @@ import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
+import ru.citeck.ecos.notifications.domain.notification.NotificationType;
 import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscription;
 import ru.citeck.ecos.notifications.domain.subscribe.repository.SubscriptionRepository;
 import ru.citeck.ecos.notifications.service.processors.ActionProcessor;
@@ -72,7 +73,7 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                                     Set<Action> actions = subscription.getActions();
 
                                     actions.forEach(action -> {
-                                        Action.Type type = action.getType();
+                                        NotificationType type = action.getType();
 
                                         List<ActionProcessor> processors = actionProcessors.get(type.toString());
                                         if (CollectionUtils.isNotEmpty(processors)) {

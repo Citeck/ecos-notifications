@@ -41,4 +41,10 @@ class TemplateData @JvmOverloads constructor(
     override fun hashCode(): Int {
         return 31
     }
+
+    override fun toString(): String {
+        return "TemplateData(id=$id, name=$name, lang=$lang)"
+    }
+
+
 }
