@@ -1,49 +1,44 @@
-package ru.citeck.ecos.notifications.domain.template.entity;
+package ru.citeck.ecos.notifications.domain.template.entity
 
-import lombok.Data;
-import lombok.Getter;
-import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity;
+import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
+import java.io.Serializable
+import java.time.Instant
+import javax.persistence.*
+import javax.validation.constraints.Size
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.Objects;
-
-@Data
 @Entity
 @Table(name = "template_data")
-public class TemplateData extends AbstractAuditingEntity {
+class TemplateData @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    @Getter
-    private Long id;
+    var id: Long? = null,
 
-    @NotNull
-    private String name;
+    var name: String? = null,
 
-    @NotNull
-    @Size(min = 2)
-    private String lang;
+    var lang: @Size(min = 2) String? = null,
 
     @ManyToOne
     @JoinColumn(name = "template_id")
-    private NotificationTemplate template;
+    var template: NotificationTemplate? = null,
 
-    private byte[] data;
+    var data: ByteArray? = null,
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TemplateData that = (TemplateData) o;
-        return Objects.equals(id, that.id);
+    createdBy: String? = null,
+    createdDate: Instant? = Instant.now(),
+    lastModifiedBy: String? = null,
+    lastModifiedDate: Instant? = Instant.now()
+) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate), Serializable {
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as TemplateData
+        return id == that.id
     }
 
-    @Override
-    public int hashCode() {
-        return 31;
+    override fun hashCode(): Int {
+        return 31
     }
-
 }

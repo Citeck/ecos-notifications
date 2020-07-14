@@ -1,167 +1,140 @@
-package ru.citeck.ecos.notifications.domain.template.records;
+package ru.citeck.ecos.notifications.domain.template.records
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto;
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService;
-import ru.citeck.ecos.records2.RecordConstants;
-import ru.citeck.ecos.records2.RecordMeta;
-import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt;
-import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
-import ru.citeck.ecos.records2.predicate.model.Predicate;
-import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
-import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
-import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
-import ru.citeck.ecos.records2.request.query.RecordsQuery;
-import ru.citeck.ecos.records2.request.query.RecordsQueryResult;
-import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
-import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort
+import org.springframework.stereotype.Component
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.records.NotificationTemplateRecords.NotTemplateRecord
+import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.records2.RecordConstants
+import ru.citeck.ecos.records2.RecordMeta
+import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
+import ru.citeck.ecos.records2.graphql.meta.value.MetaField
+import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
+import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records2.request.delete.RecordsDelResult
+import ru.citeck.ecos.records2.request.delete.RecordsDeletion
+import ru.citeck.ecos.records2.request.mutation.RecordsMutResult
+import ru.citeck.ecos.records2.request.query.RecordsQuery
+import ru.citeck.ecos.records2.request.query.RecordsQueryResult
+import ru.citeck.ecos.records2.request.query.SortBy
+import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
+import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
+import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
+import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
+import java.util.*
+import java.util.stream.Collectors
 
 @Component
-public class NotificationTemplateRecords extends LocalRecordsDao implements
-    LocalRecordsQueryWithMetaDao<NotificationTemplateRecords.NotTemplateRecord>,
-    LocalRecordsMetaDao<NotificationTemplateRecords.NotTemplateRecord>,
-    MutableRecordsLocalDao<NotificationTemplateRecords.NotTemplateRecord> {
+class NotificationTemplateRecords(templateService: NotificationTemplateService) : LocalRecordsDao(),
+    LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
+    LocalRecordsMetaDao<NotTemplateRecord>,
+    MutableRecordsLocalDao<NotTemplateRecord> {
 
-    public static final String ID = "template";
-
-    private final NotificationTemplateService templateService;
-
-    public NotificationTemplateRecords(NotificationTemplateService templateService) {
-        setId(ID);
-        this.templateService = templateService;
-    }
-
-    @Override
-    public RecordsDelResult delete(RecordsDeletion deletion) {
-        RecordsDelResult result = new RecordsDelResult();
-        for (RecordRef record : deletion.getRecords()) {
-            templateService.deleteById(record.getId());
-            result.addRecord(new RecordMeta(record));
+    private val templateService: NotificationTemplateService
+    override fun delete(deletion: RecordsDeletion): RecordsDelResult {
+        val result = RecordsDelResult()
+        for (record in deletion.records) {
+            templateService.deleteById(record.id)
+            result.addRecord(RecordMeta(record))
         }
-        return result;
+        return result
     }
 
-    @Override
-    public List<NotTemplateRecord> getValuesToMutate(List<RecordRef> records) {
-        return getLocalRecordsMeta(records, null);
+    override fun getValuesToMutate(records: List<RecordRef>): List<NotTemplateRecord> {
+        return getLocalRecordsMeta(records, EmptyMetaField.INSTANCE)
     }
 
-    @Override
-    public RecordsMutResult save(List<NotTemplateRecord> values) {
-        RecordsMutResult result = new RecordsMutResult();
-
-        List<RecordMeta> savedList = values.stream()
-            .map(templateService::save)
-            .map(NotificationTemplateDto::getId)
-            .map(RecordMeta::new)
-            .collect(Collectors.toList());
-        result.setRecords(savedList);
-
-        return result;
+    override fun save(values: List<NotTemplateRecord>): RecordsMutResult {
+        val result = RecordsMutResult()
+        val savedList = values.stream()
+            .map { dto: NotTemplateRecord? -> templateService.save(dto) }
+            .map(NotificationTemplateDto::id)
+            .map { id: String? -> RecordMeta(id) }
+            .collect(Collectors.toList())
+        result.records = savedList
+        return result
     }
 
-    @Override
-    public List<NotTemplateRecord> getLocalRecordsMeta(List<RecordRef> records, MetaField metaField) {
+    override fun getLocalRecordsMeta(records: List<RecordRef>, metaField: MetaField): List<NotTemplateRecord> {
         return records.stream()
-            .map(RecordRef::getId)
-            .map(id -> templateService.findById(id)
-                .orElseGet(() -> new NotificationTemplateDto(id)))
-            .map(NotTemplateRecord::new)
-            .collect(Collectors.toList());
+            .map { obj: RecordRef -> obj.id }
+            .map { id: String? ->
+                templateService.findById(id)
+                    .orElseGet { NotificationTemplateDto(id!!) }
+            }
+            .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+            .collect(Collectors.toList())
     }
 
-    @Override
-    public RecordsQueryResult<NotTemplateRecord> queryLocalRecords(RecordsQuery recordsQuery, MetaField metaField) {
-        RecordsQueryResult<NotTemplateRecord> records = new RecordsQueryResult<>();
-
-        int max = recordsQuery.getMaxItems();
+    override fun queryLocalRecords(recordsQuery: RecordsQuery, metaField: MetaField): RecordsQueryResult<NotTemplateRecord> {
+        val records = RecordsQueryResult<NotTemplateRecord>()
+        var max = recordsQuery.maxItems
         if (max <= 0) {
-            max = 10000;
+            max = 10000
         }
-        int skip = recordsQuery.getSkipCount();
-
-        if ("predicate".equals(recordsQuery.getLanguage())) {
-
-            Predicate predicate = recordsQuery.getQuery(Predicate.class);
-
-            List<Sort.Order> order = recordsQuery.getSortBy()
+        val skip = recordsQuery.skipCount
+        if ("predicate" == recordsQuery.language) {
+            val predicate = recordsQuery.getQuery(Predicate::class.java)
+            val order = recordsQuery.sortBy
                 .stream()
-                .filter(s -> RecordConstants.ATT_MODIFIED.equals(s.getAttribute()))
-                .map(s -> {
-                    String attribute = s.getAttribute();
-                    if (RecordConstants.ATT_MODIFIED.equals(attribute)) {
-                        attribute = "lastModifiedDate";
+                .filter { s: SortBy -> RecordConstants.ATT_MODIFIED == s.attribute }
+                .map { s: SortBy ->
+                    var attribute = s.attribute
+                    if (RecordConstants.ATT_MODIFIED == attribute) {
+                        attribute = "lastModifiedDate"
                     }
-                    return s.isAscending() ? Sort.Order.asc(attribute) : Sort.Order.desc(attribute);
-                })
-                .collect(Collectors.toList());
-
-            Collection<NotTemplateRecord> types = templateService.getAll(
+                    if (s.isAscending) Sort.Order.asc(attribute) else Sort.Order.desc(attribute)
+                }
+                .collect(Collectors.toList())
+            val types: Collection<NotTemplateRecord> = templateService.getAll(
                 max,
-                recordsQuery.getSkipCount(),
+                recordsQuery.skipCount,
                 predicate,
-                !order.isEmpty() ? Sort.by(order) : null
+                if (order.isNotEmpty()) Sort.by(order) else null
             )
                 .stream()
-                .map(NotTemplateRecord::new)
-                .collect(Collectors.toList());
-
-            records.setRecords(new ArrayList<>(types));
-            records.setTotalCount(templateService.getCount(predicate));
-            return records;
+                .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+                .collect(Collectors.toList())
+            records.records = ArrayList(types)
+            records.totalCount = templateService.getCount(predicate)
+            return records
         }
-
-        if ("criteria".equals(recordsQuery.getLanguage())) {
-
-            records.setRecords(new ArrayList<>(
-                templateService.getAll(max, skip)
-                    .stream()
-                    .map(NotTemplateRecord::new)
-                    .collect(Collectors.toList()))
-            );
-            records.setTotalCount(templateService.getCount());
-
-            return records;
+        if ("criteria" == recordsQuery.language) {
+            records.records = templateService.getAll(max, skip)
+                .stream()
+                .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+                .collect(Collectors.toList())
+            records.totalCount = templateService.count
+            return records
         }
-
-        return new RecordsQueryResult<>();
+        return RecordsQueryResult()
     }
 
-    @NoArgsConstructor
-    public static class NotTemplateRecord extends NotificationTemplateDto {
+    data class NotTemplateRecord(val dto: NotificationTemplateDto) : NotificationTemplateDto(dto) {
+        var moduleId: String
+            get() = id
+            set(value) {
+                id = value
+            }
 
-        public NotTemplateRecord(NotificationTemplateDto dto) {
-            super(dto);
-        }
+        @get:MetaAtt(".type")
+        val ecosType: RecordRef
+            get() = RecordRef.create("emodel", "type", "notification-template")
 
-        public String getModuleId() {
-            return getId();
-        }
-
-        public void setModuleId(String value) {
-            setId(value);
-        }
-
-        @MetaAtt(".type")
-        public RecordRef getEcosType() {
-            return RecordRef.create("emodel", "type", "notification-template");
-        }
-
-        @MetaAtt(".disp")
-        public String getDisplayName() {
-            return getName();
-        }
+        @get:MetaAtt(".disp")
+        val displayName: String?
+            get() = name
 
         //TODO: add template data
+    }
+
+    companion object {
+        const val ID = "template"
+    }
+
+    init {
+        id = ID
+        this.templateService = templateService
     }
 }

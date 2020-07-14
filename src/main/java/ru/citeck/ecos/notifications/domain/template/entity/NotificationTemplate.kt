@@ -1,48 +1,47 @@
-package ru.citeck.ecos.notifications.domain.template.entity;
+package ru.citeck.ecos.notifications.domain.template.entity
 
-import lombok.Data;
-import lombok.Getter;
-import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity;
+import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
+import java.io.Serializable
+import java.time.Instant
+import javax.persistence.*
 
-import javax.persistence.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-@Data
 @Entity
 @Table(name = "notification_template")
-public class NotificationTemplate extends AbstractAuditingEntity {
+class NotificationTemplate @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    @Getter
-    private Long id;
+    var id: Long? = null,
 
     @Column(name = "ext_id")
-    private String extId;
+    var extId: String? = null,
 
-    private String name;
+    var name: String? = null,
 
     @Column(name = "notification_title")
-    private String notificationTitle;
+    var notificationTitle: String? = null,
 
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
     @MapKey(name = "lang")
-    private Map<String, TemplateData> data = new HashMap<>();
+    var data: MutableMap<String, TemplateData> = mutableMapOf(),
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NotificationTemplate that = (NotificationTemplate) o;
-        return Objects.equals(id, that.id);
+    createdBy: String? = null,
+    createdDate: Instant? = Instant.now(),
+    lastModifiedBy: String? = null,
+    lastModifiedDate: Instant? = Instant.now()
+) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate), Serializable {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is NotificationTemplate) return false
+
+        return id != null && other.id != null && id == other.id
     }
 
-    @Override
-    public int hashCode() {
-        return 31;
-    }
+    override fun hashCode() = 31
 
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }

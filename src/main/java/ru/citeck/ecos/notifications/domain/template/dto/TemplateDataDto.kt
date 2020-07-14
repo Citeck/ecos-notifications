@@ -1,18 +1,24 @@
-package ru.citeck.ecos.notifications.domain.template.dto;
+package ru.citeck.ecos.notifications.domain.template.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-public class TemplateDataDto {
+data class TemplateDataDto (
+    val name: String,
+    val data: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    private String name;
+        other as TemplateDataDto
 
-    private byte[] data;
+        if (name != other.name) return false
 
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
 }
