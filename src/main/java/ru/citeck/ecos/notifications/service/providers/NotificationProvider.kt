@@ -6,5 +6,5 @@ interface NotificationProvider {
 
     fun getType(): NotificationType
 
-    fun send(title: String, body: String, to: List<String>)
+    fun send(title: String, body: String, to: List<String>, from: String)
 }

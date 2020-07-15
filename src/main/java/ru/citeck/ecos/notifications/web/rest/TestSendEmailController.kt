@@ -32,7 +32,8 @@ class TestSendEmailController(
             locale = Locale.ENGLISH,
             recipients = listOf("roman.makarskiy@citeck.ru"),
             template = template.get(),
-            model = model
+            model = model,
+            from = "test@mail.ru"
         )
 
         notificationService.send(notification)

@@ -8,5 +8,6 @@ class Notification (
     val locale: Locale,
     val recipients: List<String>,
     val template: NotificationTemplateDto,
-    val model: Map<String, Any>
+    val model: Map<String, Any>,
+    val from: String
 )

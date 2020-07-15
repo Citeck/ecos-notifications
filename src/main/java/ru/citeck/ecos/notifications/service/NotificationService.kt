@@ -25,7 +25,7 @@ class NotificationService(
         val foundProviders = providers[notification.type]
             ?: throw NotificationException("Provider with notification type: ${notification.type} not registered}")
         foundProviders.forEach {
-            it.send(title, body, notification.recipients)
+            it.send(title, body, notification.recipients, notification.from)
         }
     }
 

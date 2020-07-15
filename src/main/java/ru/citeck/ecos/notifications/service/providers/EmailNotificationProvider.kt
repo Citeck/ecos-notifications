@@ -13,10 +13,10 @@ class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMa
         return NotificationType.EMAIL_NOTIFICATION
     }
 
-    override fun send(title: String, body: String, to: List<String>) {
+    override fun send(title: String, body: String, to: List<String>, from: String) {
 
         val message = SimpleMailMessage()
-        message.setFrom("noreply@baeldung.com")
+        message.setFrom(from)
         message.setTo(to[0])
         message.setSubject(title)
         message.setText(body)
