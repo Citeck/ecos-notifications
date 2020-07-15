@@ -69,7 +69,7 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         val matcher = LANG_KEY_PATTERN.matcher(fileName)
         return if (matcher.find()) {
             matcher.group(1)
-        } else DEFAULT_LANG_KEY
+        } else Locale.ENGLISH.toString()
     }
 
     override fun getModuleMeta(module: BinModule): ModuleWithMeta<BinModule> {

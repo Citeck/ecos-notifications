@@ -5,7 +5,7 @@ import java.util.*
 
 class Notification (
     val type: NotificationType,
-    val locale: Locale,
+    val locale: Locale = Locale.ENGLISH,
     val recipients: List<String>,
     val template: NotificationTemplateDto,
     val model: Map<String, Any>,

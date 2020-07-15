@@ -40,7 +40,7 @@ class NotificationService(
         val title = template.notificationTitle ?: return ""
 
         val titleTemplate = title.get(locale)
-            ?: throw NotificationException("Notification title not found with locale: $locale in template: template")
+            ?: throw NotificationException("Notification title not found with locale: $locale in template: $template")
 
         return freemarkerService.process(template.id + "_title", titleTemplate, model)
     }
