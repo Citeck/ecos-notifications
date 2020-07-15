@@ -21,7 +21,7 @@ class TestSendEmailController(
     fun send() {
 
         val model = mutableMapOf<String, Any>()
-        model["name"] = "Roman"
+        model["firstName"] = "Roman"
         model["lastName"] = "Makarskiy"
         model["age"] = "999"
 

@@ -1,1 +1,1 @@
-Inner lang ru 2
+<i>Привет ${firstName}, <b>твоя</b> фамилия ${lastName}? Тебе ${age} лет?</i>

@@ -1,5 +1,5 @@
 id: inner-lang-template
 name: Its inner template 2323
 notificationTitle:
-  en: "Hi ${name} ${lastName}"
+  en: "Hi ${firstName} ${lastName}"
   ru: ru title
