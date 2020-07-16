@@ -32,11 +32,12 @@ class EmailNotificationTest {
     @Autowired
     private lateinit var notificationService: NotificationService
 
+    private lateinit var greenMail: GreenMail
+    private lateinit var templateModel: MutableMap<String, Any>
+
     private lateinit var notificationTemplate: NotificationTemplateDto
     private lateinit var notificationWrongLocaleTemplate: NotificationTemplateDto
     private lateinit var notificationHtmlTemplate: NotificationTemplateDto
-    private lateinit var greenMail: GreenMail
-    private lateinit var templateModel: MutableMap<String, Any>
 
     @Before
     fun setup() {
@@ -244,11 +245,6 @@ class EmailNotificationTest {
 
         val body2 = MimeMessageParser(emails2[1]).parse().htmlContent.trim()
         assertThat(body2).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
-    }
-
-    private fun stringJsonFromResource(path: String): String {
-        val createTypeResource = ClassPathResource(path)
-        return StreamUtils.copyToString(createTypeResource.inputStream, Charset.defaultCharset())
     }
 
     @After

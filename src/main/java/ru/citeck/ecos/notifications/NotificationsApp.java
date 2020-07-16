@@ -24,7 +24,6 @@ import java.util.Collection;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
-@EnableJpaRepositories("ru.citeck.ecos.notifications.domain.*.repository")
 @EnableDiscoveryClient
 public class NotificationsApp {
 

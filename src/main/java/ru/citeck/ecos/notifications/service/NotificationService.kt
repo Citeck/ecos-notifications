@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.service
 
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.Notification
@@ -18,7 +19,11 @@ class NotificationService(
 
 ) {
 
+    private val log = KotlinLogging.logger {}
+
     fun send(notification: Notification) {
+        log.debug("Send notification: $notification")
+
         val title = prepareTitle(notification.template, notification.locale, notification.model)
         val body = prepareBody(notification.template, notification.locale, notification.model)
 
