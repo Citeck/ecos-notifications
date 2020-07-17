@@ -23,7 +23,7 @@ class SendNotificationCommandExecutor(
         val templateId = notificationSendCommand.templateRef.id
 
         val template = notificationTemplateService.findById(templateId).orElseThrow {
-            NotificationException("Template with id: $templateId not found}")
+            NotificationException("Template with id: <$templateId> not found}")
         }
 
         val locale = if (notificationSendCommand.lang.isNullOrEmpty()) DEFAULT_LOCALE else LocaleUtils.toLocale(notificationSendCommand.lang)
