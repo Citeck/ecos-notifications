@@ -1,8 +1,14 @@
 package ru.citeck.ecos.notifications.domain.template.records
 
+import ecos.com.fasterxml.jackson210.annotation.JsonProperty
+import ecos.com.fasterxml.jackson210.annotation.JsonValue
+import org.apache.commons.lang.StringUtils
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
+import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.records.NotificationTemplateRecords.NotTemplateRecord
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.records2.RecordConstants
@@ -32,6 +38,7 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
     MutableRecordsLocalDao<NotTemplateRecord> {
 
     private val templateService: NotificationTemplateService
+
     override fun delete(deletion: RecordsDeletion): RecordsDelResult {
         val result = RecordsDelResult()
         for (record in deletion.records) {
@@ -111,6 +118,9 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         return RecordsQueryResult()
     }
 
+
+    //TODO: fix uplaod from json in journal
+
     data class NotTemplateRecord(val dto: NotificationTemplateDto) : NotificationTemplateDto(dto) {
         var moduleId: String
             get() = id
@@ -126,7 +136,32 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         val displayName: String?
             get() = name
 
-        //TODO: add template data
+        @JsonProperty("templateContent")
+        fun setContent(content: List<ObjectData>) {
+            val updatedData: MutableMap<String, TemplateDataDto> = data.toMutableMap()
+
+            content.forEach {
+                var base64Content = it.get("url", "")
+                base64Content = StringUtils.substringAfter(base64Content, ",")
+
+                val contentBytes = Base64.getDecoder().decode(base64Content.toByteArray(Charsets.UTF_8))
+                val fileName = it.get("originalName").asText()
+
+                val langKey = getLangKeyFromFileName(fileName)
+
+                val templateData = TemplateDataDto(fileName, contentBytes)
+
+                updatedData[langKey] = templateData
+            }
+
+            this.data = updatedData
+        }
+
+        @JsonValue
+        @com.fasterxml.jackson.annotation.JsonValue
+        fun toJson(): NotificationTemplateDto? {
+            return NotificationTemplateDto(this)
+        }
     }
 
     companion object {

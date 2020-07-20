@@ -1,5 +1,7 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <changeSet author="romancha (generated)" id="1594201429761-1">
         <createTable tableName="notification_template">
             <column autoIncrement="true" name="id" type="BIGINT">
@@ -14,6 +16,7 @@
             <column name="ext_id" type="VARCHAR(255)"/>
             <column name="notification_title" type="VARCHAR(255)"/>
             <column name="name" type="VARCHAR(512)"/>
+            <column name="model" type="VARCHAR"/>
         </createTable>
     </changeSet>
     <changeSet author="romancha (generated)" id="1594201429761-2">

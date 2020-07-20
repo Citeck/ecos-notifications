@@ -2,15 +2,16 @@ package ru.citeck.ecos.notifications.domain.template.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import java.time.Instant
-import java.util.*
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 open class NotificationTemplateDto(
     var id: String,
     var name: String? = null,
     var notificationTitle: MLText? = null,
-    var data: Map<String, TemplateDataDto> = HashMap(),
+    var data: Map<String, TemplateDataDto> = mapOf(),
+    var model: ObjectData? = ObjectData.create(),
     var modifier: String? = null,
     var modified: Instant? = null,
     var creator: String? = null,
@@ -21,6 +22,7 @@ open class NotificationTemplateDto(
         dto.name,
         dto.notificationTitle,
         dto.data,
+        dto.model,
         dto.modifier,
         dto.modified,
         dto.creator,

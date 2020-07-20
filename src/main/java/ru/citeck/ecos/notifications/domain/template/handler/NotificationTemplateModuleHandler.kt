@@ -13,17 +13,15 @@ import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
+import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import java.util.*
 import java.util.function.Consumer
-import java.util.regex.Pattern
 
 @Component
 class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
 
     companion object {
-        private val LANG_KEY_PATTERN = Pattern.compile(".*_(\\w+).*")
-        private const val DEFAULT_LANG_KEY = "en"
         private val log = KotlinLogging.logger {}
     }
 
@@ -42,6 +40,7 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         dto.name = meta.get("name").asText()
         val memDir = extractZip(module.data)
         dto.data = getTemplateDataFromMemDir(memDir)
+        dto.model = meta.get("model").asObjectData()
 
         log.debug("Deploy new template module: $dto")
         if (log.isDebugEnabled) {
@@ -63,13 +62,6 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
             templateData[langKey] = dataDto
         })
         return templateData
-    }
-
-    private fun getLangKeyFromFileName(fileName: String): String {
-        val matcher = LANG_KEY_PATTERN.matcher(fileName)
-        return if (matcher.find()) {
-            matcher.group(1)
-        } else Locale.ENGLISH.toString()
     }
 
     override fun getModuleMeta(module: BinModule): ModuleWithMeta<BinModule> {

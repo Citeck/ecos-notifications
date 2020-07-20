@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.template.converter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
@@ -22,6 +23,7 @@ class TemplateConverter {
         entity.name = dto.name
         entity.notificationTitle = mapper.toString(dto.notificationTitle)
         entity.extId = dto.id
+        entity.model = mapper.toString(dto.model)
 
         val updatedData: MutableMap<String, TemplateData> = HashMap()
 
@@ -44,6 +46,7 @@ class TemplateConverter {
             id = entity.extId!!,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
+            model = mapper.read(entity.model, ObjectData::class.java),
             creator = entity.createdBy,
             created = entity.createdDate,
             modifier = entity.lastModifiedBy,

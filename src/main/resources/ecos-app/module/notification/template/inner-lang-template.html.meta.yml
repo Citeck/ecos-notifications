@@ -3,3 +3,6 @@ name: Its inner template 2323
 notificationTitle:
   en: "Hi ${firstName} ${lastName}"
   ru: ru title
+model:
+  title: ".disp"
+  name: "cm:name"
