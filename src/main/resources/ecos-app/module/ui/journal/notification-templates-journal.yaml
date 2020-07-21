@@ -6,14 +6,12 @@ sourceId: notifications/template
 typeRef: emodel/type@notification-template
 
 attributes:
-  actionFormatter: '' #include include/legacy-actions.js
   journalsListId: global-system
 
 actions:
-  - uiserv/action@ecos-module-download
+  - uiserv/action@download-base64-data-zip
   - uiserv/action@delete
   - uiserv/action@edit
-  - uiserv/action@module-copy
 
 columns:
 
@@ -24,8 +22,8 @@ columns:
   - name: name
     label: { ru: Имя, en: Name }
 
-  - name: modified
+  - name: _modified
     label: { ru: Изменен, en: Modified }
 
-  - name: modifier
+  - name: _modifier
     label: { ru: Кем изменен, en: Modified by }

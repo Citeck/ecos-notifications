@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.entity.NotificationTemplate
 import ru.citeck.ecos.notifications.domain.template.entity.TemplateData
@@ -18,7 +18,7 @@ class TemplateConverter {
     @Autowired
     private lateinit var templateRepository: NotificationTemplateRepository
 
-    fun dtoToEntity(dto: NotificationTemplateDto): NotificationTemplate {
+    fun dtoToEntity(dto: NotificationTemplateWithMeta): NotificationTemplate {
         val entity = templateRepository.findOneByExtId(dto.id).orElse(NotificationTemplate())
         entity.name = dto.name
         entity.notificationTitle = mapper.toString(dto.notificationTitle)
@@ -27,7 +27,7 @@ class TemplateConverter {
 
         val updatedData: MutableMap<String, TemplateData> = HashMap()
 
-        dto.data.forEach { (lang: String, dataDto: TemplateDataDto) ->
+        dto.templateData.forEach { (lang: String, dataDto: TemplateDataDto) ->
             val td = entity.data[lang] ?: TemplateData()
 
             td.name = dataDto.name
@@ -41,8 +41,8 @@ class TemplateConverter {
         return entity
     }
 
-    fun entityToDto(entity: NotificationTemplate): NotificationTemplateDto {
-        val dto = NotificationTemplateDto(
+    fun entityToDto(entity: NotificationTemplate): NotificationTemplateWithMeta {
+        val dto = NotificationTemplateWithMeta(
             id = entity.extId!!,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
@@ -61,7 +61,7 @@ class TemplateConverter {
                 data[lang] = dataDto
             }
         }
-        dto.data = data
+        dto.templateData = data
         return dto
     }
 }

@@ -11,7 +11,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -32,14 +32,14 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         templateService.update(toDto(module))
     }
 
-    private fun toDto(module: BinModule): NotificationTemplateDto {
+    private fun toDto(module: BinModule): NotificationTemplateWithMeta {
         val meta = module.meta
 
-        val dto = NotificationTemplateDto(meta.get("id").asText())
+        val dto = NotificationTemplateWithMeta(meta.get("id").asText())
         dto.notificationTitle = meta.get("notificationTitle", MLText::class.java)
         dto.name = meta.get("name").asText()
         val memDir = extractZip(module.data)
-        dto.data = getTemplateDataFromMemDir(memDir)
+        dto.templateData = getTemplateDataFromMemDir(memDir)
         dto.model = meta.get("model").asObjectData()
 
         log.debug("Deploy new template module: $dto")

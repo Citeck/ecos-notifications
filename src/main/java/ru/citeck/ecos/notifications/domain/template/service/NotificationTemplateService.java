@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto;
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta;
 import ru.citeck.ecos.notifications.domain.template.entity.NotificationTemplate;
 import ru.citeck.ecos.notifications.domain.template.repository.NotificationTemplateRepository;
 import ru.citeck.ecos.records2.RecordConstants;
@@ -31,7 +31,7 @@ public class NotificationTemplateService {
     private final NotificationTemplateRepository templateRepository;
     private final TemplateConverter templateConverter;
 
-    public void update(@NotNull NotificationTemplateDto dto) {
+    public void update(@NotNull NotificationTemplateWithMeta dto) {
         templateRepository.save(templateConverter.dtoToEntity(dto));
     }
 
@@ -42,7 +42,7 @@ public class NotificationTemplateService {
         templateRepository.findOneByExtId(id).ifPresent(templateRepository::delete);
     }
 
-    public Optional<NotificationTemplateDto> findById(String id) {
+    public Optional<NotificationTemplateWithMeta> findById(String id) {
         if (StringUtils.isBlank(id)) {
             return Optional.empty();
         }
@@ -50,7 +50,7 @@ public class NotificationTemplateService {
             .map(templateConverter::entityToDto);
     }
 
-    public NotificationTemplateDto save(NotificationTemplateDto dto) {
+    public NotificationTemplateWithMeta save(NotificationTemplateWithMeta dto) {
         if (StringUtils.isBlank(dto.getId())) {
             dto.setId(UUID.randomUUID().toString());
         }
@@ -58,7 +58,7 @@ public class NotificationTemplateService {
         return templateConverter.entityToDto(saved);
     }
 
-    public List<NotificationTemplateDto> getAll(int max, int skip, Predicate predicate, Sort sort) {
+    public List<NotificationTemplateWithMeta> getAll(int max, int skip, Predicate predicate, Sort sort) {
         if (sort == null) {
             sort = Sort.by(Sort.Direction.DESC, "id");
         }
@@ -117,7 +117,7 @@ public class NotificationTemplateService {
         return templateRepository.count();
     }
 
-    public List<NotificationTemplateDto> getAll(int max, int skip) {
+    public List<NotificationTemplateWithMeta> getAll(int max, int skip) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         PageRequest page = PageRequest.of(skip / max, max, sort);
 

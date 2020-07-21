@@ -16,7 +16,7 @@ import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationType
 import ru.citeck.ecos.notifications.domain.notification.command.NotificationSendCommand
 import ru.citeck.ecos.notifications.domain.notification.command.NotificationSendResponse
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.records2.RecordRef
 
@@ -44,7 +44,7 @@ class NotificationCommandTest {
         templateModel["age"] = "25"
 
         val notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateDto::class.java)!!
+            NotificationTemplateWithMeta::class.java)!!
 
         notificationTemplateService.save(notificationTemplate)
     }

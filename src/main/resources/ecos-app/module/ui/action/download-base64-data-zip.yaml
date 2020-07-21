@@ -1,0 +1,13 @@
+
+id: download-base64-data-zip
+
+name:
+    ru: Скачать
+    en: Download
+
+key: download.data.base64
+
+type: download
+config:
+    downloadType: base64
+    extension: zip

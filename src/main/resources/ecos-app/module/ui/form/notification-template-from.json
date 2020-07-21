@@ -88,7 +88,7 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "e91tf9"
+        "id": "e6npq5v"
       },
       {
         "label": "Name",
@@ -165,7 +165,7 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "exvwtxu"
+        "id": "eg79oml"
       },
       {
         "label": "Notification Title",
@@ -229,7 +229,7 @@
         "refreshOn": "",
         "clearOnRefresh": false,
         "validateOn": "change",
-        "id": "et65hcb"
+        "id": "epnut5b"
       },
       {
         "label": "Template content",
@@ -313,20 +313,15 @@
         "onFileClick": "openDashboard",
         "displayElementsJS": {},
         "valueDisplayName": {},
-        "id": "ecg5bud"
+        "id": "e6oskhg"
       },
       {
         "label": "Model",
-        "disableInlineEdit": false,
-        "tooltip": "json format",
-        "autoExpand": false,
-        "isUploadEnabled": false,
-        "showWordCount": false,
-        "showCharCount": false,
+        "disableInlineEdit": true,
+        "keyLabel": "",
+        "mask": false,
         "tableView": true,
         "alwaysEnabled": false,
-        "defaultValue": "",
-        "inputFormat": "plain",
         "triggerChangeWhenCalculate": false,
         "encrypted": false,
         "validate": {
@@ -335,11 +330,8 @@
           "required": false,
           "custom": "",
           "customPrivate": false,
-          "minLength": "",
-          "maxLength": "",
-          "minWords": "",
-          "maxWords": "",
-          "pattern": ""
+          "maxLength": 0,
+          "minLength": 0
         },
         "key": "model",
         "properties": {},
@@ -352,15 +344,75 @@
         "customConditional": "",
         "logic": [],
         "attributes": {},
-        "rows": 9,
-        "type": "textarea",
+        "type": "datamap",
         "input": true,
+        "valueComponent": {
+          "type": "textfield",
+          "key": "value",
+          "label": "Value",
+          "defaultValue": "Value",
+          "input": true,
+          "tableView": true,
+          "placeholder": "",
+          "prefix": "",
+          "customClass": "",
+          "suffix": "",
+          "multiple": false,
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "dataGridLabel": false,
+          "labelPosition": "top",
+          "labelWidth": 30,
+          "labelMargin": 3,
+          "description": "",
+          "errorLabel": "",
+          "tooltip": "",
+          "hideLabel": false,
+          "tabindex": "",
+          "disabled": false,
+          "autofocus": false,
+          "dbIndex": false,
+          "customDefaultValue": "",
+          "calculateValue": "",
+          "allowCalculateOverride": false,
+          "widget": {
+            "format": "yyyy-MM-dd hh:mm a",
+            "dateFormat": "yyyy-MM-dd hh:mm a",
+            "saveAs": "text"
+          },
+          "refreshOn": "",
+          "clearOnRefresh": false,
+          "validateOn": "change",
+          "validate": {
+            "required": false,
+            "custom": "",
+            "customPrivate": false,
+            "minLength": "",
+            "maxLength": "",
+            "minWords": "",
+            "maxWords": "",
+            "pattern": ""
+          },
+          "conditional": {
+            "show": null,
+            "when": null,
+            "eq": ""
+          },
+          "mask": false,
+          "inputType": "text",
+          "inputMask": "",
+          "id": "equaaq9"
+        },
         "tags": [],
         "placeholder": "",
         "prefix": "",
         "customClass": "",
         "suffix": "",
         "multiple": false,
+        "defaultValue": null,
         "protected": false,
         "unique": false,
         "persistent": true,
@@ -372,6 +424,7 @@
         "labelMargin": 3,
         "description": "",
         "errorLabel": "",
+        "tooltip": "",
         "hideLabel": false,
         "tabindex": "",
         "disabled": false,
@@ -380,20 +433,14 @@
         "customDefaultValue": "",
         "calculateValue": "",
         "allowCalculateOverride": false,
-        "widget": {
-          "format": "yyyy-MM-dd hh:mm a",
-          "dateFormat": "yyyy-MM-dd hh:mm a",
-          "saveAs": "text"
-        },
+        "widget": null,
         "refreshOn": "",
         "clearOnRefresh": false,
         "validateOn": "change",
-        "mask": false,
-        "inputType": "text",
-        "inputMask": "",
-        "wysiwyg": false,
-        "editor": "",
-        "id": "el7bh8"
+        "addAnother": "Add Another",
+        "disableAddingRemovingRows": false,
+        "keyBeforeValue": true,
+        "id": "eh4vpgx"
       },
       {
         "type": "button",
@@ -449,7 +496,7 @@
         "block": false,
         "action": "submit",
         "removeIndents": false,
-        "id": "enmfwld"
+        "id": "eji5p98"
       }
     ]
   },

@@ -1,13 +1,18 @@
 package ru.citeck.ecos.notifications.domain.template.records
 
 import ecos.com.fasterxml.jackson210.annotation.JsonProperty
-import ecos.com.fasterxml.jackson210.annotation.JsonValue
 import org.apache.commons.lang.StringUtils
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.commons.io.file.EcosFile
+import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
+import ru.citeck.ecos.commons.json.Json.mapper
+import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
+import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.records.NotificationTemplateRecords.NotTemplateRecord
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -17,6 +22,7 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.graphql.meta.value.MetaField
 import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
+import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion
@@ -28,16 +34,22 @@ import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
+import java.time.Instant
 import java.util.*
 import java.util.stream.Collectors
 
+private const val META_FILE_EXTENSION = "json"
+const val ID = "template"
+
 @Component
-class NotificationTemplateRecords(templateService: NotificationTemplateService) : LocalRecordsDao(),
+class NotificationTemplateRecords(val templateService: NotificationTemplateService) : LocalRecordsDao(),
     LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
     LocalRecordsMetaDao<NotTemplateRecord>,
     MutableRecordsLocalDao<NotTemplateRecord> {
 
-    private val templateService: NotificationTemplateService
+    init {
+        id = ID
+    }
 
     override fun delete(deletion: RecordsDeletion): RecordsDelResult {
         val result = RecordsDelResult()
@@ -56,7 +68,7 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         val result = RecordsMutResult()
         val savedList = values.stream()
             .map { dto: NotTemplateRecord? -> templateService.save(dto) }
-            .map(NotificationTemplateDto::id)
+            .map(NotificationTemplateWithMeta::id)
             .map { id: String? -> RecordMeta(id) }
             .collect(Collectors.toList())
         result.records = savedList
@@ -68,9 +80,9 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
             .map { obj: RecordRef -> obj.id }
             .map { id: String? ->
                 templateService.findById(id)
-                    .orElseGet { NotificationTemplateDto(id!!) }
+                    .orElseGet { NotificationTemplateWithMeta(id!!) }
             }
-            .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+            .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
             .collect(Collectors.toList())
     }
 
@@ -80,8 +92,9 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         if (max <= 0) {
             max = 10000
         }
+
         val skip = recordsQuery.skipCount
-        if ("predicate" == recordsQuery.language) {
+        if (PredicateService.LANGUAGE_PREDICATE == recordsQuery.language) {
             val predicate = recordsQuery.getQuery(Predicate::class.java)
             val order = recordsQuery.sortBy
                 .stream()
@@ -101,7 +114,7 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
                 if (order.isNotEmpty()) Sort.by(order) else null
             )
                 .stream()
-                .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+                .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
                 .collect(Collectors.toList())
             records.records = ArrayList(types)
             records.totalCount = templateService.getCount(predicate)
@@ -110,7 +123,7 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         if ("criteria" == recordsQuery.language) {
             records.records = templateService.getAll(max, skip)
                 .stream()
-                .map { dto: NotificationTemplateDto -> NotTemplateRecord(dto) }
+                .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
                 .collect(Collectors.toList())
             records.totalCount = templateService.count
             return records
@@ -118,10 +131,7 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         return RecordsQueryResult()
     }
 
-
-    //TODO: fix uplaod from json in journal
-
-    data class NotTemplateRecord(val dto: NotificationTemplateDto) : NotificationTemplateDto(dto) {
+    data class NotTemplateRecord(val dto: NotificationTemplateWithMeta) : NotificationTemplateWithMeta(dto) {
         var moduleId: String
             get() = id
             set(value) {
@@ -136,40 +146,88 @@ class NotificationTemplateRecords(templateService: NotificationTemplateService) 
         val displayName: String?
             get() = name
 
+        @get:MetaAtt(RecordConstants.ATT_MODIFIED)
+        val recordModified: Instant?
+            get() = modified
+
+        @get:MetaAtt(RecordConstants.ATT_MODIFIER)
+        val recordModifier: String?
+            get() = modifier
+
+        @get:MetaAtt(RecordConstants.ATT_CREATED)
+        val recordCreated: Instant?
+            get() = created
+
+        @get:MetaAtt(RecordConstants.ATT_CREATOR)
+        val recordCreator: String?
+            get() = creator
+
+        @get:MetaAtt("data")
+        val data: ByteArray
+            get() = let {
+                val memDir = EcosMemDir()
+
+                val metaDto = NotificationTemplateDto(this)
+                val prettyString = mapper.toPrettyString(metaDto)
+
+                mapper.toBytes(prettyString)?.let {
+                    memDir.createFile("$id.$META_FILE_EXTENSION", it)
+                }
+
+                templateData.forEach { (_, data) ->
+                    memDir.createFile(data.name, data.data)
+                }
+
+                return ZipUtils.writeZipAsBytes(memDir)
+            }
+
+        @JsonProperty("_content")
+        fun fillNotificationTemplateFromZip(content: List<ObjectData>) {
+            val contentBytes = getContentBytesFromBase64ObjectData(content[0])
+
+            val memDir = ZipUtils.extractZip(contentBytes)
+            if (memDir.findFiles().isEmpty()) {
+                throw IllegalStateException("Failed load notification template, zip is empty")
+            }
+
+            val templateData: MutableMap<String, TemplateDataDto> = mutableMapOf()
+            var metaFile: EcosFile? = null
+
+            memDir.findFiles().forEach {
+                if (StringUtils.endsWith(it.getName(), ".$META_FILE_EXTENSION")) {
+                    metaFile = it
+                } else {
+                    val fileName = it.getName()
+                    val langKey = getLangKeyFromFileName(fileName)
+                    templateData[langKey] = TemplateDataDto(fileName, it.readAsBytes())
+                }
+            }
+
+            val metaBytes = metaFile?.readAsBytes()
+                ?: throw IllegalStateException("Failed load notification template, json with meta not found")
+
+            val data = mapper.read(metaBytes, ObjectData::class.java)
+
+            mapper.applyData(this, data)
+            this.templateData = templateData
+        }
+
         @JsonProperty("templateContent")
-        fun setContent(content: List<ObjectData>) {
-            val updatedData: MutableMap<String, TemplateDataDto> = data.toMutableMap()
+        fun fillTemplateDataFromFiles(content: List<ObjectData>) {
+            val updatedData: MutableMap<String, TemplateDataDto> = templateData.toMutableMap()
 
             content.forEach {
-                var base64Content = it.get("url", "")
-                base64Content = StringUtils.substringAfter(base64Content, ",")
-
-                val contentBytes = Base64.getDecoder().decode(base64Content.toByteArray(Charsets.UTF_8))
                 val fileName = it.get("originalName").asText()
-
                 val langKey = getLangKeyFromFileName(fileName)
+                val contentBytes = getContentBytesFromBase64ObjectData(it)
 
                 val templateData = TemplateDataDto(fileName, contentBytes)
 
                 updatedData[langKey] = templateData
             }
 
-            this.data = updatedData
-        }
-
-        @JsonValue
-        @com.fasterxml.jackson.annotation.JsonValue
-        fun toJson(): NotificationTemplateDto? {
-            return NotificationTemplateDto(this)
+            this.templateData = updatedData
         }
     }
 
-    companion object {
-        const val ID = "template"
-    }
-
-    init {
-        id = ID
-        this.templateService = templateService
-    }
 }

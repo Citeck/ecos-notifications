@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.Notification
 import ru.citeck.ecos.notifications.domain.notification.NotificationType
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import java.util.*
 
@@ -34,14 +34,14 @@ class NotificationService(
         }
     }
 
-    private fun prepareBody(template: NotificationTemplateDto, locale: Locale, model: Map<String, Any>): String {
-        val templateData = template.data[locale.toString()]
+    private fun prepareBody(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
+        val templateData = template.templateData[locale.toString()]
             ?: throw NotificationException("No template with locale <$locale> found for template: $template")
 
         return freemarkerService.process(templateData.name, String(templateData.data), model)
     }
 
-    private fun prepareTitle(template: NotificationTemplateDto, locale: Locale, model: Map<String, Any>): String {
+    private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
         val title = template.notificationTitle ?: return ""
 
         val titleTemplate = title.get(locale)

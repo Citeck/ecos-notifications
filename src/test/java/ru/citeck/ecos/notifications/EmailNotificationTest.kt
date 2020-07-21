@@ -12,16 +12,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ClassPathResource
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.util.StreamUtils
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.Notification
 import ru.citeck.ecos.notifications.domain.notification.NotificationType
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.service.NotificationService
-import java.nio.charset.Charset
 import java.util.*
 
 
@@ -35,9 +32,9 @@ class EmailNotificationTest {
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
 
-    private lateinit var notificationTemplate: NotificationTemplateDto
-    private lateinit var notificationWrongLocaleTemplate: NotificationTemplateDto
-    private lateinit var notificationHtmlTemplate: NotificationTemplateDto
+    private lateinit var notificationTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationWrongLocaleTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationHtmlTemplate: NotificationTemplateWithMeta
 
     @Before
     fun setup() {
@@ -50,11 +47,11 @@ class EmailNotificationTest {
         templateModel["age"] = "25"
 
         notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateDto::class.java)!!
+            NotificationTemplateWithMeta::class.java)!!
         notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
-            NotificationTemplateDto::class.java)!!
+            NotificationTemplateWithMeta::class.java)!!
         notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-template-wring-locale-test.json"), NotificationTemplateDto::class.java)!!
+            "template/test-template-wring-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
     }
 
     @Test
