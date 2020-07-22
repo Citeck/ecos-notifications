@@ -1,7 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.service;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.PageRequest;
@@ -25,11 +24,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class NotificationTemplateService {
 
     private final NotificationTemplateRepository templateRepository;
     private final TemplateConverter templateConverter;
+
+    public NotificationTemplateService(NotificationTemplateRepository templateRepository,
+                                       TemplateConverter templateConverter) {
+        this.templateRepository = templateRepository;
+        this.templateConverter = templateConverter;
+    }
 
     public void update(@NotNull NotificationTemplateWithMeta dto) {
         templateRepository.save(templateConverter.dtoToEntity(dto));

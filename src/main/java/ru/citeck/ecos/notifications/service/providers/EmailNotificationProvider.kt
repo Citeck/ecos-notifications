@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
+import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
 private const val CONTENT_TYPE = "text/html; charset=UTF-8"

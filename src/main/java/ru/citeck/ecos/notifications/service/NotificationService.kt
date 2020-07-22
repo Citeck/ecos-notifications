@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.Notification
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import java.util.*
 

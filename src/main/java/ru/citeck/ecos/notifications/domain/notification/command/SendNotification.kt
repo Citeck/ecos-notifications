@@ -6,8 +6,8 @@ import ru.citeck.ecos.commands.CommandExecutor
 import ru.citeck.ecos.commands.annotation.CommandType
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.Notification
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.NotificationException
 import ru.citeck.ecos.notifications.service.NotificationService
 import ru.citeck.ecos.records2.RecordRef

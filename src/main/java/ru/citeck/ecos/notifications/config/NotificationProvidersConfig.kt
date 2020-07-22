@@ -5,7 +5,7 @@ import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 
 @Slf4j

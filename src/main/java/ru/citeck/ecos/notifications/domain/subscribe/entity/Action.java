@@ -3,7 +3,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.citeck.ecos.notifications.domain.BaseEntity;
-import ru.citeck.ecos.notifications.domain.notification.NotificationType;
+import ru.citeck.ecos.notifications.lib.NotificationType;
 
 import javax.persistence.*;
 import java.util.ArrayList;

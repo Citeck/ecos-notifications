@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import lombok.Data;
 import ru.citeck.ecos.notifications.domain.subscribe.entity.CustomData;
-import ru.citeck.ecos.notifications.domain.notification.NotificationType;
+import ru.citeck.ecos.notifications.lib.NotificationType;
 
 import java.util.List;
 

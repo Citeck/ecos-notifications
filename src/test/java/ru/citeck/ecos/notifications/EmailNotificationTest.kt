@@ -16,8 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.Notification
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.NotificationService
 import java.util.*
 

@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.service.providers
 
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
+import ru.citeck.ecos.notifications.lib.NotificationType
 
 interface NotificationProvider {
 

@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ru.citeck.ecos.notifications.domain.notification.Notification
-import ru.citeck.ecos.notifications.domain.notification.NotificationType
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.NotificationService
 import java.util.*
 
