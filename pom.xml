@@ -101,7 +101,7 @@
 
         <dependency>
             <groupId>ru.citeck.ecos</groupId>
-            <artifactId>ecos-notifications-lib-spring</artifactId>
+            <artifactId>ecos-notifications-lib</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

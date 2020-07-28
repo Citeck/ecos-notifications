@@ -131,7 +131,7 @@ services:
       - SPRING_RABBITMQ_HOST=rabbitmq
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
       - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
-      - SPRING_DATA_MONGODB_URI=mongodb://eproc-mongo:27018/eproc
+      - SPRING_DATA_MONGODB_URI=mongodb://eproc-mongo:27017/eproc
       - JHIPSTER_SLEEP=30
     depends_on:
       - eproc-mongo
