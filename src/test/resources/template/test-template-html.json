@@ -5,7 +5,7 @@
     "en": "Hi ${firstName} ${lastName}",
     "ru": "Привет ${firstName} ${lastName}"
   },
-  "data": {
+  "templateData": {
     "ru": {
       "name": "test-template-html.html_ru.ftl",
       "data": "PGk+0J/RgNC40LLQtdGCICR7Zmlyc3ROYW1lfSwgPGI+0YLQstC+0Y88L2I+INGE0LDQvNC40LvQuNGPICR7bGFzdE5hbWV9PyDQotC10LHQtSAke2FnZX0g0LvQtdGCPzwvaT4K"

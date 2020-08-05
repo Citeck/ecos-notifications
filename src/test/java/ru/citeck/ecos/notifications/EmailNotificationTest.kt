@@ -4,7 +4,6 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -18,6 +17,7 @@ import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
+import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.util.*
 
@@ -29,12 +29,21 @@ class EmailNotificationTest {
     @Autowired
     private lateinit var notificationService: NotificationService
 
+    @Autowired
+    private lateinit var notificationTemplateService: NotificationTemplateService
+
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
 
     private lateinit var notificationTemplate: NotificationTemplateWithMeta
     private lateinit var notificationWrongLocaleTemplate: NotificationTemplateWithMeta
     private lateinit var notificationHtmlTemplate: NotificationTemplateWithMeta
+
+    private lateinit var notificationLibMacroTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationTestImportTemplate: NotificationTemplateWithMeta
+
+    private lateinit var notificationLibIncludeTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationTestIncludeTemplate: NotificationTemplateWithMeta
 
     @Before
     fun setup() {
@@ -51,7 +60,86 @@ class EmailNotificationTest {
         notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
             NotificationTemplateWithMeta::class.java)!!
         notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-template-wring-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
+            "template/test-template-wrong-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
+
+        notificationTemplateService.save(notificationTemplate)
+        notificationTemplateService.save(notificationHtmlTemplate)
+        notificationTemplateService.save(notificationWrongLocaleTemplate)
+
+        notificationLibMacroTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/lib-macro-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationTestImportTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/test-import-template.json"), NotificationTemplateWithMeta::class.java)!!
+
+        notificationTemplateService.save(notificationLibMacroTemplate)
+        notificationTemplateService.save(notificationTestImportTemplate)
+
+        notificationLibIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/lib-include-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationTestIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/test-include-template.json"), NotificationTemplateWithMeta::class.java)!!
+
+        notificationTemplateService.save(notificationLibIncludeTemplate)
+        notificationTemplateService.save(notificationTestIncludeTemplate)
+    }
+
+    @Test
+    fun sendEmailWithImportsTest() {
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualToIgnoringNewLines("user@example.com<br>\n" +
+            "\n" +
+            "LibDefault: Copyright (C) 1999-2002 Someone. All rights reserved.\n" +
+            "<br>\n" +
+            "LibEn: Copyright (C) 2000-2002 Someone. All rights reserved.\n" +
+            "<br>\n" +
+            "LibRu: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+            "<br>\n" +
+            "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+            "<br>")
+    }
+
+    @Test
+    fun sendEmailWithIncludeTest() {
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestIncludeTemplate,
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualToIgnoringNewLines("Шаблон с вложенным шаблоном<br>\n" +
+            "По умолчанию - This text should be included. Value from model - Ivan<br>\n" +
+            "Английский - This text should be included. Value from model - Ivan<br>\n" +
+            "Русский - Этот текст должен быть включен. Значение из модели - Ivan<br>\n" +
+            "По умолчанию короткий id - This text should be included. Value from model - Ivan<br>\n" +
+            "Английский короткий id - This text should be included. Value from model - Ivan<br>\n" +
+            "Русский короткий id- Этот текст должен быть включен. Значение из модели - Ivan")
     }
 
     @Test
@@ -181,7 +269,7 @@ class EmailNotificationTest {
     }
 
     @Test
-    fun sendEmailWithNotExistTitleLocaleShouldThrowTest() {
+    fun sendEmailWithNotExistTitleLocaleShouldUseDefaultTest() {
         val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.FRENCH,
@@ -191,12 +279,20 @@ class EmailNotificationTest {
             from = "test@mail.ru"
         )
 
-        val thrown = Assertions.catchThrowable { notificationService.send(notification) }
-        assertThat(thrown.message).contains("Notification title not found with locale: fr in template")
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
     }
 
     @Test
-    fun sendEmailWithNotExistBodyLocaleShouldThrowTest() {
+    fun sendEmailWithNotExistBodyLocaleShouldUseExistsLocaleTest() {
         val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
@@ -206,8 +302,16 @@ class EmailNotificationTest {
             from = "test@mail.ru"
         )
 
-        val thrown = Assertions.catchThrowable { notificationService.send(notification) }
-        assertThat(thrown.message).contains("No template with locale <en> found for template")
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Привет Ivan, твоя фамилия Petrenko? Тебе 25 лет?")
     }
 
     @Test

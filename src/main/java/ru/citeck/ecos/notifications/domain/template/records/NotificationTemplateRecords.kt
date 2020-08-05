@@ -9,7 +9,6 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.utils.ZipUtils
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
@@ -186,7 +185,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             get() = let {
                 val memDir = EcosMemDir()
 
-                val metaDto = NotificationTemplateDto(this)
+                val metaDto = NotificationTemplateWithMeta(this)
                 val prettyString = mapper.toPrettyString(metaDto)
 
                 mapper.toBytes(prettyString)?.let {

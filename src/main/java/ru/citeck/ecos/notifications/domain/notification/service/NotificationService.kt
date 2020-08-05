@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification.service
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -44,17 +45,15 @@ class NotificationService(
     }
 
     private fun prepareBody(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
-        val templateData = template.templateData[locale.toString()]
-            ?: throw NotificationException("No template with locale <$locale> found for template: $template")
-
-        return freemarkerService.process(templateData.name, String(templateData.data), model)
+        return freemarkerService.process(template.id, locale, model)
     }
 
     private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
         val title = template.notificationTitle ?: return ""
 
         val titleTemplate = title.get(locale)
-            ?: throw NotificationException("Notification title not found with locale: $locale in template: $template")
+            ?: title.getClosestValue(DEFAULT_LOCALE)
+            ?: throw NotificationException("Notification title not found in template: $template")
 
         return freemarkerService.process(template.id + "_title", titleTemplate, model)
     }
