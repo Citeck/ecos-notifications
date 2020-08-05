@@ -15,10 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.Notification
+import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.service.NotificationService
 import java.util.*
 
 
@@ -56,10 +56,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendTemplatedEnEmailTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -78,10 +78,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendTemplatedRuEmailTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -100,10 +100,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendTemplatedHtmlEnEmailTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationHtmlTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -122,10 +122,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendTemplatedHtmlRuEmailTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationHtmlTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -144,10 +144,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendEmailToMultipleRecipientsTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = listOf("some-recipient@gmail.com", "some-recipient-1@gmail.com", "some-recipient2@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com", "some-recipient-1@gmail.com", "some-recipient2@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -161,9 +161,9 @@ class EmailNotificationTest {
 
     @Test
     fun sendEmailWithoutLocaleShouldUseEnLocaleTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -182,10 +182,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendEmailWithNotExistTitleLocaleShouldThrowTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.FRENCH,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -197,10 +197,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendEmailWithNotExistBodyLocaleShouldThrowTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationWrongLocaleTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -212,10 +212,10 @@ class EmailNotificationTest {
 
     @Test
     fun sendEmailWithChangedTemplateTest() {
-        val notification = Notification(
+        val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = listOf("some-recipient@gmail.com"),
+            recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"

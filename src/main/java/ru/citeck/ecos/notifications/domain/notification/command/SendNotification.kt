@@ -1,62 +1,106 @@
 package ru.citeck.ecos.notifications.domain.notification.command
 
 import org.apache.commons.lang3.LocaleUtils
+import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor
-import ru.citeck.ecos.commands.annotation.CommandType
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
-import ru.citeck.ecos.notifications.domain.notification.Notification
+import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.service.NotificationException
-import ru.citeck.ecos.notifications.service.NotificationService
+import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
+import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
 
+private const val ECOS_TYPE_ID_KEY = "_etype?id"
 
 @Service
 class SendNotificationCommandExecutor(
     val notificationService: NotificationService,
     val notificationTemplateService: NotificationTemplateService
-) : CommandExecutor<NotificationSendCommand> {
+) : CommandExecutor<SendNotificationCommand> {
 
-    override fun execute(notificationSendCommand: NotificationSendCommand): Any? {
-        val templateId = notificationSendCommand.templateRef.id
+    override fun execute(command: SendNotificationCommand): Any? {
+        val template = resolveMultiTemplate(
+            baseTemplateRef = command.templateRef,
+            recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model)
+        )
+        val filledModel = resolveCompletedModel(
+            requiredModel = template.model ?: emptyMap(),
+            incomeFilledModel = command.model
+        )
 
-        val template = notificationTemplateService.findById(templateId).orElseThrow {
-            NotificationException("Template with id: <$templateId> not found}")
-        }
+        val locale = if (command.lang.isEmpty()) DEFAULT_LOCALE else LocaleUtils
+            .toLocale(command.lang)
 
-        val locale = if (notificationSendCommand.lang.isNullOrEmpty()) DEFAULT_LOCALE else LocaleUtils.toLocale(notificationSendCommand.lang)
-
-        val notification = Notification(
-            type = notificationSendCommand.type,
+        val notification = RawNotification(
+            template = template,
+            type = command.type,
             locale = locale,
-            recipients = notificationSendCommand.recipients,
-            model = notificationSendCommand.model,
-            from = notificationSendCommand.from,
-            template = template
+            recipients = command.recipients,
+            model = filledModel,
+            from = command.from,
+            cc = command.cc,
+            bcc = command.bcc
         )
 
         notificationService.send(notification)
 
-        return NotificationSendResponse("ok", "")
+        return SendNotificationResult("ok", "")
+    }
+
+    private fun resolveMultiTemplate(baseTemplateRef: RecordRef,
+                                     recordEcosTypeId: String): NotificationTemplateWithMeta {
+        val baseTemplate = getTemplateMetaById(baseTemplateRef.id)
+
+        if (StringUtils.isBlank(recordEcosTypeId)) {
+            return baseTemplate
+        }
+
+        baseTemplate.multiTemplateConfig?.forEach { it ->
+            it.type?.let { typeRef ->
+                if (RecordRef.valueOf(recordEcosTypeId) == typeRef) {
+                    val template = it.template ?: throw NotificationException(
+                        "Multi template ref is null. Base template ref: $baseTemplateRef"
+                    )
+                    return getTemplateMetaById(template.id)
+                }
+            }
+        }
+
+        return baseTemplate
+    }
+
+    private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any>): String {
+        val value = incomeFilledModel[ECOS_TYPE_ID_KEY] ?: return ""
+        return value.toString()
+    }
+
+    private fun resolveCompletedModel(requiredModel: Map<String, String>, incomeFilledModel: Map<String, Any>): Map<String, Any> {
+        val filledModel = mutableMapOf<String, Any>()
+        val prefilledModel = incomeFilledModel.toMutableMap()
+
+        requiredModel.forEach { (attrKey, attrValue) ->
+            val cleanAttrValue = attrValue.replaceFirst("\$", "")
+
+            incomeFilledModel[cleanAttrValue]?.let {
+                filledModel[attrKey] = it
+                prefilledModel.remove(cleanAttrValue)
+            }
+        }
+
+        filledModel.putAll(prefilledModel)
+
+        return filledModel
+    }
+
+    private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
+        return notificationTemplateService.findById(id).orElseThrow {
+            NotificationException("Template with id: <$id> not found}")
+        }
     }
 
 }
-
-
-data class NotificationSendResponse(
-    val status: String,
-    val error: String
-)
-
-@CommandType("ecos.notifications.send")
-data class NotificationSendCommand(
-    val templateRef: RecordRef,
-    val type: NotificationType,
-    val lang: String?,
-    val recipients: List<String>,
-    val model: Map<String, Any>,
-    val from: String
-)
 

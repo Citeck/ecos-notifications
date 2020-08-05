@@ -6,11 +6,13 @@ import java.util.*
 
 val DEFAULT_LOCALE: Locale = Locale.ENGLISH
 
-class Notification(
+data class RawNotification(
     val type: NotificationType,
     val locale: Locale = DEFAULT_LOCALE,
-    val recipients: List<String>,
+    val recipients: Set<String>,
     val template: NotificationTemplateWithMeta,
     val model: Map<String, Any>,
-    val from: String
+    val from: String,
+    var cc: Set<String> = emptySet(),
+    var bcc: Set<String> = emptySet()
 )

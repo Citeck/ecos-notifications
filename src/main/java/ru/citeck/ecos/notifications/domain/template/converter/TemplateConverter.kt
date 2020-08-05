@@ -3,8 +3,8 @@ package ru.citeck.ecos.notifications.domain.template.converter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
-import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
+import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.entity.NotificationTemplate
@@ -24,6 +24,7 @@ class TemplateConverter {
         entity.notificationTitle = mapper.toString(dto.notificationTitle)
         entity.extId = dto.id
         entity.model = mapper.toString(dto.model)
+        entity.multiTemplateConfig = mapper.toString(dto.multiTemplateConfig)
 
         val updatedData: MutableMap<String, TemplateData> = HashMap()
 
@@ -46,7 +47,8 @@ class TemplateConverter {
             id = entity.extId!!,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
-            model = mapper.read(entity.model, ObjectData::class.java),
+            model = mapper.readMap(entity.model, String::class.java, String::class.java),
+            multiTemplateConfig = mapper.readList(entity.multiTemplateConfig, MultiTemplateElementDto::class.java),
             creator = entity.createdBy,
             created = entity.createdDate,
             modifier = entity.lastModifiedBy,

@@ -1,11 +1,13 @@
-package ru.citeck.ecos.notifications.service
+package ru.citeck.ecos.notifications.domain.notification.service
 
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.notifications.domain.notification.Notification
+import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import java.util.*
 
@@ -21,16 +23,23 @@ class NotificationService(
 
     private val log = KotlinLogging.logger {}
 
-    fun send(notification: Notification) {
-        log.debug("Send notification: $notification")
+    fun send(rawNotification: RawNotification) {
+        log.debug("Send notification raw: $rawNotification")
 
-        val title = prepareTitle(notification.template, notification.locale, notification.model)
-        val body = prepareBody(notification.template, notification.locale, notification.model)
+        val title = prepareTitle(rawNotification.template, rawNotification.locale, rawNotification.model)
+        val body = prepareBody(rawNotification.template, rawNotification.locale, rawNotification.model)
 
-        val foundProviders = providers[notification.type]
-            ?: throw NotificationException("Provider with notification type: ${notification.type} not registered}")
+        val foundProviders = providers[rawNotification.type]
+            ?: throw NotificationException("Provider with notification type: ${rawNotification.type} not registered}")
         foundProviders.forEach {
-            it.send(title, body, notification.recipients, notification.from)
+            it.send(FitNotification(
+                title = title,
+                body = body,
+                recipients = rawNotification.recipients,
+                from = rawNotification.from,
+                cc = rawNotification.cc,
+                bcc = rawNotification.bcc
+            ))
         }
     }
 

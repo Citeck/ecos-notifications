@@ -40,7 +40,7 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         dto.name = meta.get("name").asText()
         val memDir = extractZip(module.data)
         dto.templateData = getTemplateDataFromMemDir(memDir)
-        dto.model = meta.get("model").asObjectData()
+        dto.model = meta.get("model").asMap(String::class.java, String::class.java)
 
         log.debug("Deploy new template module: $dto")
         if (log.isDebugEnabled) {

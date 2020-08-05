@@ -80,6 +80,7 @@ public abstract class ActionProcessor {
 
         for (CustomData data : customData) {
             RecordRef recordRef = RecordRef.valueOf(data.getRecord());
+            //TODO: check
             RecordMeta attributes = RemoteRecordsUtils.runAsSystem(() ->
                 recordsService.getAttributes(recordRef, data.getAttributes())
             );

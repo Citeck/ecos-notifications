@@ -17,6 +17,7 @@
             <column name="notification_title" type="VARCHAR(255)"/>
             <column name="name" type="VARCHAR(512)"/>
             <column name="model" type="VARCHAR"/>
+            <column name="multi_template_config" type="VARCHAR"/>
         </createTable>
     </changeSet>
     <changeSet author="romancha (generated)" id="1594201429761-2">

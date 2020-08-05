@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
@@ -19,20 +20,20 @@ class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMa
         return NotificationType.EMAIL_NOTIFICATION
     }
 
-    override fun send(title: String, body: String, to: List<String>, from: String) {
-        log.debug("Send email notification:" +
-            "\nto: $to" +
-            "\nfrom: $from" +
-            "\ntitle: $title" +
-            "\nbody: $body")
+    override fun send(fitNotification: FitNotification) {
+        log.debug("Send email notification: $fitNotification")
 
         val msg = emailSender.createMimeMessage()
 
         val helper = MimeMessageHelper(msg, true, StandardCharsets.UTF_8.name())
 
-        msg.setContent(body, CONTENT_TYPE)
-        helper.setTo(to.toTypedArray())
-        helper.setSubject(title)
+        msg.setContent(fitNotification.body, CONTENT_TYPE)
+        helper.setTo(fitNotification.recipients.toTypedArray())
+        fitNotification.title?.let { helper.setSubject(it) }
+
+        helper.setFrom(fitNotification.from)
+        helper.setCc(fitNotification.cc.toTypedArray())
+        helper.setBcc(fitNotification.bcc.toTypedArray())
 
         emailSender.send(msg)
     }

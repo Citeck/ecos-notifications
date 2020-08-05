@@ -131,7 +131,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
         return RecordsQueryResult()
     }
 
-    data class NotTemplateRecord(val dto: NotificationTemplateWithMeta) : NotificationTemplateWithMeta(dto) {
+    open inner class NotTemplateRecord(val dto: NotificationTemplateWithMeta) : NotificationTemplateWithMeta(dto) {
         var moduleId: String
             get() = id
             set(value) {
@@ -161,6 +161,25 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
         @get:MetaAtt(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+
+        @get:MetaAtt("multiModelAttributes")
+        val multiModel: Set<String>
+            get() = let {
+                val attributes = mutableSetOf<String>()
+
+                this.model?.forEach { _, dataValue -> attributes.add(dataValue) }
+
+                this.multiTemplateConfig?.forEach { element ->
+                    element.template?.let {
+                        recordsService.getAttribute(it, "model")
+                            .asMap(String::class.java, String::class.java).forEach { (_, attr) ->
+                                attributes.add(attr)
+                            }
+                    }
+                }
+
+                return attributes;
+            }
 
         @get:MetaAtt("data")
         val data: ByteArray

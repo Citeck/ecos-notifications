@@ -28,6 +28,9 @@ class NotificationTemplate @JvmOverloads constructor(
     @MapKey(name = "lang")
     var data: MutableMap<String, TemplateData> = mutableMapOf(),
 
+    @Column(name = "multi_template_config")
+    var multiTemplateConfig: String? = null,
+
     createdBy: String? = null,
     createdDate: Instant? = Instant.now(),
     lastModifiedBy: String? = null,
