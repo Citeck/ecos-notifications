@@ -88,7 +88,7 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "e6npq5v"
+        "id": "ebxgz6"
       },
       {
         "label": "Name",
@@ -165,7 +165,7 @@
         "mask": false,
         "inputType": "text",
         "inputMask": "",
-        "id": "eg79oml"
+        "id": "ej4459zu"
       },
       {
         "label": "Notification Title",
@@ -229,7 +229,7 @@
         "refreshOn": "",
         "clearOnRefresh": false,
         "validateOn": "change",
-        "id": "epnut5b"
+        "id": "eyv858j"
       },
       {
         "label": "Template content",
@@ -313,7 +313,7 @@
         "onFileClick": "openDashboard",
         "displayElementsJS": {},
         "valueDisplayName": {},
-        "id": "e6oskhg"
+        "id": "exvg2l"
       },
       {
         "label": "Model",
@@ -404,7 +404,7 @@
           "mask": false,
           "inputType": "text",
           "inputMask": "",
-          "id": "equaaq9"
+          "id": "emmax4k"
         },
         "tags": [],
         "placeholder": "",
@@ -440,7 +440,509 @@
         "addAnother": "Add Another",
         "disableAddingRemovingRows": false,
         "keyBeforeValue": true,
-        "id": "eh4vpgx"
+        "id": "es345jc"
+      },
+      {
+        "label": "Multi templates",
+        "disableInlineEdit": false,
+        "disableAddingRemovingRows": false,
+        "addAnother": "",
+        "addAnotherPosition": "bottom",
+        "removePlacement": "col",
+        "defaultOpen": false,
+        "layoutFixed": false,
+        "enableRowGroups": false,
+        "multiple": true,
+        "reorder": false,
+        "mask": false,
+        "tableView": true,
+        "alwaysEnabled": false,
+        "defaultValue": [
+          {
+            "textField": "",
+            "templateRef": "",
+            "pattern": "",
+            "template": "",
+            "type": "",
+            "selectJournal": ""
+          }
+        ],
+        "encrypted": false,
+        "triggerChangeWhenCalculate": false,
+        "validate": {
+          "customMessage": "",
+          "json": "",
+          "minLength": "",
+          "maxLength": "",
+          "required": false,
+          "custom": "",
+          "customPrivate": false
+        },
+        "key": "multiTemplateConfig",
+        "properties": {},
+        "conditional": {
+          "show": "",
+          "when": "",
+          "json": "",
+          "eq": ""
+        },
+        "customConditional": "",
+        "logic": [],
+        "attributes": {},
+        "type": "datagrid",
+        "input": true,
+        "components": [
+          {
+            "label": "Panel",
+            "hideLabel": true,
+            "scrollableContent": false,
+            "disableInlineEdit": false,
+            "collapsible": false,
+            "mask": false,
+            "tableView": false,
+            "alwaysEnabled": false,
+            "encrypted": false,
+            "triggerChangeWhenCalculate": false,
+            "validate": {
+              "customMessage": "",
+              "json": "",
+              "required": false,
+              "custom": "",
+              "customPrivate": false
+            },
+            "key": "panel",
+            "properties": {},
+            "conditional": {
+              "show": "",
+              "when": "",
+              "json": "",
+              "eq": ""
+            },
+            "customConditional": "",
+            "logic": [],
+            "attributes": {},
+            "type": "panel",
+            "input": false,
+            "components": [
+              {
+                "label": "Columns",
+                "hideLabel": true,
+                "disableInlineEdit": false,
+                "columns": [
+                  {
+                    "components": [
+                      {
+                        "label": "Template",
+                        "hideCreateButton": true,
+                        "hideEditRowButton": true,
+                        "hideDeleteRowButton": true,
+                        "disableInlineEdit": false,
+                        "mask": false,
+                        "tableView": true,
+                        "alwaysEnabled": false,
+                        "journalId": "notification-templates",
+                        "displayColumns": [],
+                        "source": {
+                          "type": "journal",
+                          "custom": {
+                            "columns": []
+                          },
+                          "viewMode": "default"
+                        },
+                        "computed": {
+                          "valueDisplayName": ""
+                        },
+                        "searchField": "",
+                        "ecos": {
+                          "dataType": "assoc"
+                        },
+                        "triggerChangeWhenCalculate": false,
+                        "encrypted": false,
+                        "displayColumnsAsyncData": [],
+                        "validate": {
+                          "customMessage": "",
+                          "json": "",
+                          "required": false,
+                          "custom": "",
+                          "customPrivate": false
+                        },
+                        "key": "template",
+                        "properties": {},
+                        "conditional": {
+                          "json": "",
+                          "show": "",
+                          "when": "",
+                          "eq": ""
+                        },
+                        "customConditional": "",
+                        "logic": [],
+                        "attributes": {},
+                        "type": "selectJournal",
+                        "input": true,
+                        "defaultValue": "",
+                        "tags": [],
+                        "customPredicateJs": "",
+                        "presetFilterPredicatesJs": "",
+                        "placeholder": "",
+                        "prefix": "",
+                        "customClass": "",
+                        "suffix": "",
+                        "multiple": false,
+                        "protected": false,
+                        "unique": false,
+                        "persistent": true,
+                        "hidden": false,
+                        "clearOnHide": true,
+                        "dataGridLabel": false,
+                        "labelPosition": "top",
+                        "labelWidth": 30,
+                        "labelMargin": 3,
+                        "description": "",
+                        "errorLabel": "",
+                        "tooltip": "",
+                        "hideLabel": false,
+                        "tabindex": "",
+                        "disabled": false,
+                        "autofocus": false,
+                        "dbIndex": false,
+                        "customDefaultValue": "",
+                        "calculateValue": "",
+                        "allowCalculateOverride": false,
+                        "widget": null,
+                        "refreshOn": "",
+                        "clearOnRefresh": false,
+                        "validateOn": "change",
+                        "isFullScreenWidthModal": false,
+                        "isSelectedValueAsText": false,
+                        "isTableMode": false,
+                        "sortAttribute": "sys:node-dbid",
+                        "sortAscending": "asc",
+                        "id": "ep7ma9u"
+                      }
+                    ],
+                    "xs": 0,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 0,
+                    "xl": 0,
+                    "classes": "",
+                    "type": "column",
+                    "input": false,
+                    "hideOnChildrenHidden": false,
+                    "key": "column",
+                    "tableView": true,
+                    "label": "Column",
+                    "index": 0,
+                    "placeholder": "",
+                    "prefix": "",
+                    "customClass": "",
+                    "suffix": "",
+                    "multiple": false,
+                    "defaultValue": null,
+                    "protected": false,
+                    "unique": false,
+                    "persistent": true,
+                    "hidden": false,
+                    "clearOnHide": true,
+                    "dataGridLabel": false,
+                    "labelPosition": "top",
+                    "labelWidth": 30,
+                    "labelMargin": 3,
+                    "description": "",
+                    "errorLabel": "",
+                    "tooltip": "",
+                    "hideLabel": false,
+                    "tabindex": "",
+                    "disabled": false,
+                    "autofocus": false,
+                    "dbIndex": false,
+                    "customDefaultValue": "",
+                    "calculateValue": "",
+                    "allowCalculateOverride": false,
+                    "widget": null,
+                    "refreshOn": "",
+                    "clearOnRefresh": false,
+                    "validateOn": "change",
+                    "validate": {
+                      "required": false,
+                      "custom": "",
+                      "customPrivate": false
+                    },
+                    "conditional": {
+                      "show": null,
+                      "when": null,
+                      "eq": ""
+                    },
+                    "id": "edx4eui"
+                  },
+                  {
+                    "xs": 0,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 0,
+                    "xl": 0,
+                    "classes": "",
+                    "index": 1,
+                    "type": "column",
+                    "input": false,
+                    "hideOnChildrenHidden": false,
+                    "key": "column",
+                    "tableView": true,
+                    "label": "Column",
+                    "components": [
+                      {
+                        "label": "Type",
+                        "hideCreateButton": true,
+                        "hideEditRowButton": true,
+                        "hideDeleteRowButton": true,
+                        "disableInlineEdit": false,
+                        "mask": false,
+                        "tableView": true,
+                        "alwaysEnabled": false,
+                        "journalId": "ecos-types",
+                        "displayColumns": [],
+                        "source": {
+                          "type": "journal",
+                          "custom": {
+                            "columns": []
+                          },
+                          "viewMode": "default"
+                        },
+                        "computed": {
+                          "valueDisplayName": ""
+                        },
+                        "searchField": "",
+                        "ecos": {
+                          "dataType": "assoc"
+                        },
+                        "triggerChangeWhenCalculate": false,
+                        "encrypted": false,
+                        "displayColumnsAsyncData": [
+                          {
+                            "label": "moduleId",
+                            "value": "moduleId"
+                          },
+                          {
+                            "label": "name",
+                            "value": "name"
+                          },
+                          {
+                            "label": "description",
+                            "value": "description"
+                          },
+                          {
+                            "label": "parent",
+                            "value": "parent"
+                          },
+                          {
+                            "label": "associations",
+                            "value": "associations"
+                          },
+                          {
+                            "label": "_modified",
+                            "value": "_modified"
+                          },
+                          {
+                            "label": "_modifier",
+                            "value": "_modifier"
+                          }
+                        ],
+                        "validate": {
+                          "customMessage": "",
+                          "json": "",
+                          "required": false,
+                          "custom": "",
+                          "customPrivate": false
+                        },
+                        "key": "type",
+                        "properties": {},
+                        "conditional": {
+                          "json": "",
+                          "show": "",
+                          "when": "",
+                          "eq": ""
+                        },
+                        "customConditional": "",
+                        "logic": [],
+                        "attributes": {},
+                        "type": "selectJournal",
+                        "input": true,
+                        "defaultValue": "",
+                        "tags": [],
+                        "customPredicateJs": "",
+                        "presetFilterPredicatesJs": "",
+                        "placeholder": "",
+                        "prefix": "",
+                        "customClass": "",
+                        "suffix": "",
+                        "multiple": false,
+                        "protected": false,
+                        "unique": false,
+                        "persistent": true,
+                        "hidden": false,
+                        "clearOnHide": true,
+                        "dataGridLabel": false,
+                        "labelPosition": "top",
+                        "labelWidth": 30,
+                        "labelMargin": 3,
+                        "description": "",
+                        "errorLabel": "",
+                        "tooltip": "",
+                        "hideLabel": false,
+                        "tabindex": "",
+                        "disabled": false,
+                        "autofocus": false,
+                        "dbIndex": false,
+                        "customDefaultValue": "",
+                        "calculateValue": "",
+                        "allowCalculateOverride": false,
+                        "widget": null,
+                        "refreshOn": "",
+                        "clearOnRefresh": false,
+                        "validateOn": "change",
+                        "isFullScreenWidthModal": false,
+                        "isSelectedValueAsText": false,
+                        "isTableMode": false,
+                        "sortAttribute": "sys:node-dbid",
+                        "sortAscending": "asc",
+                        "id": "e1kkwyo7"
+                      }
+                    ],
+                    "placeholder": "",
+                    "prefix": "",
+                    "customClass": "",
+                    "suffix": "",
+                    "multiple": false,
+                    "defaultValue": null,
+                    "protected": false,
+                    "unique": false,
+                    "persistent": true,
+                    "hidden": false,
+                    "clearOnHide": true,
+                    "dataGridLabel": false,
+                    "labelPosition": "top",
+                    "labelWidth": 30,
+                    "labelMargin": 3,
+                    "description": "",
+                    "errorLabel": "",
+                    "tooltip": "",
+                    "hideLabel": false,
+                    "tabindex": "",
+                    "disabled": false,
+                    "autofocus": false,
+                    "dbIndex": false,
+                    "customDefaultValue": "",
+                    "calculateValue": "",
+                    "allowCalculateOverride": false,
+                    "widget": null,
+                    "refreshOn": "",
+                    "clearOnRefresh": false,
+                    "validateOn": "change",
+                    "validate": {
+                      "required": false,
+                      "custom": "",
+                      "customPrivate": false
+                    },
+                    "conditional": {
+                      "show": null,
+                      "when": null,
+                      "eq": ""
+                    },
+                    "id": "ezqvonk"
+                  }
+                ],
+                "mask": false,
+                "tableView": false,
+                "alwaysEnabled": false,
+                "key": "columns",
+                "properties": {},
+                "conditional": {
+                  "show": "",
+                  "when": "",
+                  "json": "",
+                  "eq": ""
+                },
+                "customConditional": "",
+                "logic": [],
+                "attributes": {},
+                "type": "columns",
+                "input": false,
+                "tags": [],
+                "placeholder": "",
+                "prefix": "",
+                "customClass": "",
+                "suffix": "",
+                "multiple": false,
+                "defaultValue": null,
+                "protected": false,
+                "unique": false,
+                "persistent": false,
+                "hidden": false,
+                "clearOnHide": false,
+                "dataGridLabel": false,
+                "labelPosition": "top",
+                "labelWidth": 30,
+                "labelMargin": 3,
+                "description": "",
+                "errorLabel": "",
+                "tooltip": "",
+                "tabindex": "",
+                "disabled": false,
+                "autofocus": false,
+                "dbIndex": false,
+                "customDefaultValue": "",
+                "calculateValue": "",
+                "allowCalculateOverride": false,
+                "widget": null,
+                "refreshOn": "",
+                "clearOnRefresh": false,
+                "validateOn": "change",
+                "validate": {
+                  "required": false,
+                  "custom": "",
+                  "customPrivate": false
+                },
+                "inlineColumns": false,
+                "autoAdjust": false,
+                "hideOnChildrenHidden": false,
+                "id": "ez1nl3e"
+              }
+            ],
+            "tags": [],
+            "row": "0-0"
+          }
+        ],
+        "tags": [],
+        "placeholder": "",
+        "prefix": "",
+        "customClass": "",
+        "suffix": "",
+        "protected": false,
+        "unique": false,
+        "persistent": true,
+        "hidden": false,
+        "clearOnHide": true,
+        "dataGridLabel": false,
+        "labelPosition": "top",
+        "labelWidth": 30,
+        "labelMargin": 3,
+        "description": "",
+        "errorLabel": "",
+        "tooltip": "",
+        "hideLabel": false,
+        "tabindex": "",
+        "disabled": false,
+        "autofocus": false,
+        "dbIndex": false,
+        "customDefaultValue": "",
+        "calculateValue": "",
+        "allowCalculateOverride": false,
+        "widget": null,
+        "refreshOn": "",
+        "clearOnRefresh": false,
+        "validateOn": "change",
+        "tree": true,
+        "id": "edcx76q"
       },
       {
         "type": "button",
@@ -496,7 +998,7 @@
         "block": false,
         "action": "submit",
         "removeIndents": false,
-        "id": "eji5p98"
+        "id": "ewryisq"
       }
     ]
   },
