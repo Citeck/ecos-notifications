@@ -73,7 +73,9 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         return "notification/template"
     }
 
-    override fun listenChanges(listener: Consumer<BinModule>) {}
+    override fun listenChanges(listener: Consumer<BinModule>) {
+        //TODO: implement
+    }
 
     override fun prepareToDeploy(module: BinModule): ModuleWithMeta<BinModule>? {
         return getModuleMeta(module)

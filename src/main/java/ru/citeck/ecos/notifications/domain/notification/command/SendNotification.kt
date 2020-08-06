@@ -22,8 +22,6 @@ class SendNotificationCommandExecutor(
     val notificationTemplateService: NotificationTemplateService
 ) : CommandExecutor<SendNotificationCommand> {
 
-    //TODO: покрыть тестами логику выбора мульти шаблона и мержа моделей
-
     override fun execute(command: SendNotificationCommand): Any? {
         val template = resolveMultiTemplate(
             baseTemplateRef = command.templateRef,
