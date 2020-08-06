@@ -47,6 +47,166 @@ class NotificationCommandTest {
             NotificationTemplateWithMeta::class.java)!!
 
         notificationTemplateService.save(notificationTemplate)
+
+        val multiTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/multi-template/test-multi-template.json"), NotificationTemplateWithMeta::class.java)!!
+        val multiType1Template = Json.mapper.convert(stringJsonFromResource(
+            "template/multi-template/test-type-1-template.json"), NotificationTemplateWithMeta::class.java)!!
+        val multiType2Template = Json.mapper.convert(stringJsonFromResource(
+            "template/multi-template/test-type-2-template.json"), NotificationTemplateWithMeta::class.java)!!
+
+        notificationTemplateService.save(multiTemplate)
+        notificationTemplateService.save(multiType1Template)
+        notificationTemplateService.save(multiType2Template)
+    }
+
+    @Test
+    fun sendMultiTemplateNotificationWithoutEcosTypeShouldUseBaseTemplate() {
+        val command = SendNotificationCommand(
+            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo("ok")
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("someUser@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("its base multi template")
+    }
+
+    @Test
+    fun sendMultiTemplateNotificationWithEcosType1ShouldUseTypedTemplateEn() {
+        templateModel = mutableMapOf()
+        templateModel["firstName"] = "Ivan"
+        templateModel["lastName"] = "Petrenko"
+        templateModel["_etype?id"] = "emodel/type@type-1-template"
+
+        val command = SendNotificationCommand(
+            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo("ok")
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("someUser@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Hi Ivan! Its type 1 template")
+    }
+
+    @Test
+    fun sendMultiTemplateNotificationWithEcosType1ShouldUseTypedTemplateRu() {
+        templateModel = mutableMapOf()
+        templateModel["firstName"] = "Ivan"
+        templateModel["lastName"] = "Petrenko"
+        templateModel["_etype?id"] = "emodel/type@type-1-template"
+
+        val command = SendNotificationCommand(
+            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "ru",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo("ok")
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Привет Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("someUser@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Привет Ivan! Это шаблон тип 1")
+    }
+
+    @Test
+    fun sendMultiTemplateNotificationWithEcosType2ShouldUseTypedTemplateEn() {
+        templateModel = mutableMapOf()
+        templateModel["firstName"] = "Ivan"
+        templateModel["lastName"] = "Petrenko"
+        templateModel["_etype?id"] = "emodel/type@type-2-template"
+
+        val command = SendNotificationCommand(
+            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo("ok")
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("someUser@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Hi Ivan! Its type 2 template")
+    }
+
+    @Test
+    fun sendMultiTemplateNotificationWithEcosType2ShouldUseTypedTemplateRu() {
+        templateModel = mutableMapOf()
+        templateModel["firstName"] = "Ivan"
+        templateModel["lastName"] = "Petrenko"
+        templateModel["_etype?id"] = "emodel/type@type-2-template"
+
+        val command = SendNotificationCommand(
+            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "ru",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo("ok")
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Привет Ivan Petrenko")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("someUser@gmail.com")
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("Привет Ivan! Это шаблон тип 2")
     }
 
     @Test
