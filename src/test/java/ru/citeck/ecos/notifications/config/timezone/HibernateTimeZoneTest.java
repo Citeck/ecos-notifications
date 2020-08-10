@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import ru.citeck.ecos.notifications.NotificationsApp;
 import ru.citeck.ecos.notifications.domain.time.entity.DateTimeWrapper;
-import ru.citeck.ecos.notifications.domain.time.repository.DateTimeWrapperRepository;
+import ru.citeck.ecos.notifications.domain.time.repo.DateTimeWrapperRepository;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;

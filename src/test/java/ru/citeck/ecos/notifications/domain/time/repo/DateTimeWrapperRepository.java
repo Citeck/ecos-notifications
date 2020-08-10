@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.time.repository;
+package ru.citeck.ecos.notifications.domain.time.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
