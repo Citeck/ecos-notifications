@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.template.entity
+package ru.citeck.ecos.notifications.domain.template.repo
 
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import java.io.Serializable
@@ -8,7 +8,7 @@ import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "template_data")
-class TemplateData @JvmOverloads constructor(
+class TemplateDataEntity @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -21,7 +21,7 @@ class TemplateData @JvmOverloads constructor(
 
     @ManyToOne
     @JoinColumn(name = "template_id")
-    var template: NotificationTemplate? = null,
+    var template: NotificationTemplateEntity? = null,
 
     var data: ByteArray? = null,
 
@@ -34,7 +34,7 @@ class TemplateData @JvmOverloads constructor(
     override fun equals(o: Any?): Boolean {
         if (this === o) return true
         if (o == null || javaClass != o.javaClass) return false
-        val that = o as TemplateData
+        val that = o as TemplateDataEntity
         return id == that.id
     }
 

@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.subscribe.entity;
+package ru.citeck.ecos.notifications.domain.subscribe.repo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import java.util.Map;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Table(name = "custom_data")
-public class CustomData extends BaseEntity {
+public class CustomDataEntity extends BaseEntity {
 
     private String variable;
     private String record;

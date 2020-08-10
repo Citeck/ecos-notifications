@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.template.handler
+package ru.citeck.ecos.notifications.domain.template.eapps
 
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired

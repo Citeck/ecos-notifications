@@ -2,8 +2,8 @@ package ru.citeck.ecos.notifications.domain.subscribe.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.repository.ActionRepository;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionRepository;
 
 import java.util.Optional;
 
@@ -20,12 +20,12 @@ public class ActionService {
         this.actionRepository = actionRepository;
     }
 
-    public Action save(Action action) {
+    public ActionEntity save(ActionEntity action) {
         return actionRepository.save(action);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Action> findById(Long id) {
+    public Optional<ActionEntity> findById(Long id) {
         return actionRepository.findById(id);
     }
 

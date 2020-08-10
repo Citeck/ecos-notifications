@@ -10,9 +10,9 @@ import ru.citeck.ecos.events.EventConnection;
 import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscription;
-import ru.citeck.ecos.notifications.domain.subscribe.repository.SubscriptionRepository;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriptionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriptionRepository;
 import ru.citeck.ecos.notifications.lib.NotificationType;
 import ru.citeck.ecos.notifications.service.processors.ActionProcessor;
 
@@ -67,10 +67,10 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                             if (!userSubscribers.isEmpty()) {
                                 String requiredEventType = getEventTypeByRoutingKey(routingKey);
 
-                                List<Subscription> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
+                                List<SubscriptionEntity> usersSubscriptions = subscriptionRepository.findUsersSubscribes(
                                     tenantId, new ArrayList<>(userSubscribers), requiredEventType);
                                 usersSubscriptions.forEach(subscription -> {
-                                    Set<Action> actions = subscription.getActions();
+                                    Set<ActionEntity> actions = subscription.getActions();
 
                                     actions.forEach(action -> {
                                         NotificationType type = action.getType();

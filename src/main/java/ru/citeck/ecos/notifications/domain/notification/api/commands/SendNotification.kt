@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.notification.command
+package ru.citeck.ecos.notifications.domain.notification.api.commands
 
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils

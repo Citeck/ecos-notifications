@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.subscribe.entity;
+package ru.citeck.ecos.notifications.domain.subscribe.repo;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @IdClass(SubscriberId.class)
 @Table(name = "subscribers")
-public class Subscriber {
+public class SubscriberEntity {
     @Id
     private String username;
 
@@ -25,5 +25,5 @@ public class Subscriber {
         @JoinColumn(name = "tenantId"),
         @JoinColumn(name = "username")
     })
-    private Set<Subscription> subscriptions = new HashSet<>();
+    private Set<SubscriptionEntity> subscriptions = new HashSet<>();
 }

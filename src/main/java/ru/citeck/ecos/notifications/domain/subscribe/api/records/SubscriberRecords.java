@@ -1,9 +1,9 @@
-package ru.citeck.ecos.notifications.domain.subscribe.records;
+package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscriber;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
@@ -58,7 +58,7 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
                     .map(x -> subscriberService.getById(x)
                         .orElseThrow(() -> new IllegalArgumentException(
                             String.format("Subscriber with id <%s> not found!", id))))
-                    .orElseGet(Subscriber::new))
+                    .orElseGet(SubscriberEntity::new))
             .map(factory::fromSubscriber)
             .collect(Collectors.toList());
     }

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta;
-import ru.citeck.ecos.notifications.domain.template.entity.NotificationTemplate;
-import ru.citeck.ecos.notifications.domain.template.repository.NotificationTemplateRepository;
+import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity;
+import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository;
 import ru.citeck.ecos.records2.RecordConstants;
 import ru.citeck.ecos.records2.predicate.PredicateUtils;
 import ru.citeck.ecos.records2.predicate.model.Predicate;
@@ -58,7 +58,7 @@ public class NotificationTemplateService {
         if (StringUtils.isBlank(dto.getId())) {
             dto.setId(UUID.randomUUID().toString());
         }
-        NotificationTemplate saved = templateRepository.save(templateConverter.dtoToEntity(dto));
+        NotificationTemplateEntity saved = templateRepository.save(templateConverter.dtoToEntity(dto));
         return templateConverter.entityToDto(saved);
     }
 
@@ -75,7 +75,7 @@ public class NotificationTemplateService {
             .collect(Collectors.toList());
     }
 
-    private Specification<NotificationTemplate> toSpec(Predicate predicate) {
+    private Specification<NotificationTemplateEntity> toSpec(Predicate predicate) {
 
         if (predicate instanceof ValuePredicate) {
 
@@ -97,14 +97,14 @@ public class NotificationTemplateService {
         }
 
         PredicateDto predicateDto = PredicateUtils.convertToDto(predicate, PredicateDto.class);
-        Specification<NotificationTemplate> spec = null;
+        Specification<NotificationTemplateEntity> spec = null;
 
         if (org.apache.commons.lang3.StringUtils.isNotBlank(predicateDto.name)) {
             spec = (root, query, builder) ->
                 builder.like(builder.lower(root.get("name")), "%" + predicateDto.name.toLowerCase() + "%");
         }
         if (org.apache.commons.lang3.StringUtils.isNotBlank(predicateDto.moduleId)) {
-            Specification<NotificationTemplate> idSpec = (root, query, builder) ->
+            Specification<NotificationTemplateEntity> idSpec = (root, query, builder) ->
                 builder.like(builder.lower(root.get("extId")), "%" + predicateDto.moduleId.toLowerCase() + "%");
             spec = spec != null ? spec.or(idSpec) : idSpec;
         }
@@ -113,7 +113,7 @@ public class NotificationTemplateService {
     }
 
     public long getCount(Predicate predicate) {
-        Specification<NotificationTemplate> spec = toSpec(predicate);
+        Specification<NotificationTemplateEntity> spec = toSpec(predicate);
         return spec != null ? (int) templateRepository.count(spec) : getCount();
     }
 

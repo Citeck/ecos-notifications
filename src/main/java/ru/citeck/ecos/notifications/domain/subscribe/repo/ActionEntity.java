@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.subscribe.entity;
+package ru.citeck.ecos.notifications.domain.subscribe.repo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Table(name = "actions")
-public class Action extends BaseEntity {
+public class ActionEntity extends BaseEntity {
 
     @Lob
     private String configJSON;
@@ -26,7 +26,7 @@ public class Action extends BaseEntity {
 
     @JoinColumn(name = "action")
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<CustomData> customData = new ArrayList<>();
+    private List<CustomDataEntity> customData = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;

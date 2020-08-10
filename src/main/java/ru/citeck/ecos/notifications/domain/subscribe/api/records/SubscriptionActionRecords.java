@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.subscribe.records;
+package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -7,8 +7,8 @@ import ru.citeck.ecos.commons.data.DataValue;
 import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.ActionDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.CustomData;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
 import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
 import ru.citeck.ecos.notifications.lib.NotificationType;
@@ -74,7 +74,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
                     .map(x -> actionService.findById(Long.valueOf(x))
                         .orElseThrow(() -> new IllegalArgumentException(
                             String.format("Subscriber with id <%s> not found!", id))))
-                    .orElseGet(Action::new))
+                    .orElseGet(ActionEntity::new))
             .map(factory::fromAction)
             .collect(Collectors.toList());
     }
@@ -85,7 +85,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
 
         for (RecordMeta meta : mutation.getRecords()) {
             final String id = meta.getId().getId();
-            Action resultAction;
+            ActionEntity resultAction;
 
             String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG) != null
                 ? meta.get(PARAM_ACTION_UPDATE_CONFIG).asText() : "";
@@ -105,16 +105,16 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
         return result;
     }
 
-    private Action processUpdateActionConfig(String id, String updateConfig) {
-        Action action = actionService.findById(Long.valueOf(id))
+    private ActionEntity processUpdateActionConfig(String id, String updateConfig) {
+        ActionEntity action = actionService.findById(Long.valueOf(id))
             .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
         action.setConfigJSON(updateConfig);
 
         return actionService.save(action);
     }
 
-    private Action processMutate(String id, RecordMeta meta) {
-        Action resultAction;
+    private ActionEntity processMutate(String id, RecordMeta meta) {
+        ActionEntity resultAction;
 
         String subscriberId = meta.get(PARAM_SUBSCRIBER_ID).asText();
         if (StringUtils.isBlank(subscriberId)) {
@@ -141,16 +141,16 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
         String condition = actionNode.get(PARAM_ACTION_CONDITION).isNotNull()
             ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
 
-        CustomData[] customData = new CustomData[0];
+        CustomDataEntity[] customData = new CustomDataEntity[0];
 
         DataValue customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
 
         if (customDataNode.isNotNull()) {
-            customData = Json.getMapper().convert(customDataNode, CustomData[].class);
+            customData = Json.getMapper().convert(customDataNode, CustomDataEntity[].class);
         }
 
         if (StringUtils.isBlank(id)) {
-            Action newAction = new Action();
+            ActionEntity newAction = new ActionEntity();
             newAction.setType(NotificationType.valueOf(actionType));
             newAction.setConfigJSON(config);
             newAction.setCondition(condition);
@@ -161,7 +161,7 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
             subscriberService.addActionToSubscriber(subscriberService.transformId(subscriberId), eventType,
                 resultAction);
         } else {
-            Action exists = actionService.findById(Long.valueOf(id))
+            ActionEntity exists = actionService.findById(Long.valueOf(id))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Action with id <%s> not found", id)));
             exists.setType(NotificationType.valueOf(actionType));
             exists.setConfigJSON(config);

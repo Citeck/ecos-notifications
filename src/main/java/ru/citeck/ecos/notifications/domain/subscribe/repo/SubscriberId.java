@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.subscribe.entity;
+package ru.citeck.ecos.notifications.domain.subscribe.repo;
 
 import lombok.Data;
 

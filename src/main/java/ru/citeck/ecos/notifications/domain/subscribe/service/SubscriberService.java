@@ -7,12 +7,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscriber;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.SubscriberId;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Subscription;
-import ru.citeck.ecos.notifications.domain.subscribe.repository.SubscriberRepository;
 import ru.citeck.ecos.notifications.domain.subscribe.handlers.AbstractEventHandlersRegistrar;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.*;
 
 import java.util.*;
 
@@ -32,7 +28,7 @@ public class SubscriberService implements ApplicationContextAware {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Subscriber> getById(String id) {
+    public Optional<SubscriberEntity> getById(String id) {
         if (StringUtils.isBlank(id)) {
             return Optional.empty();
         }
@@ -57,34 +53,34 @@ public class SubscriberService implements ApplicationContextAware {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Subscriber> getById(SubscriberId id) {
+    public Optional<SubscriberEntity> getById(SubscriberId id) {
         return getById(id.toString());
     }
 
-    public void addActionToSubscriber(SubscriberId id, String event, Action action) {
-        Optional<Subscriber> optSubscriber = getById(id);
+    public void addActionToSubscriber(SubscriberId id, String event, ActionEntity action) {
+        Optional<SubscriberEntity> optSubscriber = getById(id);
 
-        Subscriber subscriber;
+        SubscriberEntity subscriber;
         if (optSubscriber.isPresent()) {
             subscriber = optSubscriber.get();
         } else {
-            subscriber = new Subscriber();
+            subscriber = new SubscriberEntity();
             subscriber.setUsername(id.getUsername());
             subscriber.setTenantId(id.getTenantId());
         }
 
-        Set<Subscription> subscriptions = subscriber.getSubscriptions() != null ? subscriber.getSubscriptions()
+        Set<SubscriptionEntity> subscriptions = subscriber.getSubscriptions() != null ? subscriber.getSubscriptions()
             : new HashSet<>();
-        Subscription foundSubscription = subscriptions.stream()
+        SubscriptionEntity foundSubscription = subscriptions.stream()
             .filter(work -> Objects.equals(work.getEventType(), event))
             .findFirst()
             .orElseGet(() -> {
-                Subscription w = new Subscription();
+                SubscriptionEntity w = new SubscriptionEntity();
                 w.setEventType(event);
                 return w;
             });
 
-        Set<Action> actions = foundSubscription.getActions() != null ? foundSubscription.getActions() : new HashSet<>();
+        Set<ActionEntity> actions = foundSubscription.getActions() != null ? foundSubscription.getActions() : new HashSet<>();
         actions.add(action);
 
         foundSubscription.setActions(actions);

@@ -12,8 +12,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.citeck.ecos.events.data.dto.EventDto;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.entity.CustomData;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
@@ -48,9 +48,9 @@ public abstract class ActionProcessor {
     @Setter
     protected String id;
 
-    protected abstract void processImpl(Delivery message, EventDto dto, Action action, Map<String, Object> model);
+    protected abstract void processImpl(Delivery message, EventDto dto, ActionEntity action, Map<String, Object> model);
 
-    public void process(Delivery message, @NonNull EventDto dto, @NonNull Action action) {
+    public void process(Delivery message, @NonNull EventDto dto, @NonNull ActionEntity action) {
         log.debug(String.format("============ Start process actions id: %s =============", action.getId()));
         log.debug("Action: \n" + action);
 
@@ -70,15 +70,15 @@ public abstract class ActionProcessor {
         log.debug(String.format("============= End process actions id: %s ==============", action.getId()));
     }
 
-    private Map<String, Object> getProcessedCustomData(Action action, JsonNode dtoData) {
+    private Map<String, Object> getProcessedCustomData(ActionEntity action, JsonNode dtoData) {
         Map<String, Object> result = new HashMap<>();
         if (CollectionUtils.isEmpty(action.getCustomData())) {
             return result;
         }
 
-        CustomData[] customData = getTemplatedData(action.getCustomData(), dtoData);
+        CustomDataEntity[] customData = getTemplatedData(action.getCustomData(), dtoData);
 
-        for (CustomData data : customData) {
+        for (CustomDataEntity data : customData) {
             RecordRef recordRef = RecordRef.valueOf(data.getRecord());
             //TODO: check
             RecordMeta attributes = RemoteRecordsUtils.runAsSystem(() ->
@@ -90,7 +90,7 @@ public abstract class ActionProcessor {
         return result;
     }
 
-    private CustomData[] getTemplatedData(List<CustomData> customData, JsonNode dtoData) {
+    private CustomDataEntity[] getTemplatedData(List<CustomDataEntity> customData, JsonNode dtoData) {
         String customDataToProcess;
         try {
             customDataToProcess = OBJECT_MAPPER.writeValueAsString(customData);
@@ -104,13 +104,13 @@ public abstract class ActionProcessor {
         String processedCustomData = templateEngineService.process(CUSTOM_DATA_TEMPLATE_KEY, customDataToProcess, model);
 
         try {
-            return OBJECT_MAPPER.readValue(processedCustomData, CustomData[].class);
+            return OBJECT_MAPPER.readValue(processedCustomData, CustomDataEntity[].class);
         } catch (IOException e) {
             throw new RuntimeException("Failed read custom data", e);
         }
     }
 
-    private boolean processRequired(Action action, Map<String, Object> model) {
+    private boolean processRequired(ActionEntity action, Map<String, Object> model) {
         String conditionScript = action.getCondition();
         if (StringUtils.isBlank(conditionScript)) {
             return true;

@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.domain.template.entity
+package ru.citeck.ecos.notifications.domain.template.repo
 
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import java.io.Serializable
@@ -7,7 +7,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "notification_template")
-class NotificationTemplate @JvmOverloads constructor(
+class NotificationTemplateEntity @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -26,7 +26,7 @@ class NotificationTemplate @JvmOverloads constructor(
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
     @MapKey(name = "lang")
-    var data: MutableMap<String, TemplateData> = mutableMapOf(),
+    var data: MutableMap<String, TemplateDataEntity> = mutableMapOf(),
 
     @Column(name = "multi_template_config")
     var multiTemplateConfig: String? = null,
@@ -39,7 +39,7 @@ class NotificationTemplate @JvmOverloads constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is NotificationTemplate) return false
+        if (other !is NotificationTemplateEntity) return false
 
         return id != null && other.id != null && id == other.id
     }
