@@ -29,4 +29,9 @@ open class NotificationTemplateWithMeta(
         dto.creator,
         dto.created
     )
+
+    override fun toString(): String {
+        return "NotificationTemplateWithMeta(id=$id)"
+    }
+
 }

@@ -14,6 +14,7 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
+import ru.citeck.ecos.notifications.domain.template.hasLangKey
 import ru.citeck.ecos.notifications.domain.template.records.NotificationTemplateRecords.NotTemplateRecord
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.records2.RecordConstants
@@ -38,7 +39,7 @@ import java.time.Instant
 import java.util.*
 import java.util.stream.Collectors
 
-private const val META_FILE_EXTENSION = "json"
+private const val META_FILE_EXTENSION = "meta.yml"
 const val ID = "template"
 
 @Component
@@ -189,12 +190,20 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 val metaDto = NotificationTemplateDto(this)
                 val prettyString = mapper.toPrettyString(metaDto)
 
-                mapper.toBytes(prettyString)?.let {
-                    memDir.createFile("$id.$META_FILE_EXTENSION", it)
-                }
+                var hasLangKeyInTemplateData = false
 
                 templateData.forEach { (_, data) ->
+                    if (hasLangKey(data.name)) {
+                        hasLangKeyInTemplateData = true
+                    }
                     memDir.createFile(data.name, data.data)
+                }
+
+                mapper.toBytes(prettyString)?.let {
+                    val name = if (hasLangKeyInTemplateData) "$id.html.$META_FILE_EXTENSION"
+                    else "$id.html.ftl.$META_FILE_EXTENSION"
+
+                    memDir.createFile(name, it)
                 }
 
                 return ZipUtils.writeZipAsBytes(memDir)

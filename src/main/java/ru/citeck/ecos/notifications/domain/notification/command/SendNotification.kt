@@ -13,6 +13,7 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import java.util.*
 
 private const val ECOS_TYPE_ID_KEY = "_etype?id"
 
@@ -23,12 +24,21 @@ class SendNotificationCommandExecutor(
 ) : CommandExecutor<SendNotificationCommand> {
 
     override fun execute(command: SendNotificationCommand): Any? {
+        val baseTemplate = getTemplateMetaById(command.templateRef.id)
+
         val template = resolveMultiTemplate(
-            baseTemplateRef = command.templateRef,
+            baseTemplate = baseTemplate,
             recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model)
         )
+
+        val requiredModel = mutableMapOf<String, String>()
+        baseTemplate.model?.let { requiredModel.putAll(it) }
+        if (!Objects.equals(baseTemplate.id, template.id)) {
+            template.model?.let { requiredModel.putAll(it) }
+        }
+
         val filledModel = resolveCompletedModel(
-            requiredModel = template.model ?: emptyMap(),
+            requiredModel = requiredModel,
             incomeFilledModel = command.model
         )
 
@@ -51,10 +61,8 @@ class SendNotificationCommandExecutor(
         return SendNotificationResult("ok", "")
     }
 
-    private fun resolveMultiTemplate(baseTemplateRef: RecordRef,
+    private fun resolveMultiTemplate(baseTemplate: NotificationTemplateWithMeta,
                                      recordEcosTypeId: String): NotificationTemplateWithMeta {
-        val baseTemplate = getTemplateMetaById(baseTemplateRef.id)
-
         if (StringUtils.isBlank(recordEcosTypeId)) {
             return baseTemplate
         }
@@ -63,7 +71,7 @@ class SendNotificationCommandExecutor(
             it.type?.let { typeRef ->
                 if (RecordRef.valueOf(recordEcosTypeId) == typeRef) {
                     val template = it.template ?: throw NotificationException(
-                        "Multi template ref is null. Base template ref: $baseTemplateRef"
+                        "Multi template ref is null. Base template ref: $baseTemplate"
                     )
                     return getTemplateMetaById(template.id)
                 }

@@ -11,11 +11,11 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
+import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import java.util.*
 import java.util.function.Consumer
 
 @Component
@@ -39,29 +39,13 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         dto.notificationTitle = meta.get("notificationTitle", MLText::class.java)
         dto.name = meta.get("name").asText()
         val memDir = extractZip(module.data)
-        dto.templateData = getTemplateDataFromMemDir(memDir)
+        dto.templateData = TemplateDataFinder(memDir).find()
         dto.model = meta.get("model").asMap(String::class.java, String::class.java)
+        dto.multiTemplateConfig = meta.get("multiTemplateConfig").asList(MultiTemplateElementDto::class.java)
 
         log.debug("Deploy new template module: $dto")
-        if (log.isDebugEnabled) {
-            memDir.getChildren().forEach {
-                val name = it.getName()
-                val content = it.readAsString()
-                log.debug("name: $name content: \n$content")
-            }
-        }
 
         return dto
-    }
-
-    private fun getTemplateDataFromMemDir(memDir: EcosMemDir): Map<String, TemplateDataDto> {
-        val templateData: MutableMap<String, TemplateDataDto> = HashMap()
-        memDir.getChildren().forEach(Consumer { file: EcosFile ->
-            val langKey = getLangKeyFromFileName(file.getName())
-            val dataDto = TemplateDataDto(file.getName(), file.readAsBytes())
-            templateData[langKey] = dataDto
-        })
-        return templateData
     }
 
     override fun getModuleMeta(module: BinModule): ModuleWithMeta<BinModule> {
@@ -79,5 +63,31 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
 
     override fun prepareToDeploy(module: BinModule): ModuleWithMeta<BinModule>? {
         return getModuleMeta(module)
+    }
+
+    inner class TemplateDataFinder(
+        private val memDir: EcosMemDir
+    ) {
+
+        val templateData: MutableMap<String, TemplateDataDto> = mutableMapOf()
+
+        fun find(): MutableMap<String, TemplateDataDto> {
+            resolveFiles(memDir.getChildren())
+            return templateData
+        }
+
+        private fun resolveFiles(files: List<EcosFile>) {
+            files.forEach {
+                if (it.isDirectory()) {
+                    resolveFiles(it.getChildren())
+                } else {
+                    val langKey = getLangKeyFromFileName(it.getName())
+                    val dataDto = TemplateDataDto(it.getName(), it.readAsBytes())
+                    templateData[langKey] = dataDto
+
+                    log.debug("Template data name: ${it.getName()} content: \n$${it.readAsString()}")
+                }
+            }
+        }
     }
 }

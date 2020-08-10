@@ -1,8 +1,10 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
 import mu.KotlinLogging
+import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
@@ -51,10 +53,24 @@ class NotificationService(
     private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
         val title = template.notificationTitle ?: return ""
 
-        val titleTemplate = title.get(locale)
-            ?: title.getClosestValue(DEFAULT_LOCALE)
+        val titleTemplate = resolveAnyAvailableTitle(title, locale)
             ?: throw NotificationException("Notification title not found in template: $template")
 
         return freemarkerService.process(template.id + "_title", titleTemplate, model)
+    }
+
+    private fun resolveAnyAvailableTitle(titleMl: MLText, locale: Locale): String? {
+        val titleMap = titleMl.asMap
+        var title = if (StringUtils.isNoneBlank(titleMap[locale])) titleMap[locale] else titleMap[DEFAULT_LOCALE]
+
+        if (StringUtils.isBlank(title)) {
+            titleMap.forEach { (_, value) ->
+                if (StringUtils.isNoneBlank(value)) {
+                    title = value
+                }
+            }
+
+        }
+        return title
     }
 }

@@ -17,6 +17,11 @@ fun getLangKeyFromFileName(fileName: String): String {
     } else Locale.ENGLISH.toString()
 }
 
+fun hasLangKey(fileName: String): Boolean {
+    val matcher = TEMPLATE_LANG_KEY_PATTERN.matcher(fileName)
+    return matcher.find()
+}
+
 fun getContentBytesFromBase64ObjectData(objectData: ObjectData): ByteArray {
     var base64Content = objectData.get(URL_PARAM, "")
     base64Content = StringUtils.substringAfter(base64Content, BASE_64_DELIMITER)
