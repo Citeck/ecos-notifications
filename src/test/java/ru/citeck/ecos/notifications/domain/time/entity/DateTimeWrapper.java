@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.repository.timezone;
+package ru.citeck.ecos.notifications.domain.time.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
