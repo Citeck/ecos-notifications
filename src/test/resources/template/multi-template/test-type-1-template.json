@@ -1,0 +1,18 @@
+{
+  "id": "test-type-1-template",
+  "name": "test-type-1-template",
+  "notificationTitle": {
+    "en": "Hi ${firstName} ${lastName}",
+    "ru": "Привет ${firstName} ${lastName}"
+  },
+  "templateData": {
+    "ru": {
+      "name": "test-type-1-template.html_ru.ftl",
+      "data": "0J/RgNC40LLQtdGCICR7Zmlyc3ROYW1lfSEg0K3RgtC+INGI0LDQsdC70L7QvSDRgtC40L8gMQ=="
+    },
+    "en": {
+      "name": "test-type-1-template.html_en.ftl",
+      "data": "SGkgJHtmaXJzdE5hbWV9ISBJdHMgdHlwZSAxIHRlbXBsYXRl"
+    }
+  }
+}

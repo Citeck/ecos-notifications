@@ -1,0 +1,8 @@
+id: simple-test-template
+name: simple-test-template
+notificationTitle:
+  en: "Hi ${firstName} ${lastName}"
+  ru: Привет ${firstName} ${lastName}"
+model:
+  title: ".disp"
+  name: "cm:name"

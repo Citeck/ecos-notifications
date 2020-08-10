@@ -1,150 +1,247 @@
 version: '3'
 services:
-    ui:
-        ports:
-            - 80:80/tcp
-        links:
-            - uiserv-app
-            - gateway-app
-        image: nexus.citeck.ru/ecos-ui:1.7.0
-        environment:
-            - PROXY_TARGET=host.docker.internal:8080
-            - GATEWAY_TARGET=host.docker.internal:8085
-            - CADVISOR_TARGET=<CADVISOR_TARGET
-            - API_AUTH_TARGET=<API_AUTH_TARGET
-        volumes:
-            - .\micro-volumes\ecos-ui\:/opt/ecos-ui/
-    gateway-app:
-        image: nexus.citeck.ru/ecos-gateway:1.4.0
-        environment:
-            - _JAVA_OPTIONS=-Xmx512m -Xms256m
-            - SPRING_PROFILES_ACTIVE=dev,swagger
-            - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
-            - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
-            - SPRING_DATASOURCE_URL=jdbc:postgresql://gateway-postgresql:5432/gateway
-            - JHIPSTER_SLEEP=30
-        ports:
-            - 8085:8085
-        links:
-            - jhipster-registry
-            - gateway-postgresql
-            - uiserv-app
-            - uiserv-app-postgresql
-        depends_on:
-            - jhipster-registry
-    jhipster-registry:
-        image: jhipster/jhipster-registry:v4.1.1
-        volumes:
-            - .\central-server-config\:/central-config
-                # When run with the "dev" Spring profile, the JHipster Registry will
-                # read the config from the local filesystem (central-server-config directory)
-            # When run with the "prod" Spring profile, it will read the configuration from a Git repository
-            # See https://www.jhipster.tech/microservices-architecture/#registry_app_configuration
-        environment:
-            - _JAVA_OPTIONS=-Xmx512m -Xms256m
-            - SPRING_PROFILES_ACTIVE=dev,swagger
-            - SPRING_SECURITY_USER_PASSWORD=admin
-            - JHIPSTER_REGISTRY_PASSWORD=admin
-            - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=native
-            - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS=file:/central-config/docker-config/
-        ports:
-            - 8761:8761
-    uiserv-app:
-        image: nexus.citeck.ru/ecos-uiserv:1.4.0
-        environment:
-            - _JAVA_OPTIONS=-Xmx512m -Xms256m
-            - SPRING_PROFILES_ACTIVE=prod,swagger
-            - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
-            - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
-            - SPRING_DATASOURCE_URL=jdbc:postgresql://uiserv-app-postgresql:5432/uiserv
-            - JHIPSTER_SLEEP=120
-        ports:
-            - 8081:8081
-        links:
-            - jhipster-registry
-            - uiserv-app-postgresql
-        volumes:
-            - .\micro-volumes\uiserv\:/default-menu-override
-    history-app:
-        image: nexus.citeck.ru/ecos-history:1.2.0-snapshot
-        environment:
-            - _JAVA_OPTIONS=-Xmx512m -Xms256m
-            - SPRING_PROFILES_ACTIVE=dev,swagger
-            - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
-            - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
-            - ECOS-HISTORY_EVENT_HOST=rabbitmq
-            - SPRING_DATASOURCE_URL=jdbc:postgresql://history-psql:5432/history
-            - SPRING_DATA_MONGODB_URI=mongodb://history-mongodb:27017/history
-            - JHIPSTER_SLEEP=20
-        ports:
-            - 8086:8086
-        links:
-            - jhipster-registry
-            - history-mongodb
-            - history-psql
-    rabbitmq:
-        image: "rabbitmq:3-management"
-        restart: on-failure:5
-        container_name: rabbitmq
-        hostname: rabbitmq
-        environment:
-            - RABBITMQ_DEFAULT_USER=admin
-            - RABBITMQ_DEFAULT_PASS=admin
-            - RABBITMQ_DEFAULT_VHOST=/
-        ports:
-            - 15672:15672/tcp
-            - 5672:5672/tcp
-        volumes:
-            - rabbitmq_data:/var/lib/rabbitmq
-    uiserv-app-postgresql:
-        image: postgres:10.4
-        environment:
-            - POSTGRES_USER=uiserv
-            - POSTGRES_PASSWORD=
-        volumes:
-            - psql_uiserv:/var/lib/postgresql/data
-    notifications-postgresql:
-        image: postgres:10.4
-        volumes:
-            - psql_notifications:/var/lib/postgresql/data/
-        environment:
-            - POSTGRES_USER=notifications
-            - POSTGRES_PASSWORD=
-        ports:
-            - 5438:5432
-    gateway-postgresql:
-        image: postgres:10.4
-        environment:
-            - POSTGRES_USER=gateway
-            - POSTGRES_PASSWORD=
-        volumes:
-            - psql_gateway:/var/lib/postgresql/data
-    history-psql:
-        image: postgres:10.4
-        ports:
-            - 5439:5432
-        environment:
-            - POSTGRES_USER=history
-            - POSTGRES_PASSWORD=
-        volumes:
-            - psql_history:/var/lib/postgresql/data
-    history-mongodb:
-        image: mongo:4.0.2
-        hostname: mongo
-        ports:
-            - "27017:27017"
-        volumes:
-            - mongo_history:/data/db/
+  ui:
+    ports:
+      - 80:80/tcp
+    links:
+      - uiserv-app
+      - gateway-app
+    image: nexus.citeck.ru/ecos-proxy-oidc:1.17.0-snapshot
+    environment:
+      - PROXY_TARGET=host.docker.internal:8080
+      - GATEWAY_TARGET=host.docker.internal:8085
+    volumes:
+      - .\micro-volumes\ecos-ui\:/opt/ecos-ui/
+  gateway-app:
+    image: nexus.citeck.ru/ecos-gateway:1.10.0-snapshot
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://gateway-postgresql:5432/gateway
+      - JHIPSTER_SLEEP=30
+    ports:
+      - 8085:8085
+    links:
+      - jhipster-registry
+      - gateway-postgresql
+      - uiserv-app
+      - uiserv-app-postgresql
+    depends_on:
+      - jhipster-registry
+  jhipster-registry:
+    image: jhipster/jhipster-registry:v4.1.1
+    ports:
+      - 8761:8761
+    volumes:
+      - ./central-server-config:/central-config
+      # When run with the "dev" Spring profile, the JHipster Registry will
+      # read the config from the local filesystem (central-server-config directory)
+      # When run with the "prod" Spring profile, it will read the configuration from a Git repository
+      # See https://www.jhipster.tech/microservices-architecture/#registry_app_configuration
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_SECURITY_USER_PASSWORD=admin
+      - JHIPSTER_REGISTRY_PASSWORD=admin
+      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=native
+      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS=file:/central-config/docker-config/
+  uiserv-app:
+    image: nexus.citeck.ru/ecos-uiserv:1.13.0-snapshot
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=prod,swagger
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://uiserv-app-postgresql:5432/uiserv
+      - JHIPSTER_SLEEP=120
+    ports:
+      - 8081:8081
+    links:
+      - jhipster-registry
+      - uiserv-app-postgresql
+    volumes:
+      - .\micro-volumes\uiserv\:/default-menu-override
+
+  #=== ECOS APPS ===#
+
+  eapps-app:
+    container_name: eapps-app
+    image: nexus.citeck.ru/ecos-apps:1.11.0-snapshot
+    ports:
+      - 8089:8089
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EAPPS_AUTOUPLOAD_LOCATIONS=file:/ecos-apps
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://eapps-psql:5432/eapps
+      - JHIPSTER_SLEEP=20
+    depends_on:
+      - jhipster-registry
+      - eapps-psql
+      - rabbitmq
+    volumes:
+      - ./volumes/ecos-apps/:/ecos-apps
+
+  #=== ECOS MODEL ===#
+
+  emodel-app:
+    container_name: emodel-app
+    image: nexus.citeck.ru/ecos-model:1.10.0-snapshot
+    ports:
+      - 8094:8094
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://emodel-psql:5432/emodel
+      - ECOS_INIT_DELAY=30
+    depends_on:
+      - jhipster-registry
+      - emodel-psql
+      - rabbitmq
+
+  emodel-psql:
+    container_name: emodel-psql
+    image: postgres:10.4
+    ports:
+      - 5441:5432
+    environment:
+      - POSTGRES_USER=emodel
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_emodel:/var/lib/postgresql/data
+
+  #=== ECOS PROCESS ===#
+
+  eproc-app:
+    container_name: eproc-app
+    image: nexus.citeck.ru/ecos-process:1.2.0-snapshot
+    ports:
+      - 8098:8098
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - SPRING_DATA_MONGODB_URI=mongodb://eproc-mongo:27017/eproc
+      - JHIPSTER_SLEEP=30
+    depends_on:
+      - eproc-mongo
+
+  eproc-mongo:
+    container_name: eproc-mongo
+    image: mongo:4.0.2
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_eproc:/data/db
+
+  eapps-psql:
+    container_name: eapps-psql
+    image: postgres:10.4
+    ports:
+      - 5437:5432
+    environment:
+      - POSTGRES_USER=eapps
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_eapps:/var/lib/postgresql/data
+
+  history-app:
+    image: nexus.citeck.ru/ecos-history:1.2.0
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev,swagger
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+      - ECOS-HISTORY_EVENT_HOST=rabbitmq
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://history-psql:5432/history
+      - SPRING_DATA_MONGODB_URI=mongodb://history-mongodb:27017/history
+      - JHIPSTER_SLEEP=20
+    ports:
+      - 8086:8086
+    links:
+      - jhipster-registry
+      - history-mongodb
+      - history-psql
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    restart: on-failure:5
+    container_name: rabbitmq
+    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - 15672:15672/tcp
+      - 5672:5672/tcp
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  uiserv-app-postgresql:
+    image: postgres:10.4
+    environment:
+      - POSTGRES_USER=uiserv
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_uiserv:/var/lib/postgresql/data
+  notifications-postgresql:
+    image: postgres:10.4
+    volumes:
+      - psql_notifications:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=notifications
+      - POSTGRES_PASSWORD=
+    ports:
+      - 5438:5432
+  gateway-postgresql:
+    image: postgres:10.4
+    environment:
+      - POSTGRES_USER=gateway
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_gateway:/var/lib/postgresql/data
+  history-psql:
+    image: postgres:10.4
+    ports:
+      - 5439:5432
+    environment:
+      - POSTGRES_USER=history
+      - POSTGRES_PASSWORD=
+    volumes:
+      - psql_history:/var/lib/postgresql/data
+  history-mongodb:
+    image: mongo:4.0.2
+    hostname: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_history:/data/db/
 volumes:
-    psql_gateway:
-        external: true
-    psql_uiserv:
-        external: true
-    psql_notifications:
-        external: true
-    mongo_history:
-        external: true
-    psql_history:
-        external: true
-    rabbitmq_data:
-        external: true
+  psql_gateway:
+    external: true
+  psql_uiserv:
+    external: true
+  psql_notifications:
+    external: true
+  mongo_history:
+    external: true
+  psql_history:
+    external: true
+  rabbitmq_data:
+    external: true
+  psql_eapps:
+    external: true
+  psql_emodel:
+    external: true
+  mongo_eproc:
+    external: true

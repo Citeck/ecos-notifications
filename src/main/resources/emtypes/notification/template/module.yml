@@ -1,0 +1,9 @@
+modelVersion: "1.0"
+
+sourceId: "notification"
+
+controller:
+  type: bin
+  config:
+    moduleNamePattern: "(.+)_\\w+.ftl"
+    moduleNameGroupIdx: 1

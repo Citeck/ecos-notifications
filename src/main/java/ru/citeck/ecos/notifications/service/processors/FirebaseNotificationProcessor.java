@@ -13,8 +13,8 @@ import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
 import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.service.ActionService;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
 import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.notifications.service.TemplateService;
 
@@ -65,7 +65,7 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     }
 
     @Override
-    protected void processImpl(Delivery message, EventDto dto, Action action, Map<String, Object> model) {
+    protected void processImpl(Delivery message, EventDto dto, ActionEntity action, Map<String, Object> model) {
         log.debug("Process DTO: \n" + dto);
         JsonNode config;
         try {

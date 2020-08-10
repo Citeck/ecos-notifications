@@ -1,0 +1,14 @@
+{
+  "id": "lib-macro-template",
+  "name": "Lib template",
+  "templateData": {
+    "ru": {
+      "name": "lib-macro-template_ru.ftl",
+      "data": "PCNtYWNybyBjb3B5cmlnaHQgZGF0ZT4NCkNvcHlyaWdodCAoQykgJHtkYXRlfSDQoNC+0LPQsCDQuCDQutC+0L/Ri9GC0LAuINCS0YHQtSDQv9GA0LDQstCwINC30LDRidC40YnQtdC90YsuDQo8LyNtYWNybz4NCg0KPCNhc3NpZ24gbWFpbCA9ICJ1c2VyQGV4YW1wbGUuY29tIj4="
+    },
+    "en": {
+      "name": "lib-macro-template_en.ftl",
+      "data": "PCNtYWNybyBjb3B5cmlnaHQgZGF0ZT4NCkNvcHlyaWdodCAoQykgJHtkYXRlfSBTb21lb25lLiBBbGwgcmlnaHRzIHJlc2VydmVkLg0KPC8jbWFjcm8+DQoNCjwjYXNzaWduIG1haWwgPSAidXNlckBleGFtcGxlLmNvbSI+"
+    }
+  }
+}

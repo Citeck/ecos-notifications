@@ -3,8 +3,8 @@ package ru.citeck.ecos.notifications.domain.subscribe.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import lombok.Data;
-import ru.citeck.ecos.notifications.domain.subscribe.Action;
-import ru.citeck.ecos.notifications.domain.subscribe.CustomData;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
+import ru.citeck.ecos.notifications.lib.NotificationType;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import java.util.List;
 public class ActionDto {
 
     private Long id;
-    private Action.Type type;
+    private NotificationType type;
     private String condition;
     private JsonNode config = NullNode.getInstance();
-    private List<CustomData> customData;
+    private List<CustomDataEntity> customData;
 
 }

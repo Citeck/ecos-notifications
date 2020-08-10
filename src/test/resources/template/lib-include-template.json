@@ -1,0 +1,14 @@
+{
+  "id": "lib-include-template",
+  "name": "Lib include template",
+  "templateData": {
+    "ru": {
+      "name": "lib-include-template_ru.ftl",
+      "data": "0K3RgtC+0YIg0YLQtdC60YHRgiDQtNC+0LvQttC10L0g0LHRi9GC0Ywg0LLQutC70Y7Rh9C10L0uINCX0L3QsNGH0LXQvdC40LUg0LjQtyDQvNC+0LTQtdC70LggLSAke2ZpcnN0TmFtZX0="
+    },
+    "en": {
+      "name": "lib-include-template_en.ftl",
+      "data": "VGhpcyB0ZXh0IHNob3VsZCBiZSBpbmNsdWRlZC4gVmFsdWUgZnJvbSBtb2RlbCAtICR7Zmlyc3ROYW1lfQ=="
+    }
+  }
+}

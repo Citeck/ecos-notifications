@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.citeck.ecos.notifications.domain.subscribe.*;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberEntity;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberId;
+import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriptionEntity;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -17,7 +20,7 @@ public class SubscriberDtoFactory {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public SubscriberDto fromSubscriber(Subscriber subscriber) {
+    public SubscriberDto fromSubscriber(SubscriberEntity subscriber) {
         SubscriberDto dto = new SubscriberDto();
 
         SubscriberId id = new SubscriberId();
@@ -35,7 +38,7 @@ public class SubscriberDtoFactory {
         return dto;
     }
 
-    public SubscriptionDto fromSubscribe(Subscription subscription) {
+    public SubscriptionDto fromSubscribe(SubscriptionEntity subscription) {
         SubscriptionDto dto = new SubscriptionDto();
         dto.setId(subscription.getId());
         dto.setEventType(subscription.getEventType());
@@ -49,7 +52,7 @@ public class SubscriberDtoFactory {
         return dto;
     }
 
-    public ActionDto fromAction(Action action) {
+    public ActionDto fromAction(ActionEntity action) {
         ActionDto dto = new ActionDto();
         dto.setId(action.getId());
         dto.setType(action.getType());

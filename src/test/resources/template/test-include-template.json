@@ -1,0 +1,16 @@
+{
+  "id": "test-include-template",
+  "name": "test-include-template",
+  "multiTemplateConfig": [
+    {
+      "template": "",
+      "type": ""
+    }
+  ],
+  "templateData": {
+    "en": {
+      "name": "test-include-template.html.ftl",
+      "data": "0KjQsNCx0LvQvtC9INGBINCy0LvQvtC20LXQvdC90YvQvCDRiNCw0LHQu9C+0L3QvtC8PGJyPg0K0J/QviDRg9C80L7Qu9GH0LDQvdC40Y4gLSA8I2luY2x1ZGUgIm5vdGlmaWNhdGlvbnMvdGVtcGxhdGVAbGliLWluY2x1ZGUtdGVtcGxhdGUiPjxicj4NCtCQ0L3Qs9C70LjQudGB0LrQuNC5IC0gPCNpbmNsdWRlICJub3RpZmljYXRpb25zL3RlbXBsYXRlQGxpYi1pbmNsdWRlLXRlbXBsYXRlX2VuIj48YnI+DQrQoNGD0YHRgdC60LjQuSAtIDwjaW5jbHVkZSAibm90aWZpY2F0aW9ucy90ZW1wbGF0ZUBsaWItaW5jbHVkZS10ZW1wbGF0ZV9ydSI+PGJyPg0K0J/QviDRg9C80L7Qu9GH0LDQvdC40Y4g0LrQvtGA0L7RgtC60LjQuSBpZCAtIDwjaW5jbHVkZSAibGliLWluY2x1ZGUtdGVtcGxhdGUiPjxicj4NCtCQ0L3Qs9C70LjQudGB0LrQuNC5INC60L7RgNC+0YLQutC40LkgaWQgLSA8I2luY2x1ZGUgImxpYi1pbmNsdWRlLXRlbXBsYXRlX2VuIj48YnI+DQrQoNGD0YHRgdC60LjQuSDQutC+0YDQvtGC0LrQuNC5IGlkLSA8I2luY2x1ZGUgImxpYi1pbmNsdWRlLXRlbXBsYXRlX3J1Ij4="
+    }
+  }
+}

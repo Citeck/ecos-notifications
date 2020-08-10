@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -22,12 +23,34 @@ public class FreemarkerTemplateEngineService {
         this.freemarkerCfg = freemarkerCfg;
     }
 
+    public String process(String templateKey, Locale locale, Map<String, Object> model) {
+        Template template;
+
+        try {
+            template = freemarkerCfg.getTemplate(templateKey, locale);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Failed find freemarker template. Key: <%s>, Locale:\n%s",
+                templateKey, locale), e);
+        }
+
+        String processedStr;
+
+        try (StringWriter stringWriter = new StringWriter()) {
+            template.process(model, stringWriter);
+            processedStr = stringWriter.toString();
+        } catch (TemplateException | IOException e) {
+            throw new RuntimeException(String.format("Failed to process freemarker template. Key: <%s>",
+                templateKey), e);
+        }
+
+        return processedStr;
+    }
+
     public String process(String templateKey, String templateRepresentation, Map<String, Object> model) {
         Template template;
 
         try {
-            template = new Template(templateKey, templateRepresentation,
-                freemarkerCfg);
+            template = new Template(templateKey, templateRepresentation, freemarkerCfg);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Failed create freemarker template. Key: <%s>, Template:\n%s",
                 templateKey, templateRepresentation), e);
