@@ -6,7 +6,7 @@ services:
     links:
       - uiserv-app
       - gateway-app
-    image: nexus.citeck.ru/ecos-proxy-oidc:1.17.0-snapshot
+    image: nexus.citeck.ru/ecos-proxy-oidc:1.17.1-snapshot
     environment:
       - PROXY_TARGET=host.docker.internal:8080
       - GATEWAY_TARGET=host.docker.internal:8085

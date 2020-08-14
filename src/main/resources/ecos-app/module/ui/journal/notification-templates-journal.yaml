@@ -12,7 +12,6 @@ actions:
   - uiserv/action@download-base64-data-zip
   - uiserv/action@delete
   - uiserv/action@edit
-  - uiserv/action@module-copy
 
 columns:
 
