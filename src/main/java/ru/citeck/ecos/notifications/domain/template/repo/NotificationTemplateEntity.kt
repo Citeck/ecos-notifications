@@ -28,9 +28,6 @@ class NotificationTemplateEntity @JvmOverloads constructor(
     @MapKey(name = "lang")
     var data: MutableMap<String, TemplateDataEntity> = mutableMapOf(),
 
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
-    var images: MutableList<TemplateDataEntity> = mutableListOf(),
-
     @Column(name = "multi_template_config")
     var multiTemplateConfig: String? = null,
 
