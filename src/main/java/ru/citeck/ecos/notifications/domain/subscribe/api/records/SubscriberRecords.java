@@ -1,5 +1,7 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
@@ -7,13 +9,13 @@ import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
+import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
-import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
-import ru.citeck.ecos.records2.request.query.RecordsQuery;
-import ru.citeck.ecos.records2.request.query.RecordsQueryResult;
-import ru.citeck.ecos.records2.source.dao.local.CrudRecordsDAO;
+import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
+import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
+import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,8 @@ import java.util.stream.Collectors;
  * @author Roman Makarskiy
  */
 @Component
-public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
+public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMetaDao<SubscriberDto>,
+    MutableRecordsLocalDao<SubscriberDto> {
 
     private static final String ID = "subscribers";
 
@@ -39,14 +42,32 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
         this.factory = factory;
     }
 
+    @NotNull
     @Override
-    public List<SubscriberDto> getValuesToMutate(List<RecordRef> records) {
-        return getValues(records);
+    public List<SubscriberDto> getValuesToMutate(@NotNull List<RecordRef> list) {
+        return getLocalRecordsMeta(list, null);
     }
 
     @Override
-    public List<SubscriberDto> getMetaValues(List<RecordRef> records) {
-        return getValues(records);
+    public RecordsMutResult save(@NotNull List<SubscriberDto> list) {
+        return null;
+    }
+
+    @Override
+    public RecordsDelResult delete(@NotNull RecordsDeletion recordsDeletion) {
+        RecordsDelResult result = new RecordsDelResult();
+
+        recordsDeletion.getRecords().forEach(ref -> {
+            subscriberService.deleteSubscriber(subscriberService.transformId(ref.getId()));
+            result.addRecord(new RecordMeta(ref));
+        });
+
+        return result;
+    }
+
+    @Override
+    public List<SubscriberDto> getLocalRecordsMeta(@NotNull List<RecordRef> list, MetaField metaField) {
+        return getValues(list);
     }
 
     private List<SubscriberDto> getValues(List<RecordRef> records) {
@@ -61,32 +82,5 @@ public class SubscriberRecords extends CrudRecordsDAO<SubscriberDto> {
                     .orElseGet(SubscriberEntity::new))
             .map(factory::fromSubscriber)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public RecordsMutResult mutateImpl(RecordsMutation mutation) {
-        return null;
-    }
-
-    @Override
-    public RecordsMutResult save(List<SubscriberDto> list) {
-        return null;
-    }
-
-    @Override
-    public RecordsDelResult delete(RecordsDeletion recordsDeletion) {
-        RecordsDelResult result = new RecordsDelResult();
-
-        recordsDeletion.getRecords().forEach(ref -> {
-            subscriberService.deleteSubscriber(subscriberService.transformId(ref.getId()));
-            result.addRecord(new RecordMeta(ref));
-        });
-
-        return result;
-    }
-
-    @Override
-    public RecordsQueryResult<SubscriberDto> getMetaValues(RecordsQuery recordsQuery) {
-        return null;
     }
 }
