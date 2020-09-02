@@ -11,7 +11,7 @@ form: uiserv/eform@notification-template
 
 createVariants:
 
-  - id: create-new-notification-emplate
+  - id: create-new-notification-template
     name: { ru: Создать новый шаблон уведомления, en: Create new notification template }
     recordRef: notifications/template@
 

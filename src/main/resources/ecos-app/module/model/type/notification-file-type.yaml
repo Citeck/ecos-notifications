@@ -1,0 +1,16 @@
+id: notification-file
+
+name:
+  en: Notification file
+  ru: Файл уведомления
+
+system: true
+
+journal: uiserv/journal@notification-files
+
+createVariants:
+
+  - id: upload-notification-file
+    name: { ru: Загрузить шаблон уведомления, en: Upload notification template }
+    recordRef: notifications/file@
+    formRef: uiserv/eform@ecos-notification-file-upload

@@ -1,0 +1,25 @@
+id: notification-files
+label: { ru: Файлы уведомлений, en: Notification files }
+
+sourceId: notifications/file
+
+typeRef: emodel/type@notification-file
+
+attributes:
+  journalsListId: global-system
+
+actions:
+  - uiserv/action@download-base64-data
+  - uiserv/action@delete
+
+columns:
+
+  - name: moduleId
+    type: text
+    label: { ru: Идентификатор, en: Id }
+
+  - name: _modified
+    label: { ru: Изменен, en: Modified }
+
+  - name: _modifier
+    label: { ru: Кем изменен, en: Modified by }
