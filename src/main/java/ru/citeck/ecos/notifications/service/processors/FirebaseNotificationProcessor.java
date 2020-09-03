@@ -15,7 +15,7 @@ import ru.citeck.ecos.events.data.dto.task.TaskEventType;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
-import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
+import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.notifications.service.TemplateService;
 
 import java.io.IOException;

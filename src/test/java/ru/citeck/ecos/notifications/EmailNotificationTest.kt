@@ -45,6 +45,8 @@ class EmailNotificationTest {
     private lateinit var notificationLibIncludeTemplate: NotificationTemplateWithMeta
     private lateinit var notificationTestIncludeTemplate: NotificationTemplateWithMeta
 
+    private lateinit var notificationTestBeansTemplate: NotificationTemplateWithMeta
+
     @Before
     fun setup() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
@@ -81,6 +83,11 @@ class EmailNotificationTest {
 
         notificationTemplateService.save(notificationLibIncludeTemplate)
         notificationTemplateService.save(notificationTestIncludeTemplate)
+
+        notificationTestBeansTemplate = Json.mapper.convert(stringJsonFromResource(
+            "template/test-beans-template.json"), NotificationTemplateWithMeta::class.java)!!
+
+        notificationTemplateService.save(notificationTestBeansTemplate)
     }
 
     @Test
@@ -346,6 +353,24 @@ class EmailNotificationTest {
 
         val body2 = MimeMessageParser(emails2[1]).parse().htmlContent.trim()
         assertThat(body2).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
+    }
+
+    @Test
+    fun emailBeansTest() {
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = LocaleUtils.toLocale("en"),
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestBeansTemplate,
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("Привет Ivan. Foo bar")
     }
 
     @After
