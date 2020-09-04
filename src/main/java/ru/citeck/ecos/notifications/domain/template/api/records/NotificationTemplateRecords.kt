@@ -172,7 +172,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
                 this.multiTemplateConfig?.forEach { element ->
                     element.template?.let {
-                        recordsService.getAttribute(it, "model")
+                        recordsService.getAttribute(it, "model?json")
                             .asMap(String::class.java, String::class.java).forEach { (_, attr) ->
                                 attributes.add(attr)
                             }
