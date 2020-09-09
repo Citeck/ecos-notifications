@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.commons.data.DataValue;
@@ -14,14 +15,15 @@ import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
 import ru.citeck.ecos.notifications.lib.NotificationType;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
+import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
 import ru.citeck.ecos.records2.request.error.ErrorUtils;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
-import ru.citeck.ecos.records2.request.query.RecordsQuery;
-import ru.citeck.ecos.records2.request.query.RecordsQueryResult;
-import ru.citeck.ecos.records2.source.dao.local.CrudRecordsDAO;
+import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
+import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
+import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,8 @@ import java.util.stream.Collectors;
  * @author Roman Makarskiy
  */
 @Component
-public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
+public class SubscriptionActionRecords extends LocalRecordsDao implements LocalRecordsMetaDao<ActionDto>,
+    MutableRecordsLocalDao<ActionDto> {
 
     private static final String ID = "subscription-action";
 
@@ -60,27 +63,15 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
         this.actionService = actionService;
     }
 
+    @NotNull
     @Override
-    public List<ActionDto> getValuesToMutate(List<RecordRef> list) {
-        return getValues(list);
+    public List<ActionDto> getValuesToMutate(@NotNull List<RecordRef> list) {
+        return getLocalRecordsMeta(list, null);
     }
 
-    private List<ActionDto> getValues(List<RecordRef> list) {
-        return list.stream()
-            .map(RecordRef::getId)
-            .map(id ->
-                Optional.of(id)
-                    .filter(str -> !str.isEmpty())
-                    .map(x -> actionService.findById(Long.valueOf(x))
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            String.format("Subscriber with id <%s> not found!", id))))
-                    .orElseGet(ActionEntity::new))
-            .map(factory::fromAction)
-            .collect(Collectors.toList());
-    }
-
+    @NotNull
     @Override
-    public RecordsMutResult mutateImpl(RecordsMutation mutation) {
+    protected RecordsMutResult mutateImpl(@NotNull RecordsMutation mutation) {
         RecordsMutResult result = new RecordsMutResult();
 
         for (RecordMeta meta : mutation.getRecords()) {
@@ -181,7 +172,12 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
     }
 
     @Override
-    public RecordsDelResult delete(RecordsDeletion recordsDeletion) {
+    public RecordsMutResult save(@NotNull List<ActionDto> list) {
+        return null;
+    }
+
+    @Override
+    public RecordsDelResult delete(@NotNull RecordsDeletion recordsDeletion) {
         RecordsDelResult result = new RecordsDelResult();
 
         recordsDeletion.getRecords().forEach(ref -> {
@@ -198,17 +194,21 @@ public class SubscriptionActionRecords extends CrudRecordsDAO<ActionDto> {
     }
 
     @Override
-    public RecordsQueryResult<ActionDto> getMetaValues(RecordsQuery recordsQuery) {
-        return null;
+    public List<ActionDto> getLocalRecordsMeta(@NotNull List<RecordRef> list, MetaField metaField) {
+        return getValues(list);
     }
 
-    @Override
-    public RecordsMutResult save(List<ActionDto> list) {
-        return null;
-    }
-
-    @Override
-    public List<ActionDto> getMetaValues(List<RecordRef> records) {
-        return null;
+    private List<ActionDto> getValues(List<RecordRef> list) {
+        return list.stream()
+            .map(RecordRef::getId)
+            .map(id ->
+                Optional.of(id)
+                    .filter(str -> !str.isEmpty())
+                    .map(x -> actionService.findById(Long.valueOf(x))
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            String.format("Subscriber with id <%s> not found!", id))))
+                    .orElseGet(ActionEntity::new))
+            .map(factory::fromAction)
+            .collect(Collectors.toList());
     }
 }

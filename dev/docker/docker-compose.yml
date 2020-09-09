@@ -6,7 +6,7 @@ services:
     links:
       - uiserv-app
       - gateway-app
-    image: nexus.citeck.ru/ecos-proxy-oidc:1.17.0-snapshot
+    image: nexus.citeck.ru/ecos-proxy-oidc:1.17.2-snapshot
     environment:
       - PROXY_TARGET=host.docker.internal:8080
       - GATEWAY_TARGET=host.docker.internal:8085
@@ -48,7 +48,7 @@ services:
       - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=native
       - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS=file:/central-config/docker-config/
   uiserv-app:
-    image: nexus.citeck.ru/ecos-uiserv:1.13.0-snapshot
+    image: nexus.citeck.ru/ecos-uiserv:1.13.2
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,swagger
@@ -68,7 +68,7 @@ services:
 
   eapps-app:
     container_name: eapps-app
-    image: nexus.citeck.ru/ecos-apps:1.11.0-snapshot
+    image: nexus.citeck.ru/ecos-apps:1.12.0-snapshot
     ports:
       - 8089:8089
     environment:

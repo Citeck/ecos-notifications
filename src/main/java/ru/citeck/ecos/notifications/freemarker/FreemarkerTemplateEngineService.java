@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.service;
+package ru.citeck.ecos.notifications.freemarker;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;

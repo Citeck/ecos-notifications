@@ -1,16 +1,15 @@
-id: notification-templates
-label: { ru: Шаблоны уведомлений, en: Notification templates }
+id: notification-files
+label: { ru: Файлы уведомлений, en: Notification files }
 
-sourceId: notifications/template
+sourceId: notifications/file
 
-typeRef: emodel/type@notification-template
+typeRef: emodel/type@notification-file
 
 attributes:
   journalsListId: global-system
 
 actions:
-  - uiserv/action@download-base64-data-zip
-  - uiserv/action@edit
+  - uiserv/action@download-base64-data
   - uiserv/action@delete
 
 columns:
@@ -18,9 +17,6 @@ columns:
   - name: moduleId
     type: text
     label: { ru: Идентификатор, en: Id }
-
-  - name: name
-    label: { ru: Имя, en: Name }
 
   - name: _modified
     label: { ru: Изменен, en: Modified }

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.citeck.ecos.events.data.dto.EventDto;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
-import ru.citeck.ecos.notifications.service.FreemarkerTemplateEngineService;
+import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.RecordsService;

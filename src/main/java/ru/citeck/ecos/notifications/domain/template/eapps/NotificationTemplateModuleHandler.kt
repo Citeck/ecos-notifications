@@ -1,7 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.eapps
 
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.apps.module.controller.type.binary.BinModule
 import ru.citeck.ecos.apps.module.handler.EcosModuleHandler
@@ -18,15 +17,16 @@ import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import java.util.function.Consumer
 
+private const val MODULE_TYPE = "notification/template"
+
 @Component
-class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
+class NotificationTemplateModuleHandler(
+    val templateService: NotificationTemplateService
+) : EcosModuleHandler<BinModule> {
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
-
-    @Autowired
-    private lateinit var templateService: NotificationTemplateService
 
     override fun deployModule(module: BinModule) {
         templateService.update(toDto(module))
@@ -43,7 +43,7 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
         dto.model = meta.get("model").asMap(String::class.java, String::class.java)
         dto.multiTemplateConfig = meta.get("multiTemplateConfig").asList(MultiTemplateElementDto::class.java)
 
-        log.debug("Deploy new template module: $dto")
+        log.debug("Deploy new $MODULE_TYPE module: $dto")
 
         return dto
     }
@@ -54,7 +54,7 @@ class NotificationTemplateModuleHandler : EcosModuleHandler<BinModule> {
     }
 
     override fun getModuleType(): String {
-        return "notification/template"
+        return MODULE_TYPE
     }
 
     override fun listenChanges(listener: Consumer<BinModule>) {
