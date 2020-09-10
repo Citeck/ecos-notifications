@@ -1,1 +1,1 @@
-<i>Привет ${firstName}, <b>твоя</b> фамилия ${lastName}? Тебе ${age} лет?</i> 23
+<i>Привет ${firstName}, <b>твоя</b> фамилия ${lastName}? Тебе ${age} лет?</i>

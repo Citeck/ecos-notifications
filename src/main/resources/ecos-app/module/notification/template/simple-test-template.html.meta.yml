@@ -6,3 +6,6 @@ notificationTitle:
 model:
   title: ".disp"
   name: "cm:name"
+  firstName: "Петя"
+  lastName: "Пупкин"
+  age: 20
