@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Properties specific to Notifications.
  * <p>
@@ -37,6 +40,7 @@ public class ApplicationProperties {
     @Setter
     public static class Firebase {
 
+        private Map<String, Object> credentials = Collections.emptyMap();
         private String credentialClassPath = NotificationsDefault.Firebase.CREDENTIAL_CLASS_PATH;
         private String dataBaseUrl = NotificationsDefault.Firebase.DATA_BASE_URL;
         private final Template template = new Template();

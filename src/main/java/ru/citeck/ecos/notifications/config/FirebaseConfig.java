@@ -4,14 +4,19 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import ru.citeck.ecos.commons.json.Json;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author Roman Makarskiy
@@ -29,17 +34,58 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void initFirebaseApp() {
+
         if (!FirebaseApp.getApps().isEmpty()) {
             log.info("Firebase App already initialized");
             return;
         }
 
+        FirebaseOptions options = getOptionsFromConfig(appProps.getFirebase().getCredentials());
+        if (options == null) {
+            options = getOptionsFromClassPath(appProps.getFirebase().getCredentialClassPath());
+        }
+
+        if (options != null) {
+            log.info("Firebase App options is found");
+            FirebaseApp.initializeApp(options);
+        } else {
+            log.warn("Firebase App options not found");
+        }
+    }
+
+    private FirebaseOptions getOptionsFromConfig(Map<String, Object> credentials) {
+
+        if (credentials == null || credentials.isEmpty()) {
+            return null;
+        }
+
+        log.info("Init firebase app from credentials config");
+
+        byte[] bytes = Json.getMapper().toBytes(credentials);
+        if (bytes == null) {
+            return null;
+        }
+
+        try {
+            return getOptionsFromInputStream(new ByteArrayInputStream(bytes));
+        } catch (Exception e) {
+            log.error("Credentials reading error", e);
+        }
+        return null;
+    }
+
+    @Nullable
+    private FirebaseOptions getOptionsFromClassPath(String credentialsClassPath) {
+
+        if (StringUtils.isBlank(credentialsClassPath)) {
+            return null;
+        }
+
+        log.info("Init firebase app from credentials classpath: " + credentialsClassPath);
+
         FirebaseOptions options = null;
 
-        log.info("Init firebase app from credentials: " + appProps.getFirebase().getCredentialClassPath());
-
-        try (InputStream credentials = new ClassPathResource(
-            appProps.getFirebase().getCredentialClassPath()).getInputStream()) {
+        try (InputStream credentials = new ClassPathResource(credentialsClassPath).getInputStream()) {
             options = getOptionsFromInputStream(credentials);
         } catch (IOException e) {
             log.info("Credentials from class path not found, trying to get from absolute path...");
@@ -51,12 +97,7 @@ public class FirebaseConfig {
             }
         }
 
-        if (options != null) {
-            log.info("Firebase App options is found");
-            FirebaseApp.initializeApp(options);
-        } else {
-            log.warn("Firebase App options not found");
-        }
+        return options;
     }
 
     private FirebaseOptions getOptionsFromInputStream(InputStream credentials) throws IOException {
