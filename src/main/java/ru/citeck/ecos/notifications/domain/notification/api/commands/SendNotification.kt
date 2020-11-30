@@ -4,8 +4,10 @@ import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor
+import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -13,6 +15,8 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records2.predicate.PredicateService
+import ru.citeck.ecos.records2.predicate.model.Predicate
 import java.util.*
 
 private const val ECOS_TYPE_ID_KEY = "_etype?id"
@@ -20,7 +24,8 @@ private const val ECOS_TYPE_ID_KEY = "_etype?id"
 @Service
 class SendNotificationCommandExecutor(
     val notificationService: NotificationService,
-    val notificationTemplateService: NotificationTemplateService
+    val notificationTemplateService: NotificationTemplateService,
+    var predicateService: PredicateService
 ) : CommandExecutor<SendNotificationCommand> {
 
     override fun execute(command: SendNotificationCommand): Any? {
@@ -28,7 +33,8 @@ class SendNotificationCommandExecutor(
 
         val template = resolveMultiTemplate(
             baseTemplate = baseTemplate,
-            recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model)
+            recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model),
+            attributes = MapElement(command.model)
         )
 
         val requiredModel = mutableMapOf<String, String>()
@@ -61,24 +67,35 @@ class SendNotificationCommandExecutor(
         return SendNotificationResult("ok", "")
     }
 
-    private fun resolveMultiTemplate(baseTemplate: NotificationTemplateWithMeta,
-                                     recordEcosTypeId: String): NotificationTemplateWithMeta {
+    private fun resolveMultiTemplate(
+        baseTemplate: NotificationTemplateWithMeta,
+        recordEcosTypeId: String,
+        attributes: MapElement
+    ): NotificationTemplateWithMeta {
         if (StringUtils.isBlank(recordEcosTypeId)) {
             return baseTemplate
         }
 
         baseTemplate.multiTemplateConfig?.forEach { it ->
             it.type?.let { typeRef ->
-                if (RecordRef.valueOf(recordEcosTypeId) == typeRef) {
+                val checkType = RecordRef.valueOf(recordEcosTypeId) == typeRef
+                if (checkType && checkPredicate(it.predicateCondition, attributes)) {
                     val template = it.template ?: throw NotificationException(
                         "Multi template ref is null. Base template ref: $baseTemplate"
                     )
-                    return getTemplateMetaById(template.id)
+                    return resolveMultiTemplate(getTemplateMetaById(template.id), recordEcosTypeId, attributes)
                 }
             }
         }
 
         return baseTemplate
+    }
+
+    private fun checkPredicate(predicateCondition: String?, attributes: MapElement): Boolean {
+        Json.mapper.read(predicateCondition, Predicate::class.java)?.let{
+            return predicateService.isMatch(attributes, it)
+        }
+        return true
     }
 
     private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any>): String {
@@ -91,11 +108,9 @@ class SendNotificationCommandExecutor(
         val prefilledModel = incomeFilledModel.toMutableMap()
 
         requiredModel.forEach { (attrKey, attrValue) ->
-            val cleanAttrValue = attrValue.replaceFirst("\$", "")
-
-            incomeFilledModel[cleanAttrValue]?.let {
+            incomeFilledModel[attrValue]?.let {
                 filledModel[attrKey] = it
-                prefilledModel.remove(cleanAttrValue)
+                prefilledModel.remove(attrValue)
             }
         }
 

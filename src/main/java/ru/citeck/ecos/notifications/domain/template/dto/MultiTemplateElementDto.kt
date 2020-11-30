@@ -6,5 +6,6 @@ import ru.citeck.ecos.records2.RecordRef
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class MultiTemplateElementDto (
     var template: RecordRef? = null,
-    var type: RecordRef? = null
+    var type: RecordRef? = null,
+    var predicateCondition: String? = null
 )
