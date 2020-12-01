@@ -15,10 +15,10 @@ import ru.citeck.ecos.events.data.dto.EventDto;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
-import ru.citeck.ecos.records2.RecordMeta;
 import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.RecordsService;
+import ru.citeck.ecos.records3.RecordsService;
 import ru.citeck.ecos.records2.rest.RemoteRecordsUtils;
+import ru.citeck.ecos.records3.record.op.atts.dto.RecordAtts;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -81,8 +81,8 @@ public abstract class ActionProcessor {
         for (CustomDataEntity data : customData) {
             RecordRef recordRef = RecordRef.valueOf(data.getRecord());
             //TODO: check
-            RecordMeta attributes = RemoteRecordsUtils.runAsSystem(() ->
-                recordsService.getAttributes(recordRef, data.getAttributes())
+            RecordAtts attributes = RemoteRecordsUtils.runAsSystem(() ->
+                recordsService.getAtts(recordRef, data.getAttributes())
             );
             result.put(data.getVariable(), attributes);
         }

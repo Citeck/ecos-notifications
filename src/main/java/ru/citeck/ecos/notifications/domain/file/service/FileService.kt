@@ -61,9 +61,9 @@ class FileService(val fileRepository: FileRepository,
 
     private fun toSpec(predicate: Predicate): Specification<FileEntity>? {
         if (predicate is ValuePredicate) {
-            val type = predicate.type
-            val value = predicate.value
-            val attribute = predicate.attribute
+            val type = predicate.getType()
+            val value = predicate.getValue()
+            val attribute = predicate.getAttribute()
             if (RecordConstants.ATT_MODIFIED == attribute && ValuePredicate.Type.GT == type) {
                 val instant = mapper.convert(value, Instant::class.java)
                 if (instant != null) {
@@ -110,11 +110,8 @@ class FileService(val fileRepository: FileRepository,
     }
 
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<FileWithMeta> {
-        var sort = sort
-        if (sort == null) {
-            sort = Sort.by(Sort.Direction.DESC, "id")
-        }
-        val page = PageRequest.of(skip / max, max, sort)
+        val sortLocal = sort ?: Sort.by(Sort.Direction.DESC, "id")
+        val page = PageRequest.of(skip / max, max, sortLocal)
         return fileRepository.findAll(toSpec(predicate), page)
             .stream()
             .map { entity: FileEntity -> fileConverter.entityToDto(entity) }

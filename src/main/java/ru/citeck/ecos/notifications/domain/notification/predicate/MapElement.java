@@ -1,7 +1,8 @@
 package ru.citeck.ecos.notifications.domain.notification.predicate;
 
-import ru.citeck.ecos.records2.predicate.Element;
-import ru.citeck.ecos.records2.predicate.ElementAttributes;
+import org.jetbrains.annotations.NotNull;
+import ru.citeck.ecos.records2.predicate.element.Element;
+import ru.citeck.ecos.records2.predicate.element.elematts.ElementAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ public class MapElement implements Element {
         this.elements = elements;
     }
 
+    @NotNull
     @Override
     public ElementAttributes getAttributes(List<String> list) {
         Map<String, Object> newElements = new HashMap<>();
@@ -35,7 +37,7 @@ public class MapElement implements Element {
         }
 
         @Override
-        public Object getAttribute(String name) {
+        public Object getAttribute(@NotNull String name) {
             return elements != null ? elements.get(name) : null;
         }
     }

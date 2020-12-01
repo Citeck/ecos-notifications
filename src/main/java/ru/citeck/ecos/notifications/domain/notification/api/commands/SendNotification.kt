@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.api.commands
 
+import mu.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
@@ -27,6 +28,8 @@ class SendNotificationCommandExecutor(
     val notificationTemplateService: NotificationTemplateService,
     var predicateService: PredicateService
 ) : CommandExecutor<SendNotificationCommand> {
+
+    private val log = KotlinLogging.logger {}
 
     override fun execute(command: SendNotificationCommand): Any? {
         val baseTemplate = getTemplateMetaById(command.templateRef.id)
@@ -92,10 +95,16 @@ class SendNotificationCommandExecutor(
     }
 
     private fun checkPredicate(predicateCondition: String?, attributes: MapElement): Boolean {
+        if (predicateCondition.isNullOrBlank()) {
+            return true
+        }
+
         Json.mapper.read(predicateCondition, Predicate::class.java)?.let{
             return predicateService.isMatch(attributes, it)
         }
-        return true
+
+        log.error { "Predicate `$predicateCondition` is incorrect " }
+        return false
     }
 
     private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any>): String {

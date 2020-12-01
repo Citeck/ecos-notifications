@@ -198,15 +198,17 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 }
 
                 element.template?.let {
-                    val data = recordsService.getAttributes(it, TEMPLATE_INFO_MAP)
+                    if (it.id.isNotEmpty()) {
+                        val data = recordsService.getAttributes(it, TEMPLATE_INFO_MAP)
 
-                    data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
-                        attributes.add(attr)
+                        data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
+                            attributes.add(attr)
+                        }
+
+                        val newMultiTemplateConfig = data.get("multiTemplateConfig")
+                            .asList(MultiTemplateElementDto::class.java)
+                        addAttributesRecursive(newMultiTemplateConfig, attributes)
                     }
-
-                    val newMultiTemplateConfig = data.get("multiTemplateConfig")
-                        .asList(MultiTemplateElementDto::class.java)
-                    addAttributesRecursive(newMultiTemplateConfig, attributes)
                 }
             }
         }
