@@ -40,7 +40,6 @@ public class RecordsConfig {
     }
 
     @Bean
-    // TODO check
     @ConfigurationProperties(prefix = "ecos-notification.remote-records-dao")
     public RemoteRecordsDao createAlfrescoRecordsDao(RemoteRecordsRestApi restConnection) {
         RemoteRecordsDao alfrescoRemote = new RemoteRecordsDao();
