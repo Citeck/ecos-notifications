@@ -5,8 +5,7 @@ import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor
-import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
+ import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
@@ -82,7 +81,7 @@ class SendNotificationCommandExecutor(
         baseTemplate.multiTemplateConfig?.forEach { it ->
             it.type?.let { typeRef ->
                 val checkType = RecordRef.valueOf(recordEcosTypeId) == typeRef
-                if (checkType && checkPredicate(it.predicateCondition, attributes)) {
+                if (checkType && checkPredicate(it.condition, attributes)) {
                     val template = it.template ?: throw NotificationException(
                         "Multi template ref is null. Base template ref: $baseTemplate"
                     )
@@ -94,17 +93,11 @@ class SendNotificationCommandExecutor(
         return baseTemplate
     }
 
-    private fun checkPredicate(predicateCondition: String?, attributes: MapElement): Boolean {
-        if (predicateCondition.isNullOrBlank()) {
-            return true
-        }
-
-        Json.mapper.read(predicateCondition, Predicate::class.java)?.let{
+    private fun checkPredicate(condition: Predicate?, attributes: MapElement): Boolean {
+        condition?.let {
             return predicateService.isMatch(attributes, it)
         }
-
-        log.error { "Predicate `$predicateCondition` is incorrect " }
-        return false
+        return true
     }
 
     private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any>): String {

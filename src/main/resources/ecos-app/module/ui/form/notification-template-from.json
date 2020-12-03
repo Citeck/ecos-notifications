@@ -94,7 +94,7 @@
             "type": "",
             "selectJournal": "",
             "textArea": "",
-            "predicateCondition": ""
+            "condition": ""
           }
         ],
         "validate": {
@@ -268,7 +268,7 @@
                             },
                             "clearOnHide": false,
                             "defaultValue": "",
-                            "key": "predicateCondition",
+                            "key": "condition",
                             "as": "",
                             "type": "textarea",
                             "input": true

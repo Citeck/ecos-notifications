@@ -268,7 +268,6 @@ class NotificationCommandTest {
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan! Its type 1 template")
-        System.out.println("Body 1: " + body)
     }
 
     @Test
@@ -300,7 +299,6 @@ class NotificationCommandTest {
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivanushka! Its type 2 template")
-        System.out.println("Body 2: " + body)
     }
 
     @Test
@@ -332,7 +330,6 @@ class NotificationCommandTest {
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Its multi template with condition")
-        System.out.println("Body 3: " + body)
     }
 
     @After

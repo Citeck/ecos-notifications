@@ -105,7 +105,6 @@
         <dependency>
             <groupId>ru.citeck.ecos</groupId>
             <artifactId>ecos-notifications-lib</artifactId>
-            <version>1.0.3</version>
         </dependency>
 
         <dependency>
@@ -491,7 +490,6 @@
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging</artifactId>
             <version>${kotlin.logging.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

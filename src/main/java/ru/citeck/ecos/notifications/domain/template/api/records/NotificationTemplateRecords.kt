@@ -191,9 +191,8 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             attributes: MutableSet<String>
         ) {
             multiTemplateConfig?.forEach { element ->
-                element.predicateCondition?.let {
-                    val predicate = mapper.read(it, Predicate::class.java)
-                    val allPredicateAttributes = PredicateUtils.getAllPredicateAttributes(predicate)
+                element.condition?.let {
+                    val allPredicateAttributes = PredicateUtils.getAllPredicateAttributes(it)
                     attributes.addAll(allPredicateAttributes)
                 }
 
