@@ -197,3 +197,7 @@ spring.rabbitmq:
   host: rabbitmq
   username: admin
   password: admin
+
+ecos-notifications:
+  failure-notification:
+    delay: 600000
