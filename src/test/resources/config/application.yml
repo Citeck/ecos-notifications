@@ -111,3 +111,8 @@ jhipster:
 # ===================================================================
 
 # application:
+ecos-notifications:
+  failure-notification:
+    ttl: 30000
+    delay: 5000
+    min-try-count: 1
