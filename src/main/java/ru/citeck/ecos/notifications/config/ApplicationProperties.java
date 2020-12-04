@@ -137,6 +137,14 @@ public class ApplicationProperties {
         public void setDataBaseUrl(String dataBaseUrl) {
             this.dataBaseUrl = dataBaseUrl;
         }
+
+        public Map<String, Object> getCredentials() {
+            return credentials;
+        }
+
+        public void setCredentials(Map<String, Object> credentials) {
+            this.credentials = credentials;
+        }
     }
 
     public static class Template {
