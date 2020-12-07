@@ -150,6 +150,10 @@ ecos-notifications:
   firebase:
     credential-class-path: work-rest-firebase-adminsdk-bm5dp-e1ae19b218.json
     data-base-url: https://work-rest.firebaseio.com
+  failure-notification:
+    ttl: 180000
+    delay: 60000
+    min-try-count: 1
 
 spring.rabbitmq:
   host: localhost

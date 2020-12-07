@@ -18,6 +18,19 @@ public class NotificationsDefault {
 
     }
 
+    public class FailureNotification {
+
+        private FailureNotification() {
+        }
+
+        public static final int TTL = 86400000;
+
+        public static final int DELAY = 600000;
+
+        public static final int MIN_TRY_COUNT = 10;
+
+    }
+
     public class Firebase {
 
         private Firebase() {
