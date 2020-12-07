@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDto;

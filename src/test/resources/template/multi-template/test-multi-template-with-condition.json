@@ -1,0 +1,37 @@
+{
+  "id": "test-multi-template-with-condition",
+  "name": "test-multi-template-with-condition",
+  "multiTemplateConfig": [
+    {
+      "template": "notifications/template@not-existed-2",
+      "type": "",
+      "condition": {"t": "eq", "att": "firstName", "val": "Ivan"}
+    },
+    {
+      "template": "notifications/template@test-type-1-template",
+      "type": "emodel/type@test-type-multi-template-with-condition",
+      "condition": {"t": "eq", "att": "firstName", "val": "Ivan"}
+    },
+    {
+      "template": "notifications/template@not-existed-3",
+      "type": "",
+      "condition": {"t": "eq", "att": "lastName", "val": "Ivan"}
+    },
+    {
+      "template": "notifications/template@not-existed-4",
+      "type": "emodel/type@test-type-multi-template-with-condition",
+      "condition": {"t": "eq", "att": "lastName", "val": "Who am I?"}
+    },
+    {
+      "template": "notifications/template@test-type-2-template",
+      "type": "emodel/type@test-type-multi-template-with-condition",
+      "condition": {"t": "eq", "att": "lastName", "val": "Vetrenko"}
+    }
+  ],
+  "templateData": {
+    "en": {
+      "name": "test-multi-template-with-condition.html.ftl",
+      "data": "SXRzIG11bHRpIHRlbXBsYXRlIHdpdGggY29uZGl0aW9u"
+    }
+  }
+}

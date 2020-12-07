@@ -10,6 +10,7 @@ import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords.NotTemplateRecord
+import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
@@ -24,6 +25,7 @@ import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.graphql.meta.value.MetaField
 import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
 import ru.citeck.ecos.records2.predicate.PredicateService
+import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion
@@ -40,6 +42,12 @@ import java.util.*
 import java.util.stream.Collectors
 
 private const val META_FILE_EXTENSION = "meta.yml"
+
+private val TEMPLATE_INFO_MAP = mapOf(
+    "model" to "model?json",
+    "multiTemplateConfig" to "multiTemplateConfig[]?json"
+)
+
 const val ID = "template"
 
 @Component
@@ -87,7 +95,10 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             .collect(Collectors.toList())
     }
 
-    override fun queryLocalRecords(recordsQuery: RecordsQuery, metaField: MetaField): RecordsQueryResult<NotTemplateRecord> {
+    override fun queryLocalRecords(
+        recordsQuery: RecordsQuery,
+        metaField: MetaField
+    ): RecordsQueryResult<NotTemplateRecord> {
         val records = RecordsQueryResult<NotTemplateRecord>()
         var max = recordsQuery.maxItems
         if (max <= 0) {
@@ -170,17 +181,36 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
                 this.model?.forEach { _, dataValue -> attributes.add(dataValue) }
 
-                this.multiTemplateConfig?.forEach { element ->
-                    element.template?.let {
-                        recordsService.getAttribute(it, "model?json")
-                            .asMap(String::class.java, String::class.java).forEach { (_, attr) ->
-                                attributes.add(attr)
-                            }
-                    }
-                }
+                addAttributesRecursive(this.multiTemplateConfig, attributes)
 
                 return attributes;
             }
+
+        private fun addAttributesRecursive(
+            multiTemplateConfig: List<MultiTemplateElementDto>?,
+            attributes: MutableSet<String>
+        ) {
+            multiTemplateConfig?.forEach { element ->
+                element.condition?.let {
+                    val allPredicateAttributes = PredicateUtils.getAllPredicateAttributes(it)
+                    attributes.addAll(allPredicateAttributes)
+                }
+
+                element.template?.let {
+                    if (it.id.isNotEmpty()) {
+                        val data = recordsService.getAttributes(it, TEMPLATE_INFO_MAP)
+
+                        data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
+                            attributes.add(attr)
+                        }
+
+                        val newMultiTemplateConfig = data.get("multiTemplateConfig")
+                            .asList(MultiTemplateElementDto::class.java)
+                        addAttributesRecursive(newMultiTemplateConfig, attributes)
+                    }
+                }
+            }
+        }
 
         @get:MetaAtt("data")
         val data: ByteArray

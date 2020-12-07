@@ -9,6 +9,10 @@
     {
       "template": "notifications/template@test-type-2-template",
       "type": "emodel/type@type-2-template"
+    },
+    {
+      "template": "notifications/template@test-multi-template-with-condition",
+      "type": "emodel/type@test-type-multi-template-with-condition"
     }
   ],
   "templateData": {
