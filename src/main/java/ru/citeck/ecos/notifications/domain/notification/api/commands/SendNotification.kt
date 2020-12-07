@@ -14,7 +14,7 @@ class SendNotificationCommandExecutor(
 ) : CommandExecutor<SendNotificationCommand> {
 
     companion object {
-    private val log = KotlinLogging.logger {}
+        private val log = KotlinLogging.logger {}
     }
 
     override fun execute(command: SendNotificationCommand): Any? {
