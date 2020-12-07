@@ -43,7 +43,7 @@ import java.util.stream.Collectors
 
 private const val META_FILE_EXTENSION = "meta.yml"
 
-private val TEMPLATE_INFO_MAP = mutableMapOf(
+private val TEMPLATE_INFO_MAP = mapOf(
     "model" to "model?json",
     "multiTemplateConfig" to "multiTemplateConfig[]?json"
 )
