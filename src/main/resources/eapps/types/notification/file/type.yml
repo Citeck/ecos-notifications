@@ -3,4 +3,4 @@ modelVersion: "1.0"
 sourceId: "notification"
 
 controller:
-    type: file
+  type: file

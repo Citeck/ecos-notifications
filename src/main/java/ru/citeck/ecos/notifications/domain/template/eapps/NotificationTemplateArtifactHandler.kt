@@ -2,10 +2,8 @@ package ru.citeck.ecos.notifications.domain.template.eapps
 
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
-import ru.citeck.ecos.apps.module.controller.type.binary.BinModule
-import ru.citeck.ecos.apps.module.handler.EcosModuleHandler
-import ru.citeck.ecos.apps.module.handler.ModuleMeta
-import ru.citeck.ecos.apps.module.handler.ModuleWithMeta
+import ru.citeck.ecos.apps.app.domain.handler.EcosArtifactHandler
+import ru.citeck.ecos.apps.artifact.controller.type.binary.BinArtifact
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
@@ -17,22 +15,22 @@ import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import java.util.function.Consumer
 
-private const val MODULE_TYPE = "notification/template"
+private const val ARTIFACT_TYPE = "notification/template"
 
 @Component
-class NotificationTemplateModuleHandler(
+class NotificationTemplateArtifactHandler(
     val templateService: NotificationTemplateService
-) : EcosModuleHandler<BinModule> {
+) : EcosArtifactHandler<BinArtifact> {
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
-    override fun deployModule(module: BinModule) {
-        templateService.update(toDto(module))
+    override fun deployArtifact(artifact: BinArtifact) {
+        templateService.update(toDto(artifact))
     }
 
-    private fun toDto(module: BinModule): NotificationTemplateWithMeta {
+    private fun toDto(module: BinArtifact): NotificationTemplateWithMeta {
         val meta = module.meta
 
         val dto = NotificationTemplateWithMeta(meta.get("id").asText())
@@ -43,26 +41,17 @@ class NotificationTemplateModuleHandler(
         dto.model = meta.get("model").asMap(String::class.java, String::class.java)
         dto.multiTemplateConfig = meta.get("multiTemplateConfig").asList(MultiTemplateElementDto::class.java)
 
-        log.debug("Deploy new $MODULE_TYPE module: $dto")
+        log.debug("Deploy new $ARTIFACT_TYPE module: $dto")
 
         return dto
     }
 
-    override fun getModuleMeta(module: BinModule): ModuleWithMeta<BinModule> {
-        val dto = toDto(module)
-        return ModuleWithMeta(module, ModuleMeta(dto.id, emptyList()))
+    override fun getArtifactType(): String {
+        return ARTIFACT_TYPE
     }
 
-    override fun getModuleType(): String {
-        return MODULE_TYPE
-    }
-
-    override fun listenChanges(listener: Consumer<BinModule>) {
+    override fun listenChanges(listener: Consumer<BinArtifact>) {
         //TODO: implement
-    }
-
-    override fun prepareToDeploy(module: BinModule): ModuleWithMeta<BinModule>? {
-        return getModuleMeta(module)
     }
 
     inner class TemplateDataFinder(

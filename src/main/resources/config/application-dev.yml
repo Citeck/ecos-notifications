@@ -43,7 +43,7 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5438/notifications
+    url: jdbc:postgresql://localhost:5439/notifications
     username: notifications
     password:
     hikari:
