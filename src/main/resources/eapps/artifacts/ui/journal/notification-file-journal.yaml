@@ -3,11 +3,6 @@ label: { ru: Файлы уведомлений, en: Notification files }
 
 sourceId: notifications/file
 
-typeRef: emodel/type@notification-file
-
-attributes:
-  journalsListId: global-system
-
 actions:
   - uiserv/action@download-base64-data
   - uiserv/action@delete
@@ -15,7 +10,7 @@ actions:
 columns:
 
   - name: moduleId
-    type: text
+    type: TEXT
     label: { ru: Идентификатор, en: Id }
 
   - name: _modified

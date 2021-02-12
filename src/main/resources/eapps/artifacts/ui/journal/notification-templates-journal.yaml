@@ -3,11 +3,6 @@ label: { ru: Шаблоны уведомлений, en: Notification templates }
 
 sourceId: notifications/template
 
-typeRef: emodel/type@notification-template
-
-attributes:
-  journalsListId: global-system
-
 actions:
   - uiserv/action@download-base64-data-zip
   - uiserv/action@edit
@@ -16,7 +11,7 @@ actions:
 columns:
 
   - name: moduleId
-    type: text
+    type: TEXT
     label: { ru: Идентификатор, en: Id }
 
   - name: name
