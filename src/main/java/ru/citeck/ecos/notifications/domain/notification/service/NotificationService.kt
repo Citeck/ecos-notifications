@@ -60,17 +60,11 @@ class NotificationService(
     }
 
     private fun resolveAnyAvailableTitle(titleMl: MLText, locale: Locale): String? {
-        val titleMap = titleMl.asMap
-        var title = if (StringUtils.isNoneBlank(titleMap[locale])) titleMap[locale] else titleMap[DEFAULT_LOCALE]
-
-        if (StringUtils.isBlank(title)) {
-            titleMap.forEach { (_, value) ->
-                if (StringUtils.isNoneBlank(value)) {
-                    title = value
-                }
-            }
-
+        val result =  MLText.getClosestValue(titleMl, locale)
+        return if (result.isBlank()) {
+            null
+        } else {
+            result
         }
-        return title
     }
 }
