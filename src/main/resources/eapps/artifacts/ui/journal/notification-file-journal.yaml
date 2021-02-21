@@ -2,8 +2,6 @@
 id: notification-files
 name: { ru: Файлы уведомлений, en: Notification files }
 
-sourceId: notifications/file
-
 actions:
   - uiserv/action@download-base64-data
   - uiserv/action@delete
