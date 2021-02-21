@@ -1,5 +1,6 @@
+---
 id: notification-files
-label: { ru: Файлы уведомлений, en: Notification files }
+name: { ru: Файлы уведомлений, en: Notification files }
 
 sourceId: notifications/file
 
@@ -9,12 +10,12 @@ actions:
 
 columns:
 
-  - name: moduleId
+  - id: moduleId
     type: TEXT
-    label: { ru: Идентификатор, en: Id }
+    name: { ru: Идентификатор, en: Id }
 
-  - name: _modified
-    label: { ru: Изменен, en: Modified }
+  - id: _modified
+    name: { ru: Изменен, en: Modified }
 
-  - name: _modifier
-    label: { ru: Кем изменен, en: Modified by }
+  - id: _modifier
+    name: { ru: Кем изменен, en: Modified by }

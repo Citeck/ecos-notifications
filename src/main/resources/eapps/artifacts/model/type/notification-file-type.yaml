@@ -1,3 +1,4 @@
+---
 id: notification-file
 
 name:
@@ -13,4 +14,4 @@ createVariants:
 
   - id: upload-notification-file
     name: { ru: Загрузить шаблон уведомления, en: Upload notification template }
-    formRef: uiserv/eform@ecos-notification-file-upload
+    formRef: uiserv/form@ecos-notification-file-upload

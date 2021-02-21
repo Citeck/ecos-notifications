@@ -1,7 +1,6 @@
+---
 id: notification-templates
-label: { ru: Шаблоны уведомлений, en: Notification templates }
-
-sourceId: notifications/template
+name: { ru: Шаблоны уведомлений, en: Notification templates }
 
 actions:
   - uiserv/action@download-base64-data-zip
@@ -10,15 +9,15 @@ actions:
 
 columns:
 
-  - name: moduleId
+  - id: moduleId
     type: TEXT
-    label: { ru: Идентификатор, en: Id }
+    name: { ru: Идентификатор, en: Id }
 
-  - name: name
-    label: { ru: Имя, en: Name }
+  - id: name
+    name: { ru: Имя, en: Name }
 
-  - name: _modified
-    label: { ru: Изменен, en: Modified }
+  - id: _modified
+    name: { ru: Изменен, en: Modified }
 
-  - name: _modifier
-    label: { ru: Кем изменен, en: Modified by }
+  - id: _modifier
+    name: { ru: Кем изменен, en: Modified by }
