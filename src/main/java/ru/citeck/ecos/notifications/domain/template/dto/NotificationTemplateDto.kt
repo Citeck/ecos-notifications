@@ -18,4 +18,35 @@ open class NotificationTemplateDto(
         dto.model,
         dto.multiTemplateConfig
     )
+
+    override fun equals(other: Any?): Boolean {
+
+        if (this === other) {
+            return true
+        }
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as NotificationTemplateDto
+
+        if (id != other.id
+                || name != other.name
+                || notificationTitle != other.notificationTitle
+                || model != other.model
+                || multiTemplateConfig != other.multiTemplateConfig) {
+
+            return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (notificationTitle?.hashCode() ?: 0)
+        result = 31 * result + (model?.hashCode() ?: 0)
+        result = 31 * result + (multiTemplateConfig?.hashCode() ?: 0)
+        return result
+    }
 }

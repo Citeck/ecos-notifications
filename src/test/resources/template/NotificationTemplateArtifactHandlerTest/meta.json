@@ -1,0 +1,17 @@
+{
+  "id": "info-message-template-NF-1000-PPP-0206-01",
+  "name": "info-message-template-NF-1000-PPP-0206-01",
+  "notificationTitle": {
+    "ru": "Контроль превышения сроков идентификации или определения места хранения рулонов",
+    "en": ""
+  },
+  "model": {
+    "aa": "bb"
+  },
+  "multiTemplateConfig": [
+    {
+      "template": "123",
+      "type": "123"
+    }
+  ]
+}

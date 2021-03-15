@@ -5,8 +5,11 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.apps.app.domain.handler.EcosArtifactHandler
 import ru.citeck.ecos.apps.artifact.controller.type.binary.BinArtifact
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
+import ru.citeck.ecos.commons.utils.NameUtils
+import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -51,7 +54,30 @@ class NotificationTemplateArtifactHandler(
     }
 
     override fun listenChanges(listener: Consumer<BinArtifact>) {
-        //TODO: implement
+
+        /*templateService.addListener { dto ->
+
+            val meta = ObjectData.create()
+            meta.set("id", dto.id)
+            meta.set("name", dto.name)
+            meta.set("model", dto.model)
+            meta.set("multiTemplateConfig", dto.multiTemplateConfig)
+            meta.set("notificationTitle", dto.notificationTitle)
+
+            val (name, data) = if (dto.templateData.size == 1) {
+                val templateData = dto.templateData.values.first()
+                templateData.name to templateData.data
+            } else {
+                val memDir = EcosMemDir()
+                val artifactDir = memDir.createDir(NameUtils.escape(dto.id))
+                dto.templateData.values.forEach {
+                    artifactDir.createFile(it.name, it.data)
+                }
+                (dto.id + ".zip") to ZipUtils.writeZipAsBytes(memDir)
+            }
+
+            listener.accept(BinArtifact(name, meta, data))
+        }*/
     }
 
     inner class TemplateDataFinder(

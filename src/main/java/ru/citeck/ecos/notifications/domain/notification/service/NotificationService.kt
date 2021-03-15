@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.data.MLText
-import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
