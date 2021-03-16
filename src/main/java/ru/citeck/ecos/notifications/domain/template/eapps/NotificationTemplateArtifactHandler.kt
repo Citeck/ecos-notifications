@@ -55,7 +55,7 @@ class NotificationTemplateArtifactHandler(
 
     override fun listenChanges(listener: Consumer<BinArtifact>) {
 
-        /*templateService.addListener { dto ->
+        templateService.addListener { dto ->
 
             val meta = ObjectData.create()
             meta.set("id", dto.id)
@@ -64,20 +64,20 @@ class NotificationTemplateArtifactHandler(
             meta.set("multiTemplateConfig", dto.multiTemplateConfig)
             meta.set("notificationTitle", dto.notificationTitle)
 
-            val (name, data) = if (dto.templateData.size == 1) {
-                val templateData = dto.templateData.values.first()
-                templateData.name to templateData.data
-            } else {
-                val memDir = EcosMemDir()
-                val artifactDir = memDir.createDir(NameUtils.escape(dto.id))
-                dto.templateData.values.forEach {
-                    artifactDir.createFile(it.name, it.data)
-                }
-                (dto.id + ".zip") to ZipUtils.writeZipAsBytes(memDir)
+            val memDir = EcosMemDir()
+            dto.templateData.values.forEach {
+                memDir.createFile(it.name, it.data)
             }
 
-            listener.accept(BinArtifact(name, meta, data))
-        }*/
+            val path = if (dto.templateData.size == 1) {
+                NameUtils.escape(dto.id) + "/" + dto.templateData.values.first().name + ".zip"
+            } else {
+                val firstFileName = dto.templateData.values.first().name
+                NameUtils.escape(dto.id) + "/" + firstFileName.substringBefore('.') + ".html.zip"
+            }
+
+            listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
+        }
     }
 
     inner class TemplateDataFinder(
