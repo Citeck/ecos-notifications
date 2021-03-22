@@ -11,6 +11,8 @@ sourceId: notifications/template
 journalRef: uiserv/journal@notification-templates
 formRef: uiserv/form@notification-template
 
+defaultCreateVariant: false
+
 createVariants:
 
   - id: create-new-notification-template

@@ -10,6 +10,8 @@ sourceId: notifications/file
 
 journalRef: uiserv/journal@notification-files
 
+defaultCreateVariant: false
+
 createVariants:
 
   - id: upload-notification-file
