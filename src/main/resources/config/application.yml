@@ -188,11 +188,6 @@ jhipster:
 
 # application:
 
-ecos-app:
-  id: ecos-notifications
-  version: 1.6.0
-  name: ECOS Notifications
-
 spring.rabbitmq:
   host: rabbitmq
   username: admin
