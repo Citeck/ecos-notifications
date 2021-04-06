@@ -30,7 +30,7 @@ class EmailNotificationProviderTest {
     }
 
     private fun initProvider(emailProps: ApplicationProperties.Email?) {
-        properties.email.setFromOther(emailProps)
+        properties.email.setDataFromOther(emailProps)
         emails.clear()
         notificationProvider = EmailNotificationProvider(mailSenderMock, properties)
     }
