@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.service.providers
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import org.mockito.Mockito
 import org.springframework.mail.javamail.JavaMailSender
 import ru.citeck.ecos.notifications.config.ApplicationProperties
