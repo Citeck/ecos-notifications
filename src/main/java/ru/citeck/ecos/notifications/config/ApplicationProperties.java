@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import ru.citeck.ecos.commons.json.Json;
+import ru.citeck.ecos.commons.data.DataValue;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -298,8 +298,8 @@ public class ApplicationProperties {
 
         private EmailFrom from = new EmailFrom();
 
-        public void setFromOther(Email email) {
-            this.from = Json.getMapper().copy(email.from);
+        public void setDataFromOther(Email email) {
+            this.from = new EmailFrom(email.from);
         }
 
         public EmailFrom getFrom() {
@@ -316,6 +316,15 @@ public class ApplicationProperties {
         private String defaultEmail = "";
         private String fixed = "";
         private Map<String, String> mapping = new LinkedHashMap<>();
+
+        public EmailFrom() {
+        }
+
+        public EmailFrom(EmailFrom other) {
+            this.defaultEmail = other.defaultEmail;
+            this.fixed = other.fixed;
+            this.mapping = DataValue.create(other.mapping).asMap(String.class, String.class);
+        }
 
         public void setDefault(String value) {
             this.defaultEmail = value;
