@@ -1,6 +1,15 @@
 package ru.citeck.ecos.notifications.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import ru.citeck.ecos.commons.json.Json;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Properties specific to Notifications.
@@ -19,6 +28,8 @@ public class ApplicationProperties {
 
     private final Alfresco alfresco = new Alfresco();
 
+    private final Email email = new Email();
+
     public FailureNotification getFailureNotification() {
         return this.failureNotification;
     }
@@ -33,6 +44,10 @@ public class ApplicationProperties {
 
     public Alfresco getAlfresco() {
         return this.alfresco;
+    }
+
+    public Email getEmail() {
+        return email;
     }
 
     public static class FailureNotification {
@@ -277,5 +292,62 @@ public class ApplicationProperties {
         public void setPassword(String password) {
             this.password = password;
         }
+    }
+
+    public static class Email {
+
+        private EmailFrom from = new EmailFrom();
+
+        public void setFromOther(Email email) {
+            this.from = Json.getMapper().copy(email.from);
+        }
+
+        public EmailFrom getFrom() {
+            return from;
+        }
+
+        public void setFrom(EmailFrom from) {
+            this.from = from;
+        }
+    }
+
+    public static class EmailFrom {
+
+        private String defaultEmail = "";
+        private String fixed = "";
+        private Map<String, String> mapping = new LinkedHashMap<>();
+
+        public void setDefault(String value) {
+            this.defaultEmail = value;
+        }
+
+        public String getDefault() {
+            return defaultEmail;
+        }
+
+        public String getFixed() {
+            return fixed;
+        }
+
+        public void setFixed(String fixed) {
+            this.fixed = fixed;
+        }
+
+        public Map<String, String> getMapping() {
+            return mapping;
+        }
+
+        public void setMapping(List<EmailMapping> mapping) {
+            this.mapping = new LinkedHashMap<>();
+            mapping.forEach(it -> this.mapping.put(it.getSource(), it.getTarget()));
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EmailMapping {
+        private String source;
+        private String target;
     }
 }

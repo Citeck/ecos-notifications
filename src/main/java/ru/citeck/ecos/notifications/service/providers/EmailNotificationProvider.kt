@@ -1,10 +1,10 @@
 package ru.citeck.ecos.notifications.service.providers
 
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
@@ -12,9 +12,14 @@ import java.nio.charset.StandardCharsets
 private const val CONTENT_TYPE = "text/html; charset=UTF-8"
 
 @Service
-class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMailSender) : NotificationProvider {
+class EmailNotificationProvider(
+    private val emailSender: JavaMailSender,
+    properties: ApplicationProperties
+) : NotificationProvider {
 
     private val log = KotlinLogging.logger {}
+
+    private val emailProps = initEmailProps(properties)
 
     override fun getType(): NotificationType {
         return NotificationType.EMAIL_NOTIFICATION
@@ -30,12 +35,36 @@ class EmailNotificationProvider(@field:Autowired private val emailSender: JavaMa
         msg.setContent(fitNotification.body, CONTENT_TYPE)
         helper.setTo(fitNotification.recipients.toTypedArray())
         fitNotification.title?.let { helper.setSubject(it) }
-
-        helper.setFrom(fitNotification.from)
+        setFrom(helper, fitNotification)
         helper.setCc(fitNotification.cc.toTypedArray())
         helper.setBcc(fitNotification.bcc.toTypedArray())
 
         emailSender.send(msg)
     }
 
+    private fun setFrom(msgHelper: MimeMessageHelper, notification: FitNotification) {
+
+        if (emailProps.from.fixed.isNotBlank()) {
+            msgHelper.setFrom(emailProps.from.fixed)
+        } else {
+            if (notification.from.isBlank() && emailProps.from.default.isNotBlank()) {
+                msgHelper.setFrom(emailProps.from.default)
+            } else {
+                val mappedValue = emailProps.from.mapping.getOrDefault(notification.from, notification.from)
+                msgHelper.setFrom(mappedValue)
+            }
+        }
+    }
+
+    private fun initEmailProps(appProps: ApplicationProperties) : ApplicationProperties.Email {
+        val email = appProps.email ?: ApplicationProperties.Email()
+        email.from = email.from ?: ApplicationProperties.EmailFrom()
+        if (email.from.default == null) {
+            email.from.default = ""
+        }
+        if (email.from.fixed == null) {
+            email.from.fixed = ""
+        }
+        return email
+    }
 }
