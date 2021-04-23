@@ -1,3 +1,4 @@
+---
 id: notification-template
 
 name:
@@ -5,17 +6,18 @@ name:
   ru: Шаблон уведомления
 
 system: true
+sourceId: notifications/template
 
-journal: uiserv/journal@notification-templates
-form: uiserv/eform@notification-template
+journalRef: uiserv/journal@notification-templates
+formRef: uiserv/form@notification-template
+
+defaultCreateVariant: false
 
 createVariants:
 
   - id: create-new-notification-template
     name: { ru: Создать новый шаблон уведомления, en: Create new notification template }
-    recordRef: notifications/template@
 
   - id: upload-notification-template
     name: { ru: Загрузить шаблон уведомления, en: Upload notification template }
-    recordRef: notifications/template@
-    formRef: uiserv/eform@ecos-module-upload
+    formRef: uiserv/form@ecos-module-upload

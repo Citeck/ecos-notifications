@@ -5,8 +5,11 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.apps.app.domain.handler.EcosArtifactHandler
 import ru.citeck.ecos.apps.artifact.controller.type.binary.BinArtifact
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
+import ru.citeck.ecos.commons.utils.NameUtils
+import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -51,7 +54,30 @@ class NotificationTemplateArtifactHandler(
     }
 
     override fun listenChanges(listener: Consumer<BinArtifact>) {
-        //TODO: implement
+
+        templateService.addListener { dto ->
+
+            val meta = ObjectData.create()
+            meta.set("id", dto.id)
+            meta.set("name", dto.name)
+            meta.set("model", dto.model)
+            meta.set("multiTemplateConfig", dto.multiTemplateConfig)
+            meta.set("notificationTitle", dto.notificationTitle)
+
+            val memDir = EcosMemDir()
+            dto.templateData.values.forEach {
+                memDir.createFile(it.name, it.data)
+            }
+
+            val archiveName = if (dto.templateData.size == 1) {
+                dto.templateData.values.first().name + ".zip"
+            } else {
+                val firstFileName = dto.templateData.values.first().name
+                firstFileName.substringBefore('.') + ".html.zip"
+            }
+            val path = archiveName.substringBefore('.') + "/" + archiveName
+            listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
+        }
     }
 
     inner class TemplateDataFinder(

@@ -9,18 +9,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
+import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto;
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta;
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity;
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository;
 import ru.citeck.ecos.records2.RecordConstants;
+import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.predicate.PredicateUtils;
 import ru.citeck.ecos.records2.predicate.model.Predicate;
 import ru.citeck.ecos.records2.predicate.model.ValuePredicate;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +30,9 @@ public class NotificationTemplateService {
     private final NotificationTemplateRepository templateRepository;
     private final TemplateConverter templateConverter;
 
+    private Consumer<NotificationTemplateWithMeta> listener;
+
+
     public NotificationTemplateService(NotificationTemplateRepository templateRepository,
                                        TemplateConverter templateConverter) {
         this.templateRepository = templateRepository;
@@ -36,7 +40,10 @@ public class NotificationTemplateService {
     }
 
     public void update(@NotNull NotificationTemplateWithMeta dto) {
-        templateRepository.save(templateConverter.dtoToEntity(dto));
+        NotificationTemplateEntity template = templateRepository.save(templateConverter.dtoToEntity(dto));
+        if (listener != null) {
+            listener.accept(templateConverter.entityToDto(template));
+        }
     }
 
     public void deleteById(String id) {
@@ -44,6 +51,35 @@ public class NotificationTemplateService {
             throw new IllegalArgumentException("Id parameter is mandatory for template deletion");
         }
         templateRepository.findOneByExtId(id).ifPresent(templateRepository::delete);
+    }
+
+    @NotNull
+    public List<RecordRef> findTemplateRefsForTypes(@NotNull List<RecordRef> typeRefs) {
+
+        if (typeRefs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<RecordRef> templates = new ArrayList<>();
+
+        List<NotificationTemplateEntity> multiTemplates = templateRepository.findAllMultiTemplates();
+
+        for (NotificationTemplateEntity template : multiTemplates) {
+            NotificationTemplateWithMeta templateDto = templateConverter.entityToDto(template);
+            if (templateDto.getMultiTemplateConfig() != null) {
+                for (MultiTemplateElementDto configDto : templateDto.getMultiTemplateConfig()) {
+
+                    if (RecordRef.isNotEmpty(configDto.getType())
+                            && RecordRef.isNotEmpty(configDto.getTemplate())
+                            && typeRefs.contains(configDto.getType())) {
+
+                        templates.add(configDto.getTemplate());
+                    }
+                }
+            }
+        }
+
+        return templates;
     }
 
     public Optional<NotificationTemplateWithMeta> findById(String id) {
@@ -59,7 +95,11 @@ public class NotificationTemplateService {
             dto.setId(UUID.randomUUID().toString());
         }
         NotificationTemplateEntity saved = templateRepository.save(templateConverter.dtoToEntity(dto));
-        return templateConverter.entityToDto(saved);
+        NotificationTemplateWithMeta resultDto = templateConverter.entityToDto(saved);
+        if (listener != null) {
+            listener.accept(resultDto);
+        }
+        return resultDto;
     }
 
     public List<NotificationTemplateWithMeta> getAll(int max, int skip, Predicate predicate, Sort sort) {
@@ -129,6 +169,10 @@ public class NotificationTemplateService {
             .stream()
             .map(templateConverter::entityToDto)
             .collect(Collectors.toList());
+    }
+
+    public void addListener(Consumer<NotificationTemplateWithMeta> listener) {
+        this.listener = listener;
     }
 
     @Data

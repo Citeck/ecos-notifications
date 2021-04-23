@@ -1,6 +1,10 @@
 modelVersion: "1.0"
 
-sourceId: "notification"
+name:
+  ru: Шаблон уведомления
+  en: Notification template
+
+sourceId: "file"
 
 controller:
   type: file
