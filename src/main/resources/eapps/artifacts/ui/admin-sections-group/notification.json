@@ -1,0 +1,22 @@
+{
+  "id": "notification",
+  "name": {
+    "en": "Configuring notifications",
+    "ru": "Конфигурация уведомлений"
+  },
+  "order": 40,
+  "sections": [
+    {
+      "type": "JOURNAL",
+      "config": {
+        "journalId": "notification-templates"
+      }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
+        "journalId": "notification-files"
+      }
+    }
+  ]
+}
