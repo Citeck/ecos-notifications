@@ -20,6 +20,7 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.util.*
+import javax.mail.internet.MimeMultipart
 
 
 @RunWith(SpringRunner::class)
@@ -119,6 +120,49 @@ class EmailNotificationTest {
             "<br>\n" +
             "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
             "<br>")
+    }
+
+    @Test
+    fun sendEmailWithAttachmentTest() {
+        val localModel = templateModel
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test.txt",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val content = emails[0].content
+
+        assertThat(content is MimeMultipart).isTrue()
+        assertThat((content as MimeMultipart).count).isEqualTo(2)
+
+        var isHaveAttachment = false
+
+        for( i in 0 until content.count) {
+            if(content.getBodyPart(i).getHeader("Content-Type")
+                    .any{it == "text/plain; charset=us-ascii; name=test.txt"}) isHaveAttachment = true
+        }
+
+        assertThat(isHaveAttachment).isTrue()
     }
 
     @Test

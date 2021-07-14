@@ -28,7 +28,7 @@ class EmailNotificationProvider(
 
         val msg = emailSender.createMimeMessage()
 
-        val helper = MimeMessageHelper(msg, true, StandardCharsets.UTF_8.name())
+        val helper = MimeMessageHelper(msg, fitNotification.attachments.isNotEmpty(), StandardCharsets.UTF_8.name())
 
         helper.setText(fitNotification.body, true)
         helper.setTo(fitNotification.recipients.toTypedArray())

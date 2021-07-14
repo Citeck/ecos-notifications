@@ -92,7 +92,7 @@ class NotificationService(
         val fileExt: String = infoAttachment["originalExt"]
             ?: throw NotificationException("Attachment don't have ext: $infoAttachment")
 
-        return if (fileExt.equals(fileName.takeLast(fileExt.length))) {
+        return if (fileExt == fileName.takeLast(fileExt.length)) {
             fileName
         } else {
             fileName.plus(".").plus(fileExt)
