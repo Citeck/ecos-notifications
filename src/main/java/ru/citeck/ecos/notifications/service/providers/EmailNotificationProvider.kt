@@ -9,8 +9,6 @@ import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
-private const val CONTENT_TYPE = "text/html; charset=UTF-8"
-
 @Service
 class EmailNotificationProvider(
     private val emailSender: JavaMailSender,
@@ -32,12 +30,15 @@ class EmailNotificationProvider(
 
         val helper = MimeMessageHelper(msg, true, StandardCharsets.UTF_8.name())
 
-        msg.setContent(fitNotification.body, CONTENT_TYPE)
+        helper.setText(fitNotification.body, true)
         helper.setTo(fitNotification.recipients.toTypedArray())
         fitNotification.title?.let { helper.setSubject(it) }
         setFrom(helper, fitNotification)
         helper.setCc(fitNotification.cc.toTypedArray())
         helper.setBcc(fitNotification.bcc.toTypedArray())
+        for ((key, value) in fitNotification.attachments) {
+            helper.addAttachment(key, value)
+        }
 
         emailSender.send(msg)
     }
