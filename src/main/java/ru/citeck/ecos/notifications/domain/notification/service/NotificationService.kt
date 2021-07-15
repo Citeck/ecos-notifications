@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
@@ -63,22 +64,25 @@ class NotificationService(
 
     private fun prepareAttachments(model: Map<String, Any>): Map<String, DataSource> {
 
-        val attachments = model["_attachments"] as? List<Map<String, Any>>
-            ?: (model["_attachments"] as? Map<String, Any>)?.let { listOf(it) }
+        val attachments = model[NotificationConstants.ATTACHMENTS] as? List<Map<String, Any>>
+            ?: (model[NotificationConstants.ATTACHMENTS] as? Map<String, Any>)?.let { attach ->
+                if (attach.isEmpty()) listOf()
+                else listOf(attach)
+            }
             ?: listOf()
 
         val result = mutableMapOf<String, DataSource>()
 
         attachments.forEach {
-            val contentStr: String = it["bytes"] as String?
-                ?: throw NotificationException("Attachment don't have content: $it")
+            val contentStr = it[NotificationConstants.BYTES] as? String
+            if (contentStr.isNullOrBlank()) throw NotificationException("Attachment doesn't have content: $it")
 
             val fileBytes: ByteArray = Base64.getMimeDecoder().decode(contentStr)
 
-            val fileInfoMap: Map<String, String> = it["previewInfo"] as Map<String, String>
+            val fileInfoMap: Map<String, String> = it[NotificationConstants.PREVIEW_INFO] as Map<String, String>
             val fileName: String = getAttachmentName(fileInfoMap)
-            val fileMimeType: String = fileInfoMap["mimetype"]
-                ?: throw NotificationException("Attachment don't have mimetype: $it")
+            val fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
+            if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
 
             result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
         }
@@ -87,10 +91,10 @@ class NotificationService(
     }
 
     private fun getAttachmentName(infoAttachment: Map<String, String>): String {
-        val fileName: String = infoAttachment["originalName"]
-            ?: throw NotificationException("Attachment don't have name: $infoAttachment")
-        val fileExt: String = infoAttachment["originalExt"]
-            ?: throw NotificationException("Attachment don't have ext: $infoAttachment")
+        val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
+        if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
+        val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
+        if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {
             fileName

@@ -123,49 +123,6 @@ class EmailNotificationTest {
     }
 
     @Test
-    fun sendEmailWithAttachmentTest() {
-        val localModel = templateModel
-        localModel["_attachments"] = mapOf(
-            "bytes" to "MTIz",
-            "previewInfo" to mapOf(
-                "originalName" to "test.txt",
-                "originalExt" to "txt",
-                "mimetype" to "text/plain"
-            )
-        )
-
-        val notification = RawNotification(
-            type = NotificationType.EMAIL_NOTIFICATION,
-            locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
-            template = notificationTestImportTemplate,
-            model = localModel,
-            from = "test@mail.ru"
-        )
-        notificationService.send(notification)
-
-        val emails = greenMail.receivedMessages
-
-        assertThat(emails.size).isEqualTo(1)
-        assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
-
-        val content = emails[0].content
-
-        assertThat(content is MimeMultipart).isTrue()
-        assertThat((content as MimeMultipart).count).isEqualTo(2)
-
-        var isHaveAttachment = false
-
-        for( i in 0 until content.count) {
-            if(content.getBodyPart(i).getHeader("Content-Type")
-                    .any{it == "text/plain; charset=us-ascii; name=test.txt"}) isHaveAttachment = true
-        }
-
-        assertThat(isHaveAttachment).isTrue()
-    }
-
-    @Test
     fun sendEmailWithIncludeTest() {
         val notification = RawNotification(
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -415,6 +372,227 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Привет Ivan. Foo bar")
+    }
+
+    @Test
+    fun sendEmailWithAttachmentTest() {
+        val localModel = templateModel
+        val unencodedFileContent = "123"
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test.txt",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val content = emails[0].content
+
+        assertThat(content is MimeMultipart).isTrue()
+        assertThat((content as MimeMultipart).count).isEqualTo(2)
+
+        var isHaveAttachment = false
+
+        for (i in 0 until content.count) {
+            if (content.getBodyPart(i).getHeader("Content-Type")
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                isHaveAttachment = true
+                assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
+            }
+        }
+
+        assertThat(isHaveAttachment).isTrue()
+    }
+
+    @Test
+    fun sendEmailWithAttachmentsTest() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = listOf(
+            mapOf(
+                "bytes" to "MTIz",
+                "previewInfo" to mapOf(
+                    "originalName" to "test1.txt",
+                    "originalExt" to "txt",
+                    "mimetype" to "text/plain"
+                )
+            ),
+            mapOf(
+                "bytes" to "MTIz",
+                "previewInfo" to mapOf(
+                    "originalName" to "test2.pdf",
+                    "originalExt" to "pdf",
+                    "mimetype" to "application/pdf"
+                )
+            ),
+            mapOf(
+                "bytes" to "MTIz",
+                "previewInfo" to mapOf(
+                    "originalName" to "test3.jpg",
+                    "originalExt" to "jpg",
+                    "mimetype" to "image/jpeg"
+                )
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val content = emails[0].content
+
+        assertThat(content is MimeMultipart).isTrue()
+        assertThat((content as MimeMultipart).count).isEqualTo(4)
+
+        var isHaveAttachment1 = false
+        var isHaveAttachment2 = false
+        var isHaveAttachment3 = false
+
+        for (i in 0 until content.count) {
+            if (content.getBodyPart(i).getHeader("Content-Type")
+                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }) {
+                assertThat(content.getBodyPart(i).content).isNotNull
+                isHaveAttachment1 = true
+            }
+            if (content.getBodyPart(i).getHeader("Content-Type")
+                    .any { it == "application/pdf; name=test2.pdf" }) {
+                assertThat(content.getBodyPart(i).content).isNotNull
+                isHaveAttachment2 = true
+            }
+            if (content.getBodyPart(i).getHeader("Content-Type")
+                    .any { it == "image/jpeg; name=test3.jpg" }) {
+                assertThat(content.getBodyPart(i).content).isNotNull
+                isHaveAttachment3 = true
+            }
+        }
+
+        assertThat(isHaveAttachment1).isTrue()
+        assertThat(isHaveAttachment2).isTrue()
+        assertThat(isHaveAttachment3).isTrue()
+    }
+
+    @Test
+    fun sendEmailWithAttachmentWithFileNameWithoutExtTest() {
+        val localModel = templateModel
+        val unencodedFileContent = "123"
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+
+        val content = emails[0].content
+
+        assertThat(content is MimeMultipart).isTrue()
+        assertThat((content as MimeMultipart).count).isEqualTo(2)
+
+        var isHaveAttachment = false
+
+        for (i in 0 until content.count) {
+            if (content.getBodyPart(i).getHeader("Content-Type")
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                isHaveAttachment = true
+                assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
+            }
+        }
+
+        assertThat(isHaveAttachment).isTrue()
+    }
+
+    @Test
+    fun sendEmailWithEmptyAttachmentsListTest() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = listOf<Map<String, Any>>()
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+    }
+
+    @Test
+    fun sendEmailWithEmptyAttachmentTest() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf<String, Any>()
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationService.send(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo("")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
     }
 
     @After

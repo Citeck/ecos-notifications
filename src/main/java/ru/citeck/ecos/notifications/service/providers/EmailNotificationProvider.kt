@@ -28,7 +28,9 @@ class EmailNotificationProvider(
 
         val msg = emailSender.createMimeMessage()
 
-        val helper = MimeMessageHelper(msg, fitNotification.attachments.isNotEmpty(), StandardCharsets.UTF_8.name())
+        val isMultipartMessageType = fitNotification.attachments.isNotEmpty()
+
+        val helper = MimeMessageHelper(msg, isMultipartMessageType, StandardCharsets.UTF_8.name())
 
         helper.setText(fitNotification.body, true)
         helper.setTo(fitNotification.recipients.toTypedArray())
@@ -57,7 +59,7 @@ class EmailNotificationProvider(
         }
     }
 
-    private fun initEmailProps(appProps: ApplicationProperties) : ApplicationProperties.Email {
+    private fun initEmailProps(appProps: ApplicationProperties): ApplicationProperties.Email {
         val email = appProps.email ?: ApplicationProperties.Email()
         email.from = email.from ?: ApplicationProperties.EmailFrom()
         if (email.from.default == null) {

@@ -140,8 +140,16 @@ class EmailNotificationProviderTest {
         assertThat(emails).hasSize(1)
         assertThat(emails[0].from).hasSize(1)
         assertThat((emails[0].from[0] as InternetAddress).address).isEqualTo(notification.from)
-        if (notification.attachments.isNotEmpty()){
-            assertThat(emails[0].content is MimeMultipart).isTrue()
+        if (notification.attachments.isNotEmpty()) {
+            val content = emails[0].content
+            assertThat(content is MimeMultipart).isTrue()
+            assertThat((content as MimeMultipart).count).isEqualTo(2)
+
+            for (i in 0 until content.count) {
+                if (content.getBodyPart(i).contentType == "type") {
+                    assertThat(content.getBodyPart(i).content).isEqualTo("test")
+                }
+            }
         } else {
             assertThat(emails[0].content).isEqualTo(notification.body)
         }
