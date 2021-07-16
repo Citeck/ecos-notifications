@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.service.providers
 
+import com.sun.istack.internal.ByteArrayDataSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.mockito.Mockito
@@ -11,6 +12,7 @@ import javax.mail.Message
 import javax.mail.Session
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
+import javax.mail.internet.MimeMultipart
 
 class EmailNotificationProviderTest {
 
@@ -113,12 +115,44 @@ class EmailNotificationProviderTest {
         }
     }
 
+    @Test
+    fun testWithAttachments() {
+        val props = ApplicationProperties.Email()
+        initProvider(props)
+
+        val dataSource = ByteArrayDataSource("test".toByteArray(), "type")
+
+        val notification = FitNotification(
+            "body",
+            "title",
+            setOf("recepient0", "recepient1"),
+            "from@email.ru",
+            setOf("copy-to-0@email.ru", "copy-to-1@email.ru"),
+            setOf("bcc-copy-to-0@email.ru", "bcc-copy-to-1@email.ru"),
+            mapOf("fileName.pdf" to dataSource)
+        )
+        notificationProvider.send(notification)
+        validateMessage(notification)
+    }
+
     private fun validateMessage(notification: FitNotification) {
 
         assertThat(emails).hasSize(1)
         assertThat(emails[0].from).hasSize(1)
         assertThat((emails[0].from[0] as InternetAddress).address).isEqualTo(notification.from)
-        assertThat(emails[0].content).isEqualTo(notification.body)
+        if (notification.attachments.isNotEmpty()) {
+            val content = emails[0].content
+            assertThat(content is MimeMultipart).isTrue()
+            assertThat((content as MimeMultipart).count).isEqualTo(2)
+
+            for (i in 0 until content.count) {
+                if (content.getBodyPart(i).contentType == "type") {
+                    assertThat(content.getBodyPart(i).content).isEqualTo("test")
+                }
+            }
+        } else {
+            assertThat(emails[0].content).isEqualTo(notification.body)
+        }
         assertThat(emails[0].subject).isEqualTo(notification.title)
 
         assertThat(emails[0].getRecipients(Message.RecipientType.TO).map {

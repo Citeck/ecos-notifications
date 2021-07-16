@@ -1,17 +1,19 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
+import com.sun.istack.internal.ByteArrayDataSource
 import mu.KotlinLogging
-import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import java.util.*
+import javax.activation.DataSource
 
 @Service
 class NotificationService(
@@ -30,6 +32,7 @@ class NotificationService(
 
         val title = prepareTitle(rawNotification.template, rawNotification.locale, rawNotification.model)
         val body = prepareBody(rawNotification.template, rawNotification.locale, rawNotification.model)
+        val attachments = prepareAttachments(rawNotification.model)
 
         val foundProviders = providers[rawNotification.type]
             ?: throw NotificationException("Provider with notification type: ${rawNotification.type} not registered}")
@@ -40,7 +43,8 @@ class NotificationService(
                 recipients = rawNotification.recipients,
                 from = rawNotification.from,
                 cc = rawNotification.cc,
-                bcc = rawNotification.bcc
+                bcc = rawNotification.bcc,
+                attachments = attachments
             ))
         }
     }
@@ -58,8 +62,49 @@ class NotificationService(
         return freemarkerService.process(template.id + "_title", titleTemplate, model)
     }
 
+    private fun prepareAttachments(model: Map<String, Any>): Map<String, DataSource> {
+
+        val attachments = model[NotificationConstants.ATTACHMENTS] as? List<Map<String, Any>>
+            ?: (model[NotificationConstants.ATTACHMENTS] as? Map<String, Any>)?.let { attach ->
+                if (attach.isEmpty()) listOf()
+                else listOf(attach)
+            }
+            ?: listOf()
+
+        val result = mutableMapOf<String, DataSource>()
+
+        attachments.forEach {
+            val contentStr = it[NotificationConstants.BYTES] as? String
+            if (contentStr.isNullOrBlank()) throw NotificationException("Attachment doesn't have content: $it")
+
+            val fileBytes: ByteArray = Base64.getMimeDecoder().decode(contentStr)
+
+            val fileInfoMap: Map<String, String> = it[NotificationConstants.PREVIEW_INFO] as Map<String, String>
+            val fileName: String = getAttachmentName(fileInfoMap)
+            val fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
+            if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
+
+            result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
+        }
+
+        return result
+    }
+
+    private fun getAttachmentName(infoAttachment: Map<String, String>): String {
+        val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
+        if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
+        val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
+        if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
+
+        return if (fileExt == fileName.takeLast(fileExt.length)) {
+            fileName
+        } else {
+            fileName.plus(".").plus(fileExt)
+        }
+    }
+
     private fun resolveAnyAvailableTitle(titleMl: MLText, locale: Locale): String? {
-        val result =  MLText.getClosestValue(titleMl, locale)
+        val result = MLText.getClosestValue(titleMl, locale)
         return if (result.isBlank()) {
             null
         } else {
