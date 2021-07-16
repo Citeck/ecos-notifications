@@ -8,6 +8,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -593,6 +595,222 @@ class EmailNotificationTest {
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
         assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+    }
+
+    @Test
+    fun sendEmailWithEmptyContentShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithNullContentShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to null,
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithEmptyNameShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "",
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithNullNameShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to null,
+                "originalExt" to "txt",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithEmptyExtShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "",
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithNullExtShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to null,
+                "mimetype" to "text/plain"
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithEmptyMimetypeShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "txt",
+                "mimetype" to ""
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailWithNullMimetypeShouldThrow() {
+        val localModel = templateModel
+
+        localModel["_attachments"] = mapOf(
+            "bytes" to "MTIz",
+            "previewInfo" to mapOf(
+                "originalName" to "test",
+                "originalExt" to "txt",
+                "mimetype" to null
+            )
+        )
+
+        val notification = RawNotification(
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            template = notificationTestImportTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+
+        assertThrows<NotificationException> {
+            notificationService.send(notification)
+        }
     }
 
     @After
