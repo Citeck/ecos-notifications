@@ -39,4 +39,8 @@ class FileModuleHandler(val fileService: FileService) : EcosArtifactHandler<File
     override fun listenChanges(listener: Consumer<FileArtifact>) {
         //TODO: implement
     }
+
+    override fun deleteArtifact(artifactId: String) {
+        fileService.deleteById(artifactId)
+    }
 }

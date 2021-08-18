@@ -18,10 +18,10 @@ class FailureNotificationEntity @JvmOverloads constructor(
 
     var data: ByteArray? = null,
 
-    @Column("error_message")
+    @Column(name = "error_message")
     var errorMessage: String? = null,
 
-    @Column("error_stack_trace")
+    @Column(name = "error_stack_trace")
     var errorStackTrace: String? = null,
 
     var tryingCount: Int? = 0,

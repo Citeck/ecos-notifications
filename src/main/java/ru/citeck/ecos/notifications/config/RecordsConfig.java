@@ -3,8 +3,6 @@ package ru.citeck.ecos.notifications.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.citeck.ecos.records2.rest.RemoteRecordsRestApi;
-import ru.citeck.ecos.records2.source.dao.remote.RemoteRecordsDao;
 import ru.citeck.ecos.records3.RecordsProperties;
 
 import java.util.Collections;
@@ -39,13 +37,4 @@ public class RecordsConfig {
         return props;
     }
 
-    @Bean
-    @ConfigurationProperties(prefix = "ecos-notification.remote-records-dao")
-    public RemoteRecordsDao createAlfrescoRecordsDao(RemoteRecordsRestApi restConnection) {
-        RemoteRecordsDao alfrescoRemote = new RemoteRecordsDao();
-        alfrescoRemote.setRecordsMethod("/alfresco/api/records/query");
-        alfrescoRemote.setId(ALFRESCO_SOURCE_ID);
-        alfrescoRemote.setRestConnection(restConnection::jsonPost);
-        return alfrescoRemote;
-    }
 }

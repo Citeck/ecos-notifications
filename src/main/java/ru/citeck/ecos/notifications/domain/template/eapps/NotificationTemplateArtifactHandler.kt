@@ -8,7 +8,6 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
-import ru.citeck.ecos.commons.utils.NameUtils
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
@@ -104,5 +103,9 @@ class NotificationTemplateArtifactHandler(
                 }
             }
         }
+    }
+
+    override fun deleteArtifact(artifactId: String) {
+        templateService.deleteById(artifactId)
     }
 }
