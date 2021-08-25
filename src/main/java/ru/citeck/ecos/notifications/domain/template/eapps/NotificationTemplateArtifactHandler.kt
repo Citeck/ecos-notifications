@@ -68,12 +68,15 @@ class NotificationTemplateArtifactHandler(
                 memDir.createFile(it.name, it.data)
             }
 
-            val archiveName = if (dto.templateData.size == 1) {
-                dto.templateData.values.first().name + ".zip"
-            } else {
-                val firstFileName = dto.templateData.values.first().name
-                firstFileName.substringBefore('.') + ".html.zip"
-            }
+            val archiveName =
+                if (dto.templateData.size == 0) {
+                    "empty.zip"
+                } else if (dto.templateData.size == 1) {
+                    dto.templateData.values.first().name + ".zip"
+                } else {
+                    val firstFileName = dto.templateData.values.first().name
+                    firstFileName.substringBefore('.') + ".html.zip"
+                }
             val path = archiveName.substringBefore('.') + "/" + archiveName
             listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
         }

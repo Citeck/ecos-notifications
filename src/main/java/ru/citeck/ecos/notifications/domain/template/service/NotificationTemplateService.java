@@ -1,12 +1,14 @@
 package ru.citeck.ecos.notifications.domain.template.service;
 
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto;
@@ -18,6 +20,7 @@ import ru.citeck.ecos.records2.RecordRef;
 import ru.citeck.ecos.records2.predicate.PredicateUtils;
 import ru.citeck.ecos.records2.predicate.model.Predicate;
 import ru.citeck.ecos.records2.predicate.model.ValuePredicate;
+import ru.citeck.ecos.records2.predicate.model.VoidPredicate;
 
 import java.time.Instant;
 import java.util.*;
@@ -91,6 +94,21 @@ public class NotificationTemplateService {
     }
 
     public NotificationTemplateWithMeta save(NotificationTemplateWithMeta dto) {
+        if (dto != null && !CollectionUtils.isEmpty(dto.getMultiTemplateConfig())) {
+            List<MultiTemplateElementDto> checkedList = new ArrayList<>();
+            for (MultiTemplateElementDto template : dto.getMultiTemplateConfig()) {
+                if (template.getCondition() != null && !(template.getCondition() instanceof VoidPredicate)
+                    || template.getTemplate() != null && RecordRef.isNotEmpty(template.getTemplate())
+                    || template.getType() != null && RecordRef.isNotEmpty(template.getType())) {
+                    checkedList.add(template);
+                }
+            }
+            if (checkedList.size() != dto.getMultiTemplateConfig().size()) {
+                dto.setMultiTemplateConfig(checkedList);
+            }
+        }
+        if (dto != null && CollectionUtils.isEmpty(dto.getMultiTemplateConfig()))
+            Assert.notEmpty(dto.getTemplateData(), "Template content must be defined");
         if (StringUtils.isBlank(dto.getId())) {
             dto.setId(UUID.randomUUID().toString());
         }
