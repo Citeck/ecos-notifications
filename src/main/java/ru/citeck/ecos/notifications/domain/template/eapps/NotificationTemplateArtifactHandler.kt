@@ -68,7 +68,9 @@ class NotificationTemplateArtifactHandler(
                 memDir.createFile(it.name, it.data)
             }
 
-            val archiveName = if (dto.templateData.size == 1) {
+            val archiveName = if (dto.templateData.isEmpty()) {
+                "empty.zip"
+            } else if (dto.templateData.size == 1) {
                 dto.templateData.values.first().name + ".zip"
             } else {
                 val firstFileName = dto.templateData.values.first().name
