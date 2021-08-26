@@ -95,20 +95,21 @@ public class NotificationTemplateService {
 
     public NotificationTemplateWithMeta save(NotificationTemplateWithMeta dto) {
         if (dto != null && !CollectionUtils.isEmpty(dto.getMultiTemplateConfig())) {
-            List<MultiTemplateElementDto> checkedList = new ArrayList<>();
+            List<MultiTemplateElementDto> notEmptyMultiTemplateConfigs = new ArrayList<>();
             for (MultiTemplateElementDto template : dto.getMultiTemplateConfig()) {
                 if (template.getCondition() != null && !(template.getCondition() instanceof VoidPredicate)
-                    || template.getTemplate() != null && RecordRef.isNotEmpty(template.getTemplate())
-                    || template.getType() != null && RecordRef.isNotEmpty(template.getType())) {
-                    checkedList.add(template);
+                    || RecordRef.isNotEmpty(template.getTemplate())
+                    || RecordRef.isNotEmpty(template.getType())) {
+                    notEmptyMultiTemplateConfigs.add(template);
                 }
             }
-            if (checkedList.size() != dto.getMultiTemplateConfig().size()) {
-                dto.setMultiTemplateConfig(checkedList);
+            if (notEmptyMultiTemplateConfigs.size() != dto.getMultiTemplateConfig().size()) {
+                dto.setMultiTemplateConfig(notEmptyMultiTemplateConfigs);
             }
         }
-        if (dto != null && CollectionUtils.isEmpty(dto.getMultiTemplateConfig()))
+        if (dto != null && CollectionUtils.isEmpty(dto.getMultiTemplateConfig())) {
             Assert.notEmpty(dto.getTemplateData(), "Template content must be defined");
+        }
         if (StringUtils.isBlank(dto.getId())) {
             dto.setId(UUID.randomUUID().toString());
         }
