@@ -98,8 +98,8 @@ public class NotificationTemplateService {
             List<MultiTemplateElementDto> notEmptyMultiTemplateConfigs = new ArrayList<>();
             for (MultiTemplateElementDto template : dto.getMultiTemplateConfig()) {
                 if (template.getCondition() != null && !(template.getCondition() instanceof VoidPredicate)
-                    || RecordRef.isNotEmpty(template.getTemplate())
-                    || RecordRef.isNotEmpty(template.getType())) {
+                        || RecordRef.isNotEmpty(template.getTemplate())
+                        || RecordRef.isNotEmpty(template.getType())) {
                     notEmptyMultiTemplateConfigs.add(template);
                 }
             }
