@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.commands.CommandsServiceFactory
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
@@ -24,7 +25,8 @@ private const val ECOS_TYPE_ID_KEY = "_etype?id"
 class UnsafeSendNotificationCommandExecutor(
     val notificationService: NotificationService,
     val notificationTemplateService: NotificationTemplateService,
-    var predicateService: PredicateService
+    val predicateService: PredicateService,
+    val commandsServiceFactory: CommandsServiceFactory
 ) {
 
     companion object {
@@ -32,7 +34,9 @@ class UnsafeSendNotificationCommandExecutor(
     }
 
     fun execute(command: SendNotificationCommand): SendNotificationResult {
-        log.debug { "Execute notification command:\n$command" }
+        val currentUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
+
+        log.debug { "Execute notification command:\n$command \ncurrentUser: $currentUser" }
 
         val baseTemplate = getTemplateMetaById(command.templateRef.id)
 
@@ -56,7 +60,11 @@ class UnsafeSendNotificationCommandExecutor(
         val locale = if (command.lang.isEmpty()) DEFAULT_LOCALE else LocaleUtils
             .toLocale(command.lang)
 
+        val record = NotificationCommandUtils.resolveNotificationRecord(command.record)
+
         val notification = RawNotification(
+            record = record,
+            currentUser = currentUser,
             template = template,
             type = command.type,
             locale = locale,
@@ -70,6 +78,12 @@ class UnsafeSendNotificationCommandExecutor(
         notificationService.send(notification)
 
         return SendNotificationResult("ok", "")
+    }
+
+    private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
+        return notificationTemplateService.findById(id).orElseThrow {
+            NotificationException("Template with id: <$id> not found}")
+        }
     }
 
     private fun resolveMultiTemplate(
@@ -108,8 +122,10 @@ class UnsafeSendNotificationCommandExecutor(
         return value.toString()
     }
 
-    private fun resolveCompletedModel(requiredModel: Map<String, String>,
-                                      incomeFilledModel: Map<String, Any>): Map<String, Any> {
+    private fun resolveCompletedModel(
+        requiredModel: Map<String, String>,
+        incomeFilledModel: Map<String, Any>
+    ): Map<String, Any> {
         val filledModel = mutableMapOf<String, Any>()
         val prefilledModel = incomeFilledModel.toMutableMap()
 
@@ -123,12 +139,6 @@ class UnsafeSendNotificationCommandExecutor(
         filledModel.putAll(prefilledModel)
 
         return filledModel
-    }
-
-    private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
-        return notificationTemplateService.findById(id).orElseThrow {
-            NotificationException("Template with id: <$id> not found}")
-        }
     }
 
 }

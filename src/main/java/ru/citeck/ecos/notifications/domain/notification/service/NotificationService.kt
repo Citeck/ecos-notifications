@@ -5,6 +5,8 @@ import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
+import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
@@ -21,7 +23,9 @@ class NotificationService(
     @Qualifier("notificationProviders")
     private val providers: Map<NotificationType, List<NotificationProvider>>,
 
-    private val freemarkerService: FreemarkerTemplateEngineService
+    private val freemarkerService: FreemarkerTemplateEngineService,
+
+    private val notificationEventService: NotificationEventService
 
 ) {
 
@@ -36,8 +40,9 @@ class NotificationService(
 
         val foundProviders = providers[rawNotification.type]
             ?: throw NotificationException("Provider with notification type: ${rawNotification.type} not registered}")
+
         foundProviders.forEach {
-            it.send(FitNotification(
+            val fitNotification = FitNotification(
                 title = title,
                 body = body,
                 recipients = rawNotification.recipients,
@@ -45,7 +50,20 @@ class NotificationService(
                 cc = rawNotification.cc,
                 bcc = rawNotification.bcc,
                 attachments = attachments
-            ))
+            )
+
+            it.send(fitNotification)
+
+            notificationEventService.emitSendSuccess(
+                NotificationEventDto(
+                    rec = rawNotification.record,
+                    notificationType = rawNotification.type,
+                    notification = fitNotification,
+                    model = rawNotification.model
+                ),
+                rawNotification.currentUser
+            )
+
         }
     }
 
@@ -105,10 +123,8 @@ class NotificationService(
 
     private fun resolveAnyAvailableTitle(titleMl: MLText, locale: Locale): String? {
         val result = MLText.getClosestValue(titleMl, locale)
-        return if (result.isBlank()) {
+        return result.ifBlank {
             null
-        } else {
-            result
         }
     }
 }

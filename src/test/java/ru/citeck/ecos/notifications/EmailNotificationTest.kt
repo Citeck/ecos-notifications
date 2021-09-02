@@ -21,6 +21,7 @@ import ru.citeck.ecos.notifications.domain.notification.service.NotificationServ
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 import javax.mail.internet.MimeMultipart
 
@@ -96,6 +97,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithImportsTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -127,6 +129,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithIncludeTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -155,6 +158,7 @@ class EmailNotificationTest {
     @Test
     fun sendTemplatedEnEmailTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -177,6 +181,7 @@ class EmailNotificationTest {
     @Test
     fun sendTemplatedRuEmailTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
             recipients = setOf("some-recipient@gmail.com"),
@@ -199,6 +204,7 @@ class EmailNotificationTest {
     @Test
     fun sendTemplatedHtmlEnEmailTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -221,6 +227,7 @@ class EmailNotificationTest {
     @Test
     fun sendTemplatedHtmlRuEmailTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
             recipients = setOf("some-recipient@gmail.com"),
@@ -243,6 +250,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailToMultipleRecipientsTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
             recipients = setOf("some-recipient@gmail.com", "some-recipient-1@gmail.com", "some-recipient2@gmail.com"),
@@ -260,6 +268,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithoutLocaleShouldUseEnLocaleTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             recipients = setOf("some-recipient@gmail.com"),
             template = notificationTemplate,
@@ -281,6 +290,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithNotExistTitleLocaleShouldUseDefaultTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.FRENCH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -304,6 +314,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithNotExistBodyLocaleShouldUseExistsLocaleTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -327,6 +338,7 @@ class EmailNotificationTest {
     @Test
     fun sendEmailWithChangedTemplateTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -361,6 +373,7 @@ class EmailNotificationTest {
     @Test
     fun emailBeansTest() {
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("en"),
             recipients = setOf("some-recipient@gmail.com"),
@@ -391,6 +404,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -456,6 +470,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -518,6 +533,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -558,6 +574,7 @@ class EmailNotificationTest {
         localModel["_attachments"] = listOf<Map<String, Any>>()
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -581,6 +598,7 @@ class EmailNotificationTest {
         localModel["_attachments"] = mapOf<String, Any>()
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -611,6 +629,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -638,6 +657,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -665,6 +685,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -692,6 +713,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -719,6 +741,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -746,6 +769,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -773,6 +797,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),
@@ -800,6 +825,7 @@ class EmailNotificationTest {
         )
 
         val notification = RawNotification(
+            record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf("some-recipient@gmail.com"),

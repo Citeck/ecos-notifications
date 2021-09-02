@@ -121,6 +121,7 @@ class HandleFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -157,6 +158,7 @@ class HandleFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -197,6 +199,7 @@ class HandleFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",

@@ -66,6 +66,7 @@ class NotificationCommandTest {
     @Test
     fun sendMultiTemplateNotificationWithoutEcosTypeShouldUseBaseTemplate() {
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -96,6 +97,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -127,6 +129,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
@@ -158,6 +161,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -189,6 +193,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
@@ -216,6 +221,7 @@ class NotificationCommandTest {
     fun sendEmailNotificationViaCommand() {
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -247,6 +253,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -278,6 +285,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -309,6 +317,7 @@ class NotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            record = null,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
