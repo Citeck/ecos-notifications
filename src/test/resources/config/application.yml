@@ -116,9 +116,3 @@ ecos-notifications:
     ttl: 30000
     delay: 5000
     min-try-count: 1
-
-ecos:
-  event:
-    app:
-      instance-id: notifications
-      name: notifications

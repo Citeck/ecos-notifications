@@ -196,9 +196,3 @@ spring.rabbitmq:
 ecos-notifications:
   failure-notification:
     delay: 600000
-
-ecos:
-  event:
-    app:
-      instance-id: notifications
-      name: notifications
