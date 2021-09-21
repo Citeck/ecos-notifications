@@ -29,20 +29,29 @@ class SendNotificationCommandExecutor(
     override fun execute(command: SendNotificationCommand): Any? {
         val currentCommandUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
 
-        return AuthContext.runAs(currentCommandUser) {
-            try {
-                unsafeSendNotificationCommandExecutor.execute(command)
-            } catch (e: Exception) {
-                log.error("Failed execute notification command", e)
-
-                failureNotificationService.holdFailure(command, e)
-
-                val failureEventInfo = prepareFailureEventInfo(command, e)
-
-                notificationEventService.emitSendFailure(failureEventInfo)
-
-                SendNotificationResult("error", e.message ?: "")
+        //TODO: Are the ecos-commands supposed to be run themselves under the command user auth?
+        return if (currentCommandUser.isNotBlank()) {
+            AuthContext.runAs(currentCommandUser) {
+                executeImpl(command)
             }
+        } else {
+            executeImpl(command)
+        }
+    }
+
+    private fun executeImpl(command: SendNotificationCommand): Any? {
+        return try {
+            unsafeSendNotificationCommandExecutor.execute(command)
+        } catch (e: Exception) {
+            log.error("Failed execute notification command", e)
+
+            failureNotificationService.holdFailure(command, e)
+
+            val failureEventInfo = prepareFailureEventInfo(command, e)
+
+            notificationEventService.emitSendFailure(failureEventInfo)
+
+            SendNotificationResult("error", e.message ?: "")
         }
     }
 
