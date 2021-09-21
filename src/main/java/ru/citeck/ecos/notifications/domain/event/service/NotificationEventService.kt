@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import ru.citeck.ecos.events2.EventsService
 import ru.citeck.ecos.events2.emitter.EmitterConfig
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
-import ru.citeck.ecos.records3.record.request.RequestContext
 
 @Service
 class NotificationEventService(
@@ -18,7 +17,6 @@ class NotificationEventService(
     companion object {
         private const val SUCCESS_NOTIFICATION_EVENT_TYPE = "ecos.notification.send.success"
         private const val FAILURE_NOTIFICATION_EVENT_TYPE = "ecos.notification.send.failure"
-        private const val CURRENT_USER_ATT = "currentUser"
     }
 
     private val emitterSuccess = eventsService.getEmitter(EmitterConfig.create<NotificationEventDto> {
@@ -33,24 +31,12 @@ class NotificationEventService(
         eventClass = NotificationEventDto::class.java
     })
 
-    fun emitSendSuccess(notificationEvent: NotificationEventDto, currentUser: String) {
-        RequestContext.doWithAtts(
-            mapOf(
-                CURRENT_USER_ATT to currentUser,
-            )
-        ) { _ ->
-            emitterSuccess.emit(notificationEvent)
-        }
+    fun emitSendSuccess(notificationEvent: NotificationEventDto) {
+        emitterSuccess.emit(notificationEvent)
     }
 
-    fun emitSendFailure(notificationEvent: NotificationEventDto, currentUser: String) {
-        RequestContext.doWithAtts(
-            mapOf(
-                CURRENT_USER_ATT to currentUser,
-            )
-        ) { _ ->
-            emitterFailure.emit(notificationEvent)
-        }
+    fun emitSendFailure(notificationEvent: NotificationEventDto) {
+        emitterFailure.emit(notificationEvent)
     }
 
 }

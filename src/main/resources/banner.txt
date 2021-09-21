@@ -1,2 +1,2 @@
 
-${AnsiColor.BRIGHT_BLUE}:: ECOS :: Running Spring Boot ${spring-boot.version} ::${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE}:: ECOS NOTIFICATIONS :: Running Spring Boot ${spring-boot.version} ::${AnsiColor.DEFAULT}

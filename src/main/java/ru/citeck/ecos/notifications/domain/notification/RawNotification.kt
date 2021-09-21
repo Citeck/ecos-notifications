@@ -9,7 +9,6 @@ val DEFAULT_LOCALE: Locale = Locale.ENGLISH
 
 data class RawNotification(
     var record: RecordRef,
-    var currentUser: String = "",
     val type: NotificationType,
     val locale: Locale = DEFAULT_LOCALE,
     val recipients: Set<String>,

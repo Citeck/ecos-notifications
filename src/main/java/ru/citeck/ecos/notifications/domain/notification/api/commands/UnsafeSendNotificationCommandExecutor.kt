@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.commands.CommandsServiceFactory
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
@@ -25,8 +24,7 @@ private const val ECOS_TYPE_ID_KEY = "_etype?id"
 class UnsafeSendNotificationCommandExecutor(
     val notificationService: NotificationService,
     val notificationTemplateService: NotificationTemplateService,
-    val predicateService: PredicateService,
-    val commandsServiceFactory: CommandsServiceFactory
+    val predicateService: PredicateService
 ) {
 
     companion object {
@@ -34,9 +32,7 @@ class UnsafeSendNotificationCommandExecutor(
     }
 
     fun execute(command: SendNotificationCommand): SendNotificationResult {
-        val currentUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
-
-        log.debug { "Execute notification command:\n$command \ncurrentUser: $currentUser" }
+        log.debug { "Execute notification command:\n$command" }
 
         val baseTemplate = getTemplateMetaById(command.templateRef.id)
 
@@ -64,7 +60,6 @@ class UnsafeSendNotificationCommandExecutor(
 
         val notification = RawNotification(
             record = record,
-            currentUser = currentUser,
             template = template,
             type = command.type,
             locale = locale,

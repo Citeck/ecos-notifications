@@ -5,9 +5,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
-import ru.citeck.ecos.notifications.domain.notification.api.commands.SendNotificationCommandExecutor
 import ru.citeck.ecos.notifications.domain.notification.api.commands.UnsafeSendNotificationCommandExecutor
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
@@ -48,7 +48,9 @@ class FailureNotificationService(
             log.info { "Found notification error. Count: ${activeFailures.size}" }
         }
 
-        activeFailures.forEach { failure -> reexecuteCommand(failure) }
+        AuthContext.runAsSystem {
+            activeFailures.forEach { failure -> reexecuteCommand(failure) }
+        }
     }
 
     private fun reexecuteCommand(failure: FailureNotificationEntity) {
@@ -58,7 +60,8 @@ class FailureNotificationService(
             val currentTryCount = failure.tryingCount ?: 0
 
             if (currentTryCount > props.failureNotification.minTryCount
-                && props.failureNotification.ttl >= INFINITY_TTL) {
+                && props.failureNotification.ttl >= INFINITY_TTL
+            ) {
                 val created = failure.createdDate
                     ?: throw IllegalStateException("Created date cannot be null. $failure")
                 val now = Instant.now()

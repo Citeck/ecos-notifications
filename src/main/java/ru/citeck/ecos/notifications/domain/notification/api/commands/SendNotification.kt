@@ -5,6 +5,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor
 import ru.citeck.ecos.commands.CommandsServiceFactory
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.domain.event.dto.ErrorInfo
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
@@ -26,22 +27,22 @@ class SendNotificationCommandExecutor(
     }
 
     override fun execute(command: SendNotificationCommand): Any? {
-        return try {
-            unsafeSendNotificationCommandExecutor.execute(command)
-        } catch (e: Exception) {
-            log.error("Failed execute notification command", e)
+        val currentCommandUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
 
-            failureNotificationService.holdFailure(command, e)
+        return AuthContext.runAs(currentCommandUser) {
+            try {
+                unsafeSendNotificationCommandExecutor.execute(command)
+            } catch (e: Exception) {
+                log.error("Failed execute notification command", e)
 
-            val currentUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
-            val failureEventInfo = prepareFailureEventInfo(command, e)
+                failureNotificationService.holdFailure(command, e)
 
-            notificationEventService.emitSendFailure(
-                failureEventInfo,
-                currentUser
-            )
+                val failureEventInfo = prepareFailureEventInfo(command, e)
 
-            SendNotificationResult("error", e.message ?: "")
+                notificationEventService.emitSendFailure(failureEventInfo)
+
+                SendNotificationResult("error", e.message ?: "")
+            }
         }
     }
 
