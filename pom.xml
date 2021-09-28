@@ -10,7 +10,7 @@
     <parent>
         <groupId>ru.citeck.ecos</groupId>
         <artifactId>ecos-micro-base</artifactId>
-        <version>3.32.2</version>
+        <version>3.33.0</version>
     </parent>
 
     <repositories>
@@ -529,6 +529,11 @@
         <dependency>
             <groupId>ru.citeck.ecos.rabbitmq</groupId>
             <artifactId>ecos-rabbitmq-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.citeck.ecos.model</groupId>
+            <artifactId>ecos-model-lib-spring</artifactId>
         </dependency>
 
         <dependency>
