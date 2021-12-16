@@ -2,14 +2,14 @@ package ru.citeck.ecos.notifications.domain.event.service
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.events2.EventService
+import ru.citeck.ecos.events2.EventsService
 import ru.citeck.ecos.events2.emitter.EmitterConfig
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.records3.record.request.RequestContext
 
 @Service
 class NotificationEventService(
-    eventService: EventService,
+    eventService: EventsService,
 
     @Value("\${spring.application.name}")
     private val appName: String
