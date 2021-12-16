@@ -66,7 +66,8 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
 
     @Override
     protected void processImpl(Delivery message, EventDto dto, ActionEntity action, Map<String, Object> model) {
-        log.debug("Process DTO: \n" + dto);
+        log.debug("FirebaseNotificationProcessor Process start. DTO: \n" + dto);
+
         JsonNode config;
         try {
             config = OBJECT_MAPPER.readValue(action.getConfigJSON(), JsonNode.class);
@@ -237,12 +238,13 @@ public class FirebaseNotificationProcessor extends ActionProcessor {
     @Getter
     private static class Template {
 
+        private final String title;
+        private final String body;
+
         Template(String title, String body) {
             this.title = title;
             this.body = body;
         }
 
-        private String title;
-        private String body;
     }
 }
