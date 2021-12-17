@@ -16,8 +16,8 @@ import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
 import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records3.RecordsService;
 import ru.citeck.ecos.records2.rest.RemoteRecordsUtils;
+import ru.citeck.ecos.records3.RecordsService;
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts;
 
 import javax.script.ScriptEngine;
@@ -26,8 +26,8 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Roman Makarskiy
@@ -89,7 +89,7 @@ public abstract class ActionProcessor {
         return result;
     }
 
-    private CustomDataEntity[] getTemplatedData(List<CustomDataEntity> customData, JsonNode dtoData) {
+    private CustomDataEntity[] getTemplatedData(Set<CustomDataEntity> customData, JsonNode dtoData) {
         String customDataToProcess;
         try {
             customDataToProcess = OBJECT_MAPPER.writeValueAsString(customData);
@@ -122,7 +122,7 @@ public abstract class ActionProcessor {
             result = scriptEngine.eval(conditionScript,
                 new SimpleBindings(model));
         } catch (ScriptException e) {
-            log.error("Failed eval groove script:\n" + conditionScript + "\n action:\n" + action , e);
+            log.error("Failed eval groove script:\n" + conditionScript + "\n action:\n" + action, e);
         }
 
         log.debug(String.format("Evaluate groovy condition... \n" +

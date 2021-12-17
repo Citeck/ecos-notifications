@@ -6,8 +6,8 @@ import ru.citeck.ecos.notifications.domain.BaseEntity;
 import ru.citeck.ecos.notifications.lib.NotificationType;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Roman Makarskiy
@@ -26,7 +26,7 @@ public class ActionEntity extends BaseEntity {
 
     @JoinColumn(name = "action")
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<CustomDataEntity> customData = new ArrayList<>();
+    private Set<CustomDataEntity> customData = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;

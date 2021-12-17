@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
+import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,7 +26,6 @@ import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,8 +78,8 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
             final String id = meta.getId().getId();
             ActionEntity resultAction;
 
-            String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG) != null
-                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).asText() : "";
+            String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG).isNotNull()
+                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).toString() : "";
 
             if (StringUtils.isNotBlank(updateConfig)) {
                 resultAction = processUpdateActionConfig(id, updateConfig);
@@ -128,7 +128,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
         }
 
         String config = actionNode.get(PARAM_ACTION_CONFIG).isNotNull()
-            ? actionNode.get(PARAM_ACTION_CONFIG).asText() : null;
+            ? actionNode.get(PARAM_ACTION_CONFIG).toString() : null;
         String condition = actionNode.get(PARAM_ACTION_CONDITION).isNotNull()
             ? actionNode.get(PARAM_ACTION_CONDITION).asText() : null;
 
@@ -145,7 +145,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
             newAction.setType(NotificationType.valueOf(actionType));
             newAction.setConfigJSON(config);
             newAction.setCondition(condition);
-            newAction.setCustomData(Arrays.asList(customData));
+            newAction.setCustomData(Sets.newHashSet(customData));
 
             resultAction = actionService.save(newAction);
 
@@ -157,7 +157,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
             exists.setType(NotificationType.valueOf(actionType));
             exists.setConfigJSON(config);
             exists.setCondition(condition);
-            exists.setCustomData(Arrays.asList(customData));
+            exists.setCustomData(Sets.newHashSet(customData));
 
             actionService.save(exists);
 

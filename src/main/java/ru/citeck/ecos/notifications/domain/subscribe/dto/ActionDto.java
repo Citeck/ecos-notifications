@@ -6,7 +6,7 @@ import lombok.Data;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.lib.NotificationType;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Roman Makarskiy
@@ -18,6 +18,6 @@ public class ActionDto {
     private NotificationType type;
     private String condition;
     private JsonNode config = NullNode.getInstance();
-    private List<CustomDataEntity> customData;
+    private Set<CustomDataEntity> customData;
 
 }

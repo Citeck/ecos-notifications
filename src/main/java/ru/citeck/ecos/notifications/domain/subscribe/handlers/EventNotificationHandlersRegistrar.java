@@ -50,6 +50,11 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
 
     @Override
     public void registerImpl(String tenantId) {
+        if (eventConnection == null) {
+            log.warn("Receive not registered, cause eventConnection is nit found");
+            return;
+        }
+
         try {
             eventConnection.receive(RECEIVE_ALL_KEY, QUEUE_NOTIFICATION_NAME, tenantId,
                 (consumerTag, message, channel) -> {
