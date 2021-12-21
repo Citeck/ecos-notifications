@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
 import ru.citeck.ecos.notifications.domain.notification.service.FailureNotificationService
@@ -133,7 +134,7 @@ class HandleFailureNotificationTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("error")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
         allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
         assertThat(allFailures.size).isEqualTo(2)
@@ -170,7 +171,7 @@ class HandleFailureNotificationTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("error")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
         errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
         assertThat(errorFailures.size).isEqualTo(2)
@@ -211,7 +212,7 @@ class HandleFailureNotificationTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("error")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
         errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
         assertThat(errorFailures.size).isEqualTo(2)

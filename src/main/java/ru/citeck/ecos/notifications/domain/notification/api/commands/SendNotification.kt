@@ -10,6 +10,7 @@ import ru.citeck.ecos.notifications.domain.event.dto.ErrorInfo
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.service.FailureNotificationService
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
@@ -51,7 +52,7 @@ class SendNotificationCommandExecutor(
 
             notificationEventService.emitSendFailure(failureEventInfo)
 
-            SendNotificationResult("error", e.message ?: "")
+            SendNotificationResult(NotificationResultStatus.ERROR.value, e.message ?: "")
         }
     }
 

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
@@ -33,6 +34,17 @@ class UnsafeSendNotificationCommandExecutor(
 
     fun execute(command: SendNotificationCommand): SendNotificationResult {
         log.debug { "Execute notification command:\n$command" }
+
+        if (recipientsNotSpecified(command)) {
+            log.warn {
+                "Notification not sent, no recipients found. " +
+                    "Template: ${command.templateRef}, record: ${command.record}"
+            }
+            return SendNotificationResult(
+                NotificationResultStatus.RECIPIENTS_NOT_FOUND.value,
+                "Notification not sent, no recipients found"
+            )
+        }
 
         val baseTemplate = getTemplateMetaById(command.templateRef.id)
 
@@ -72,7 +84,11 @@ class UnsafeSendNotificationCommandExecutor(
 
         notificationService.send(notification)
 
-        return SendNotificationResult("ok", "")
+        return SendNotificationResult(NotificationResultStatus.OK.value, "")
+    }
+
+    private fun recipientsNotSpecified(command: SendNotificationCommand): Boolean {
+        return command.recipients.isEmpty() && command.cc.isEmpty() && command.bcc.isEmpty()
     }
 
     private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
