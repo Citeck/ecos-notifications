@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import ecos.com.fasterxml.jackson210.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,7 +42,7 @@ public class FirebaseConfig {
             return;
         }
 
-        FirebaseOptions options = getOptionsFromConfig(appProps.getFirebase().getCredentials());
+        FirebaseOptions options = getOptionsFromAppProps();
         if (options == null) {
             options = getOptionsFromClassPath(appProps.getFirebase().getCredentialClassPath());
         }
@@ -53,24 +55,35 @@ public class FirebaseConfig {
         }
     }
 
-    private FirebaseOptions getOptionsFromConfig(Map<String, Object> credentials) {
+    private FirebaseOptions getOptionsFromAppProps() {
+        ApplicationProperties.Credentials credentials = appProps.getFirebase().getCredentials();
 
-        if (credentials == null || credentials.isEmpty()) {
+        if (StringUtils.isBlank(credentials.getPrivateKeyId())) {
             return null;
         }
 
         log.info("Init firebase app from credentials config");
-
-        byte[] bytes = Json.getMapper().toBytes(credentials);
-        if (bytes == null) {
-            return null;
-        }
+        Map<String, Object> credentialsData = new HashMap<>();
+        credentialsData.put("type", credentials.getType());
+        credentialsData.put("project_id", credentials.getProjectId());
+        credentialsData.put("private_key_id", credentials.getPrivateKeyId());
+        credentialsData.put("private_key", credentials.getPrivateKey());
+        credentialsData.put("client_email", credentials.getClientEmail());
+        credentialsData.put("client_id", credentials.getClientId());
+        credentialsData.put("auth_uri", credentials.getAuthUri());
+        credentialsData.put("token_uri", credentials.getTokenUri());
+        credentialsData.put("auth_provider_x509_cert_url", credentials.getAuthProviderX509CertUrl());
+        credentialsData.put("client_x509_cert_url", credentials.getClientX509CertUrl());
 
         try {
+            JsonNode jsonNode = Json.getMapper().toJson(credentialsData);
+            byte[] bytes = jsonNode.toString().replaceAll("\\\\n", "\\n").getBytes();
+
             return getOptionsFromInputStream(new ByteArrayInputStream(bytes));
         } catch (Exception e) {
             log.error("Credentials reading error", e);
         }
+
         return null;
     }
 
