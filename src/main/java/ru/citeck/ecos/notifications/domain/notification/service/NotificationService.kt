@@ -60,8 +60,7 @@ class NotificationService(
                     notificationType = rawNotification.type,
                     notification = fitNotification,
                     model = rawNotification.model
-                ),
-                rawNotification.currentUser
+                )
             )
 
         }

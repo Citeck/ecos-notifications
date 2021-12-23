@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -77,7 +78,7 @@ class HoldFailureNotificationTest {
 
         val allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
 
-        assertThat(result!!.status).isEqualTo("error")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
         assertThat(allFailures.size).isEqualTo(1)
         assertThat(allFailures[0].errorMessage).contains("Invalid locale format")
     }
@@ -101,7 +102,7 @@ class HoldFailureNotificationTest {
 
         val allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
 
-        assertThat(result!!.status).isEqualTo("error")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
         assertThat(allFailures.size).isEqualTo(1)
         assertThat(allFailures[0].errorMessage).contains("Mail server connection failed")
     }

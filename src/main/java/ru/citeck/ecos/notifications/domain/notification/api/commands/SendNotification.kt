@@ -5,10 +5,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor
 import ru.citeck.ecos.commands.CommandsServiceFactory
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.domain.event.dto.ErrorInfo
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.service.FailureNotificationService
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
@@ -26,6 +28,19 @@ class SendNotificationCommandExecutor(
     }
 
     override fun execute(command: SendNotificationCommand): Any? {
+        val currentCommandUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
+
+        //TODO: Are the ecos-commands supposed to be run themselves under the command user auth?
+        return if (currentCommandUser.isNotBlank()) {
+            AuthContext.runAs(currentCommandUser) {
+                executeImpl(command)
+            }
+        } else {
+            executeImpl(command)
+        }
+    }
+
+    private fun executeImpl(command: SendNotificationCommand): Any? {
         return try {
             unsafeSendNotificationCommandExecutor.execute(command)
         } catch (e: Exception) {
@@ -33,15 +48,11 @@ class SendNotificationCommandExecutor(
 
             failureNotificationService.holdFailure(command, e)
 
-            val currentUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
             val failureEventInfo = prepareFailureEventInfo(command, e)
 
-            notificationEventService.emitSendFailure(
-                failureEventInfo,
-                currentUser
-            )
+            notificationEventService.emitSendFailure(failureEventInfo)
 
-            SendNotificationResult("error", e.message ?: "")
+            SendNotificationResult(NotificationResultStatus.ERROR.value, e.message ?: "")
         }
     }
 

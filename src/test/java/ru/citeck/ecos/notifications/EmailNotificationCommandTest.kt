@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -22,7 +23,7 @@ import ru.citeck.ecos.records2.RecordRef
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class NotificationCommandTest {
+class EmailNotificationCommandTest {
 
     @Autowired
     private lateinit var commandsService: CommandsService
@@ -43,19 +44,33 @@ class NotificationCommandTest {
         templateModel["lastName"] = "Petrenko"
         templateModel["age"] = "25"
 
-        val notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java)!!
+        val notificationTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTemplate)
 
-        val multiTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/multi-template/test-multi-template.json"), NotificationTemplateWithMeta::class.java)!!
-        val multiType1Template = Json.mapper.convert(stringJsonFromResource(
-            "template/multi-template/test-type-1-template.json"), NotificationTemplateWithMeta::class.java)!!
-        val multiType2Template = Json.mapper.convert(stringJsonFromResource(
-            "template/multi-template/test-type-2-template.json"), NotificationTemplateWithMeta::class.java)!!
-        val multiType3Template = Json.mapper.convert(stringJsonFromResource(
-            "template/multi-template/test-multi-template-with-condition.json"), NotificationTemplateWithMeta::class.java)!!
+        val multiTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/multi-template/test-multi-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
+        val multiType1Template = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/multi-template/test-type-1-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
+        val multiType2Template = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/multi-template/test-type-2-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
+        val multiType3Template = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/multi-template/test-multi-template-with-condition.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(multiTemplate)
         notificationTemplateService.save(multiType1Template)
@@ -78,7 +93,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -109,7 +124,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -141,7 +156,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -173,7 +188,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -205,7 +220,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -233,7 +248,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -243,6 +258,24 @@ class NotificationCommandTest {
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
+    }
+
+    @Test
+    fun sendEmailNotificationCommandWithoutRecipientsStatusCheck() {
+        val command = SendNotificationCommand(
+            record = null,
+            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = emptySet(),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.RECIPIENTS_NOT_FOUND.value)
     }
 
     @Test
@@ -265,7 +298,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -297,7 +330,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
@@ -329,7 +362,7 @@ class NotificationCommandTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        assertThat(result!!.status).isEqualTo("ok")
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
 
         val emails = greenMail.receivedMessages
 
