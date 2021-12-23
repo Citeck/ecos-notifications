@@ -12,7 +12,6 @@ import java.util.Set;
 /**
  * @author Roman Makarskiy
  */
-@Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Table(name = "actions")
@@ -31,4 +30,46 @@ public class ActionEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    public String getConfigJSON() {
+        return configJSON;
+    }
+
+    public void setConfigJSON(String configJSON) {
+        this.configJSON = configJSON;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public Set<CustomDataEntity> getCustomData() {
+        return customData;
+    }
+
+    public void setCustomData(Set<CustomDataEntity> customData) {
+        this.customData = customData;
+    }
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public void setType(NotificationType type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "ActionEntity{" +
+            "id=" + id +
+            ", configJSON='" + configJSON + '\'' +
+            ", condition='" + condition + '\'' +
+            ", customData=" + customData +
+            ", type=" + type +
+            '}';
+    }
 }

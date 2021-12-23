@@ -37,6 +37,7 @@ class NotificationService(
         val title = prepareTitle(rawNotification.template, rawNotification.locale, rawNotification.model)
         val body = prepareBody(rawNotification.template, rawNotification.locale, rawNotification.model)
         val attachments = prepareAttachments(rawNotification.model)
+        val data = prepareData(rawNotification.model)
 
         val foundProviders = providers[rawNotification.type]
             ?: throw NotificationException("Provider with notification type: ${rawNotification.type} not registered}")
@@ -49,7 +50,8 @@ class NotificationService(
                 from = rawNotification.from,
                 cc = rawNotification.cc,
                 bcc = rawNotification.bcc,
-                attachments = attachments
+                attachments = attachments,
+                data = data
             )
 
             it.send(fitNotification)
@@ -79,6 +81,16 @@ class NotificationService(
         return freemarkerService.process(template.id + "_title", titleTemplate, model)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private fun prepareData(model: Map<String, Any>): Map<String, Any> {
+        if (model[NotificationConstants.DATA] == null) {
+            return emptyMap()
+        }
+
+        return model[NotificationConstants.DATA] as Map<String, Any>
+    }
+
+    @Suppress("UNCHECKED_CAST")
     private fun prepareAttachments(model: Map<String, Any>): Map<String, DataSource> {
 
         val attachments = model[NotificationConstants.ATTACHMENTS] as? List<Map<String, Any>>

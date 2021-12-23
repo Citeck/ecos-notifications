@@ -46,14 +46,11 @@ public class NotificationsDefault {
 
             }
 
-            public static final String DEFAULT_FIREBASE_TASK_CREATE_TITLE = "Назначена задача";
-            public static final String DEFAULT_FIREBASE_TASK_CREATE_BODY = "${event.workflowDescription}";
-            public static final String DEFAULT_FIREBASE_TASK_ASSIGN_TITLE = "Назначена задача";
-            public static final String DEFAULT_FIREBASE_TASK_ASSIGN_BODY = "${event.workflowDescription}";
-            public static final String DEFAULT_FIREBASE_TASK_COMPLETE_TITLE = "Завершена задача";
-            public static final String DEFAULT_FIREBASE_TASK_COMPLETE_BODY = "${event.workflowDescription}";
-            public static final String DEFAULT_FIREBASE_TASK_DELETE_TITLE = "Удалена задача";
-            public static final String DEFAULT_FIREBASE_TASK_DELETE_BODY = "${event.workflowDescription}";
+            //TODO: templates recordRef
+            public static final String DEFAULT_TASK_CREATE_TEMPLATE = "Назначена задача";
+            public static final String DEFAULT_TASK_ASSIGN_TEMPLATE = "Назначена задача";
+            public static final String DEFAULT_TASK_COMPLETE_TEMPLATE = "Завершена задача";
+            public static final String DEFAULT_TASK_DELETE_TEMPLATE = "Удалена задача";
 
         }
 

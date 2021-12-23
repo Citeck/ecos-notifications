@@ -3,13 +3,13 @@ package ru.citeck.ecos.notifications.service.providers
 import mu.KotlinLogging
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
-@Service
+@Component
 class EmailNotificationProvider(
     private val emailSender: JavaMailSender,
     properties: ApplicationProperties
@@ -19,11 +19,15 @@ class EmailNotificationProvider(
 
     private val emailProps = initEmailProps(properties)
 
+    companion object {
+        val resultOk = ProviderResult("ok")
+    }
+
     override fun getType(): NotificationType {
         return NotificationType.EMAIL_NOTIFICATION
     }
 
-    override fun send(fitNotification: FitNotification) {
+    override fun send(fitNotification: FitNotification) : ProviderResult {
         log.debug("Send email notification: $fitNotification")
 
         val msg = emailSender.createMimeMessage()
@@ -43,6 +47,8 @@ class EmailNotificationProvider(
         }
 
         emailSender.send(msg)
+
+        return resultOk
     }
 
     private fun setFrom(msgHelper: MimeMessageHelper, notification: FitNotification) {

@@ -66,7 +66,7 @@ management:
     web:
       base-path: /management
       exposure:
-        include: ["configprops", "env", "health", "info", "threaddump", "logfile", "jhi-metrics", "prometheus" ]
+        include: [ "configprops", "env", "health", "info", "threaddump", "logfile", "jhi-metrics", "prometheus" ]
   endpoint:
     health:
       show-details: when-authorized
@@ -196,3 +196,8 @@ spring.rabbitmq:
 ecos-notifications:
   failure-notification:
     delay: 600000
+
+notifications:
+  default:
+    locale: en
+    from: ecos.notifications@citeck.ru

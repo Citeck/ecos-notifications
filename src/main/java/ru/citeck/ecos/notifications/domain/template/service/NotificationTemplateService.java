@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Service
+@Service("domainNotificationTemplateService")
 public class NotificationTemplateService {
 
     private final NotificationTemplateRepository templateRepository;

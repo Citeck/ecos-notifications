@@ -116,3 +116,8 @@ ecos-notifications:
     ttl: 30000
     delay: 5000
     min-try-count: 1
+
+notifications:
+  default:
+    locale: en
+    from: ecos.notifications@citeck.ru

@@ -1,250 +1,148 @@
-package ru.citeck.ecos.notifications.service.processors;
+package ru.citeck.ecos.notifications.service.processors
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.messaging.*;
-import com.rabbitmq.client.Delivery;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
-import ru.citeck.ecos.events.data.dto.EventDto;
-import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory;
-import ru.citeck.ecos.events.data.dto.task.TaskEventDto;
-import ru.citeck.ecos.events.data.dto.task.TaskEventType;
-import ru.citeck.ecos.notifications.config.ApplicationProperties;
-import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
-import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
-import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
-import ru.citeck.ecos.notifications.service.TemplateService;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.rabbitmq.client.Delivery
+import lombok.extern.slf4j.Slf4j
+import mu.KotlinLogging
+import org.apache.commons.lang.StringUtils
+import org.springframework.stereotype.Component
+import ru.citeck.ecos.events.data.dto.EventDto
+import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
+import ru.citeck.ecos.events.data.dto.task.TaskEventDto
+import ru.citeck.ecos.events.data.dto.task.TaskEventType
+import ru.citeck.ecos.notifications.config.ApplicationProperties
+import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
+import ru.citeck.ecos.notifications.lib.Notification
+import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.lib.service.NotificationService
+import ru.citeck.ecos.notifications.service.providers.ACTION_ENTITY_ID
+import ru.citeck.ecos.notifications.service.providers.DEVICE_TYPE_KEY
+import ru.citeck.ecos.notifications.service.providers.FirebaseNotificationException
+import ru.citeck.ecos.notifications.service.providers.MESSAGE_DATA_KEY
+import ru.citeck.ecos.records2.RecordRef
+import java.io.IOException
 
 /**
+ *  //TODO: Make the class universal, at the moment it is possible to send notifications only about the TaskEvent event
+ *
  * @author Roman Makarskiy
  */
+
 @Slf4j
 @Component
-public class FirebaseNotificationProcessor extends ActionProcessor {
+class FirebaseNotificationProcessor(
+    val notificationService: NotificationService,
+    val appProps: ApplicationProperties
+) : ActionProcessor() {
 
-    private static final String ID = "FIREBASE_NOTIFICATION";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private val log = KotlinLogging.logger {}
 
-    private static final String ERROR_CODE_TOKEN_NOT_REGISTERED = "registration-token-not-registered";
-
-    private static final String PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken";
-    private static final String PARAM_DEVICE_TYPE = "deviceType";
-    private static final String TEMPLATE_ID = "templateId";
-    private static final String TITLE_TEMPLATE = "titleTemplate";
-    private static final String BODY_TEMPLATE = "bodyTemplate";
-    private static final String DEVICE_ANDROID = "android";
-    private static final String DEVICE_IOS = "ios";
-    private static final String PARAM_TASK_ID = "taskId";
-    private static final String PARAM_DOCUMENT = "documentRef";
-    private static final String TITLE_TEMPLATE_KEY = "titleTemplate";
-    private static final String BODY_TEMPLATE_KEY = "bodyTemplate";
-
-    private final FreemarkerTemplateEngineService templateEngineService;
-    private final TemplateService templateService;
-    private final ApplicationProperties appProps;
-    private final ActionService actionService;
-
-    {
-        setId(ID);
+    companion object {
+        private val OBJECT_MAPPER = ObjectMapper()
+        private const val PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken"
+        private const val PARAM_DEVICE_TYPE = "deviceType"
+        private const val PARAM_LOCALE = "locale"
+        private const val PARAM_TEMPLATE_ID = "templateId"
+        private const val PARAM_TASK_ID = "taskId"
+        private const val PARAM_DOCUMENT = "documentRef"
     }
 
-    public FirebaseNotificationProcessor(FreemarkerTemplateEngineService templateEngineService,
-                                         TemplateService templateService, ApplicationProperties appProps,
-                                         ActionService actionService) {
-        this.templateEngineService = templateEngineService;
-        this.templateService = templateService;
-        this.appProps = appProps;
-        this.actionService = actionService;
+    init {
+        id = "FIREBASE_NOTIFICATION"
     }
 
-    @Override
-    protected void processImpl(Delivery message, EventDto dto, ActionEntity action, Map<String, Object> model) {
-        log.debug("FirebaseNotificationProcessor Process start. DTO: \n" + dto);
+    override fun processImpl(message: Delivery, dto: EventDto, action: ActionEntity, model: Map<String, Any>) {
 
-        JsonNode config;
-        try {
-            config = OBJECT_MAPPER.readValue(action.getConfigJSON(), JsonNode.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed read json from string", e);
-        }
+        log.debug("FirebaseNotificationProcessor Process start. DTO: \n$dto")
 
-        if (!config.hasNonNull(PARAM_FIREBASE_CLIENT_REG_TOKEN)) {
-            throw new IllegalStateException("Action config does not contains firebase registration token");
-        }
+        val notificationTransformer = NotificationTransformer(dto, action)
 
-        if (!config.hasNonNull(PARAM_DEVICE_TYPE)) {
-            throw new IllegalStateException("Action config does not contains device type");
-        }
+        val notification = Notification.Builder()
+            .record(notificationTransformer.record())
+            .templateRef(notificationTransformer.template())
+            .notificationType(NotificationType.EMAIL_NOTIFICATION)
+            .recipients(notificationTransformer.recipients())
+            .additionalMeta(notificationTransformer.additionalMeta())
+            .build()
 
-        String eventType = dto.resolveType();
-        Template template = getTemplate(eventType, config);
-
-        String title = templateEngineService.process(TITLE_TEMPLATE_KEY, template.getTitle(), model);
-        String body = templateEngineService.process(BODY_TEMPLATE_KEY, template.getBody(), model);
-
-        String registrationToken = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText();
-        String deviceType = config.get(PARAM_DEVICE_TYPE).asText();
-
-        Message fireBaseMessage;
-        Map<String, String> customData = prepareCustomData(dto);
-
-        switch (deviceType) {
-            case DEVICE_ANDROID: {
-                fireBaseMessage = buildAndroidMessage(title, body, registrationToken, customData);
-                break;
-            }
-            case DEVICE_IOS: {
-                fireBaseMessage = buildIosMessage(title, body, registrationToken, customData);
-                break;
-            }
-            default: {
-                throw new IllegalStateException("Unsupported device type");
-            }
-        }
-
-        String response;
-        try {
-            log.debug(String.format("Trying send message to firebase...\ntitle: <%s>\nbody: <%s>\ncustomData: <%s>",
-                title, body, customData));
-            response = FirebaseMessaging.getInstance().send(fireBaseMessage);
-            log.debug("Successfully sent message: " + response);
-        } catch (FirebaseMessagingException e) {
-            if (ERROR_CODE_TOKEN_NOT_REGISTERED.equals(e.getErrorCode())) {
-                log.info("Delete action, because token is not registered. Action:\n" + action);
-                actionService.deleteById(action.getId());
-            } else {
-                log.error("Failed to send firebase message", e);
-            }
-        }
+        notificationService.send(notification)
     }
 
-    private Template getTemplate(String eventType, JsonNode config) {
-        String titleTemplate = getDefaultTitleTemplate(eventType);
-        String bodyTemplate = getDefaultBodyTemplate(eventType);
+    inner class NotificationTransformer(eventDto: EventDto, action: ActionEntity) {
 
-        if (config.hasNonNull(TEMPLATE_ID)) {
-            String templateId = config.get(TEMPLATE_ID).asText();
-            titleTemplate = templateService.getTitleTemplate(templateId);
-            bodyTemplate = templateService.getBodyTemplate(templateId);
-        } else {
-            if (config.hasNonNull(TITLE_TEMPLATE)) {
-                titleTemplate = config.get(TITLE_TEMPLATE).asText();
+        private val taskEventDto: TaskEventDto
+        private val config: JsonNode
+
+        init {
+            config = try {
+                OBJECT_MAPPER.readValue(action.configJSON, JsonNode::class.java)
+            } catch (e: IOException) {
+                throw RuntimeException("Failed read json from string", e)
             }
 
-            if (config.hasNonNull(BODY_TEMPLATE)) {
-                bodyTemplate = config.get(BODY_TEMPLATE).asText();
+            check(config.hasNonNull(PARAM_FIREBASE_CLIENT_REG_TOKEN)) {
+                "Action config does not contains firebase registration token"
+            }
+            check(config.hasNonNull(PARAM_DEVICE_TYPE)) { "Action config does not contains device type" }
+
+            taskEventDto = EventDtoFactory.fromEventDto(eventDto)
+        }
+
+        val record = fun(): RecordRef {
+            return RecordRef.valueOf(taskEventDto.document)
+        }
+
+        val template = fun(): RecordRef {
+            val templateFromConfig = config[PARAM_TEMPLATE_ID].asText()
+
+            if (templateFromConfig.isNullOrBlank()) return RecordRef.valueOf(templateFromConfig)
+
+            return getDefaultTemplate(eventDto.resolveType())
+        }
+
+        val locale = fun(): String {
+            val locale = config[PARAM_LOCALE].asText()
+            return if (StringUtils.isNotBlank(locale)) locale else "ru"
+        }
+
+        val recipients = fun(): Set<String> {
+            return setOf(config[PARAM_FIREBASE_CLIENT_REG_TOKEN].asText())
+        }
+
+        val additionalMeta = fun(): Map<String, Any> {
+            val messageData = mutableMapOf<String, String>()
+            val taskId = taskEventDto.taskInstanceId
+            if (StringUtils.isNotBlank(taskId)) {
+                messageData[PARAM_TASK_ID] = taskId
+            }
+
+            val doc = taskEventDto.document
+            if (StringUtils.isNotBlank(doc)) {
+                messageData[PARAM_DOCUMENT] = doc
+            }
+
+            return mutableMapOf(
+                MESSAGE_DATA_KEY to messageData,
+                DEVICE_TYPE_KEY to config[PARAM_DEVICE_TYPE].asText(),
+                ACTION_ENTITY_ID to action.id,
+                "task" to RecordRef.create("alfresco", "wftask", taskId)
+            )
+        }
+
+        private fun getDefaultTemplate(eventType: String): RecordRef {
+            return when (TaskEventType.resolve(eventType)) {
+                TaskEventType.ASSIGN -> RecordRef.valueOf(appProps.firebase.template.defaultTaskAssignTemplate)
+                TaskEventType.CREATE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskCreateTemplate)
+                TaskEventType.COMPLETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskCompleteTemplate)
+                TaskEventType.DELETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskDeleteTemplate)
+                else -> {
+                    throw FirebaseNotificationException("Event type <$eventType> not supported")
+                }
             }
         }
-
-        return new Template(titleTemplate, bodyTemplate);
     }
 
-    private Map<String, String> prepareCustomData(EventDto dto) {
-        if (!StringUtils.startsWith(dto.resolveType(), "task.")) {
-            return new HashMap<>();
-        }
-        TaskEventDto taskEventDTO = EventDtoFactory.fromEventDto(dto);
-        Map<String, String> data = new HashMap<>();
-
-        String taskId = taskEventDTO.getTaskInstanceId();
-        if (StringUtils.isNotBlank(taskId)) {
-            data.put(PARAM_TASK_ID, taskId);
-        }
-
-        String doc = taskEventDTO.getDocument();
-        if (StringUtils.isNotBlank(doc)) {
-            data.put(PARAM_DOCUMENT, doc);
-        }
-
-        return data;
-    }
-
-    private String getDefaultTitleTemplate(String eventType) {
-        switch (TaskEventType.resolve(eventType)) {
-            case ASSIGN:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignTitle();
-            case CREATE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateTitle();
-            case COMPLETE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteTitle();
-            case DELETE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteTitle();
-            default:
-                log.warn(String.format("Event type: <%s> not supported", eventType));
-                return "unsupported event type";
-        }
-    }
-
-    private String getDefaultBodyTemplate(String eventType) {
-        switch (TaskEventType.resolve(eventType)) {
-            case ASSIGN:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskAssignBody();
-            case CREATE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCreateBody();
-            case COMPLETE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskCompleteBody();
-            case DELETE:
-                return appProps.getFirebase().getTemplate().getDefaultFirebaseTaskDeleteBody();
-            default:
-                log.warn(String.format("Event type: <%s> not supported", eventType));
-                return "unsupported event type";
-        }
-    }
-
-    private Message buildAndroidMessage(String title, String body, String registrationToken, Map<String, String> data) {
-        return Message.builder()
-            .setNotification(new Notification(
-                title,
-                body))
-            .setAndroidConfig(AndroidConfig.builder()
-                .setTtl(3600 * 1000)
-                .setNotification(AndroidNotification.builder()
-                    .setIcon("stock_ticker_update")
-                    .setColor("#f45342")
-                    .build())
-                .build())
-            .setApnsConfig(ApnsConfig.builder()
-                .setAps(Aps.builder()
-                    .setBadge(42)
-                    .build())
-                .build())
-            .putAllData(data)
-            .setToken(registrationToken)
-            .build();
-    }
-
-    private Message buildIosMessage(String title, String body, String registrationToken, Map<String, String> data) {
-        return Message.builder()
-            .setNotification(new Notification(
-                title,
-                body))
-            .setApnsConfig(ApnsConfig.builder()
-                .setAps(Aps.builder()
-                    .setBadge(42)
-                    .build())
-                .build())
-            .putAllData(data)
-            .setToken(registrationToken)
-            .build();
-    }
-
-    @Getter
-    private static class Template {
-
-        private final String title;
-        private final String body;
-
-        Template(String title, String body) {
-            this.title = title;
-            this.body = body;
-        }
-
-    }
 }
+
+

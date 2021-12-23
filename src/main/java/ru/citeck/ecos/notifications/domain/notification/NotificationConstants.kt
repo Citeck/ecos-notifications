@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification
 class NotificationConstants {
 
     companion object {
+        const val DATA: String = "_data"
         const val ATTACHMENTS: String = "_attachments"
         const val BYTES: String = "bytes"
         const val PREVIEW_INFO: String = "previewInfo"

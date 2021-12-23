@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import ru.citeck.ecos.commons.data.DataValue;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,88 +156,47 @@ public class ApplicationProperties {
 
     public static class Template {
 
-        //TODO: get from default real templates
-        private String defaultFirebaseTaskCreateTitle = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_CREATE_TITLE;
-        private String defaultFirebaseTaskAssignTitle = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_ASSIGN_TITLE;
-        private String defaultFirebaseTaskCompleteTitle = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_COMPLETE_TITLE;
-        private String defaultFirebaseTaskDeleteTitle = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_DELETE_TITLE;
+        private String defaultTaskCreateTemplate = NotificationsDefault.Firebase.Template
+            .DEFAULT_TASK_CREATE_TEMPLATE;
+        private String defaultTaskAssignTemplate = NotificationsDefault.Firebase.Template
+            .DEFAULT_TASK_ASSIGN_TEMPLATE;
+        private String defaultTaskCompleteTemplate = NotificationsDefault.Firebase.Template
+            .DEFAULT_TASK_COMPLETE_TEMPLATE;
+        private String defaultTaskDeleteTemplate = NotificationsDefault.Firebase.Template
+            .DEFAULT_TASK_DELETE_TEMPLATE;
 
-        private String defaultFirebaseTaskCreateBody = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_CREATE_BODY;
-        private String defaultFirebaseTaskAssignBody = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_ASSIGN_BODY;
-        private String defaultFirebaseTaskCompleteBody = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_COMPLETE_BODY;
-        private String defaultFirebaseTaskDeleteBody = NotificationsDefault.Firebase.Template
-            .DEFAULT_FIREBASE_TASK_DELETE_BODY;
-
-        public String getDefaultFirebaseTaskCreateTitle() {
-            return this.defaultFirebaseTaskCreateTitle;
+        public String getDefaultTaskCreateTemplate() {
+            return this.defaultTaskCreateTemplate;
         }
 
-        public String getDefaultFirebaseTaskAssignTitle() {
-            return this.defaultFirebaseTaskAssignTitle;
+        public String getDefaultTaskAssignTemplate() {
+            return this.defaultTaskAssignTemplate;
         }
 
-        public String getDefaultFirebaseTaskCompleteTitle() {
-            return this.defaultFirebaseTaskCompleteTitle;
+        public String getDefaultTaskCompleteTemplate() {
+            return this.defaultTaskCompleteTemplate;
         }
 
-        public String getDefaultFirebaseTaskDeleteTitle() {
-            return this.defaultFirebaseTaskDeleteTitle;
+        public String getDefaultTaskDeleteTemplate() {
+            return this.defaultTaskDeleteTemplate;
         }
 
-        public String getDefaultFirebaseTaskCreateBody() {
-            return this.defaultFirebaseTaskCreateBody;
+        public void setDefaultTaskCreateTemplate(String defaultTaskCreateTemplate) {
+            this.defaultTaskCreateTemplate = defaultTaskCreateTemplate;
         }
 
-        public String getDefaultFirebaseTaskAssignBody() {
-            return this.defaultFirebaseTaskAssignBody;
+        public void setDefaultTaskAssignTemplate(String defaultTaskAssignTemplate) {
+            this.defaultTaskAssignTemplate = defaultTaskAssignTemplate;
         }
 
-        public String getDefaultFirebaseTaskCompleteBody() {
-            return this.defaultFirebaseTaskCompleteBody;
+        public void setDefaultTaskCompleteTemplate(String defaultTaskCompleteTemplate) {
+            this.defaultTaskCompleteTemplate = defaultTaskCompleteTemplate;
         }
 
-        public String getDefaultFirebaseTaskDeleteBody() {
-            return this.defaultFirebaseTaskDeleteBody;
+        public void setDefaultTaskDeleteTemplate(String defaultTaskDeleteTemplate) {
+            this.defaultTaskDeleteTemplate = defaultTaskDeleteTemplate;
         }
 
-        public void setDefaultFirebaseTaskCreateTitle(String defaultFirebaseTaskCreateTitle) {
-            this.defaultFirebaseTaskCreateTitle = defaultFirebaseTaskCreateTitle;
-        }
-
-        public void setDefaultFirebaseTaskAssignTitle(String defaultFirebaseTaskAssignTitle) {
-            this.defaultFirebaseTaskAssignTitle = defaultFirebaseTaskAssignTitle;
-        }
-
-        public void setDefaultFirebaseTaskCompleteTitle(String defaultFirebaseTaskCompleteTitle) {
-            this.defaultFirebaseTaskCompleteTitle = defaultFirebaseTaskCompleteTitle;
-        }
-
-        public void setDefaultFirebaseTaskDeleteTitle(String defaultFirebaseTaskDeleteTitle) {
-            this.defaultFirebaseTaskDeleteTitle = defaultFirebaseTaskDeleteTitle;
-        }
-
-        public void setDefaultFirebaseTaskCreateBody(String defaultFirebaseTaskCreateBody) {
-            this.defaultFirebaseTaskCreateBody = defaultFirebaseTaskCreateBody;
-        }
-
-        public void setDefaultFirebaseTaskAssignBody(String defaultFirebaseTaskAssignBody) {
-            this.defaultFirebaseTaskAssignBody = defaultFirebaseTaskAssignBody;
-        }
-
-        public void setDefaultFirebaseTaskCompleteBody(String defaultFirebaseTaskCompleteBody) {
-            this.defaultFirebaseTaskCompleteBody = defaultFirebaseTaskCompleteBody;
-        }
-
-        public void setDefaultFirebaseTaskDeleteBody(String defaultFirebaseTaskDeleteBody) {
-            this.defaultFirebaseTaskDeleteBody = defaultFirebaseTaskDeleteBody;
-        }
     }
 
     public static class Credentials {

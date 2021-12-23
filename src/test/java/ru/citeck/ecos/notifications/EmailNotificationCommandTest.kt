@@ -81,7 +81,7 @@ class EmailNotificationCommandTest {
     @Test
     fun sendMultiTemplateNotificationWithoutEcosTypeShouldUseBaseTemplate() {
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -112,7 +112,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -144,7 +144,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
@@ -176,7 +176,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -208,7 +208,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
@@ -236,7 +236,7 @@ class EmailNotificationCommandTest {
     fun sendEmailNotificationViaCommand() {
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -263,7 +263,7 @@ class EmailNotificationCommandTest {
     @Test
     fun sendEmailNotificationCommandWithoutRecipientsStatusCheck() {
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -286,7 +286,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -318,7 +318,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
@@ -350,7 +350,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",

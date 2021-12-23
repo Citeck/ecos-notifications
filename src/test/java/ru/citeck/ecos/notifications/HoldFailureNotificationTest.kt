@@ -64,7 +64,7 @@ class HoldFailureNotificationTest {
     @Test
     fun sendNotificationWithPotentialErrorShouldSaveFailureNotification() {
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "some_fail",
@@ -88,7 +88,7 @@ class HoldFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
-            record = null,
+            record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",

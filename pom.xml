@@ -9,7 +9,7 @@
     <parent>
         <groupId>ru.citeck.ecos</groupId>
         <artifactId>ecos-micro-base</artifactId>
-        <version>3.38.0</version>
+        <version>3.39.2</version>
     </parent>
 
     <repositories>
@@ -521,6 +521,12 @@
         <dependency>
             <groupId>ru.citeck.ecos</groupId>
             <artifactId>ecos-apps-lib-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.citeck.ecos</groupId>
+            <artifactId>ecos-notifications-lib-spring</artifactId>
+            <version>${ecos.notifications-lib.version}</version>
         </dependency>
 
         <dependency>

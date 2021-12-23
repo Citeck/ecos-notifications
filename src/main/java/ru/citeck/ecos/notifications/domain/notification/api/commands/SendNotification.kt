@@ -40,7 +40,7 @@ class SendNotificationCommandExecutor(
         }
     }
 
-    private fun executeImpl(command: SendNotificationCommand): Any? {
+    private fun executeImpl(command: SendNotificationCommand): Any {
         return try {
             unsafeSendNotificationCommandExecutor.execute(command)
         } catch (e: Exception) {

@@ -14,7 +14,6 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    @Getter
     protected Long id;
 
     @Override
@@ -28,5 +27,9 @@ public abstract class BaseEntity {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

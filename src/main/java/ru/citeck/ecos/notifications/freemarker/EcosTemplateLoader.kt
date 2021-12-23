@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.freemarker
 
 import freemarker.cache.TemplateLoader
 import org.apache.commons.lang3.StringUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
@@ -16,6 +17,7 @@ const val LANG_SPECIFY_SEPARATOR = "_"
 
 @Component
 class EcosTemplateLoader(
+    @Qualifier("domainNotificationTemplateService")
     private val templateService: NotificationTemplateService
 ) : TemplateLoader {
 

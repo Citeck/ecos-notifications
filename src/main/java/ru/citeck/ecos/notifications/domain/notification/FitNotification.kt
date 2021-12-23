@@ -9,5 +9,6 @@ data class FitNotification(
     val from: String,
     var cc: Set<String> = emptySet(),
     var bcc: Set<String> = emptySet(),
-    var attachments: Map<String, DataSource> = emptyMap()
+    var attachments: Map<String, DataSource> = emptyMap(),
+    var data: Map<String, Any> = emptyMap()
 )
