@@ -1,0 +1,23 @@
+{
+  "id": "test-firebase-message-template",
+  "name": "test-firebase-message-template",
+  "notificationTitle": {
+    "en": "New task: ${taskTitle}",
+    "ru": "Новая задача: ${taskTitle}"
+  },
+  "model": {
+    "taskTitle": "$task.title",
+    "documentTitle": ".disp",
+    "_data": "$notificationData?json"
+  },
+  "templateData": {
+    "ru": {
+      "name": "test-firebase-message-template.html_ru.ftl",
+      "data": "0J3QvtCy0LDRjyDQt9Cw0LTQsNGH0LAg0L/QviDQtNC+0LrRg9C80LXQvdGC0YM6ICR7ZG9jdW1lbnRUaXRsZX0="
+    },
+    "en": {
+      "name": "test-firebase-message-template.html_en.ftl",
+      "data": "TmV3IHRhc2sgb24gZG9jdW1lbnQ6ICR7ZG9jdW1lbnRUaXRsZX0="
+    }
+  }
+}

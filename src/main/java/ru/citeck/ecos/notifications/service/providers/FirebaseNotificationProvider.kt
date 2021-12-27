@@ -7,10 +7,6 @@ import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.NotificationType
 
-const val DEVICE_TYPE_KEY = "device-type"
-const val ACTION_ENTITY_ID = "action-entity-id"
-const val MESSAGE_DATA_KEY = "message-data"
-
 
 @Component
 class FirebaseNotificationProvider(
@@ -61,20 +57,24 @@ class FirebaseNotificationProvider(
     }
 
     private fun resolveDeviceType(fitNotification: FitNotification): DeviceType {
-        val device = fitNotification.data[DEVICE_TYPE_KEY] as String
-        return DeviceType.valueOf(device)
+        val device = fitNotification.data[FIREBASE_DEVICE_TYPE_KEY] as String
+        return DeviceType.from(device)
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun resolveMessageData(fitNotification: FitNotification): Map<String, String> {
-        return fitNotification.data[MESSAGE_DATA_KEY] as Map<String, String>
+        if (!fitNotification.data.containsKey(FIREBASE_MESSAGE_DATA_KEY)) {
+            return emptyMap()
+        }
+
+        return fitNotification.data[FIREBASE_MESSAGE_DATA_KEY] as Map<String, String>
     }
 
     private fun deleteSubscriptionAction(fitNotification: FitNotification) {
         val actionId: Long
 
         try {
-            actionId = fitNotification.data[ACTION_ENTITY_ID] as Long
+            actionId = fitNotification.data[FIREBASE_ACTION_ENTITY_ID_KEY] as Long
             actionService.deleteById(actionId)
         } catch (e: Exception) {
             log.error("Failed to delete subscription action by id", e)

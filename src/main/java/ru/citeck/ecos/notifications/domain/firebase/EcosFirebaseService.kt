@@ -123,7 +123,7 @@ enum class DeviceType(val value: String) {
     ANDROID("android"), IOS("ios");
 
     companion object {
-        fun valueOf(value: String): DeviceType = values().find { it.value == value }
+        fun from(value: String): DeviceType = values().find { it.value == value }
             ?: throw IllegalArgumentException("Device type for value: $value not found")
     }
 }

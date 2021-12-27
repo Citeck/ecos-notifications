@@ -12,15 +12,12 @@ import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto
 import ru.citeck.ecos.events.data.dto.task.TaskEventType
 import ru.citeck.ecos.notifications.config.ApplicationProperties
-import ru.citeck.ecos.notifications.domain.firebase.EcosFirebaseNotificationException
+import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.service.NotificationService
-import ru.citeck.ecos.notifications.service.providers.ACTION_ENTITY_ID
-import ru.citeck.ecos.notifications.service.providers.DEVICE_TYPE_KEY
-import ru.citeck.ecos.notifications.service.providers.MESSAGE_DATA_KEY
 import ru.citeck.ecos.records2.RecordRef
 import java.io.IOException
 
@@ -41,13 +38,11 @@ class FirebaseNotificationProcessor(
     private val log = KotlinLogging.logger {}
 
     companion object {
-        private val OBJECT_MAPPER = ObjectMapper()
         private const val PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken"
-        private const val PARAM_DEVICE_TYPE = "deviceType"
         private const val PARAM_LOCALE = "locale"
         private const val PARAM_TEMPLATE_ID = "templateId"
-        private const val PARAM_TASK_ID = "taskId"
-        private const val PARAM_DOCUMENT = "documentRef"
+
+        private val OBJECT_MAPPER = ObjectMapper()
     }
 
     init {
@@ -73,7 +68,7 @@ class FirebaseNotificationProcessor(
         val notification = Notification.Builder()
             .record(notificationTransformer.record())
             .templateRef(notificationTransformer.template())
-            .notificationType(NotificationType.EMAIL_NOTIFICATION)
+            .notificationType(NotificationType.FIREBASE_NOTIFICATION)
             .recipients(notificationTransformer.recipients())
             .additionalMeta(notificationTransformer.additionalMeta())
             .build()
@@ -134,21 +129,26 @@ class FirebaseNotificationProcessor(
         }
 
         val additionalMeta = fun(): Map<String, Any> {
-            val messageData = mutableMapOf<String, String>()
+            val firebaseMessageData = mutableMapOf<String, String>()
+
             val taskId = taskEventDto.taskInstanceId
             if (StringUtils.isNotBlank(taskId)) {
-                messageData[PARAM_TASK_ID] = taskId
+                firebaseMessageData[FIREBASE_MESSAGE_DATA_TASK_ID] = taskId
             }
 
             val doc = taskEventDto.document
             if (StringUtils.isNotBlank(doc)) {
-                messageData[PARAM_DOCUMENT] = doc
+                firebaseMessageData[FIREBASE_MESSAGE_DATA_DOCUMENT] = doc
             }
 
+            val notificationData = mutableMapOf<String, Any>()
+
+            notificationData[FIREBASE_MESSAGE_DATA_KEY] = firebaseMessageData
+            notificationData[FIREBASE_DEVICE_TYPE_KEY] =  config[FIREBASE_DEVICE_TYPE_KEY].asText()
+            notificationData[FIREBASE_ACTION_ENTITY_ID_KEY] = action.id.toString()
+
             return mutableMapOf(
-                MESSAGE_DATA_KEY to messageData,
-                DEVICE_TYPE_KEY to config[PARAM_DEVICE_TYPE].asText(),
-                ACTION_ENTITY_ID to action.id,
+                FIREBASE_NOTIFICATION_DATA_KEY to notificationData,
                 "task" to RecordRef.create("alfresco", "wftask", taskId)
             )
         }
