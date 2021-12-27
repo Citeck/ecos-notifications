@@ -7,7 +7,5 @@ interface NotificationProvider {
 
     fun getType(): NotificationType
 
-    fun send(fitNotification: FitNotification): ProviderResult
+    fun send(fitNotification: FitNotification)
 }
-
-data class ProviderResult(val code: String)

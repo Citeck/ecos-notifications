@@ -19,15 +19,11 @@ class EmailNotificationProvider(
 
     private val emailProps = initEmailProps(properties)
 
-    companion object {
-        val resultOk = ProviderResult("ok")
-    }
-
     override fun getType(): NotificationType {
         return NotificationType.EMAIL_NOTIFICATION
     }
 
-    override fun send(fitNotification: FitNotification) : ProviderResult {
+    override fun send(fitNotification: FitNotification) {
         log.debug("Send email notification: $fitNotification")
 
         val msg = emailSender.createMimeMessage()
@@ -47,8 +43,6 @@ class EmailNotificationProvider(
         }
 
         emailSender.send(msg)
-
-        return resultOk
     }
 
     private fun setFrom(msgHelper: MimeMessageHelper, notification: FitNotification) {

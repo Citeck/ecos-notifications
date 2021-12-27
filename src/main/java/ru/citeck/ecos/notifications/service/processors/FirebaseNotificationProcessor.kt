@@ -12,13 +12,14 @@ import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto
 import ru.citeck.ecos.events.data.dto.task.TaskEventType
 import ru.citeck.ecos.notifications.config.ApplicationProperties
+import ru.citeck.ecos.notifications.domain.firebase.EcosFirebaseNotificationException
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
+import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.service.NotificationService
 import ru.citeck.ecos.notifications.service.providers.ACTION_ENTITY_ID
 import ru.citeck.ecos.notifications.service.providers.DEVICE_TYPE_KEY
-import ru.citeck.ecos.notifications.service.providers.FirebaseNotificationException
 import ru.citeck.ecos.notifications.service.providers.MESSAGE_DATA_KEY
 import ru.citeck.ecos.records2.RecordRef
 import java.io.IOException
@@ -33,6 +34,7 @@ import java.io.IOException
 @Component
 class FirebaseNotificationProcessor(
     val notificationService: NotificationService,
+    val actionService: ActionService,
     val appProps: ApplicationProperties
 ) : ActionProcessor() {
 
@@ -56,7 +58,17 @@ class FirebaseNotificationProcessor(
 
         log.debug("FirebaseNotificationProcessor Process start. DTO: \n$dto")
 
-        val notificationTransformer = NotificationTransformer(dto, action)
+        val config = getValidConfig(action)
+        if (config == null) {
+            log.error(
+                "Firebase notification not send, because config is not valid. " +
+                    "Action ${action.id} will be deleted."
+            )
+            actionService.deleteById(action.id)
+            return
+        }
+
+        val notificationTransformer = NotificationTransformer(dto, config, action)
 
         val notification = Notification.Builder()
             .record(notificationTransformer.record())
@@ -69,23 +81,34 @@ class FirebaseNotificationProcessor(
         notificationService.send(notification)
     }
 
-    inner class NotificationTransformer(eventDto: EventDto, action: ActionEntity) {
+    private fun getValidConfig(action: ActionEntity): JsonNode? {
+        val config = try {
+            OBJECT_MAPPER.readValue(action.configJSON, JsonNode::class.java)
+        } catch (e: IOException) {
+            log.error("Failed read json from string. Action: $action", e)
+            return null
+        }
+
+        val regToken = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText()
+        if (regToken.isNullOrBlank()) {
+            log.error("Token is empty. Action: $action")
+            return null
+        }
+
+        val deviceType = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText()
+        if (deviceType.isNullOrBlank()) {
+            log.error("Device type is empty. Action: $action")
+            return null
+        }
+
+        return config
+    }
+
+    inner class NotificationTransformer(eventDto: EventDto, config: JsonNode, action: ActionEntity) {
 
         private val taskEventDto: TaskEventDto
-        private val config: JsonNode
 
         init {
-            config = try {
-                OBJECT_MAPPER.readValue(action.configJSON, JsonNode::class.java)
-            } catch (e: IOException) {
-                throw RuntimeException("Failed read json from string", e)
-            }
-
-            check(config.hasNonNull(PARAM_FIREBASE_CLIENT_REG_TOKEN)) {
-                "Action config does not contains firebase registration token"
-            }
-            check(config.hasNonNull(PARAM_DEVICE_TYPE)) { "Action config does not contains device type" }
-
             taskEventDto = EventDtoFactory.fromEventDto(eventDto)
         }
 
@@ -137,7 +160,7 @@ class FirebaseNotificationProcessor(
                 TaskEventType.COMPLETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskCompleteTemplate)
                 TaskEventType.DELETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskDeleteTemplate)
                 else -> {
-                    throw FirebaseNotificationException("Event type <$eventType> not supported")
+                    throw EcosFirebaseNotificationException("Event type <$eventType> not supported")
                 }
             }
         }
