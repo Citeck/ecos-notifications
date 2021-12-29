@@ -1,1 +1,1 @@
-${documentTitle}
+${documentTitle!""}
