@@ -6,6 +6,7 @@ import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.events.data.dto.EventDto
 import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto
@@ -50,7 +51,12 @@ class FirebaseNotificationProcessor(
     private lateinit var defaultLocale: String
 
     override fun processImpl(message: Delivery, dto: EventDto, action: ActionEntity, model: Map<String, Any>) {
+        AuthContext.runAsSystem {
+            sendFirebaseNotification(dto, action)
+        }
+    }
 
+    private fun sendFirebaseNotification(dto: EventDto, action: ActionEntity) {
         log.debug("FirebaseNotificationProcessor Process start. DTO: \n$dto")
 
         val config = getValidConfig(action)
