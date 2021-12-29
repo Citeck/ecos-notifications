@@ -1,16 +1,14 @@
 package ru.citeck.ecos.notifications.domain.type
 
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.notifications.config.records.EcosTypeInfo
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.source.dao.local.RemoteSyncRecordsDao
+import ru.citeck.ecos.records2.source.dao.local.InMemRecordsDao
 
-@Profile("!test")
 @Component
-class EcosTypesRepo(val syncRecordsDao: RemoteSyncRecordsDao<EcosTypeInfo>) : TypesRepo {
+class EcosTypesRepo(val syncRecordsDao: InMemRecordsDao<EcosTypeInfo>) : TypesRepo {
 
     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
         return emptyList()

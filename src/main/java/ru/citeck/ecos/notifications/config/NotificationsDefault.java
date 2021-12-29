@@ -46,11 +46,10 @@ public class NotificationsDefault {
 
             }
 
-            //TODO: templates recordRef
-            public static final String DEFAULT_TASK_CREATE_TEMPLATE = "Назначена задача";
-            public static final String DEFAULT_TASK_ASSIGN_TEMPLATE = "Назначена задача";
-            public static final String DEFAULT_TASK_COMPLETE_TEMPLATE = "Завершена задача";
-            public static final String DEFAULT_TASK_DELETE_TEMPLATE = "Удалена задача";
+            public static final String DEFAULT_TASK_CREATE_TEMPLATE = "notifications/template@default-task-create-firbase-message-template";
+            public static final String DEFAULT_TASK_ASSIGN_TEMPLATE = "notifications/template@default-task-assign-firbase-message-template";
+            public static final String DEFAULT_TASK_COMPLETE_TEMPLATE = "notifications/template@default-task-complete-firbase-message-template";
+            public static final String DEFAULT_TASK_DELETE_TEMPLATE = "notifications/template@default-task-delete-firbase-message-template";
 
         }
 

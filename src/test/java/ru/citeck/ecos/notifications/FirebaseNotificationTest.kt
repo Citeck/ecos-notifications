@@ -55,7 +55,7 @@ class FirebaseNotificationTest {
         )
 
         val messageData = mapOf(
-            FIREBASE_DEVICE_TYPE_KEY to deviceType.value,
+            FIREBASE_CONFIG_DEVICE_TYPE_KEY to deviceType.value,
             FIREBASE_MESSAGE_DATA_KEY to firebaseMessageData
         )
 

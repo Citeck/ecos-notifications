@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import ru.citeck.ecos.records2.source.dao.local.InMemRecordsDao;
 import ru.citeck.ecos.records2.source.dao.local.RemoteSyncRecordsDao;
 import ru.citeck.ecos.records3.RecordsProperties;
 
@@ -21,8 +22,14 @@ public class RecordsConfig {
 
     @Profile("!test")
     @Bean(name = "remoteTypesSyncRecordsDao")
-    public RemoteSyncRecordsDao<EcosTypeInfo> createRemoteTypesSyncRecordsDao() {
+    public InMemRecordsDao<EcosTypeInfo> createRemoteTypesSyncRecordsDao() {
         return new RemoteSyncRecordsDao<>("emodel/type", "emodel/rtype", EcosTypeInfo.class);
+    }
+
+    @Profile("test")
+    @Bean(name = "remoteTypesSyncRecordsDao")
+    public InMemRecordsDao<EcosTypeInfo> createInMemRemoteTypesSyncRecordsDao() {
+        return new InMemRecordsDao<>("emodel/type");
     }
 
 }

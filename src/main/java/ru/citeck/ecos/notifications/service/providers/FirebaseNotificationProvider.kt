@@ -57,7 +57,7 @@ class FirebaseNotificationProvider(
     }
 
     private fun resolveDeviceType(fitNotification: FitNotification): DeviceType {
-        val device = fitNotification.data[FIREBASE_DEVICE_TYPE_KEY] as String
+        val device = fitNotification.data[FIREBASE_CONFIG_DEVICE_TYPE_KEY] as String
         return DeviceType.from(device)
     }
 

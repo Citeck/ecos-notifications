@@ -1,12 +1,11 @@
 package ru.citeck.ecos.notifications.service.processors
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.rabbitmq.client.Delivery
 import lombok.extern.slf4j.Slf4j
 import mu.KotlinLogging
-import org.apache.commons.lang.StringUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.events.data.dto.EventDto
 import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto
@@ -38,16 +37,17 @@ class FirebaseNotificationProcessor(
     private val log = KotlinLogging.logger {}
 
     companion object {
-        private const val PARAM_FIREBASE_CLIENT_REG_TOKEN = "fireBaseClientRegToken"
-        private const val PARAM_LOCALE = "locale"
-        private const val PARAM_TEMPLATE_ID = "templateId"
-
-        private val OBJECT_MAPPER = ObjectMapper()
+        private const val WORKSPACE_SPACES_STORE = "workspace://SpacesStore/"
+        private const val ALFRESCO_APP = "alfresco"
+        private const val WF_TASK_SOURCE_ID = "wftask"
     }
 
     init {
         id = "FIREBASE_NOTIFICATION"
     }
+
+    @Value("\${notifications.default.locale}")
+    private lateinit var defaultLocale: String
 
     override fun processImpl(message: Delivery, dto: EventDto, action: ActionEntity, model: Map<String, Any>) {
 
@@ -71,27 +71,28 @@ class FirebaseNotificationProcessor(
             .notificationType(NotificationType.FIREBASE_NOTIFICATION)
             .recipients(notificationTransformer.recipients())
             .additionalMeta(notificationTransformer.additionalMeta())
+            .lang(notificationTransformer.locale())
             .build()
 
         notificationService.send(notification)
     }
 
-    private fun getValidConfig(action: ActionEntity): JsonNode? {
+    private fun getValidConfig(action: ActionEntity): ObjectData? {
         val config = try {
-            OBJECT_MAPPER.readValue(action.configJSON, JsonNode::class.java)
+            ObjectData.create(action.configJSON)
         } catch (e: IOException) {
             log.error("Failed read json from string. Action: $action", e)
             return null
         }
 
-        val regToken = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText()
-        if (regToken.isNullOrBlank()) {
+        val regToken = config.get(FIREBASE_CONFIG_CLIENT_REG_TOKEN).asText()
+        if (regToken.isBlank()) {
             log.error("Token is empty. Action: $action")
             return null
         }
 
-        val deviceType = config.get(PARAM_FIREBASE_CLIENT_REG_TOKEN).asText()
-        if (deviceType.isNullOrBlank()) {
+        val deviceType = config.get(FIREBASE_CONFIG_DEVICE_TYPE_KEY).asText()
+        if (deviceType.isBlank()) {
             log.error("Device type is empty. Action: $action")
             return null
         }
@@ -99,7 +100,7 @@ class FirebaseNotificationProcessor(
         return config
     }
 
-    inner class NotificationTransformer(eventDto: EventDto, config: JsonNode, action: ActionEntity) {
+    inner class NotificationTransformer(eventDto: EventDto, config: ObjectData, action: ActionEntity) {
 
         private val taskEventDto: TaskEventDto
 
@@ -108,48 +109,71 @@ class FirebaseNotificationProcessor(
         }
 
         val record = fun(): RecordRef {
-            return RecordRef.valueOf(taskEventDto.document)
+            if (taskEventDto.document.isNullOrBlank()) {
+                return RecordRef.EMPTY
+            }
+
+            val ref = RecordRef.valueOf(taskEventDto.document)
+            if (ref.appName.isBlank() && ref.id.startsWith(WORKSPACE_SPACES_STORE)) {
+                return RecordRef.create(ALFRESCO_APP, "", ref.id)
+            }
+
+            return ref
+        }
+
+        val task = fun(): RecordRef {
+            if (taskEventDto.taskInstanceId.isNullOrBlank()) {
+                return RecordRef.EMPTY
+            }
+
+            val ref = RecordRef.valueOf(taskEventDto.taskInstanceId)
+            val appName = ref.appName.ifBlank { ALFRESCO_APP }
+            val sourceId = ref.sourceId.ifBlank { WF_TASK_SOURCE_ID }
+
+            return RecordRef.create(appName, sourceId, ref.id)
         }
 
         val template = fun(): RecordRef {
-            val templateFromConfig = config[PARAM_TEMPLATE_ID].asText()
-
-            if (templateFromConfig.isNullOrBlank()) return RecordRef.valueOf(templateFromConfig)
-
-            return getDefaultTemplate(eventDto.resolveType())
+            config.get(FIREBASE_CONFIG_TEMPLATE_ID).asText().let { templateId ->
+                return if (templateId.isBlank()) {
+                    getDefaultTemplate(eventDto.resolveType())
+                } else {
+                    RecordRef.valueOf(templateId)
+                }
+            }
         }
 
         val locale = fun(): String {
-            val locale = config[PARAM_LOCALE].asText()
-            return if (StringUtils.isNotBlank(locale)) locale else "ru"
+            return config.get(FIREBASE_CONFIG_LOCALE).asText().ifBlank {
+                defaultLocale
+            }
         }
 
         val recipients = fun(): Set<String> {
-            return setOf(config[PARAM_FIREBASE_CLIENT_REG_TOKEN].asText())
+            config.get(FIREBASE_CONFIG_CLIENT_REG_TOKEN).asText().let { regToken ->
+                return if (regToken.isBlank()) {
+                    emptySet()
+                } else {
+                    setOf(regToken)
+                }
+            }
         }
 
         val additionalMeta = fun(): Map<String, Any> {
             val firebaseMessageData = mutableMapOf<String, String>()
 
-            val taskId = taskEventDto.taskInstanceId
-            if (StringUtils.isNotBlank(taskId)) {
-                firebaseMessageData[FIREBASE_MESSAGE_DATA_TASK_ID] = taskId
-            }
-
-            val doc = taskEventDto.document
-            if (StringUtils.isNotBlank(doc)) {
-                firebaseMessageData[FIREBASE_MESSAGE_DATA_DOCUMENT] = doc
-            }
+            firebaseMessageData[FIREBASE_MESSAGE_DATA_TASK_ID] = task().toString()
+            firebaseMessageData[FIREBASE_MESSAGE_DATA_DOCUMENT] = record().toString()
 
             val notificationData = mutableMapOf<String, Any>()
 
             notificationData[FIREBASE_MESSAGE_DATA_KEY] = firebaseMessageData
-            notificationData[FIREBASE_DEVICE_TYPE_KEY] =  config[FIREBASE_DEVICE_TYPE_KEY].asText()
+            notificationData[FIREBASE_CONFIG_DEVICE_TYPE_KEY] = config.get(FIREBASE_CONFIG_DEVICE_TYPE_KEY).asText()
             notificationData[FIREBASE_ACTION_ENTITY_ID_KEY] = action.id.toString()
 
             return mutableMapOf(
                 FIREBASE_NOTIFICATION_DATA_KEY to notificationData,
-                "task" to RecordRef.create("alfresco", "wftask", taskId)
+                FIREBASE_NOTIFICATION_TASK_KEY to task()
             )
         }
 

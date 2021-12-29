@@ -41,6 +41,8 @@ public abstract class ActionProcessor {
     private static final String GROOVY_ENGINE = "groovy";
     private static final String CUSTOM_DATA_TEMPLATE_KEY = "customDataTemplate";
 
+    private static final String WORKSPACE_SPACES_STORE = "workspace://SpacesStore/";
+
     private RecordsService recordsService;
     private FreemarkerTemplateEngineService templateEngineService;
 
@@ -79,7 +81,8 @@ public abstract class ActionProcessor {
         CustomDataEntity[] customData = getTemplatedData(action.getCustomData(), dtoData);
 
         for (CustomDataEntity data : customData) {
-            RecordRef recordRef = RecordRef.valueOf(data.getRecord());
+            RecordRef recordRef = resolveRecordRef(data.getRecord());
+
             RecordAtts attributes = RemoteRecordsUtils.runAsSystem(() ->
                 recordsService.getAtts(recordRef, data.getAttributes())
             );
@@ -87,6 +90,19 @@ public abstract class ActionProcessor {
         }
 
         return result;
+    }
+
+    private RecordRef resolveRecordRef(String id) {
+        if (StringUtils.isBlank(id)) {
+            return RecordRef.EMPTY;
+        }
+
+        RecordRef ref = RecordRef.valueOf(id);
+        if (StringUtils.isBlank(ref.getAppName()) && id.startsWith(WORKSPACE_SPACES_STORE)) {
+            return RecordRef.create("alfresco", "", id);
+        }
+
+        return ref;
     }
 
     private CustomDataEntity[] getTemplatedData(Set<CustomDataEntity> customData, JsonNode dtoData) {
