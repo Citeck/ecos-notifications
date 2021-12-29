@@ -80,6 +80,8 @@ class FirebaseNotificationProcessor(
             .lang(notificationTransformer.locale())
             .build()
 
+        log.debug { "Build notification: \n$notification" }
+
         notificationService.send(notification)
     }
 
