@@ -1,0 +1,9 @@
+---
+id: default-task-assign-firbase-message-template
+name: Стандартынй шаблон уведомления firebase при назначении задачи
+notificationTitle:
+  ru: "Новая задача: ${taskTitle}"
+model:
+  taskTitle: "$task.title"
+  documentTitle: ".disp"
+  _data: "$notificationData?json"

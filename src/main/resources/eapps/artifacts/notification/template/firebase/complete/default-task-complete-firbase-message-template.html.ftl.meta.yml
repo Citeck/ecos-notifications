@@ -1,0 +1,9 @@
+---
+id: default-task-complete-firbase-message-template
+name: Стандартынй шаблон уведомления firebase при завершении задачи
+notificationTitle:
+  ru: "Завершена задача: ${taskTitle}"
+model:
+  taskTitle: "$task.title"
+  documentTitle: ".disp"
+  _data: "$notificationData?json"
