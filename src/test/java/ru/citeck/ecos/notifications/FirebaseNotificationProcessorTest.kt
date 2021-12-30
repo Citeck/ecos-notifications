@@ -350,6 +350,63 @@ class FirebaseNotificationProcessorTest {
         verify(ecosFirebaseService).sendMessage(expectedMessage)
     }
 
+    //TODO: fix notification with empty record
+    /*@Test
+    fun firebaseNotificationWithoutDocument() {
+
+        val actionRef = recordsService.mutate(
+            RecordRef.create("notifications", "subscription-action", ""),
+            ObjectData.create(
+                """
+                {
+                  "subscriberId": "some-tenant-id|ivan",
+                  "eventType": "task.assign",
+                  "action": {
+                    "type": "FIREBASE_NOTIFICATION",
+                    "config": {
+                      "fireBaseClientRegToken": "test-token",
+                      "deviceType": "android",
+                      "locale": "ru"
+                    },
+                    "condition": "true"
+                  }
+                }
+                """.trimIndent().replace("\\", "")
+            )
+        )
+
+        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+
+
+        val eventDto = EventDto()
+        eventDto.data = objectMapper.readValue(
+            """
+            {
+              "type": "task.assign",
+              "id": "event-id-1",
+              "taskInstanceId": "${alfTaskRef.id}"
+            }
+        """.trimIndent(), JsonNode::class.java
+        )
+
+        val deliveryMessageStub = Delivery(null, null, null)
+
+        firebaseNotificationProcessor.process(deliveryMessageStub, eventDto, actionEntity)
+
+        val expectedMessage = FirebaseMessage(
+            title = "Новая задача: Согласование",
+            body = "",
+            token = "test-token",
+            deviceType = DeviceType.ANDROID,
+            messageData = mapOf(
+                FIREBASE_MESSAGE_DATA_TASK_ID to alfTaskRef.toString(),
+                FIREBASE_MESSAGE_DATA_DOCUMENT to alfDocRef.toString()
+            )
+        )
+
+        verify(ecosFirebaseService).sendMessage(expectedMessage)
+    }*/
+
     @Test
     fun firebaseNotificationWithExplicitFalseCondition() {
 
