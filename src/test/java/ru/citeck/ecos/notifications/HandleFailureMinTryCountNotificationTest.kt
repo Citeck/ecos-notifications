@@ -56,6 +56,7 @@ class HandleFailureMinTryCountNotificationTest {
             errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
 
             assertThat(errorFailures.size).isEqualTo(1)
+            assertThat(errorFailures[0].id).isEqualTo(activeFailureMinTryCount.id)
         }
     }
 
