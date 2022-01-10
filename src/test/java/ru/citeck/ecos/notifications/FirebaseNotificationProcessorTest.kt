@@ -350,8 +350,7 @@ class FirebaseNotificationProcessorTest {
         verify(ecosFirebaseService).sendMessage(expectedMessage)
     }
 
-    //TODO: fix notification with empty record
-    /*@Test
+    @Test
     fun firebaseNotificationWithoutDocument() {
 
         val actionRef = recordsService.mutate(
@@ -395,17 +394,17 @@ class FirebaseNotificationProcessorTest {
 
         val expectedMessage = FirebaseMessage(
             title = "Новая задача: Согласование",
-            body = "",
+            body = "\n",
             token = "test-token",
             deviceType = DeviceType.ANDROID,
             messageData = mapOf(
                 FIREBASE_MESSAGE_DATA_TASK_ID to alfTaskRef.toString(),
-                FIREBASE_MESSAGE_DATA_DOCUMENT to alfDocRef.toString()
+                FIREBASE_MESSAGE_DATA_DOCUMENT to RecordRef.EMPTY.toString()
             )
         )
 
         verify(ecosFirebaseService).sendMessage(expectedMessage)
-    }*/
+    }
 
     @Test
     fun firebaseNotificationWithExplicitFalseCondition() {
