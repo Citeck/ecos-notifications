@@ -60,7 +60,7 @@ class FailureNotificationService(
             val currentTryCount = failure.tryingCount ?: 0
 
             if (currentTryCount > props.failureNotification.minTryCount
-                && props.failureNotification.ttl >= INFINITY_TTL
+                && props.failureNotification.ttl > INFINITY_TTL
             ) {
                 val created = failure.createdDate
                     ?: throw IllegalStateException("Created date cannot be null. $failure")

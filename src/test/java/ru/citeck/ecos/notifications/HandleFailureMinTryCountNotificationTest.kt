@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationEntity
@@ -15,6 +16,7 @@ import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotification
 import java.time.Duration
 
 @RunWith(SpringRunner::class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
 class HandleFailureMinTryCountNotificationTest {
 
@@ -28,7 +30,7 @@ class HandleFailureMinTryCountNotificationTest {
     fun setup() {
 
         activeFailureMinTryCount = failureNotificationRepository.save(FailureNotificationEntity(
-            tryingCount = -5,
+            tryingCount = -10,
             state = FailureNotificationState.ERROR
         ))
 
