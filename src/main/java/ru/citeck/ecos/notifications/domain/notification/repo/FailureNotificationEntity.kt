@@ -55,8 +55,8 @@ class FailureNotificationEntity @JvmOverloads constructor(
     }
 
     override fun toString(): String {
-        return "FailureNotificationEntity(id=$id, errorMessage=$errorMessage, errorStackTrace=$errorStackTrace, " +
-            "tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state)"
+        return "FailureNotificationEntity(id=$id," +
+            " tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state)"
     }
 
 
