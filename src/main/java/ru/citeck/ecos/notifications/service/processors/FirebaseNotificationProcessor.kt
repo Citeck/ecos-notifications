@@ -15,6 +15,7 @@ import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
+import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.service.NotificationService
@@ -32,6 +33,7 @@ import java.io.IOException
 class FirebaseNotificationProcessor(
     val notificationService: NotificationService,
     val actionService: ActionService,
+    val notificationTemplateService: NotificationTemplateService,
     val appProps: ApplicationProperties
 ) : ActionProcessor() {
 
@@ -70,6 +72,18 @@ class FirebaseNotificationProcessor(
         }
 
         val notificationTransformer = NotificationTransformer(dto, config, action)
+
+        val templateRef = notificationTransformer.template()
+        val templateWithMeta = notificationTemplateService.findById(templateRef.id)
+        if (!templateWithMeta.isPresent) {
+            log.error(
+                "Firebase notification not send, because template with id " +
+                    "$templateRef not found. " +
+                    "Action ${action.id} will be deleted."
+            )
+            actionService.deleteById(action.id)
+            return
+        }
 
         val notification = Notification.Builder()
             .record(notificationTransformer.record())

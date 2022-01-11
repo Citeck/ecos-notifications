@@ -100,7 +100,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithoutConfigDeviceTypeShouldRemoveAction() {
+    fun `firebase notification without config device type should not send notification and remove action`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -158,7 +158,66 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithoutConfigRegTokenShouldRemoveAction() {
+    fun `firebase notification with not exists template ref should not send notification and remove action`() {
+
+        val actionRef = recordsService.mutate(
+            RecordRef.create("notifications", "subscription-action", ""),
+            ObjectData.create(
+                """
+                {
+                  "subscriberId": "some-tenant-id|ivan",
+                  "eventType": "task.assign",
+                  "action": {
+                    "type": "FIREBASE_NOTIFICATION",
+                    "config": {
+                      "fireBaseClientRegToken": "test-token",
+                      "deviceType": "android",
+                      "templateId": "some-not-exists-template",
+                      "locale": "ru"
+                    },
+                    "condition": "true",
+                    "customData": [
+                      {
+                        "variable": "req",
+                        "record": "$\{event.document}",
+                        "attributes": {
+                          "number": "documentNumber"
+                        }
+                      }
+                    ]
+                  }
+                }
+                """.trimIndent().replace("\\", "")
+            )
+        )
+
+        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+
+
+        val eventDto = EventDto()
+        eventDto.data = objectMapper.readValue(
+            """
+            {
+              "type": "task.assign",
+              "id": "event-id-1",
+              "document": "${alfDocRef.id}",
+              "taskInstanceId": "${alfTaskRef.id}"
+            }
+        """.trimIndent(), JsonNode::class.java
+        )
+
+        val deliveryMessageStub = Delivery(null, null, null)
+
+        firebaseNotificationProcessor.process(deliveryMessageStub, eventDto, actionEntity)
+
+        verify(ecosFirebaseService, never()).sendMessage(any())
+
+        val mustBeDeletedAction = actionService.findById(actionEntity.id)
+        Assertions.assertThat(mustBeDeletedAction.isPresent).isFalse
+    }
+
+    @Test
+    fun `firebase notification without config registration token should not send notification and remove action`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -217,7 +276,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationAnotherAppRefDoc() {
+    fun `firebase notification with document recordRef from another app`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -284,7 +343,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithExplicitTrueCondition() {
+    fun `firebase notification with explicit true condition`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -351,7 +410,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithoutDocument() {
+    fun `firebase notification without document`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -407,7 +466,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithExplicitFalseCondition() {
+    fun `firebase notification with explicit false condition`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -474,7 +533,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithoutCustomData() {
+    fun `firebase notification without custom data`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -532,7 +591,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithExplicitRuTemplateId() {
+    fun `firebase notification with explicit ru template id`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -599,7 +658,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithExplicitEnTemplateId() {
+    fun `firebase notification with explicit en template id`() {
 
         val actionRef = recordsService.mutate(
             RecordRef.create("notifications", "subscription-action", ""),
@@ -666,7 +725,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithDefaultTaskAssignTemplateId() {
+    fun `firebase notification with default task assign template id`() {
 
         sendFirebaseNotificationWithDefaultTemplateWithType("task.assign")
 
@@ -685,7 +744,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithDefaultTaskCreateTemplateId() {
+    fun `firebase notification with default task create template id`() {
 
         sendFirebaseNotificationWithDefaultTemplateWithType("task.create")
 
@@ -704,7 +763,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithDefaultTaskCompleteTemplateId() {
+    fun `firebase notification with default task complete template id`() {
 
         sendFirebaseNotificationWithDefaultTemplateWithType("task.complete")
 
@@ -723,7 +782,7 @@ class FirebaseNotificationProcessorTest {
     }
 
     @Test
-    fun firebaseNotificationWithDefaultTaskDeleteTemplateId() {
+    fun `firebase notification with default task delete template id`() {
 
         sendFirebaseNotificationWithDefaultTemplateWithType("task.delete")
 
