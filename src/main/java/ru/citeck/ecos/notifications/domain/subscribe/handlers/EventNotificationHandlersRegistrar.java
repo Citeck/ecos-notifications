@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.handlers;
 
 import com.rabbitmq.client.Delivery;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -149,7 +150,9 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                 users.addAll(dto.getTaskPooledUsers());
                 break;
             case ASSIGN:
-                users.add(dto.getAssignee());
+                if (isExplicitAssignmentEvent(dto)) {
+                    users.add(dto.getAssignee());
+                }
                 break;
             default:
                 users.addAll(dto.getTaskPooledUsers());
@@ -160,6 +163,10 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
             .filter(StringUtils::isNotBlank)
             .map(String::toLowerCase)
             .collect(Collectors.toSet());
+    }
+
+    private boolean isExplicitAssignmentEvent(TaskEventDto dto) {
+        return CollectionUtils.isEmpty(dto.getTaskPooledUsers()) && CollectionUtils.isEmpty(dto.getTaskPooledActors());
     }
 
     private String getEventTypeByRoutingKey(String routingKey) {
