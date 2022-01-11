@@ -78,6 +78,9 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
 
                             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
                             TaskEventDto dto = EventDtoFactory.fromEventDtoMsg(msg);
+
+                            log.debug("Receive taskEventDto: \n" + dto);
+
                             Set<String> userSubscribers = getSubscribersUsers(dto);
 
                             log.debug("Found user subscribers:\n" + userSubscribers);
