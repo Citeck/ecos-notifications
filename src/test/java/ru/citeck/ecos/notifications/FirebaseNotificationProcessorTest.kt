@@ -749,7 +749,7 @@ class FirebaseNotificationProcessorTest {
         sendFirebaseNotificationWithDefaultTemplateWithType("task.create")
 
         val expectedMessage = FirebaseMessage(
-            title = "Создана задача: Согласование",
+            title = "Новая задача: Согласование",
             body = "Alfresco Документ №76342\n",
             token = "test-token",
             deviceType = DeviceType.ANDROID,

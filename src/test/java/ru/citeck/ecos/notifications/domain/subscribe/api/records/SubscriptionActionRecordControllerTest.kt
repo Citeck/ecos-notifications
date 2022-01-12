@@ -88,7 +88,7 @@ class SubscriptionActionRecordControllerTest {
     }
 
     @Test
-    fun saveSubscriptionActionTest() {
+    fun `successful save subscription action`() {
         mockRecordsApi.perform(
             post(TestUtil.URL_RECORDS_MUTATE)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -99,7 +99,7 @@ class SubscriptionActionRecordControllerTest {
     }
 
     @Test
-    fun saveSubscriptionActionCheckActionPayloadConfigJsonTest() {
+    fun `save subscription action and check action payload config`() {
         val result = mockRecordsApi.perform(
             post(TestUtil.URL_RECORDS_MUTATE)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -118,7 +118,7 @@ class SubscriptionActionRecordControllerTest {
     }
 
     @Test
-    fun subscriptionActionUpdateConfigTest() {
+    fun `update subscription action config`() {
         val result = mockRecordsApi.perform(
             post(TestUtil.URL_RECORDS_MUTATE)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -136,7 +136,8 @@ class SubscriptionActionRecordControllerTest {
                     "updateActionConfig": {
                       "fireBaseClientRegToken": "new-token-33",
                       "deviceType": "new-device-ios",
-                      "templateId": "new-template"
+                      "templateId": "new-template",
+                      "locale": "en_gb"
                     }
                   }
                 }
@@ -160,10 +161,11 @@ class SubscriptionActionRecordControllerTest {
         assertThat(configNode["fireBaseClientRegToken"].asText()).isEqualTo("new-token-33")
         assertThat(configNode["deviceType"].asText()).isEqualTo("new-device-ios")
         assertThat(configNode["templateId"].asText()).isEqualTo("new-template")
+        assertThat(configNode["locale"].asText()).isEqualTo("en_gb")
     }
 
     @Test
-    fun saveSubscriptionActionCheckActionPayloadCustomDataJsonTest() {
+    fun `check action payload with custom data`() {
         val result = mockRecordsApi.perform(
             post(TestUtil.URL_RECORDS_MUTATE)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
