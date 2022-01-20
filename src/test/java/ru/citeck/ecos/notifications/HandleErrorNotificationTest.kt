@@ -14,11 +14,11 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
-import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationEntity
-import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
-import ru.citeck.ecos.notifications.domain.notification.service.FailureNotificationService
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
+import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
+import ru.citeck.ecos.notifications.domain.notification.service.ErrorNotificationRepeater
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -30,13 +30,13 @@ import java.time.Duration
 @RunWith(SpringRunner::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
-class HandleFailureNotificationTest {
+class HandleErrorNotificationTest {
 
     @Autowired
-    private lateinit var failureNotificationRepository: FailureNotificationRepository
+    private lateinit var notificationRepository: NotificationRepository
 
     @Autowired
-    private lateinit var failureNotificationService: FailureNotificationService
+    private lateinit var errorNotificationRepeater: ErrorNotificationRepeater
 
     @Autowired
     private lateinit var commandsService: CommandsService
@@ -44,8 +44,8 @@ class HandleFailureNotificationTest {
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
 
-    private lateinit var activeFailure: FailureNotificationEntity
-    private lateinit var disabledFailure: FailureNotificationEntity
+    private lateinit var activeFailure: NotificationEntity
+    private lateinit var disabledFailure: NotificationEntity
 
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
@@ -60,64 +60,70 @@ class HandleFailureNotificationTest {
         templateModel["lastName"] = "Skywalker"
         templateModel["age"] = "25"
 
-        val notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java)!!
+        val notificationTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTemplate)
 
 
-        activeFailure = failureNotificationRepository.save(FailureNotificationEntity(
-            tryingCount = 0,
-            state = FailureNotificationState.ERROR
-        ))
+        activeFailure = notificationRepository.save(
+            NotificationEntity(
+                tryingCount = 0,
+                state = NotificationState.ERROR
+            )
+        )
 
-        disabledFailure = failureNotificationRepository.save(FailureNotificationEntity(
-            tryingCount = 3,
-            state = FailureNotificationState.EXPIRED
-        ))
+        disabledFailure = notificationRepository.save(
+            NotificationEntity(
+                tryingCount = 3,
+                state = NotificationState.EXPIRED
+            )
+        )
 
     }
 
     @After
     fun clear() {
         greenMail.stop()
-        failureNotificationRepository.deleteAll()
+        notificationRepository.deleteAll()
     }
 
 
     @Test
     fun processFailuresMustIncrementTryingCount() {
-        failureNotificationService.handleErrors()
+        errorNotificationRepeater.handleErrors()
 
-        val updatedFailure = failureNotificationRepository.findById(activeFailure.id!!).get()
+        val updatedFailure = notificationRepository.findById(activeFailure.id!!).get()
 
         assertThat(updatedFailure.tryingCount).isEqualTo(1)
     }
 
     @Test
     fun processFailuresMustIncrementTryingCountMultiple() {
-        failureNotificationService.handleErrors()
-        failureNotificationService.handleErrors()
-        failureNotificationService.handleErrors()
+        errorNotificationRepeater.handleErrors()
+        errorNotificationRepeater.handleErrors()
+        errorNotificationRepeater.handleErrors()
 
-        val updatedFailure = failureNotificationRepository.findById(activeFailure.id!!).get()
+        val updatedFailure = notificationRepository.findById(activeFailure.id!!).get()
 
         assertThat(updatedFailure.tryingCount).isEqualTo(3)
     }
 
     @Test
     fun processFailuresMustSetLastTryingDate() {
-        failureNotificationService.handleErrors()
+        errorNotificationRepeater.handleErrors()
 
-        val updatedFailure = failureNotificationRepository.findById(activeFailure.id!!).get()
+        val updatedFailure = notificationRepository.findById(activeFailure.id!!).get()
 
         assertThat(updatedFailure.lastTryingDate).isNotNull()
     }
 
     @Test
     fun processFailureWithSuccessfulHandle() {
-        var allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-        var allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
+        var allFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+        var allSent = notificationRepository.findAllByState(NotificationState.SENT)
         assertThat(allFailures.size).isEqualTo(1)
         assertThat(allSent.size).isEqualTo(0)
 
@@ -138,14 +144,14 @@ class HandleFailureNotificationTest {
 
         assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
-        allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        allFailures = notificationRepository.findAllByState(NotificationState.ERROR)
         assertThat(allFailures.size).isEqualTo(2)
 
         greenMail.start()
-        failureNotificationService.handleErrors()
+        errorNotificationRepeater.handleErrors()
 
-        allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-        allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
+        allFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+        allSent = notificationRepository.findAllByState(NotificationState.SENT)
 
         assertThat(allFailures.size).isEqualTo(1)
         assertThat(allSent.size).isEqualTo(1)
@@ -153,8 +159,8 @@ class HandleFailureNotificationTest {
 
     @Test
     fun processFailureWithSuccessfulHandleByJob() {
-        var errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-        var allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
+        var errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+        var allSent = notificationRepository.findAllByState(NotificationState.SENT)
         assertThat(errorFailures.size).isEqualTo(1)
         assertThat(allSent.size).isEqualTo(0)
 
@@ -175,15 +181,15 @@ class HandleFailureNotificationTest {
 
         assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
-        errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
         assertThat(errorFailures.size).isEqualTo(2)
 
         greenMail.start()
 
         await().atMost(Duration.ofSeconds(20)).untilAsserted {
 
-            errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-            allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
+            errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+            allSent = notificationRepository.findAllByState(NotificationState.SENT)
 
             assertThat(errorFailures.size).isEqualTo(1)
             assertThat(allSent.size).isEqualTo(1)
@@ -192,9 +198,9 @@ class HandleFailureNotificationTest {
 
     @Test
     fun processFailureExpired() {
-        var errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-        var allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
-        var allExpired = failureNotificationRepository.findAllByState(FailureNotificationState.EXPIRED)
+        var errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+        var allSent = notificationRepository.findAllByState(NotificationState.SENT)
+        var allExpired = notificationRepository.findAllByState(NotificationState.EXPIRED)
         assertThat(errorFailures.size).isEqualTo(1)
         assertThat(allSent.size).isEqualTo(0)
         assertThat(allExpired.size).isEqualTo(1)
@@ -216,14 +222,14 @@ class HandleFailureNotificationTest {
 
         assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
 
-        errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
         assertThat(errorFailures.size).isEqualTo(2)
 
         await().atMost(Duration.ofSeconds(40)).untilAsserted {
 
-            errorFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
-            allExpired = failureNotificationRepository.findAllByState(FailureNotificationState.EXPIRED)
-            allSent = failureNotificationRepository.findAllByState(FailureNotificationState.SENT)
+            errorFailures = notificationRepository.findAllByState(NotificationState.ERROR)
+            allExpired = notificationRepository.findAllByState(NotificationState.EXPIRED)
+            allSent = notificationRepository.findAllByState(NotificationState.SENT)
 
             assertThat(errorFailures.size).isEqualTo(0)
             assertThat(allSent.size).isEqualTo(0)

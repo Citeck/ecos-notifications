@@ -64,7 +64,6 @@ class NotificationService(
                     model = rawNotification.model
                 )
             )
-
         }
     }
 

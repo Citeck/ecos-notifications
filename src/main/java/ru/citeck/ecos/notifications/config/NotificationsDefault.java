@@ -18,9 +18,9 @@ public class NotificationsDefault {
 
     }
 
-    public class FailureNotification {
+    public class Notification {
 
-        private FailureNotification() {
+        private Notification() {
         }
 
         public static final int TTL = 86400000;

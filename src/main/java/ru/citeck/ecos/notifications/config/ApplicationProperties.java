@@ -19,7 +19,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
-    private final FailureNotification failureNotification = new FailureNotification();
+    private final Notification notification = new Notification();
 
     private final Event event = new Event();
 
@@ -29,8 +29,8 @@ public class ApplicationProperties {
 
     private final Email email = new Email();
 
-    public FailureNotification getFailureNotification() {
-        return this.failureNotification;
+    public Notification getNotification() {
+        return this.notification;
     }
 
     public Event getEvent() {
@@ -49,13 +49,13 @@ public class ApplicationProperties {
         return email;
     }
 
-    public static class FailureNotification {
+    public static class Notification {
 
-        private int ttl = NotificationsDefault.FailureNotification.TTL;
+        private int ttl = NotificationsDefault.Notification.TTL;
 
-        private int delay = NotificationsDefault.FailureNotification.DELAY;
+        private int delay = NotificationsDefault.Notification.DELAY;
 
-        private int minTryCount = NotificationsDefault.FailureNotification.MIN_TRY_COUNT;
+        private int minTryCount = NotificationsDefault.Notification.MIN_TRY_COUNT;
 
         public int getTtl() {
             return this.ttl;

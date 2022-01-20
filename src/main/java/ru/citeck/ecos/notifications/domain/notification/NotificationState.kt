@@ -1,5 +1,5 @@
 package ru.citeck.ecos.notifications.domain.notification
 
-enum class FailureNotificationState {
+enum class NotificationState {
     ERROR, SENT, EXPIRED
 }
