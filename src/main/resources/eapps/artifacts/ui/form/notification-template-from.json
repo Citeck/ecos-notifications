@@ -49,9 +49,33 @@
         "multiple": true,
         "storage": "base64",
         "key": "templateContent",
+        "validate": {
+          "required": true
+        },
         "type": "file",
         "input": true,
-        "reorder": false
+        "reorder": false,
+        "logic": [
+          {
+            "name": "updateRequirement",
+            "trigger": {
+              "type": "javascript",
+              "javascript": "const multiTemplateConfig = _.get(data, 'multiTemplateConfig');\r\n\r\nresult = (multiTemplateConfig || [])\r\n  .some(item => !_.isEmpty(_.get(item, 'template')));"
+            },
+            "actions": [
+              {
+                "name": "setRequired",
+                "type": "property",
+                "property": {
+                  "label": "Required",
+                  "value": "validate.required",
+                  "type": "boolean"
+                },
+                "state": "false"
+              }
+            ]
+          }
+        ]
       },
       {
         "label": "Model",
@@ -98,10 +122,32 @@
           }
         ],
         "validate": {
+          "required": true,
           "minLength": "",
           "maxLength": ""
         },
         "key": "multiTemplateConfig",
+        "logic": [
+          {
+            "name": "updateRequirement",
+            "trigger": {
+              "type": "javascript",
+              "javascript": "const {templateContent} = data || {};\r\nresult = !!templateContent.length \r\n  || Object.keys(templateContent).length!==0;"
+            },
+            "actions": [
+              {
+                "name": "setRequired",
+                "type": "property",
+                "property": {
+                  "label": "Required",
+                  "value": "validate.required",
+                  "type": "boolean"
+                },
+                "state": "false"
+              }
+            ]
+          }
+        ],
         "type": "datagrid",
         "input": true,
         "components": [
