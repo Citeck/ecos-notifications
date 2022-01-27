@@ -35,8 +35,19 @@ class FirebaseNotificationProvider(
 
         val response = ecosFirebaseService.sendMessage(fireBaseMessage)
 
-        if (response == FirebaseMessageResult.TOKEN_NOT_REGISTERED) {
-            deleteSubscriptionAction(fitNotification)
+        when (response.resultCode) {
+            FirebaseMessageResultCode.TOKEN_NOT_REGISTERED -> {
+                deleteSubscriptionAction(fitNotification)
+                throw EcosFirebaseNotificationException(
+                    response.message + ". firebaseCode: ${response.firebaseErrorCode}"
+                )
+            }
+            FirebaseMessageResultCode.ERROR -> {
+                throw EcosFirebaseNotificationException(
+                    response.message + ". firebaseCode: ${response.firebaseErrorCode}"
+                )
+            }
+            else -> log.debug("Success sending firebase message: ${response.message}")
         }
     }
 
@@ -74,8 +85,13 @@ class FirebaseNotificationProvider(
         val actionId: Long
 
         try {
-            actionId = fitNotification.data[FIREBASE_ACTION_ENTITY_ID_KEY] as Long
-            actionService.deleteById(actionId)
+            if (fitNotification.data.containsKey(FIREBASE_ACTION_ENTITY_ID_KEY)) {
+                actionId = fitNotification.data[FIREBASE_ACTION_ENTITY_ID_KEY] as Long
+
+                actionService.findById(actionId).ifPresent {
+                    actionService.deleteById(it.id)
+                }
+            }
         } catch (e: Exception) {
             log.error("Failed to delete subscription action by id", e)
         }

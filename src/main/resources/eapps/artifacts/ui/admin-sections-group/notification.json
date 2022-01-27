@@ -9,6 +9,12 @@
     {
       "type": "JOURNAL",
       "config": {
+        "journalId": "notification"
+      }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
         "journalId": "notification-templates"
       }
     },

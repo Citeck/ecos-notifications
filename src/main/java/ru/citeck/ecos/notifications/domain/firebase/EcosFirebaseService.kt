@@ -21,26 +21,36 @@ class EcosFirebaseService {
 
             response = FirebaseMessaging.getInstance().send(fireBaseMessage)
         } catch (e: Exception) {
+            log.error("Failed to send firebase message", e)
+
             return when (e) {
                 is FirebaseMessagingException -> {
                     if (ERROR_CODE_TOKEN_NOT_REGISTERED == e.errorCode) {
-                        log.info("Token <${firebaseMessage.token}> is no longer registered")
-                        FirebaseMessageResult.TOKEN_NOT_REGISTERED
+                        FirebaseMessageResult(
+                            FirebaseMessageResultCode.TOKEN_NOT_REGISTERED,
+                            "Token <${firebaseMessage.token}> is no longer registered",
+                            e.errorCode
+                        )
                     } else {
-                        log.error("Failed to send firebase message", e)
-                        FirebaseMessageResult.ERROR
+                        FirebaseMessageResult(
+                            FirebaseMessageResultCode.ERROR,
+                            "Failed to send firebase message: ${e.message}",
+                            e.errorCode
+                        )
                     }
                 }
                 else -> {
-                    log.error("Failed to send firebase message", e)
-                    FirebaseMessageResult.ERROR
+                    FirebaseMessageResult(
+                        FirebaseMessageResultCode.ERROR,
+                        "Failed to send firebase message: ${e.message}",
+                    )
                 }
             }
         }
 
         log.debug { "firebase response: $response" }
 
-        return FirebaseMessageResult.OK
+        return FirebaseMessageResult(FirebaseMessageResultCode.OK, response)
     }
 
     private fun buildMessage(firebaseMessage: FirebaseMessage): Message {
@@ -128,6 +138,12 @@ enum class DeviceType(val value: String) {
     }
 }
 
-enum class FirebaseMessageResult {
+data class FirebaseMessageResult(
+    val resultCode: FirebaseMessageResultCode,
+    val message: String = "",
+    val firebaseErrorCode: String = ""
+)
+
+enum class FirebaseMessageResultCode {
     OK, ERROR, TOKEN_NOT_REGISTERED
 }

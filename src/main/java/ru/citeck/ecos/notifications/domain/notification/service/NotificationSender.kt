@@ -3,7 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification.service
 import com.sun.istack.internal.ByteArrayDataSource
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
@@ -17,8 +17,8 @@ import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import java.util.*
 import javax.activation.DataSource
 
-@Service
-class NotificationService(
+@Component
+class NotificationSender(
 
     @Qualifier("notificationProviders")
     private val providers: Map<NotificationType, List<NotificationProvider>>,
@@ -33,7 +33,6 @@ class NotificationService(
 
     fun send(rawNotification: RawNotification) {
         log.debug("Send notification raw: $rawNotification")
-
         val title = prepareTitle(rawNotification.template, rawNotification.locale, rawNotification.model)
         val body = prepareBody(rawNotification.template, rawNotification.locale, rawNotification.model)
         val attachments = prepareAttachments(rawNotification.model)

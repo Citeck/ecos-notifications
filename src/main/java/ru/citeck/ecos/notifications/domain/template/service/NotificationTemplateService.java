@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.template.service;
 
-import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -9,23 +8,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import ru.citeck.ecos.commons.json.Json;
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto;
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta;
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity;
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository;
-import ru.citeck.ecos.records2.RecordConstants;
 import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.predicate.PredicateUtils;
 import ru.citeck.ecos.records2.predicate.model.Predicate;
-import ru.citeck.ecos.records2.predicate.model.ValuePredicate;
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static ru.citeck.ecos.notifications.predicate.PredicateConverterKt.toDefaultEntitySpec;
 
 @Service("domainNotificationTemplateService")
 public class NotificationTemplateService {
@@ -128,51 +124,14 @@ public class NotificationTemplateService {
 
         PageRequest page = PageRequest.of(skip / max, max, sort);
 
-        return templateRepository.findAll(toSpec(predicate), page)
+        return templateRepository.findAll(toDefaultEntitySpec(predicate), page)
             .stream()
             .map(templateConverter::entityToDto)
             .collect(Collectors.toList());
     }
 
-    private Specification<NotificationTemplateEntity> toSpec(Predicate predicate) {
-
-        if (predicate instanceof ValuePredicate) {
-
-            ValuePredicate valuePred = (ValuePredicate) predicate;
-
-            ValuePredicate.Type type = valuePred.getType();
-            Object value = valuePred.getValue();
-            String attribute = valuePred.getAttribute();
-
-            if (RecordConstants.ATT_MODIFIED.equals(attribute)
-                && ValuePredicate.Type.GT.equals(type)) {
-
-                Instant instant = Json.getMapper().convert(value, Instant.class);
-                if (instant != null) {
-                    return (root, query, builder) ->
-                        builder.greaterThan(root.get("lastModifiedDate").as(Instant.class), instant);
-                }
-            }
-        }
-
-        PredicateDto predicateDto = PredicateUtils.convertToDto(predicate, PredicateDto.class);
-        Specification<NotificationTemplateEntity> spec = null;
-
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(predicateDto.name)) {
-            spec = (root, query, builder) ->
-                builder.like(builder.lower(root.get("name")), "%" + predicateDto.name.toLowerCase() + "%");
-        }
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(predicateDto.moduleId)) {
-            Specification<NotificationTemplateEntity> idSpec = (root, query, builder) ->
-                builder.like(builder.lower(root.get("extId")), "%" + predicateDto.moduleId.toLowerCase() + "%");
-            spec = spec != null ? spec.or(idSpec) : idSpec;
-        }
-
-        return spec;
-    }
-
     public long getCount(Predicate predicate) {
-        Specification<NotificationTemplateEntity> spec = toSpec(predicate);
+        Specification<NotificationTemplateEntity> spec = toDefaultEntitySpec(predicate);
         return spec != null ? (int) templateRepository.count(spec) : getCount();
     }
 
@@ -194,9 +153,4 @@ public class NotificationTemplateService {
         this.listener = listener;
     }
 
-    @Data
-    public static class PredicateDto {
-        private String name;
-        private String moduleId;
-    }
 }

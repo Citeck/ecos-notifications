@@ -19,6 +19,12 @@
              relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220120105425_add_record_to_notification_changelog.xml"
              relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220125123439_add_ext_id_to_notification_changelog.xml"
+             relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220125125233_add_type_template_to_notification_changelog.xml"
+             relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220127084412_add_bulk_mail_ref_to_notification_changelog.xml"
+             relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

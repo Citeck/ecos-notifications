@@ -8,6 +8,8 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
+import java.time.Instant
+import java.util.*
 
 @Component
 class NotificationStore(
@@ -20,12 +22,16 @@ class NotificationStore(
 
     fun holdError(command: SendNotificationCommand, throwable: Throwable) {
         val entity = NotificationEntity()
+        entity.extId = UUID.randomUUID().toString()
+        entity.type = command.type
         entity.record = command.record.toString()
+        entity.template = command.templateRef.toString()
         entity.state = NotificationState.ERROR
         entity.errorMessage = ExceptionUtils.getMessage(throwable)
         entity.errorStackTrace = ExceptionUtils.getStackTrace(throwable)
         entity.data = Json.mapper.toBytes(command)
         entity.tryingCount = 0
+        entity.lastTryingDate = Instant.now()
 
         log.debug { "Save error notification:/n$entity" }
 
@@ -34,10 +40,14 @@ class NotificationStore(
 
     fun holdSuccess(command: SendNotificationCommand) {
         val entity = NotificationEntity()
+        entity.extId = UUID.randomUUID().toString()
+        entity.type = command.type
         entity.record = command.record.toString()
+        entity.template = command.templateRef.toString()
         entity.state = NotificationState.SENT
         entity.data = Json.mapper.toBytes(command)
         entity.tryingCount = 0
+        entity.lastTryingDate = Instant.now()
 
         log.debug { "Save success notification:/n$entity" }
 

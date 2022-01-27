@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.notification.repo
 
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
 import javax.persistence.*
@@ -15,6 +16,17 @@ class NotificationEntity @JvmOverloads constructor(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
+
+    @Column(columnDefinition = "VARCHAR(255)", unique = true)
+    var extId: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    var type: NotificationType? = null,
+
+    var template: String? = null,
+
+    @Column(columnDefinition = "VARCHAR(255)")
+    var bulkMailRef: String? = null,
 
     var record: String? = null,
 
