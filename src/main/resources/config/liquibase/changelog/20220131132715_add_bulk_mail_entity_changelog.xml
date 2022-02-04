@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="roman.makarskiy (generated)" id="1643635643383-1">
+        <createTable tableName="bulk_mail">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="bulk_mailPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="TIMESTAMP"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP"/>
+            <column name="body" type="VARCHAR"/>
+            <column name="config" type="VARCHAR"/>
+            <column name="ext_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipients_data" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="record" type="VARCHAR(255)"/>
+            <column name="template" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR"/>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="roman.makarskiy (generated)" id="1643635643383-4">
+        <addUniqueConstraint columnNames="ext_id" constraintName="UC_BULK_MAILEXT_ID_COL" tableName="bulk_mail"/>
+    </changeSet>
+</databaseChangeLog>

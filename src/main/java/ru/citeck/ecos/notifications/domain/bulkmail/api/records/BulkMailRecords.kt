@@ -1,11 +1,11 @@
-package ru.citeck.ecos.notifications.domain.notification.api.records
+package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
-import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.NotificationState
-import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
+import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
+import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
@@ -14,27 +14,27 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
+import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
 import java.time.Instant
 
 @Component
-class NotificationRecords(
-    private val notificationDao: NotificationDao
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao {
+class BulkMailRecords(
+    private val bulkMailDao: BulkMailDao
+) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord> {
 
     companion object {
-        const val ID = "notification"
+        const val ID = "bulk-mail"
     }
 
     override fun getId(): String {
         return ID
     }
 
-    override fun queryRecords(recsQuery: RecordsQuery): RecsQueryRes<NotificationRecord> {
-
-        val result = RecsQueryRes<NotificationRecord>()
+    override fun queryRecords(recsQuery: RecordsQuery): RecsQueryRes<BulkMailRecord> {
+        val result = RecsQueryRes<BulkMailRecord>()
 
         when (recsQuery.language) {
             PredicateService.LANGUAGE_PREDICATE -> {
@@ -64,7 +64,7 @@ class NotificationRecords(
                         }
                     }
 
-                val types = notificationDao.getAll(
+                val types = bulkMailDao.getAll(
                     max,
                     recsQuery.page.skipCount,
                     predicate,
@@ -75,64 +75,73 @@ class NotificationRecords(
                     }
                 )
 
-                result.setRecords(types.map { NotificationRecord(it) })
-                result.setTotalCount(notificationDao.getCount(predicate))
+                result.setRecords(types.map { BulkMailRecord(it) })
+                result.setTotalCount(bulkMailDao.getCount(predicate))
             }
             else -> {
                 val max: Int = recsQuery.page.maxItems
                 val types = if (max < 0) {
-                    notificationDao.getAll()
+                    bulkMailDao.getAll()
                 } else {
-                    notificationDao.getAll(max, recsQuery.page.skipCount)
+                    bulkMailDao.getAll(max, recsQuery.page.skipCount)
                 }
-                result.setRecords(types.map { NotificationRecord(it) })
+                result.setRecords(types.map { BulkMailRecord(it) })
             }
         }
 
         return result
     }
 
-    override fun getRecordAtts(recordId: String): NotificationRecord? {
+    override fun getRecordAtts(recordId: String): BulkMailRecord? {
         if (recordId.isBlank()) {
-            return null
+            return BulkMailRecord()
         }
 
-        val dto = notificationDao.getByExtId(recordId) ?: recordId.toLongOrNull()?.let { longId ->
-            notificationDao.getById(longId)
+        val dto = bulkMailDao.findByExtId(recordId) ?: recordId.toLongOrNull()?.let { longId ->
+            bulkMailDao.findById(longId)
         }
 
-        return dto?.let { NotificationRecord(it) }
+        return dto?.let {
+            BulkMailRecord(it)
+        }
     }
 
-    open inner class NotificationRecord(
-        var id: Long,
-        var extId: String,
-        val record: RecordRef,
-        val template: RecordRef,
+
+    override fun getRecToMutate(recordId: String): BulkMailRecord {
+        return getRecordAtts(recordId) ?: BulkMailRecord()
+    }
+
+    override fun saveMutatedRec(record: BulkMailRecord): String {
+        return bulkMailDao.save(record.toDto()).extId!!
+    }
+
+    open inner class BulkMailRecord(
+        var id: Long? = null,
+        var extId: String? = null,
+        val recipientsData: ObjectData? = ObjectData.create(),
+        var record: RecordRef? = RecordRef.EMPTY,
+        var template: RecordRef? = RecordRef.EMPTY,
         val type: NotificationType? = null,
-        val data: ByteArray?,
-        val errorMessage: String,
-        val errorStackTrace: String,
-        val tryingCount: Int,
-        val lastTryingDate: Instant?,
-        val state: NotificationState,
-        val creator: String?,
-        val created: Instant?,
-        val modifier: String?,
-        val modified: Instant?
+        val title: String? = null,
+        val body: String? = null,
+        val config: ObjectData? = ObjectData.create(),
+        val status: String? = null,
+        val creator: String? = null,
+        val created: Instant? = null,
+        val modifier: String? = null,
+        val modified: Instant? = null,
     ) {
-        constructor(dto: NotificationDto) : this(
+        constructor(dto: BulkMailDto) : this(
             dto.id,
             dto.extId,
+            ObjectData.create(dto.recipientsData),
             dto.record,
             dto.template,
             dto.type,
-            dto.data,
-            dto.errorMessage,
-            dto.errorStackTrace,
-            dto.tryingCount,
-            dto.lastTryingDate,
-            dto.state,
+            dto.title,
+            dto.body,
+            ObjectData.create(dto.config),
+            dto.status,
             dto.createdBy,
             dto.createdDate,
             dto.lastModifiedBy,
@@ -141,9 +150,9 @@ class NotificationRecords(
 
         var moduleId: String
             get() = let {
-                return extId.ifBlank {
+                return extId?.ifBlank {
                     id.toString()
-                }
+                } ?: ""
             }
             set(value) {
                 extId = value
@@ -157,19 +166,9 @@ class NotificationRecords(
         val disp: String
             get() = moduleId
 
-        @get:AttName("notificationCommandPayload")
-        val payload: String
-            get() = let {
-                data?.let { bytes ->
-                    return Json.mapper.toPrettyString(String(bytes)) ?: ""
-                }
-
-                return ""
-            }
-
         @get:AttName(".type")
         val ecosType: RecordRef
-            get() = RecordRef.create("emodel", "type", "notification")
+            get() = RecordRef.create("emodel", "type", "bulk-mail")
 
         @get:AttName(RecordConstants.ATT_MODIFIED)
         val recordModified: Instant?

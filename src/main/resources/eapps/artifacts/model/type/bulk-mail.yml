@@ -1,0 +1,12 @@
+---
+id: bulk-mail
+
+name:
+  en: Bulk mail
+  ru: Массовая рассылка
+
+system: true
+sourceId: notifications/bulk-mail
+
+journalRef: uiserv/journal@bulk-mail
+formRef: uiserv/form@bulk-mail
