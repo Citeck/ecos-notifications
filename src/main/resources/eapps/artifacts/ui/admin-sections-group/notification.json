@@ -15,6 +15,12 @@
     {
       "type": "JOURNAL",
       "config": {
+        "journalId": "bulk-mail"
+      }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
         "journalId": "notification-templates"
       }
     },

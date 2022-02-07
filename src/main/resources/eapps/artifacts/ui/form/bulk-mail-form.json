@@ -1,0 +1,250 @@
+{
+  "id": "bulk-mail",
+  "formKey": "",
+  "title": {
+    "en": "Bulk mail"
+  },
+  "description": {},
+  "customModule": null,
+  "typeRef": "",
+  "width": "lg",
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-message",
+        "title": "Сообщение",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Заголовок",
+              "en": " Title"
+            },
+            "key": "title",
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Тело сообщения",
+              "en": "Body"
+            },
+            "key": "body",
+            "editor": "quill",
+            "wysiwyg": {
+              "theme": "snow",
+              "placeholder": "",
+              "modules": {
+                "clipboard": {
+                  "matchVisual": false
+                },
+                "toolbar": [
+                  [
+                    {
+                      "size": [
+                        "small",
+                        false,
+                        "large",
+                        "huge"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "header": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        false
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "font": []
+                    }
+                  ],
+                  [
+                    "bold",
+                    "italic",
+                    "underline",
+                    "strike",
+                    {
+                      "script": "sub"
+                    },
+                    {
+                      "script": "super"
+                    },
+                    "clean"
+                  ],
+                  [
+                    {
+                      "color": []
+                    },
+                    {
+                      "background": []
+                    }
+                  ],
+                  [
+                    {
+                      "list": "ordered"
+                    },
+                    {
+                      "list": "bullet"
+                    },
+                    {
+                      "indent": "-1"
+                    },
+                    {
+                      "indent": "+1"
+                    },
+                    {
+                      "align": []
+                    }
+                  ],
+                  [
+                    "blockquote",
+                    "code-block"
+                  ],
+                  [
+                    "link",
+                    "image",
+                    "video",
+                    "formula",
+                    "source"
+                  ]
+                ]
+              },
+              "rows": 5,
+              "base64Upload": true
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "rows": 5,
+            "type": "textarea",
+            "input": true,
+            "as": ""
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-recipients",
+        "title": "Выбор получателей",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Container"
+            },
+            "key": "recipientsData",
+            "hideLabel": true,
+            "refreshOn": [],
+            "type": "container",
+            "input": true,
+            "components": [
+              {
+                "label": {
+                  "ru": "Оргструктура",
+                  "en": "Orgstructure"
+                },
+                "key": "recipientsFromOrgstructure",
+                "multiple": true,
+                "reorder": false,
+                "defaultValue": [],
+                "refreshOn": [],
+                "type": "selectOrgstruct",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Пользовательский ввод получателей",
+                  "en": "User input of recipients"
+                },
+                "key": "recipientsFromUserInput",
+                "defaultValue": "",
+                "refreshOn": [],
+                "rows": 5,
+                "type": "textarea",
+                "input": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-config",
+        "title": "Настройки",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Тип уведомления",
+              "en": "Notification type"
+            },
+            "key": "type",
+            "validate": {
+              "required": true
+            },
+            "dataSrc": "values",
+            "data": {
+              "values": [
+                {
+                  "label": "Электронная почта",
+                  "value": "EMAIL_NOTIFICATION"
+                },
+                {
+                  "label": "Мобильное push уведомление",
+                  "value": "FIREBASE_NOTIFICATION"
+                }
+              ]
+            },
+            "defaultValue": "",
+            "customDefaultValue": "value = \"EMAIL_NOTIFICATION\"",
+            "optionalWhenDisabled": false,
+            "type": "ecosSelect",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Container"
+            },
+            "key": "config",
+            "hideLabel": true,
+            "refreshOn": [],
+            "type": "container",
+            "input": true
+          }
+        ]
+      },
+      {
+        "type": "button",
+        "key": "submit",
+        "disableOnInvalid": true,
+        "theme": "primary",
+        "input": true
+      }
+    ]
+  },
+  "attributes": {}
+}

@@ -56,7 +56,7 @@ fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
         body = body,
         recipientsData = recipientsData!!,
         config = config,
-        status = status!!,
+        status = status ?: "new",
         createdBy = creator,
         createdDate = created,
         lastModifiedBy = modifier,

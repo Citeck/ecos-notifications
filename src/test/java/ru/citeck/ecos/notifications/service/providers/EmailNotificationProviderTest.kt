@@ -3,8 +3,13 @@ package ru.citeck.ecos.notifications.service.providers
 import com.sun.istack.internal.ByteArrayDataSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.junit4.SpringRunner
+import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import java.util.*
@@ -14,6 +19,9 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 
+@RunWith(SpringRunner::class)
+@SpringBootTest(classes = [NotificationsApp::class])
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class EmailNotificationProviderTest {
 
     private lateinit var notificationProvider: EmailNotificationProvider
