@@ -20,6 +20,7 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordRef
+import java.util.*
 
 @RunWith(SpringRunner::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -61,6 +62,7 @@ class NotificationStoreTest {
     @Test
     fun `Success notification store`() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.create("notifications", "test", "test"),
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -84,6 +86,7 @@ class NotificationStoreTest {
     @Test
     fun `Success notification store with empty ref`() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -107,6 +110,7 @@ class NotificationStoreTest {
     @Test
     fun `Error notification store`() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.create("notifications", "test", "test"),
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,

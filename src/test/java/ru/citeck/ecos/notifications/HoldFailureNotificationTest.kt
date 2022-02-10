@@ -21,6 +21,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import java.util.*
 
 
 @RunWith(SpringRunner::class)
@@ -66,6 +67,7 @@ class HoldFailureNotificationTest {
     @Test
     fun sendNotificationWithPotentialErrorShouldSaveFailureNotification() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -90,6 +92,7 @@ class HoldFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,

@@ -7,7 +7,7 @@ import java.time.Instant
 
 data class NotificationDto(
 
-    val id: Long,
+    val id: Long? = null,
 
     val extId: String,
 

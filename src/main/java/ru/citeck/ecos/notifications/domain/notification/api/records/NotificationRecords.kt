@@ -105,7 +105,7 @@ class NotificationRecords(
     }
 
     open inner class NotificationRecord(
-        var id: Long,
+        var id: Long? = null,
         var extId: String,
         val record: RecordRef,
         val template: RecordRef,

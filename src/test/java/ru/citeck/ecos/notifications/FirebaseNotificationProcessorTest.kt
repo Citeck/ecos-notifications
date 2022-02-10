@@ -96,9 +96,6 @@ class FirebaseNotificationProcessorTest {
         Mockito.`when`(ecosFirebaseService.sendMessage(any())).thenReturn(
             FirebaseMessageResult(FirebaseMessageResultCode.OK)
         )
-
-        val all = notificationTemplateService.getAll(100, 0)
-        println(all)
     }
 
     @Test

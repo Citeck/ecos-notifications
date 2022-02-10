@@ -194,8 +194,10 @@ spring.rabbitmq:
   password: admin
 
 ecos-notifications:
-  notification:
+  error-notification:
     delay: 600000
+  awaiting-dispatch:
+    delay: 5000
 
 notifications:
   default:

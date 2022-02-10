@@ -19,7 +19,9 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
-    private final Notification notification = new Notification();
+    private final ErrorNotification errorNotification = new ErrorNotification();
+
+    private final AwaitingDispatch awaitingDispatch = new AwaitingDispatch();
 
     private final Event event = new Event();
 
@@ -29,8 +31,12 @@ public class ApplicationProperties {
 
     private final Email email = new Email();
 
-    public Notification getNotification() {
-        return this.notification;
+    public ErrorNotification getErrorNotification() {
+        return this.errorNotification;
+    }
+
+    public AwaitingDispatch getAwaitingDispatch() {
+        return awaitingDispatch;
     }
 
     public Event getEvent() {
@@ -49,13 +55,29 @@ public class ApplicationProperties {
         return email;
     }
 
-    public static class Notification {
+    public static class ErrorNotification {
 
-        private int ttl = NotificationsDefault.Notification.TTL;
+        /**
+         * Time to live (milliseconds) of error notifications. <br>
+         * The exact countdown is the time the notification was created. <br>
+         * After the time has elapsed, the notification is transferred to the expired status
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#EXPIRED},
+         * no more sending attempts.
+         * For infinity ttl use -1
+         */
+        private int ttl = NotificationsDefault.ErrorNotification.TTL;
 
-        private int delay = NotificationsDefault.Notification.DELAY;
+        /**
+         * Frequency (milliseconds) of the job on resending notification with an error status -
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#ERROR}
+         */
+        private int delay = NotificationsDefault.ErrorNotification.DELAY;
 
-        private int minTryCount = NotificationsDefault.Notification.MIN_TRY_COUNT;
+        /**
+         * Minimum trying count of attempts to resend notification. <br>
+         * Times of specified attempts will be made to send a message, regardless of the ttl.
+         */
+        private int minTryCount = NotificationsDefault.ErrorNotification.MIN_TRY_COUNT;
 
         public int getTtl() {
             return this.ttl;
@@ -82,11 +104,43 @@ public class ApplicationProperties {
         }
     }
 
+    public static class AwaitingDispatch {
+
+        /**
+         * Frequency (milliseconds) of the job on dispatch notifications with a wait for dispatch status -
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#WAIT_FOR_DISPATCH}
+         */
+        private int delay = NotificationsDefault.AwaitingDispatch.DELAY;
+
+        public int getDelay() {
+            return delay;
+        }
+
+        public void setDelay(int delay) {
+            this.delay = delay;
+        }
+    }
+
     public static class Event {
 
+        /**
+         * Host for connect to ecos-events rabbitmq.
+         */
         private String host = NotificationsDefault.Event.HOST;
+
+        /**
+         * Port for connect to ecos-events rabbitmq.
+         */
         private int port = NotificationsDefault.Event.PORT;
+
+        /**
+         * Username for connect to ecos-events rabbitmq.
+         */
         private String username = NotificationsDefault.Event.USERNAME;
+
+        /**
+         * Password for connect to ecos-events rabbitmq.
+         */
         private String password = NotificationsDefault.Event.PASSWORD;
 
         public String getHost() {

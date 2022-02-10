@@ -5,9 +5,11 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toDto
+import ru.citeck.ecos.notifications.domain.notification.converter.toEntity
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
@@ -22,10 +24,21 @@ import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
 @Service
+@Transactional
 class NotificationDao(
     private val notificationRepository: NotificationRepository
 ) {
 
+    fun save(dto: NotificationDto): NotificationDto {
+        return notificationRepository.save(dto.toEntity()).toDto()
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllEntitiesByState(notificationState: NotificationState): List<NotificationDto> {
+        return notificationRepository.findAllByState(notificationState).map { it.toDto() }.toList()
+    }
+
+    @Transactional(readOnly = true)
     fun getByExtId(extId: String): NotificationDto? {
         val found = notificationRepository.findOneByExtId(extId)
 
@@ -34,6 +47,7 @@ class NotificationDao(
         } else null
     }
 
+    @Transactional(readOnly = true)
     fun getById(id: Long): NotificationDto? {
         val found = notificationRepository.findById(id)
 
@@ -42,6 +56,7 @@ class NotificationDao(
         } else null
     }
 
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<NotificationDto> {
         val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
@@ -52,12 +67,14 @@ class NotificationDao(
             }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getAll(): List<NotificationDto> {
         return notificationRepository.findAll().map {
             it.toDto()
         }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int): List<NotificationDto> {
         val sorting = Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
@@ -67,6 +84,7 @@ class NotificationDao(
         }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getCount(predicate: Predicate): Long {
         val spec = toSpec<NotificationEntity>(predicate)
         return if (spec != null) (notificationRepository.count(toSpec(predicate)).toInt()).toLong() else getCount()

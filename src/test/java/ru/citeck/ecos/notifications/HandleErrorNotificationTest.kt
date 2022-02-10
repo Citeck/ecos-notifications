@@ -26,6 +26,7 @@ import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
 import java.time.Duration
+import java.util.*
 
 @RunWith(SpringRunner::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
@@ -130,6 +131,7 @@ class HandleErrorNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -167,6 +169,7 @@ class HandleErrorNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -208,6 +211,7 @@ class HandleErrorNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,

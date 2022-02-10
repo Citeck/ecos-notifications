@@ -37,11 +37,7 @@ fun BulkMailDto.toEntity(): BulkMailEntity {
         body = body,
         recipientsData = recipientsData.toString(),
         config = config.toString(),
-        status = status,
-        createdBy = createdBy,
-        createdDate = createdDate,
-        lastModifiedBy = lastModifiedBy,
-        lastModifiedDate = lastModifiedDate
+        status = status
     )
 }
 

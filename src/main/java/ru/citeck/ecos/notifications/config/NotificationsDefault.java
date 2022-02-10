@@ -18,9 +18,9 @@ public class NotificationsDefault {
 
     }
 
-    public class Notification {
+    public class ErrorNotification {
 
-        private Notification() {
+        private ErrorNotification() {
         }
 
         public static final int TTL = 86400000;
@@ -28,6 +28,15 @@ public class NotificationsDefault {
         public static final int DELAY = 600000;
 
         public static final int MIN_TRY_COUNT = 10;
+
+    }
+
+    public class AwaitingDispatch {
+
+        private AwaitingDispatch() {
+        }
+
+        public static final int DELAY = 5_000;
 
     }
 

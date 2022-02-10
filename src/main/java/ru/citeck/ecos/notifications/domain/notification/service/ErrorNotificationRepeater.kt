@@ -9,8 +9,7 @@ import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.api.commands.UnsafeSendNotificationCommandExecutor
-import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
-import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
+import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import java.time.Instant
 
@@ -18,7 +17,7 @@ private const val INFINITY_TTL = -1
 
 @Component
 class ErrorNotificationRepeater(
-    private val notificationRepository: NotificationRepository,
+    private val notificationDao: NotificationDao,
     private val unsafeSendNotificationCommandExecutor: UnsafeSendNotificationCommandExecutor,
     private val props: ApplicationProperties
 ) {
@@ -27,9 +26,9 @@ class ErrorNotificationRepeater(
         private val log = KotlinLogging.logger {}
     }
 
-    @Scheduled(fixedDelayString = "\${ecos-notifications.notification.delay}")
+    @Scheduled(fixedDelayString = "\${ecos-notifications.error-notification.delay}")
     fun handleErrors() {
-        val activeErrors = notificationRepository.findAllByState(NotificationState.ERROR)
+        val activeErrors = notificationDao.findAllEntitiesByState(NotificationState.ERROR)
 
         if (activeErrors.isNotEmpty()) {
             log.info { "Found notification error. Count: ${activeErrors.size}" }
@@ -40,7 +39,7 @@ class ErrorNotificationRepeater(
         }
     }
 
-    private fun reexecuteCommand(notification: NotificationEntity) {
+    private fun reexecuteCommand(notification: NotificationDto) {
         log.debug {
             "Reexecute notification error with id ${notification.id}. " +
                 "Current trying count: ${notification.tryingCount}"
@@ -49,53 +48,57 @@ class ErrorNotificationRepeater(
         try {
             val currentTryCount = notification.tryingCount ?: 0
 
-            if (currentTryCount > props.notification.minTryCount
-                && props.notification.ttl > INFINITY_TTL
+            if (currentTryCount > props.errorNotification.minTryCount
+                && props.errorNotification.ttl > INFINITY_TTL
             ) {
                 val created = notification.createdDate
                     ?: throw IllegalStateException("Created date cannot be null. $notification")
                 val now = Instant.now()
                 val diff = now.toEpochMilli() - created.toEpochMilli()
 
-                if (diff > props.notification.ttl) {
-                    notification.state = NotificationState.EXPIRED
-                    notification.tryingCount =
-                        if (notification.tryingCount != null) notification.tryingCount!!.plus(1) else 1
-                    notification.lastTryingDate = Instant.now()
+                if (diff > props.errorNotification.ttl) {
+                    val updatedNotification = notification.copy(
+                        state = NotificationState.EXPIRED,
+                        tryingCount = notification.tryingCount.plus(1),
+                        lastTryingDate = Instant.now()
+                    )
 
-                    notificationRepository.save(notification)
+                    notificationDao.save(updatedNotification)
 
-                    log.warn { "Mark notification error ${notification.id} as expired" }
+                    log.warn { "Mark notification error ${updatedNotification.id} as expired" }
 
                     return
                 }
             }
 
             val command = Json.mapper.read(notification.data, SendNotificationCommand::class.java)
-                ?: throw IllegalStateException("Failed convert notification data to command. Notification: $notification")
+                ?: throw IllegalStateException(
+                    "Failed convert notification data to command. Notification: $notification"
+                )
 
             unsafeSendNotificationCommandExecutor.execute(command)
 
-            notification.state = NotificationState.SENT
-            notification.tryingCount = if (notification.tryingCount != null) notification.tryingCount!!.plus(1) else 1
-            notification.lastTryingDate = Instant.now()
-
-            notificationRepository.save(notification)
-
-            log.info { "Successful re executing notification command. Notification id: ${notification.id}" }
-        } catch (e: Exception) {
-            log.error(
-                "Failed reexecute notification command. Notification id: ${notification.id}",
-                e
+            val updatedNotification = notification.copy(
+                state = NotificationState.SENT,
+                tryingCount = notification.tryingCount.plus(1),
+                lastTryingDate = Instant.now()
             )
 
-            notification.tryingCount = if (notification.tryingCount != null) notification.tryingCount!!.plus(1) else 1
-            notification.lastTryingDate = Instant.now()
-            notification.errorMessage = ExceptionUtils.getMessage(e)
-            notification.errorStackTrace = ExceptionUtils.getStackTrace(e)
-            notification.state = NotificationState.ERROR
+            notificationDao.save(updatedNotification)
 
-            notificationRepository.save(notification)
+            log.info { "Successful re executing notification command. Notification id: ${updatedNotification.id}" }
+        } catch (e: Exception) {
+            log.error("Failed reexecute notification command. Notification id: ${notification.id}", e)
+
+            val updatedNotification = notification.copy(
+                state = NotificationState.ERROR,
+                tryingCount = notification.tryingCount.plus(1),
+                lastTryingDate = Instant.now(),
+                errorMessage = ExceptionUtils.getMessage(e),
+                errorStackTrace = ExceptionUtils.getStackTrace(e)
+            )
+
+            notificationDao.save(updatedNotification)
         }
     }
 
