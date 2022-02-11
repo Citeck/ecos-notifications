@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.dto
 
-import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import java.time.Instant
@@ -10,7 +9,9 @@ data class BulkMailDto(
 
     val extId: String? = null,
 
-    val recipientsData: ObjectData,
+    val recipientsData: BulkMailRecipientsDataDto,
+
+    val config: BulkMailConfigDto,
 
     val record: RecordRef,
 
@@ -21,8 +22,6 @@ data class BulkMailDto(
     val title: String? = null,
 
     val body: String? = null,
-
-    val config: ObjectData? = null,
 
     val status: String,
 

@@ -1,5 +1,8 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <changeSet author="roman.makarskiy (generated)" id="1643635643383-1">
         <createTable tableName="bulk_mail">
             <column autoIncrement="true" name="id" type="BIGINT">
@@ -12,7 +15,6 @@
             <column name="last_modified_by" type="VARCHAR(50)"/>
             <column name="last_modified_date" type="TIMESTAMP"/>
             <column name="body" type="VARCHAR"/>
-            <column name="config" type="VARCHAR"/>
             <column name="ext_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -26,6 +28,22 @@
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="all_to" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="all_cc" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="all_bcc" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="personalized_mails" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delayed_send" type="TIMESTAMP"/>
+            <column name="batch_size" type="int4">
                 <constraints nullable="false"/>
             </column>
         </createTable>

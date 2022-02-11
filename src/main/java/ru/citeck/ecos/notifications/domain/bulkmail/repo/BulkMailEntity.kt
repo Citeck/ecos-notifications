@@ -37,11 +37,30 @@ class BulkMailEntity @JvmOverloads constructor(
     @Column(nullable = false)
     var recipientsData: String? = null,
 
-    var config: String? = null,
-
     @get: NotNull
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     var status: String? = null,
+
+    @get: NotNull
+    @Column(nullable = false)
+    var personalizedMails: Boolean = false,
+
+    @Column(nullable = false)
+    var batchSize: Int = 0,
+
+    var delayedSend: Instant? = null,
+
+    @get: NotNull
+    @Column(nullable = false)
+    var allTo: Boolean = false,
+
+    @get: NotNull
+    @Column(nullable = false)
+    var allCc: Boolean = false,
+
+    @get: NotNull
+    @Column(nullable = false)
+    var allBcc: Boolean = false,
 
     createdBy: String? = null,
     createdDate: Instant? = Instant.now(),
