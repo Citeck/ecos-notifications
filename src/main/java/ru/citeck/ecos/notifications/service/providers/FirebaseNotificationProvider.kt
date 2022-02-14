@@ -77,7 +77,7 @@ class FirebaseNotificationProvider(
             actionId = fitNotification.data[FIREBASE_ACTION_ENTITY_ID_KEY] as Long
             actionService.deleteById(actionId)
         } catch (e: Exception) {
-            log.error("Failed to delete subscription action by id", e)
+            log.error("Failed to delete subscription action by id. Data:\n" + fitNotification.data, e)
         }
     }
 

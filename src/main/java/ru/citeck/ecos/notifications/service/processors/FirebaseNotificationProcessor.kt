@@ -191,7 +191,7 @@ class FirebaseNotificationProcessor(
 
             notificationData[FIREBASE_MESSAGE_DATA_KEY] = firebaseMessageData
             notificationData[FIREBASE_CONFIG_DEVICE_TYPE_KEY] = config.get(FIREBASE_CONFIG_DEVICE_TYPE_KEY).asText()
-            notificationData[FIREBASE_ACTION_ENTITY_ID_KEY] = action.id.toString()
+            notificationData[FIREBASE_ACTION_ENTITY_ID_KEY] = action.id
 
             return mutableMapOf(
                 FIREBASE_NOTIFICATION_DATA_KEY to notificationData,
