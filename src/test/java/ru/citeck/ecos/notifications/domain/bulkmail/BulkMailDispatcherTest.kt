@@ -91,7 +91,7 @@ class BulkMailDispatcherTest {
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/" + harryRef.sourceId)
+            RecordsDaoBuilder.create("alfresco/user")
                 .addRecord(
                     harryRef.id,
                     PotterRecord()
