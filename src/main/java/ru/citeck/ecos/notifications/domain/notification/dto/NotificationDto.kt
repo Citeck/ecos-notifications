@@ -23,6 +23,10 @@ data class NotificationDto(
 
     val errorStackTrace: String,
 
+    val bulkMailRef: RecordRef = RecordRef.EMPTY,
+
+    val delayedSend: Instant? = null,
+
     val tryingCount: Int,
 
     val lastTryingDate: Instant? = null,

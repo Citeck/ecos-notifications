@@ -24,6 +24,8 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * @author Roman Makarskiy
@@ -100,6 +102,58 @@ class AwaitingNotificationDispatcherTest {
         val notificationDto = notificationDao.getById(storedNotification.id!!)
 
         assertThat(notificationDto!!.state).isEqualTo(NotificationState.ERROR)
+    }
+
+    @Test
+    fun `sent pending notification with expired delay should go to status sent`() {
+
+        val notification = Notification.Builder()
+            .record(alfPersonRef)
+            .templateRef(templateRef)
+            .notificationType(NotificationType.EMAIL_NOTIFICATION)
+            .recipients(listOf("some-email@gmail.com"))
+            .lang("ru")
+            .build()
+
+        val fiveMinAgo = Instant.now().minus(5, ChronoUnit.MINUTES)
+
+        val storedNotification = awaitNotificationService.sendToAwait(notification, fiveMinAgo)
+
+        awaitingNotificationDispatcher.dispatchNotifications()
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+
+        val notificationDto = notificationDao.getById(storedNotification.id!!)
+
+        assertThat(notificationDto!!.state).isEqualTo(NotificationState.SENT)
+    }
+
+    @Test
+    fun `sent pending notification with not expired delay should stay on awaiting dispatch status`() {
+
+        val notification = Notification.Builder()
+            .record(alfPersonRef)
+            .templateRef(templateRef)
+            .notificationType(NotificationType.EMAIL_NOTIFICATION)
+            .recipients(listOf("some-email@gmail.com"))
+            .lang("ru")
+            .build()
+
+        val fiveMinAhead = Instant.now().plus(5, ChronoUnit.MINUTES)
+
+        val storedNotification = awaitNotificationService.sendToAwait(notification, fiveMinAhead)
+
+        awaitingNotificationDispatcher.dispatchNotifications()
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(0)
+
+        val notificationDto = notificationDao.getById(storedNotification.id!!)
+
+        assertThat(notificationDto!!.state).isEqualTo(NotificationState.WAIT_FOR_DISPATCH)
     }
 
     @Test

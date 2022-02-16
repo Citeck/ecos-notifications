@@ -19,7 +19,7 @@ class NotificationCommandResultHolder(
     }
 
     fun holdError(command: SendNotificationCommand, throwable: Throwable) {
-        log.info { "hold error notification command:\n $command" }
+        log.debug { "hold error notification command:\n $command" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
 
@@ -47,13 +47,13 @@ class NotificationCommandResultHolder(
                 lastTryingDate = Instant.now()
             )
 
-        log.info { "Save error notification:\n$toSave" }
+        log.debug { "Save error notification:\n$toSave" }
 
         notificationDao.save(toSave)
     }
 
     fun holdSuccess(command: SendNotificationCommand) {
-        log.info { "hold success notification command:\n $command" }
+        log.debug { "hold success notification command:\n $command" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
 
@@ -81,7 +81,7 @@ class NotificationCommandResultHolder(
                 lastTryingDate = Instant.now()
             )
 
-        log.info { "Save success notification:\n$toSave" }
+        log.debug { "Save success notification:\n$toSave" }
 
         notificationDao.save(toSave)
     }

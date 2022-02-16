@@ -46,6 +46,7 @@
             <column name="batch_size" type="int4">
                 <constraints nullable="false"/>
             </column>
+            <column name="lang" type="VARCHAR(10)"/>
         </createTable>
     </changeSet>
     <changeSet author="roman.makarskiy (generated)" id="1643635643383-4">

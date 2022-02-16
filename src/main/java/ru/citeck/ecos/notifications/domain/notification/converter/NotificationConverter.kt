@@ -2,14 +2,20 @@ package ru.citeck.ecos.notifications.domain.notification.converter
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
+import java.time.Instant
 import javax.annotation.PostConstruct
 
+/**
+ * @author Roman Makarskiy
+ */
 @Component
 class NotificationConverter(
     val recordsService: RecordsService
@@ -37,6 +43,7 @@ fun NotificationEntity.toDto(): NotificationDto {
         tryingCount = tryingCount ?: 0,
         lastTryingDate = lastTryingDate,
         state = state!!,
+        delayedSend = delayedSend,
         createdBy = createdBy,
         createdDate = createdDate,
         lastModifiedBy = lastModifiedBy,
@@ -56,15 +63,21 @@ fun NotificationDto.toEntity(): NotificationEntity {
         errorStackTrace = errorStackTrace,
         tryingCount = tryingCount,
         lastTryingDate = lastTryingDate,
-        state = state
+        state = state,
+        bulkMailRef = bulkMailRef.toString(),
+        delayedSend = delayedSend
     )
 }
 
-fun Notification.toDtoWithState(state: NotificationState): NotificationDto {
+fun Notification.toDtoWithState(
+    state: NotificationState,
+    bulkMailRef: RecordRef = RecordRef.EMPTY,
+    delayedSend: Instant? = null
+): NotificationDto {
     return NotificationDto(
         extId = id,
         type = type,
-        record =  if (record is RecordRef) {
+        record = if (record is RecordRef) {
             record as RecordRef
         } else {
             RecordRef.valueOf(notificationConverter.recordsService.getAtt(record, "?id").asText())
@@ -74,7 +87,12 @@ fun Notification.toDtoWithState(state: NotificationState): NotificationDto {
         data = Json.mapper.toBytes(this),
         errorMessage = "",
         errorStackTrace = "",
-        tryingCount = 0
+        tryingCount = 0,
+        bulkMailRef = bulkMailRef,
+        delayedSend = delayedSend
     )
 }
+
+val BulkMailDto.recordRef: RecordRef
+    get() = RecordRef.create("notifications", BulkMailRecords.ID, extId)
 

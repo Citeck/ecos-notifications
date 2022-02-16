@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.converter
 
+import org.apache.commons.lang3.LocaleUtils
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
@@ -18,8 +19,8 @@ fun BulkMailEntity.toDto(): BulkMailDto {
         record = RecordRef.valueOf(record),
         template = RecordRef.valueOf(template),
         type = type!!,
-        title = title,
-        body = body,
+        title = title ?: "",
+        body = body ?: "",
         recipientsData = recipientsData?.let { BulkMailRecipientsDataDto.from(it) } ?: BulkMailRecipientsDataDto(),
         config = BulkMailConfigDto(
             batchConfig = BulkMailBatchConfigDto(
@@ -29,7 +30,8 @@ fun BulkMailEntity.toDto(): BulkMailDto {
             delayedSend = delayedSend,
             allTo = allTo,
             allCc = allCc,
-            allBcc = allBcc
+            allBcc = allBcc,
+            lang = LocaleUtils.toLocale(lang)
         ),
         status = status!!,
         createdBy = createdBy,
@@ -55,7 +57,8 @@ fun BulkMailDto.toEntity(): BulkMailEntity {
         allTo = config.allTo,
         allCc = config.allCc,
         allBcc = config.allBcc,
-        status = status
+        lang = config.lang?.toString(),
+        status = status,
     )
 }
 
@@ -66,10 +69,11 @@ fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
         record = RecordRef.valueOf(record),
         template = RecordRef.valueOf(template),
         type = type!!,
-        title = title,
-        body = body,
+        title = title ?: "",
+        body = body ?: "",
         recipientsData = recipientsData?.let { BulkMailRecipientsDataDto.from(it) } ?: BulkMailRecipientsDataDto(),
         config = config?.let { BulkMailConfigDto.from(it) } ?: BulkMailConfigDto(),
+        //TODO: default from constants?
         status = status ?: "new",
         createdBy = creator,
         createdDate = created,

@@ -33,9 +33,18 @@ class NotificationDao(
         return notificationRepository.save(dto.toEntity()).toDto()
     }
 
+    fun saveAll(dto: List<NotificationDto>): List<NotificationDto> {
+        return notificationRepository.saveAll(dto.map { it.toEntity() }).map { it.toDto() }
+    }
+
     @Transactional(readOnly = true)
     fun findAllEntitiesByState(notificationState: NotificationState): List<NotificationDto> {
         return notificationRepository.findAllByState(notificationState).map { it.toDto() }.toList()
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllToDispatch(): List<NotificationDto> {
+        return notificationRepository.findAllToDispatch().map { it.toDto() }.toList()
     }
 
     @Transactional(readOnly = true)

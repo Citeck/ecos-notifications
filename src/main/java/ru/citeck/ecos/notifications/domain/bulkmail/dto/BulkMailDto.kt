@@ -11,19 +11,20 @@ data class BulkMailDto(
 
     val recipientsData: BulkMailRecipientsDataDto,
 
-    val config: BulkMailConfigDto,
+    val config: BulkMailConfigDto = BulkMailConfigDto(),
 
-    val record: RecordRef,
+    val record: RecordRef = RecordRef.EMPTY,
 
-    val template: RecordRef,
+    val template: RecordRef = RecordRef.EMPTY,
 
     val type: NotificationType,
 
-    val title: String? = null,
+    val title: String = "",
 
-    val body: String? = null,
+    val body: String = "",
 
-    val status: String,
+    //TODO: use constants
+    val status: String = "new",
 
     val createdBy: String? = null,
 

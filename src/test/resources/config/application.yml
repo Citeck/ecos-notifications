@@ -117,7 +117,7 @@ ecos-notifications:
     delay: 5000
     min-try-count: 1
   awaiting-dispatch:
-    delay: 5000
+    delay: 15000
 
 notifications:
   default:

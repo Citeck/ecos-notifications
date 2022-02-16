@@ -10,6 +10,7 @@ import ru.citeck.ecos.notifications.domain.event.service.NotificationEventServic
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.isExplicitPayload
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -33,8 +34,19 @@ class NotificationSender(
 
     fun send(rawNotification: RawNotification) {
         log.debug("Send notification raw: $rawNotification")
-        val title = prepareTitle(rawNotification.template, rawNotification.locale, rawNotification.model)
-        val body = prepareBody(rawNotification.template, rawNotification.locale, rawNotification.model)
+
+        val title = if (rawNotification.isExplicitPayload()) {
+            rawNotification.title
+        } else {
+            prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
+        }
+
+        val body = if (rawNotification.isExplicitPayload()) {
+            rawNotification.body
+        } else {
+            prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
+        }
+
         val attachments = prepareAttachments(rawNotification.model)
         val data = prepareData(rawNotification.model)
 

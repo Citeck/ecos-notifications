@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.utils
+package ru.citeck.ecos.notifications.domain.bulkmail.api
 
 import org.assertj.core.api.Assertions
 import org.junit.Test

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.isExplicitPayload
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationSender
@@ -46,6 +47,37 @@ class UnsafeSendNotificationCommandExecutor(
             )
         }
 
+        val templateModelData = resolveTemplateModelData(command)
+
+        val locale = if (command.lang.isEmpty()) DEFAULT_LOCALE else LocaleUtils
+            .toLocale(command.lang)
+
+        val record = NotificationCommandUtils.resolveNotificationRecord(command.record)
+
+        val notification = RawNotification(
+            record = record,
+            title = command.title,
+            body = command.body,
+            template = templateModelData.templateMeta,
+            type = command.type,
+            locale = locale,
+            recipients = command.recipients,
+            model = templateModelData.filledModel,
+            from = command.from,
+            cc = command.cc,
+            bcc = command.bcc
+        )
+
+        notificationService.send(notification)
+
+        return SendNotificationResult(NotificationResultStatus.OK.value, "")
+    }
+
+    fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {
+        if (command.isExplicitPayload()) {
+            return TemplateModelData()
+        }
+
         val baseTemplate = getTemplateMetaById(command.templateRef.id)
 
         val template = resolveMultiTemplate(
@@ -55,6 +87,7 @@ class UnsafeSendNotificationCommandExecutor(
         )
 
         val requiredModel = mutableMapOf<String, String>()
+
         baseTemplate.model?.let { requiredModel.putAll(it) }
         if (!Objects.equals(baseTemplate.id, template.id)) {
             template.model?.let { requiredModel.putAll(it) }
@@ -65,26 +98,11 @@ class UnsafeSendNotificationCommandExecutor(
             incomeFilledModel = command.model
         )
 
-        val locale = if (command.lang.isEmpty()) DEFAULT_LOCALE else LocaleUtils
-            .toLocale(command.lang)
-
-        val record = NotificationCommandUtils.resolveNotificationRecord(command.record)
-
-        val notification = RawNotification(
-            record = record,
-            template = template,
-            type = command.type,
-            locale = locale,
-            recipients = command.recipients,
-            model = filledModel,
-            from = command.from,
-            cc = command.cc,
-            bcc = command.bcc
+        return TemplateModelData(
+            baseTemplateMeta = baseTemplate,
+            templateMeta = template,
+            filledModel = filledModel
         )
-
-        notificationService.send(notification)
-
-        return SendNotificationResult(NotificationResultStatus.OK.value, "")
     }
 
     private fun recipientsNotSpecified(command: SendNotificationCommand): Boolean {
@@ -151,5 +169,11 @@ class UnsafeSendNotificationCommandExecutor(
 
         return filledModel
     }
+
+    data class TemplateModelData(
+        val baseTemplateMeta: NotificationTemplateWithMeta? = null,
+        val templateMeta: NotificationTemplateWithMeta? = null,
+        val filledModel: Map<String, Any> = emptyMap()
+    )
 
 }

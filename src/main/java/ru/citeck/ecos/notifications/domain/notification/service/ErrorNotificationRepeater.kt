@@ -26,7 +26,7 @@ class ErrorNotificationRepeater(
         private val log = KotlinLogging.logger {}
     }
 
-    @Scheduled(fixedDelayString = "\${ecos-notifications.error-notification.delay}")
+    @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.error-notification.delay}")
     fun handleErrors() {
         val activeErrors = notificationDao.findAllEntitiesByState(NotificationState.ERROR)
 

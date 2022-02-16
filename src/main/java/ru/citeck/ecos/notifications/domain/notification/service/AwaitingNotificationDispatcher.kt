@@ -23,10 +23,10 @@ class AwaitingNotificationDispatcher(
         private val log = KotlinLogging.logger {}
     }
 
-    @Scheduled(fixedDelayString = "\${ecos-notifications.awaiting-dispatch.delay}")
+    @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.awaiting-dispatch.delay}")
     fun dispatchNotifications() {
 
-        val toDispatch = notificationDao.findAllEntitiesByState(NotificationState.WAIT_FOR_DISPATCH)
+        val toDispatch = notificationDao.findAllToDispatch()
 
         log.debug { "Found notifications to dispatch: ${toDispatch.size}" }
 

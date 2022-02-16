@@ -38,6 +38,7 @@ import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.spring.config.RecordsServiceFactoryConfiguration
 import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
 import java.time.Instant
+import java.util.*
 
 /**
  * @author Roman Makarskiy
@@ -515,7 +516,8 @@ class BulkMailRecordsControllerTest {
                                     "personalizedMails": true
                                   },
                                   "allBcc": true,
-                                  "delayedSend": ${now.toEpochMilli()}
+                                  "delayedSend": ${now.toEpochMilli()},
+                                  "lang": "en"
                                 }
                               }
                             }
@@ -556,7 +558,8 @@ class BulkMailRecordsControllerTest {
                     personalizedMails = true
                 ),
                 allBcc = true,
-                delayedSend = now
+                delayedSend = now,
+                lang = Locale.ENGLISH
             )
         )
     }

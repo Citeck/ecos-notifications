@@ -5,6 +5,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
 import javax.persistence.*
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -61,6 +62,8 @@ class BulkMailEntity @JvmOverloads constructor(
     @get: NotNull
     @Column(nullable = false)
     var allBcc: Boolean = false,
+
+    var lang: String? = null,
 
     createdBy: String? = null,
     createdDate: Instant? = Instant.now(),

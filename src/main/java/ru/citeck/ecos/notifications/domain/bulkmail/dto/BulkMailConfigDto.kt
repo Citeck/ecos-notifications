@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.dto
 
 import java.time.Instant
+import java.util.*
 
 /**
  * @author Roman Makarskiy
@@ -15,7 +16,9 @@ data class BulkMailConfigDto(
 
     val allCc: Boolean = false,
 
-    val allBcc: Boolean = false
+    val allBcc: Boolean = false,
+
+    val lang: Locale? = null
 
 ) {
     companion object

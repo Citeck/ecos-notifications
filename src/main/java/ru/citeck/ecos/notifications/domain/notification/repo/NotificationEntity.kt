@@ -40,6 +40,8 @@ class NotificationEntity @JvmOverloads constructor(
 
     var tryingCount: Int? = 0,
 
+    var delayedSend: Instant? = null,
+
     var lastTryingDate: Instant? = null,
 
     @get: NotNull

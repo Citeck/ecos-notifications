@@ -197,7 +197,7 @@ ecos-notifications:
   error-notification:
     delay: 600000
   awaiting-dispatch:
-    delay: 5000
+    delay: 15000
 
 notifications:
   default:
