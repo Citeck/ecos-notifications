@@ -12,6 +12,11 @@ import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
+private const val ALFRESCO_APP = "alfresco"
+private const val AUTHORITY_SRC_ID = "authority"
+private const val PEOPLE_SRC_ID = "people"
+private const val AUTHORITY_GROUP_PREFIX = "GROUP_"
+
 fun BulkMailEntity.toDto(): BulkMailDto {
     return BulkMailDto(
         id = id!!,
@@ -87,8 +92,33 @@ fun BulkMailRecipientsDataDto.Companion.from(data: String): BulkMailRecipientsDa
         ?: throw IllegalArgumentException("Failed create BulkMailRecipientsDataDto from data:\n$data")
 }
 
+
+/**
+ * Select orgstruct component send to backend userName or groupName. We need convert it to full recordRef format.
+ * TODO: migrate to model (microservice) people/groups after completion of development.
+ */
 fun BulkMailRecipientsDataDto.Companion.from(data: ObjectData): BulkMailRecipientsDataDto {
-    return from(data.toString())
+    fun convertRecipientsToFullFilledRefs(recipients: List<RecordRef>): List<RecordRef> {
+        return recipients.map {
+            var fullFilledRef = it
+
+            if (fullFilledRef.appName.isBlank()) {
+                fullFilledRef = fullFilledRef.addAppName(ALFRESCO_APP)
+            }
+
+            if (fullFilledRef.sourceId.isBlank()) {
+                val sourceId = if (fullFilledRef.isAuthorityGroupRef()) AUTHORITY_SRC_ID else PEOPLE_SRC_ID
+                fullFilledRef = fullFilledRef.withSourceId(sourceId)
+            }
+
+            fullFilledRef
+        }
+    }
+
+    val dto = from(data.toString())
+    return dto.copy(
+        recipients = convertRecipientsToFullFilledRefs(dto.recipients)
+    )
 }
 
 fun BulkMailConfigDto.Companion.from(data: String): BulkMailConfigDto {
@@ -98,4 +128,8 @@ fun BulkMailConfigDto.Companion.from(data: String): BulkMailConfigDto {
 
 fun BulkMailConfigDto.Companion.from(data: ObjectData): BulkMailConfigDto {
     return from(data.toString())
+}
+
+fun RecordRef.isAuthorityGroupRef(): Boolean {
+    return id.startsWith(AUTHORITY_GROUP_PREFIX)
 }

@@ -45,9 +45,11 @@ class RecipientsFinderTest {
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
         private val severusRef = RecordRef.valueOf("alfresco/people@severus")
+        private val hogwartsRef = RecordRef.valueOf("alfresco/authority@GROUP_hogwarts")
 
         private val harryRecord = PotterRecord()
         private val severusRecord = SnapeRecord()
+        private val hogwartsRecord = HogwartsRecord()
     }
 
     @Before
@@ -66,6 +68,15 @@ class RecipientsFinderTest {
                 )
                 .build()
         )
+
+        recordsService.register(
+            RecordsDaoBuilder.create("alfresco/authority")
+                .addRecord(
+                    hogwartsRef.id,
+                    hogwartsRecord
+                )
+                .build()
+        )
     }
 
     @Test
@@ -76,6 +87,29 @@ class RecipientsFinderTest {
                 recipients = listOf(
                     harryRef,
                     severusRef
+                )
+            ),
+            type = NotificationType.EMAIL_NOTIFICATION,
+        )
+
+        val recipients = recipientsFinder.resolveRecipients(bulkMail)
+
+        assertThat(recipients.size).isEqualTo(2)
+        assertThat(recipients)
+            .containsExactlyInAnyOrder(
+                harryRecord.email,
+                severusRecord.email
+            )
+
+    }
+
+    @Test
+    fun `get recipients from recipients group refs`() {
+        val bulkMail = BulkMailDto(
+            id = null,
+            recipientsData = BulkMailRecipientsDataDto(
+                recipients = listOf(
+                    hogwartsRef
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -175,6 +209,13 @@ class RecipientsFinderTest {
 
         @AttName("email")
         val email: String = "severus.snape@hogwarts.com"
+
+    )
+
+    class HogwartsRecord(
+
+        @AttName("containedUsers")
+        val users: List<RecordRef> = listOf(harryRef, severusRef)
 
     )
 

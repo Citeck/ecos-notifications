@@ -52,6 +52,11 @@ class BulkMailRecordsControllerTest {
         private val testTemplateRef = RecordRef.create("notifications", "template", "test-template")
         private val docRef = RecordRef.valueOf("doc@test-document")
 
+        private val harryRef = RecordRef.valueOf("alfresco/people@harry")
+        private val severusRef = RecordRef.valueOf("alfresco/people@severus")
+
+        private val departmentGroupRef = RecordRef.valueOf("alfresco/authority@GROUP_department")
+
         private val mapper: ObjectMapper = ObjectMapper()
     }
 
@@ -114,7 +119,7 @@ class BulkMailRecordsControllerTest {
                                 "recipientsData": {
                                   "recipients": [
                                     "alfresco/ray@bradbury",
-                                    "test@zzz"
+                                    "$harryRef"
                                   ],
                                   "fromUserInput": "one,two",
                                   "custom": {
@@ -151,15 +156,17 @@ class BulkMailRecordsControllerTest {
             BulkMailRecipientsDataDto(
                 recipients = listOf(
                     RecordRef.valueOf("alfresco/ray@bradbury"),
-                    RecordRef.Companion.valueOf("test@zzz")
+                    harryRef
                 ),
                 fromUserInput = "one,two",
-                custom = ObjectData.create("""
+                custom = ObjectData.create(
+                    """
                      {
                         "field0": 451,
                         "field1": "Fahrenheit"
                       }
-                """.trimIndent())
+                """.trimIndent()
+                )
             )
         )
         assertThat(bulkMail.config).isEqualTo(
@@ -196,7 +203,7 @@ class BulkMailRecordsControllerTest {
                                 "recipientsData": {
                                   "recipients": [
                                     "alfresco/ray@bradbury",
-                                    "test@zzz"
+                                    "$harryRef"
                                   ]
                                 }
                               }
@@ -220,7 +227,117 @@ class BulkMailRecordsControllerTest {
             BulkMailRecipientsDataDto(
                 recipients = listOf(
                     RecordRef.valueOf("alfresco/ray@bradbury"),
-                    RecordRef.Companion.valueOf("test@zzz")
+                    harryRef
+                )
+            )
+        )
+        assertThat(bulkMail.config).isEqualTo(
+            BulkMailConfigDto()
+        )
+    }
+
+    @Test
+    fun `created bulk mail recipients user names should converted to full record ref`() {
+
+        val result = mockRecordsApi.perform(
+            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_MUTATE)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(
+                    """
+                        {
+                          "records": [
+                            {
+                              "id": "notifications/bulk-mail@",
+                              "attributes": {
+                                "title": "Foo",
+                                "body": "Bar",
+                                "status": "new",
+                                "type": "EMAIL_NOTIFICATION",
+                                "record": "$docRef",
+                                "template": "$testTemplateRef",
+                                "recipientsData": {
+                                  "recipients": [
+                                    "${harryRef.id}",
+                                    "${severusRef.id}"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                    """.trimIndent()
+                )
+        ).andReturn()
+
+        val bulkMail = getBulkMailFromResponse(result)
+
+        assertThat(bulkMail.extId).isNotBlank
+        assertThat(bulkMail.title).isEqualTo("Foo")
+        assertThat(bulkMail.body).isEqualTo("Bar")
+        assertThat(bulkMail.status).isEqualTo("new")
+        assertThat(bulkMail.type).isEqualTo(NotificationType.EMAIL_NOTIFICATION)
+        assertThat(bulkMail.record).isEqualTo(docRef)
+        assertThat(bulkMail.template).isEqualTo(testTemplateRef)
+        assertThat(bulkMail.recipientsData).isEqualTo(
+            BulkMailRecipientsDataDto(
+                recipients = listOf(
+                    harryRef,
+                    severusRef
+                )
+            )
+        )
+        assertThat(bulkMail.config).isEqualTo(
+            BulkMailConfigDto()
+        )
+    }
+
+    @Test
+    fun `created bulk mail recipients groups should converted to full record ref`() {
+
+        val result = mockRecordsApi.perform(
+            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_MUTATE)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(
+                    """
+                        {
+                          "records": [
+                            {
+                              "id": "notifications/bulk-mail@",
+                              "attributes": {
+                                "title": "Foo",
+                                "body": "Bar",
+                                "status": "new",
+                                "type": "EMAIL_NOTIFICATION",
+                                "record": "$docRef",
+                                "template": "$testTemplateRef",
+                                "recipientsData": {
+                                  "recipients": [
+                                    "${harryRef.id}",
+                                    "${departmentGroupRef.id}"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                    """.trimIndent()
+                )
+        ).andReturn()
+
+        val bulkMail = getBulkMailFromResponse(result)
+
+        assertThat(bulkMail.extId).isNotBlank
+        assertThat(bulkMail.title).isEqualTo("Foo")
+        assertThat(bulkMail.body).isEqualTo("Bar")
+        assertThat(bulkMail.status).isEqualTo("new")
+        assertThat(bulkMail.type).isEqualTo(NotificationType.EMAIL_NOTIFICATION)
+        assertThat(bulkMail.record).isEqualTo(docRef)
+        assertThat(bulkMail.template).isEqualTo(testTemplateRef)
+        assertThat(bulkMail.recipientsData).isEqualTo(
+            BulkMailRecipientsDataDto(
+                recipients = listOf(
+                    harryRef,
+                    departmentGroupRef
                 )
             )
         )
@@ -501,8 +618,8 @@ class BulkMailRecordsControllerTest {
                                 "template": "$docRef",
                                 "recipientsData": {
                                   "recipients": [
-                                    "alfresco/ray@bradbury",
-                                    "test@zzz"
+                                    "$harryRef",
+                                    "$severusRef"
                                   ],
                                   "fromUserInput": "one,two",
                                   "custom": {
@@ -539,16 +656,18 @@ class BulkMailRecordsControllerTest {
         assertThat(updatedBulkMail.recipientsData).isEqualTo(
             BulkMailRecipientsDataDto(
                 recipients = listOf(
-                    RecordRef.valueOf("alfresco/ray@bradbury"),
-                    RecordRef.Companion.valueOf("test@zzz")
+                    harryRef,
+                    severusRef
                 ),
                 fromUserInput = "one,two",
-                custom = ObjectData.create("""
+                custom = ObjectData.create(
+                    """
                      {
                         "field0": 451,
                         "field1": "Fahrenheit"
                       }
-                """.trimIndent())
+                """.trimIndent()
+                )
             )
         )
         assertThat(updatedBulkMail.config).isEqualTo(

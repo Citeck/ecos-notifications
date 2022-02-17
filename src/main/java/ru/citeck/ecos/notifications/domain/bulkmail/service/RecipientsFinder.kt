@@ -5,6 +5,7 @@ import com.google.common.base.Splitter
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.config.lib.consumer.bean.EcosConfig
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.isAuthorityGroupRef
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
@@ -33,9 +34,6 @@ class RecipientsFinder(
      * @return recipients emails
      */
     fun resolveRecipients(bulkMail: BulkMailDto): Set<String> {
-        //TODO: remove
-        println("CONFIG: $customProviders")
-
         val result = mutableSetOf<String>()
 
         result.addAll(getRecipientsFromRefs(bulkMail.recipientsData.recipients))
@@ -46,8 +44,18 @@ class RecipientsFinder(
     }
 
     private fun getRecipientsFromRefs(refs: List<RecordRef>): List<String> {
-        //TODO: remove
+        val allUsers = mutableSetOf<RecordRef>()
+        val groups = mutableListOf<RecordRef>()
+
         refs.forEach {
+            if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
+        }
+
+        val usersFromGroup = recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
+        allUsers.addAll(usersFromGroup)
+
+        //TODO: remove
+        allUsers.forEach {
             val r = recordsService.getAtt(it, "?json")
             println("----------------------")
             println("$it:")
@@ -55,7 +63,7 @@ class RecipientsFinder(
             println("----------------------")
         }
 
-        return recordsService.getAtts(refs, UserInfo::class.java).mapNotNull { it.email }
+        return recordsService.getAtts(allUsers, UserInfo::class.java).mapNotNull { it.email }
     }
 
     private fun getRecipientsFromUserInput(input: String): List<String> {
@@ -106,4 +114,9 @@ class RecipientsFinder(
 data class UserInfo(
     @AttName("email")
     var email: String? = ""
+)
+
+data class GroupInfo(
+    @AttName("containedUsers")
+    val containedUsers: List<RecordRef> = emptyList()
 )

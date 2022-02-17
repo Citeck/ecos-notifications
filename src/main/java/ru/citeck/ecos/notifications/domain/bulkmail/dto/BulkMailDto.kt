@@ -48,6 +48,6 @@ data class BulkMailDto(
     }
 
     override fun hashCode(): Int {
-        return 31
+        return id?.hashCode() ?: 0
     }
 }
