@@ -4,6 +4,7 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Splitter
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.config.lib.consumer.bean.EcosConfig
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
@@ -22,9 +23,8 @@ class RecipientsFinder(
     private val emailPattern = Pattern.compile("^.+@.+\\..+$")
     private val recipientsAttribute = "recipients[]"
 
-    //TODO: get from config. @EcosConfig ?
-    private val customProviders =
-        listOf("notifications/custom-fixed-recipients", "notifications/custom-mail-recipients")
+    @EcosConfig("bulk-mail-custom-recipients-providers")
+    var customProviders: List<String> = emptyList()
 
     /**
      * In the current implementation returns only user emails. <br>
@@ -33,6 +33,9 @@ class RecipientsFinder(
      * @return recipients emails
      */
     fun resolveRecipients(bulkMail: BulkMailDto): Set<String> {
+        //TODO: remove
+        println("CONFIG: $customProviders")
+
         val result = mutableSetOf<String>()
 
         result.addAll(getRecipientsFromRefs(bulkMail.recipientsData.recipients))

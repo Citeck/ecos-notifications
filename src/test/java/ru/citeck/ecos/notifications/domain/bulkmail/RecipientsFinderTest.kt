@@ -7,6 +7,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
+import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -32,6 +33,9 @@ class RecipientsFinderTest {
     @Autowired
     private lateinit var recipientsFinder: RecipientsFinder
 
+    @Autowired
+    private lateinit var localAppService: LocalAppService
+
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
         private val severusRef = RecordRef.valueOf("alfresco/people@severus")
@@ -43,6 +47,7 @@ class RecipientsFinderTest {
 
     @Before
     fun setUp() {
+        localAppService.deployLocalArtifacts()
 
         recordsService.register(
             RecordsDaoBuilder.create("alfresco/people")
