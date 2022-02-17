@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.config.lib.dto.ConfigKey
+import ru.citeck.ecos.config.lib.zookeeper.ZkConfigService
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
@@ -18,6 +20,7 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Roman Makarskiy
@@ -36,10 +39,12 @@ class RecipientsFinderTest {
     @Autowired
     private lateinit var localAppService: LocalAppService
 
+    @Autowired
+    private lateinit var zkConfigService: ZkConfigService
+
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
         private val severusRef = RecordRef.valueOf("alfresco/people@severus")
-
 
         private val harryRecord = PotterRecord()
         private val severusRecord = SnapeRecord()
@@ -116,15 +121,19 @@ class RecipientsFinderTest {
 
     @Test
     fun `get recipients from custom`() {
+        setProviders(listOf("notifications/custom-fixed-recipients", "notifications/custom-mail-recipients"))
+
         val bulkMail = BulkMailDto(
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
-               custom = ObjectData.create("""
+                custom = ObjectData.create(
+                    """
                      {
                         "generateSize": 3,
                         "prefix": "user"
                       }
-                """.trimIndent())
+                """.trimIndent()
+                )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
         )
@@ -141,6 +150,18 @@ class RecipientsFinderTest {
                 "recipient_2"
             )
 
+        setProviders(emptyList())
+    }
+
+    private fun setProviders(providers: List<String>) {
+        zkConfigService.setConfig(
+            ConfigKey(
+                id = "bulk-mail-custom-recipients-providers",
+                scope = "app/notifications"
+            ), providers, 2
+        )
+
+        TimeUnit.SECONDS.sleep(1)
     }
 
     class PotterRecord(
