@@ -22,5 +22,4 @@ data class BulkMailConfigDto(
 
 ) {
     companion object
-
 }

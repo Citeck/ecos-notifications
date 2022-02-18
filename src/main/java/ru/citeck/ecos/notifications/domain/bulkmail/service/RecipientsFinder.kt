@@ -3,10 +3,12 @@ package ru.citeck.ecos.notifications.domain.bulkmail.service
 import com.google.common.base.CharMatcher
 import com.google.common.base.Splitter
 import org.springframework.stereotype.Component
-import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.config.lib.consumer.bean.EcosConfig
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.isAuthorityGroupRef
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
+import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -22,7 +24,7 @@ class RecipientsFinder(
 ) {
 
     private val emailPattern = Pattern.compile("^.+@.+\\..+$")
-    private val recipientsAttribute = "recipients[]"
+    private val recipientsAttribute = "recipients[]?json"
 
     @EcosConfig("bulk-mail-custom-recipients-providers")
     var customProviders: List<String> = emptyList()
@@ -33,21 +35,21 @@ class RecipientsFinder(
      *
      * @return recipients emails
      */
-    fun resolveRecipients(bulkMail: BulkMailDto): Set<String> {
-        val result = mutableSetOf<String>()
+    fun resolveRecipients(bulkMail: BulkMailDto): Set<BulkMailRecipientDto> {
+        val result = mutableSetOf<BulkMailRecipientDto>()
 
-        result.addAll(getRecipientsFromRefs(bulkMail.recipientsData.recipients))
-        result.addAll(getRecipientsFromUserInput(bulkMail.recipientsData.fromUserInput))
-        result.addAll(getRecipientsFromCustom(bulkMail.recipientsData.custom))
+        result.addAll(getRecipientsFromRefs(bulkMail))
+        result.addAll(getRecipientsFromUserInput(bulkMail))
+        result.addAll(getRecipientsFromCustom(bulkMail))
 
         return result
     }
 
-    private fun getRecipientsFromRefs(refs: List<RecordRef>): List<String> {
+    private fun getRecipientsFromRefs(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
         val allUsers = mutableSetOf<RecordRef>()
         val groups = mutableListOf<RecordRef>()
 
-        refs.forEach {
+        bulkMail.recipientsData.recipients.forEach {
             if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
         }
 
@@ -63,46 +65,59 @@ class RecipientsFinder(
             println("----------------------")
         }
 
-        return recordsService.getAtts(allUsers, UserInfo::class.java).mapNotNull { it.email }
+        return recordsService.getAtts(allUsers, UserInfo::class.java)
+            .filter { it.email?.isNotBlank() ?: false }
+            .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
     }
 
-    private fun getRecipientsFromUserInput(input: String): List<String> {
-        val splitInput = Splitter.on(CharMatcher.anyOf(",;\n "))
+    private fun getRecipientsFromUserInput(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
+        val userRefs = mutableListOf<RecordRef>()
+        val emails = mutableListOf<String>()
+
+        Splitter.on(CharMatcher.anyOf(",;\n "))
             .trimResults()
             .omitEmptyStrings()
-            .split(input).toList()
+            .split(bulkMail.recipientsData.fromUserInput)
+            .forEach {
+                val isEmail = emailPattern.matcher(it).matches()
 
-        val userRefs = arrayListOf<RecordRef>()
-        val users = arrayListOf<String>()
+                if (isEmail) {
+                    emails.add(it)
+                } else {
+                    userRefs.add(RecordRef.create("alfresco", "people", it))
+                }
+            }
 
-        splitInput.filter {
-            !emailPattern.matcher(it).matches()
-        }.forEach {
-            users.add(it)
-            userRefs.add(RecordRef.create("alfresco", "people", it))
+        val result = mutableListOf<BulkMailRecipientDto>()
+
+        emails.forEach { email ->
+            result.add(BulkMailRecipientDto.from(email, bulkMail.recordRef))
         }
 
-        val emails = recordsService.getAtts(userRefs, UserInfo::class.java).mapNotNull { it.email }
-
-        val result = splitInput.toMutableList()
-        result.removeAll(users)
-        result.addAll(emails)
+        recordsService.getAtts(userRefs, UserInfo::class.java)
+            .filter { it.email?.isNotBlank() ?: false }
+            .forEach { userInfo ->
+                result.add(BulkMailRecipientDto.from(userInfo, bulkMail.recordRef))
+            }
 
         return result
     }
 
-    private fun getRecipientsFromCustom(data: ObjectData): List<String> {
-        val result = mutableListOf<String>()
+    private fun getRecipientsFromCustom(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
+        val result = mutableListOf<BulkMailRecipientDto>()
 
         customProviders.forEach { provider ->
 
             val query = RecordsQuery.Builder()
-                .withQuery(data)
+                .withQuery(bulkMail.recipientsData.custom)
                 .withSourceId(provider)
                 .withMaxItems(1)
                 .build()
 
-            val found = recordsService.queryOne(query, recipientsAttribute).asList(String::class.java)
+            val found = recordsService.queryOne(query, recipientsAttribute).asList(RecipientInfo::class.java)
+                .filter { it.address?.isNotBlank() ?: false }
+                .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
+
             result.addAll(found)
         }
 
@@ -113,10 +128,30 @@ class RecipientsFinder(
 
 data class UserInfo(
     @AttName("email")
-    var email: String? = ""
+    var email: String? = "",
+
+    @AttName(".disp")
+    var disp: String? = "",
+
+    @AttName(".id")
+    var record: RecordRef? = RecordRef.EMPTY
 )
 
 data class GroupInfo(
     @AttName("containedUsers")
     val containedUsers: List<RecordRef> = emptyList()
+)
+
+data class RecipientInfo(
+
+    @AttName("address")
+    var address: String? = "",
+
+
+    @AttName(".disp")
+    var disp: String? = "",
+
+    @AttName("record")
+    var record: RecordRef? = RecordRef.EMPTY
+
 )

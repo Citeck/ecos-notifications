@@ -12,9 +12,12 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.config.lib.dto.ConfigKey
 import ru.citeck.ecos.config.lib.zookeeper.ZkConfigService
 import ru.citeck.ecos.notifications.NotificationsApp
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientsFinder
+import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -92,13 +95,27 @@ class RecipientsFinderTest {
             type = NotificationType.EMAIL_NOTIFICATION,
         )
 
-        val recipients = recipientsFinder.resolveRecipients(bulkMail)
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
 
         assertThat(recipients.size).isEqualTo(2)
         assertThat(recipients)
             .containsExactlyInAnyOrder(
-                harryRecord.email,
-                severusRecord.email
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
             )
 
     }
@@ -115,13 +132,27 @@ class RecipientsFinderTest {
             type = NotificationType.EMAIL_NOTIFICATION,
         )
 
-        val recipients = recipientsFinder.resolveRecipients(bulkMail)
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
 
         assertThat(recipients.size).isEqualTo(2)
         assertThat(recipients)
             .containsExactlyInAnyOrder(
-                harryRecord.email,
-                severusRecord.email
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
             )
 
     }
@@ -137,18 +168,32 @@ class RecipientsFinderTest {
             type = NotificationType.EMAIL_NOTIFICATION,
         )
 
-        val recipients = recipientsFinder.resolveRecipients(bulkMail)
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
 
         assertThat(recipients.size).isEqualTo(7)
         assertThat(recipients)
             .containsExactlyInAnyOrder(
-                "test1@mail.ru",
-                "test2@mail.ru",
-                "test3@mail.ru",
-                "test4@mail.ru",
-                "test5@mail.ru",
-                harryRecord.email,
-                severusRecord.email
+                RecipientsEqualsWrapper(BulkMailRecipientDto.from("test1@mail.ru", bulkMail.recordRef)),
+                RecipientsEqualsWrapper(BulkMailRecipientDto.from("test2@mail.ru", bulkMail.recordRef)),
+                RecipientsEqualsWrapper(BulkMailRecipientDto.from("test3@mail.ru", bulkMail.recordRef)),
+                RecipientsEqualsWrapper(BulkMailRecipientDto.from("test4@mail.ru", bulkMail.recordRef)),
+                RecipientsEqualsWrapper(BulkMailRecipientDto.from("test5@mail.ru", bulkMail.recordRef)),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
             )
 
     }
@@ -172,16 +217,43 @@ class RecipientsFinderTest {
             type = NotificationType.EMAIL_NOTIFICATION,
         )
 
-        val recipients = recipientsFinder.resolveRecipients(bulkMail)
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
 
         assertThat(recipients.size).isEqualTo(5)
         assertThat(recipients)
             .containsExactlyInAnyOrder(
-                "user_1@mail.ru",
-                "user_2@mail.ru",
-                "user_3@mail.ru",
-                "recipient_1",
-                "recipient_2"
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = "user_1@mail.ru",
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = "user_2@mail.ru",
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = "user_3@mail.ru",
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = "recipient_1@mail.ru",
+                        name = "Recipient 1",
+                        record = RecordRef.valueOf("rec@1"),
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = "recipient_2@mail.ru",
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
             )
 
         setProviders(emptyList())
@@ -201,15 +273,26 @@ class RecipientsFinderTest {
     class PotterRecord(
 
         @AttName("email")
-        val email: String = "harry.potter@hogwarts.com"
+        val email: String = "harry.potter@hogwarts.com",
+
+        @AttName(".disp")
+        val name: String = "Harry Potter",
+
+        @AttName(".id")
+        val id: RecordRef = harryRef
 
     )
 
     class SnapeRecord(
 
         @AttName("email")
-        val email: String = "severus.snape@hogwarts.com"
+        val email: String = "severus.snape@hogwarts.com",
 
+        @AttName(".disp")
+        val name: String = "Severus Snape",
+
+        @AttName(".id")
+        val id: RecordRef = severusRef
     )
 
     class HogwartsRecord(
@@ -218,5 +301,31 @@ class RecipientsFinderTest {
         val users: List<RecordRef> = listOf(harryRef, severusRef)
 
     )
+
+    data class RecipientsEqualsWrapper(
+        val dto: BulkMailRecipientDto
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as RecipientsEqualsWrapper
+
+            if (dto.address != other.dto.address) return false
+            if (dto.name != other.dto.name) return false
+            if (dto.record != other.dto.record) return false
+            if (dto.bulkMailRef != other.dto.bulkMailRef) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = dto.address.hashCode()
+            result = 31 * result + dto.name.hashCode()
+            result = 31 * result + dto.record.hashCode()
+            result = 31 * result + dto.bulkMailRef.hashCode()
+            return result
+        }
+    }
 
 }

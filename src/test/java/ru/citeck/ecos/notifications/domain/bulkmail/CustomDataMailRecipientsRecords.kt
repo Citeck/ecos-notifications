@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail
 
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
@@ -32,12 +33,14 @@ class CustomDataMailRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
     ) {
 
         @get:AttName("recipients")
-        val recipients: List<String>
+        val recipients: List<RecipientInfo>
             get() = let {
-                val result = arrayListOf<String>()
+                val result = arrayListOf<RecipientInfo>()
 
                 for (i in 1..generateSize) {
-                    result.add("${prefix}_$i@mail.ru")
+                    result.add(RecipientInfo(
+                        address = "${prefix}_$i@mail.ru"
+                    ))
                 }
 
                 return result

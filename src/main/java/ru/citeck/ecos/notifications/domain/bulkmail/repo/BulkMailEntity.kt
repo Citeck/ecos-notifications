@@ -5,7 +5,6 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
 import javax.persistence.*
-import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -70,6 +69,8 @@ class BulkMailEntity @JvmOverloads constructor(
     lastModifiedBy: String? = null,
     lastModifiedDate: Instant? = Instant.now()
 ) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate), Serializable {
+
+    companion object;
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

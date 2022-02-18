@@ -4,11 +4,11 @@ import org.apache.commons.lang3.LocaleUtils
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
-import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
-import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
-import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
-import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.*
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
+import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientEntity
+import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
+import ru.citeck.ecos.notifications.domain.bulkmail.service.UserInfo
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
@@ -92,6 +92,35 @@ fun BulkMailRecipientsDataDto.Companion.from(data: String): BulkMailRecipientsDa
         ?: throw IllegalArgumentException("Failed create BulkMailRecipientsDataDto from data:\n$data")
 }
 
+fun BulkMailRecipientDto.toEntity(): BulkMailRecipientEntity {
+    return BulkMailRecipientEntity(
+        id = id,
+        extId = extId,
+        bulkMailRef = bulkMailRef.toString(),
+        record = record.toString(),
+        address = address,
+        name = name
+    )
+}
+
+fun BulkMailRecipientEntity.toDto(): BulkMailRecipientDto {
+    return BulkMailRecipientDto(
+        id = id,
+        extId = extId,
+        bulkMailRef = RecordRef.valueOf(bulkMailRef),
+        record = RecordRef.valueOf(record),
+        address = address!!,
+        name = name ?: "",
+        createdBy = createdBy,
+        createdDate = createdDate,
+        lastModifiedBy = lastModifiedBy,
+        lastModifiedDate = lastModifiedDate
+    )
+}
+
+fun BulkMailEntity.Companion.fromId(id: Long): BulkMailEntity {
+    return BulkMailEntity(id = id)
+}
 
 /**
  * Select orgstruct component send to backend userName or groupName. We need convert it to full recordRef format.
@@ -118,6 +147,50 @@ fun BulkMailRecipientsDataDto.Companion.from(data: ObjectData): BulkMailRecipien
     val dto = from(data.toString())
     return dto.copy(
         recipients = convertRecipientsToFullFilledRefs(dto.recipients)
+    )
+}
+
+fun BulkMailRecipientDto.Companion.from(
+    address: String,
+    bulkMailRef: RecordRef
+): BulkMailRecipientDto {
+    if (address.isBlank()) throw IllegalArgumentException("Address cannot be blank")
+
+    return BulkMailRecipientDto(
+        extId = UUID.randomUUID().toString(),
+        address = address,
+        bulkMailRef = bulkMailRef
+    )
+}
+
+fun BulkMailRecipientDto.Companion.from(
+    userInfo: UserInfo,
+    bulkMailRef: RecordRef
+): BulkMailRecipientDto {
+    if (userInfo.email.isNullOrBlank()) throw IllegalArgumentException("Address email cannot be blank")
+    if (userInfo.record == RecordRef.EMPTY) throw IllegalArgumentException("User record id cannot be empty")
+
+    return BulkMailRecipientDto(
+        extId = UUID.randomUUID().toString(),
+        address = userInfo.email!!,
+        name = userInfo.disp ?: "",
+        record = userInfo.record ?: RecordRef.EMPTY,
+        bulkMailRef = bulkMailRef
+    )
+}
+
+fun BulkMailRecipientDto.Companion.from(
+    recipientInfo: RecipientInfo,
+    bulkMailRef: RecordRef
+): BulkMailRecipientDto {
+    if (recipientInfo.address.isNullOrBlank()) throw IllegalArgumentException("Address email cannot be blank")
+
+    return BulkMailRecipientDto(
+        extId = UUID.randomUUID().toString(),
+        address = recipientInfo.address!!,
+        name = recipientInfo.disp ?: "",
+        record = recipientInfo.record ?: RecordRef.EMPTY,
+        bulkMailRef = bulkMailRef
     )
 }
 

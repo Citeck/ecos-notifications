@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toEntity
@@ -22,6 +23,7 @@ import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
 @Service
+@Transactional
 class BulkMailDao(
     private val bulkMailRepository: BulkMailRepository
 ) {
@@ -33,6 +35,7 @@ class BulkMailDao(
             .toDto()
     }
 
+    @Transactional(readOnly = true)
     fun findByExtId(extId: String): BulkMailDto? {
         val found = bulkMailRepository.findOneByExtId(extId)
 
@@ -41,6 +44,7 @@ class BulkMailDao(
         } else null
     }
 
+    @Transactional(readOnly = true)
     fun findById(id: Long): BulkMailDto? {
         val found = bulkMailRepository.findById(id)
 
@@ -49,6 +53,7 @@ class BulkMailDao(
         } else null
     }
 
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<BulkMailDto> {
         val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
@@ -59,12 +64,14 @@ class BulkMailDao(
             }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getAll(): List<BulkMailDto> {
         return bulkMailRepository.findAll().map {
             it.toDto()
         }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int): List<BulkMailDto> {
         val sorting = Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
@@ -74,11 +81,13 @@ class BulkMailDao(
         }.toList()
     }
 
+    @Transactional(readOnly = true)
     fun getCount(predicate: Predicate): Long {
         val spec = toSpec<BulkMailEntity>(predicate)
         return if (spec != null) (bulkMailRepository.count(toSpec(predicate)).toInt()).toLong() else getCount()
     }
 
+    @Transactional(readOnly = true)
     private fun getCount(): Long {
         return bulkMailRepository.count()
     }

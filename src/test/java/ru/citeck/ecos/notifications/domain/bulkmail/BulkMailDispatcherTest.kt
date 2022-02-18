@@ -130,7 +130,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -163,7 +165,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -201,7 +205,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -241,7 +247,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -275,7 +283,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -315,7 +325,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -356,7 +368,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -398,7 +412,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -431,7 +447,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -462,7 +480,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -501,7 +521,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -539,7 +561,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -576,7 +600,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -605,7 +631,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
@@ -637,7 +665,9 @@ class BulkMailDispatcherTest {
             )
         )
 
+        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
         bulkMailDispatcher.dispatch(bulkMail.extId!!)
+
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages

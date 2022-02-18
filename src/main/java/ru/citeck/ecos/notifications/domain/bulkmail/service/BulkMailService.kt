@@ -9,18 +9,26 @@ import ru.citeck.ecos.notifications.lib.Notification
 @Service
 class BulkMailService(
     private val awaitNotificationService: AwaitNotificationService,
-    private val recipientsFinder: RecipientsFinder
+    private val recipientsFinder: RecipientsFinder,
+    private val bulkMailRecipientDao: BulkMailRecipientDao
 ) {
+
+    fun recalculateRecipients(bulkMailDto: BulkMailDto) {
+        val newRecipients = recipientsFinder.resolveRecipients(bulkMailDto)
+        bulkMailRecipientDao.updateForBulkMail(bulkMailDto, newRecipients)
+    }
 
     fun dispatch(bulkMailDto: BulkMailDto) {
         val notifications = buildNotifications(bulkMailDto)
+        if (notifications.isEmpty()) throw IllegalStateException("No notifications generated. Check recipients.")
+
         awaitNotificationService.sendToAwait(notifications, bulkMailDto)
     }
 
-    fun buildNotifications(bulkMailDto: BulkMailDto): List<Notification> {
+    private fun buildNotifications(bulkMailDto: BulkMailDto): List<Notification> {
         val result = mutableListOf<Notification>()
 
-        val recipientsParts = resolveRecipientsParts(bulkMailDto)
+        val recipientsParts = resolveRecipientsAddressesParts(bulkMailDto)
 
         recipientsParts.forEach { recipientsPart ->
 
@@ -67,18 +75,19 @@ class BulkMailService(
         return result
     }
 
-    fun resolveRecipientsParts(bulkMailDto: BulkMailDto): List<List<String>> {
-        val allRecipients = recipientsFinder.resolveRecipients(bulkMailDto).toList()
+    private fun resolveRecipientsAddressesParts(bulkMailDto: BulkMailDto): List<List<String>> {
+        val allAddresses = bulkMailRecipientDao.findAllForBulkMail(bulkMailDto).map { it.address }
+        if (allAddresses.isEmpty()) return emptyList()
 
         if (bulkMailDto.config.batchConfig.personalizedMails) {
-            return ListUtils.partition(allRecipients, 1)
+            return ListUtils.partition(allAddresses, 1)
         }
 
         if (bulkMailDto.config.batchConfig.size > 0) {
-            return ListUtils.partition(allRecipients, bulkMailDto.config.batchConfig.size)
+            return ListUtils.partition(allAddresses, bulkMailDto.config.batchConfig.size)
         }
 
-        return listOf(allRecipients)
+        return listOf(allAddresses)
     }
 
 
