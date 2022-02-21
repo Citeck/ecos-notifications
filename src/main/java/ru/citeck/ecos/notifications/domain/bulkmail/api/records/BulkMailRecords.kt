@@ -97,9 +97,7 @@ class BulkMailRecords(
             return BulkMailRecord()
         }
 
-        val dto = bulkMailDao.findByExtId(recordId) ?: recordId.toLongOrNull()?.let { longId ->
-            bulkMailDao.findById(longId)
-        }
+        val dto = bulkMailDao.findByExtId(recordId)
 
         return dto?.let {
             BulkMailRecord(it)
@@ -115,7 +113,7 @@ class BulkMailRecords(
         return bulkMailDao.save(record.toDto()).extId!!
     }
 
-    open inner class BulkMailRecord(
+    data class BulkMailRecord(
         var id: Long? = null,
         var extId: String? = null,
         val recipientsData: ObjectData? = ObjectData.create(),
@@ -150,9 +148,7 @@ class BulkMailRecords(
 
         var moduleId: String
             get() = let {
-                return extId?.ifBlank {
-                    id.toString()
-                } ?: ""
+                return extId ?: ""
             }
             set(value) {
                 extId = value

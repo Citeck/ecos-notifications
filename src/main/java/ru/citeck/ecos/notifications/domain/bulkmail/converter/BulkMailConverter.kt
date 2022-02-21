@@ -9,6 +9,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
 import ru.citeck.ecos.notifications.domain.bulkmail.service.UserInfo
+import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
@@ -92,21 +93,22 @@ fun BulkMailRecipientsDataDto.Companion.from(data: String): BulkMailRecipientsDa
         ?: throw IllegalArgumentException("Failed create BulkMailRecipientsDataDto from data:\n$data")
 }
 
-fun BulkMailRecipientDto.toEntity(): BulkMailRecipientEntity {
+fun BulkMailRecipientDto.toEntity(bulkMailDto: BulkMailDto): BulkMailRecipientEntity {
     return BulkMailRecipientEntity(
         id = id,
         extId = extId,
-        bulkMailRef = bulkMailRef.toString(),
         record = record.toString(),
         address = address,
-        name = name
+        name = name,
+        bulkMailRef = bulkMailDto.recordRef.toString(),
+        bulkMail = BulkMailEntity.fromId(bulkMailDto.id!!)
     )
 }
 
 fun BulkMailRecipientEntity.toDto(): BulkMailRecipientDto {
     return BulkMailRecipientDto(
         id = id,
-        extId = extId,
+        extId = extId!!,
         bulkMailRef = RecordRef.valueOf(bulkMailRef),
         record = RecordRef.valueOf(record),
         address = address!!,

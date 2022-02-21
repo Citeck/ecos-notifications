@@ -9,7 +9,7 @@ data class BulkMailRecipientDto(
 
     val extId: String? = null,
 
-    val bulkMailRef: RecordRef,
+    val bulkMailRef: RecordRef = RecordRef.EMPTY,
 
     val record: RecordRef = RecordRef.EMPTY,
 

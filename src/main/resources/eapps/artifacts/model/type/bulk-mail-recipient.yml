@@ -1,0 +1,12 @@
+---
+id: bulk-mail-recipient
+
+name:
+  en: Bulk mail recipient
+  ru: Получатель массовой рассылки
+
+system: true
+sourceId: notifications/bulk-mail-recipient
+
+journalRef: uiserv/journal@bulk-mail-recipient
+formRef: uiserv/form@bulk-mail-recipient
