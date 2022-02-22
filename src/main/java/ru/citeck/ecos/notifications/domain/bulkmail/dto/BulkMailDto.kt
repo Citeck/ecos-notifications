@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.dto
 
+import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import java.time.Instant
@@ -23,8 +24,7 @@ data class BulkMailDto(
 
     val body: String = "",
 
-    //TODO: use constants
-    val status: String = "new",
+    val status: String = BulkMailStatus.NEW.status,
 
     val createdBy: String? = null,
 

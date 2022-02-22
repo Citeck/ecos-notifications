@@ -24,4 +24,12 @@ interface NotificationRepository : JpaRepository<NotificationEntity, Long>,
 
     fun findOneByExtId(extId: String): Optional<NotificationEntity>
 
+    @Query(
+        "select state as state, count(*) as count from notification where bulk_mail_ref = :bulkMailRef group by state",
+        nativeQuery = true
+    )
+    fun getNotificationStateSummaryForBulkMail(
+        @Param("bulkMailRef") bulkMailRef: String
+    ): List<BulkNotificationStateSummaryProjection>
+
 }

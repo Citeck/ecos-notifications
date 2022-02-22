@@ -1,0 +1,24 @@
+---
+id: bulk-mail-recipient
+name: { ru: Получатели массовой рассылки, en: Bulk mail recipients }
+
+actions:
+  - uiserv/action@view-dashboard
+
+columns:
+
+  - id: moduleId
+    type: TEXT
+    name: { ru: Идентификатор, en: Id }
+
+  - id: record
+    name: { ru: Рекорд, en: Record }
+
+  - id: address
+    name: { ru: Адрес, en: Address }
+
+  - id: name
+    name: { ru: Имя, en: Name }
+
+  - id: bulkMailRef
+    name: { ru: Массовая рассылка, en: bulkMailRef }

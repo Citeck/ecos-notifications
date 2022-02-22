@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.bulkmail.converter
 import org.apache.commons.lang3.LocaleUtils
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.*
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
@@ -13,9 +14,6 @@ import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
-private const val ALFRESCO_APP = "alfresco"
-private const val AUTHORITY_SRC_ID = "authority"
-private const val PEOPLE_SRC_ID = "people"
 private const val AUTHORITY_GROUP_PREFIX = "GROUP_"
 
 fun BulkMailEntity.toDto(): BulkMailDto {
@@ -79,8 +77,7 @@ fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
         body = body ?: "",
         recipientsData = recipientsData?.let { BulkMailRecipientsDataDto.from(it) } ?: BulkMailRecipientsDataDto(),
         config = config?.let { BulkMailConfigDto.from(it) } ?: BulkMailConfigDto(),
-        //TODO: default from constants?
-        status = status ?: "new",
+        status = status ?: BulkMailStatus.NEW.status,
         createdBy = creator,
         createdDate = created,
         lastModifiedBy = modifier,
@@ -124,32 +121,8 @@ fun BulkMailEntity.Companion.fromId(id: Long): BulkMailEntity {
     return BulkMailEntity(id = id)
 }
 
-/**
- * Select orgstruct component send to backend userName or groupName. We need convert it to full recordRef format.
- * TODO: migrate to model (microservice) people/groups after completion of development.
- */
 fun BulkMailRecipientsDataDto.Companion.from(data: ObjectData): BulkMailRecipientsDataDto {
-    fun convertRecipientsToFullFilledRefs(recipients: List<RecordRef>): List<RecordRef> {
-        return recipients.map {
-            var fullFilledRef = it
-
-            if (fullFilledRef.appName.isBlank()) {
-                fullFilledRef = fullFilledRef.addAppName(ALFRESCO_APP)
-            }
-
-            if (fullFilledRef.sourceId.isBlank()) {
-                val sourceId = if (fullFilledRef.isAuthorityGroupRef()) AUTHORITY_SRC_ID else PEOPLE_SRC_ID
-                fullFilledRef = fullFilledRef.withSourceId(sourceId)
-            }
-
-            fullFilledRef
-        }
-    }
-
-    val dto = from(data.toString())
-    return dto.copy(
-        recipients = convertRecipientsToFullFilledRefs(dto.recipients)
-    )
+    return from(data.toString())
 }
 
 fun BulkMailRecipientDto.Companion.from(

@@ -2,27 +2,45 @@ package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import org.apache.commons.collections4.ListUtils
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificationService
 import ru.citeck.ecos.notifications.lib.Notification
 
 @Service
-class BulkMailService(
+class BulkMailOperator(
+    private val bulkMailDao: BulkMailDao,
     private val awaitNotificationService: AwaitNotificationService,
     private val recipientsFinder: RecipientsFinder,
     private val bulkMailRecipientDao: BulkMailRecipientDao
 ) {
 
-    fun recalculateRecipients(bulkMailDto: BulkMailDto) {
-        val newRecipients = recipientsFinder.resolveRecipients(bulkMailDto)
-        bulkMailRecipientDao.updateForBulkMail(bulkMailDto, newRecipients)
+    fun dispatch(extId: String) {
+        val bulkMail = bulkMailDao.findByExtId(extId)
+            ?: throw IllegalArgumentException("Bulk mail with id $extId not found")
+
+        dispatchNotificationToAwait(bulkMail)
+
+        bulkMailDao.setStatus(bulkMail.extId!!, BulkMailStatus.WAIT_FOR_DISPATCH)
     }
 
-    fun dispatch(bulkMailDto: BulkMailDto) {
+    private fun dispatchNotificationToAwait(bulkMailDto: BulkMailDto) {
         val notifications = buildNotifications(bulkMailDto)
         if (notifications.isEmpty()) throw IllegalStateException("No notifications generated. Check recipients.")
 
         awaitNotificationService.sendToAwait(notifications, bulkMailDto)
+    }
+
+    fun calculateRecipients(extId: String) {
+        val bulkMail = bulkMailDao.findByExtId(extId)
+            ?: throw IllegalArgumentException("Bulk mail with id $extId not found")
+
+        recalculateRecipients(bulkMail)
+    }
+
+    private fun recalculateRecipients(bulkMailDto: BulkMailDto) {
+        val newRecipients = recipientsFinder.resolveRecipients(bulkMailDto)
+        bulkMailRecipientDao.updateForBulkMail(bulkMailDto, newRecipients)
     }
 
     private fun buildNotifications(bulkMailDto: BulkMailDto): List<Notification> {
@@ -89,6 +107,5 @@ class BulkMailService(
 
         return listOf(allAddresses)
     }
-
 
 }

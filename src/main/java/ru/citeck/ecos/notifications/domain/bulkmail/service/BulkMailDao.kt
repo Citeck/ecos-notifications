@@ -6,18 +6,16 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordConstants
+import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
-import ru.citeck.ecos.records2.predicate.model.ValuePredicate
-import java.time.Instant
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
@@ -33,6 +31,18 @@ class BulkMailDao(
             dto.toEntity()
         )
             .toDto()
+    }
+
+    fun setStatus(extId: String, status: BulkMailStatus) {
+        val entity = bulkMailRepository.findOneByExtId(extId).orElseThrow {
+            IllegalArgumentException("Bulk mail with exit id: $extId not found")
+        }
+
+        entity.status = status.status
+
+        bulkMailRepository.save(
+            entity
+        )
     }
 
     @Transactional(readOnly = true)
@@ -51,6 +61,11 @@ class BulkMailDao(
         return if (found.isPresent) {
             found.get().toDto()
         } else null
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllByStatuses(statuses: List<BulkMailStatus>): List<BulkMailDto> {
+        return bulkMailRepository.findAllByStatusIn(statuses.map { it.status }).map { it.toDto() }
     }
 
     @Transactional(readOnly = true)
@@ -88,50 +103,32 @@ class BulkMailDao(
     }
 
     @Transactional(readOnly = true)
-    private fun getCount(): Long {
+    fun getCount(): Long {
         return bulkMailRepository.count()
     }
 
     private fun <T> toSpec(pred: Predicate): Specification<T>? {
+        pred.toValueModifiedSpec<T>()?.let { return it }
 
-        if (pred is ValuePredicate) {
-            if (RecordConstants.ATT_MODIFIED == pred.getAttribute() && ValuePredicate.Type.GT == pred.getType()) {
-                val instant = Json.mapper.convert(pred.getValue(), Instant::class.java)
-                if (instant != null) {
-                    return Specification { root: Root<T>, _: CriteriaQuery<*>, builder: CriteriaBuilder ->
-                        builder.greaterThan(
-                            root.get<Any>("lastModifiedDate").`as`(
-                                Instant::class.java
-                            ), instant
-                        )
-                    }
+        var spec: Specification<T>? = null
+
+        fun toLikeSpec(value: String, attName: String) {
+            if (value.isNotBlank()) {
+                val likeSpec = Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                    builder.like(
+                        builder.lower(root.get(attName)),
+                        "%" + value.lowercase() + "%"
+                    )
                 }
+
+                spec = spec?.or(likeSpec) ?: likeSpec
             }
         }
 
         val predicateDto = PredicateUtils.convertToDto(pred, BulkMailPredicateDto::class.java)
-        var spec: Specification<T>? = null
 
-        if (StringUtils.isNotBlank(predicateDto.record)) {
-            spec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("record")),
-                        "%" + predicateDto.record.lowercase() + "%"
-                    )
-                }
-        }
-
-        if (StringUtils.isNotBlank(predicateDto.moduleId)) {
-            val idSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("extId")),
-                        "%" + predicateDto.moduleId.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(idSpec) ?: idSpec
-        }
+        toLikeSpec(predicateDto.record, "record")
+        toLikeSpec(predicateDto.moduleId, "extId")
 
         if (StringUtils.isNotBlank(predicateDto.type)) {
             val type = try {
@@ -150,49 +147,10 @@ class BulkMailDao(
             spec = spec?.or(typeSpec) ?: typeSpec
         }
 
-        if (StringUtils.isNotBlank(predicateDto.template)) {
-            val templateSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("template")),
-                        "%" + predicateDto.template.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(templateSpec) ?: templateSpec
-        }
-
-        if (StringUtils.isNotBlank(predicateDto.status)) {
-            val statusSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("status")),
-                        "%" + predicateDto.status.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(statusSpec) ?: statusSpec
-        }
-
-        if (StringUtils.isNotBlank(predicateDto.title)) {
-            val titleSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("title")),
-                        "%" + predicateDto.title.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(titleSpec) ?: titleSpec
-        }
-
-        if (StringUtils.isNotBlank(predicateDto.body)) {
-            val bodySpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("body")),
-                        "%" + predicateDto.body.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(bodySpec) ?: bodySpec
-        }
+        toLikeSpec(predicateDto.template, "template")
+        toLikeSpec(predicateDto.status, "status")
+        toLikeSpec(predicateDto.title, "title")
+        toLikeSpec(predicateDto.body, "body")
 
         return spec
     }

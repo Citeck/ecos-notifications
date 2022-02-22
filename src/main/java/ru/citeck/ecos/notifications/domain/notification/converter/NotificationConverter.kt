@@ -43,6 +43,7 @@ fun NotificationEntity.toDto(): NotificationDto {
         tryingCount = tryingCount ?: 0,
         lastTryingDate = lastTryingDate,
         state = state!!,
+        bulkMailRef = RecordRef.valueOf(bulkMailRef),
         delayedSend = delayedSend,
         createdBy = createdBy,
         createdDate = createdDate,

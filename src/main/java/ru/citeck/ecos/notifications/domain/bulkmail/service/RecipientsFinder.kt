@@ -4,8 +4,7 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Splitter
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.config.lib.consumer.bean.EcosConfig
-import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
-import ru.citeck.ecos.notifications.domain.bulkmail.converter.isAuthorityGroupRef
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.*
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
@@ -14,6 +13,10 @@ import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import java.util.regex.Pattern
+
+private const val ALFRESCO_APP = "alfresco"
+private const val AUTHORITY_SRC_ID = "authority"
+private const val PEOPLE_SRC_ID = "people"
 
 /**
  * @author Roman Makarskiy
@@ -46,10 +49,12 @@ class RecipientsFinder(
     }
 
     private fun getRecipientsFromRefs(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
+        val convertedRefs = convertRecipientsToFullFilledRefs(bulkMail.recipientsData.refs)
+
         val allUsers = mutableSetOf<RecordRef>()
         val groups = mutableListOf<RecordRef>()
 
-        bulkMail.recipientsData.recipients.forEach {
+        convertedRefs.forEach {
             if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
         }
 
@@ -68,6 +73,27 @@ class RecipientsFinder(
         return recordsService.getAtts(allUsers, UserInfo::class.java)
             .filter { it.email?.isNotBlank() ?: false }
             .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
+    }
+
+    /**
+     * Select orgstruct component send to backend userName or groupName. We need convert it to full recordRef format.
+     * TODO: migrate to model (microservice) people/groups after completion of development.
+     */
+    private fun convertRecipientsToFullFilledRefs(recipients: List<RecordRef>): List<RecordRef> {
+        return recipients.map {
+            var fullFilledRef = it
+
+            if (fullFilledRef.appName.isBlank()) {
+                fullFilledRef = fullFilledRef.addAppName(ALFRESCO_APP)
+            }
+
+            if (fullFilledRef.sourceId.isBlank()) {
+                val sourceId = if (fullFilledRef.isAuthorityGroupRef()) AUTHORITY_SRC_ID else PEOPLE_SRC_ID
+                fullFilledRef = fullFilledRef.withSourceId(sourceId)
+            }
+
+            fullFilledRef
+        }
     }
 
     private fun getRecipientsFromUserInput(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {

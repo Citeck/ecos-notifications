@@ -20,7 +20,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
-import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDispatcher
+import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -40,7 +40,7 @@ import javax.mail.internet.MimeMessage
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class BulkMailDispatcherTest {
+class BulkMailDispatchTest {
 
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
@@ -52,7 +52,7 @@ class BulkMailDispatcherTest {
     private lateinit var awaitNotificationDispatcher: AwaitingNotificationDispatcher
 
     @Autowired
-    private lateinit var bulkMailDispatcher: BulkMailDispatcher
+    private lateinit var bulkMailOperator: BulkMailOperator
 
     @Autowired
     private lateinit var recordsService: RecordsService
@@ -120,7 +120,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                     )
                 ),
@@ -130,8 +130,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -152,7 +152,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -165,8 +165,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -194,7 +194,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -205,8 +205,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -234,7 +234,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef
                     )
                 ),
@@ -247,8 +247,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -272,7 +272,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -283,8 +283,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -311,7 +311,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -325,8 +325,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -354,7 +354,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -368,8 +368,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -396,7 +396,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     )
@@ -412,8 +412,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -447,8 +447,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -468,7 +468,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                         severusRef
                     ),
@@ -480,8 +480,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -521,8 +521,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -561,8 +561,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -600,8 +600,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -618,7 +618,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                     )
                 ),
@@ -631,8 +631,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -652,7 +652,7 @@ class BulkMailDispatcherTest {
             BulkMailDto(
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
-                    recipients = listOf(
+                    refs = listOf(
                         harryRef,
                     )
                 ),
@@ -665,8 +665,8 @@ class BulkMailDispatcherTest {
             )
         )
 
-        bulkMailDispatcher.calculateRecipients(bulkMail.extId!!)
-        bulkMailDispatcher.dispatch(bulkMail.extId!!)
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 

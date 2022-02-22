@@ -8,7 +8,7 @@ import ru.citeck.ecos.records2.RecordRef
  */
 data class BulkMailRecipientsDataDto(
 
-    val recipients: List<RecordRef> = emptyList(),
+    val refs: List<RecordRef> = emptyList(),
 
     val fromUserInput: String = "",
 

@@ -87,9 +87,121 @@ class RecipientsFinderTest {
         val bulkMail = BulkMailDto(
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
-                recipients = listOf(
+                refs = listOf(
                     harryRef,
                     severusRef
+                )
+            ),
+            type = NotificationType.EMAIL_NOTIFICATION,
+        )
+
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
+
+        assertThat(recipients.size).isEqualTo(2)
+        assertThat(recipients)
+            .containsExactlyInAnyOrder(
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
+            )
+
+    }
+
+    @Test
+    fun `get recipients from recipients refs with converted to full group refs`() {
+        val bulkMail = BulkMailDto(
+            id = null,
+            recipientsData = BulkMailRecipientsDataDto(
+                refs = listOf(
+                    RecordRef.valueOf("GROUP_hogwarts")
+                )
+            ),
+            type = NotificationType.EMAIL_NOTIFICATION,
+        )
+
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
+
+        assertThat(recipients.size).isEqualTo(2)
+        assertThat(recipients)
+            .containsExactlyInAnyOrder(
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
+            )
+    }
+
+    @Test
+    fun `get recipients from recipients refs with converted to full users refs`() {
+        val bulkMail = BulkMailDto(
+            id = null,
+            recipientsData = BulkMailRecipientsDataDto(
+                refs = listOf(
+                    RecordRef.valueOf("harry"),
+                    RecordRef.valueOf("severus")
+                )
+            ),
+            type = NotificationType.EMAIL_NOTIFICATION,
+        )
+
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
+
+        assertThat(recipients.size).isEqualTo(2)
+        assertThat(recipients)
+            .containsExactlyInAnyOrder(
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = harryRecord.email,
+                        name = harryRecord.name,
+                        record = harryRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                ),
+                RecipientsEqualsWrapper(
+                    BulkMailRecipientDto(
+                        address = severusRecord.email,
+                        name = severusRecord.name,
+                        record = severusRef,
+                        bulkMailRef = bulkMail.recordRef
+                    )
+                )
+            )
+    }
+
+    @Test
+    fun `get recipients from recipients refs with converted to full users and group refs`() {
+        val bulkMail = BulkMailDto(
+            id = null,
+            recipientsData = BulkMailRecipientsDataDto(
+                refs = listOf(
+                    RecordRef.valueOf("harry"),
+                    RecordRef.valueOf("severus"),
+                    RecordRef.valueOf("GROUP_hogwarts")
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -125,7 +237,7 @@ class RecipientsFinderTest {
         val bulkMail = BulkMailDto(
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
-                recipients = listOf(
+                refs = listOf(
                     hogwartsRef
                 )
             ),

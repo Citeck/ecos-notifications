@@ -13,7 +13,37 @@ import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
 fun <T> Predicate.toDefaultEntitySpec(): Specification<T>? {
+    toValueModifiedSpec<T>()?.let { return it }
 
+    val predicateDto = PredicateUtils.convertToDto(this, PredicateDto::class.java)
+    var spec: Specification<T>? = null
+
+    if (StringUtils.isNotBlank(predicateDto.name)) {
+        spec =
+            Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                builder.like(
+                    builder.lower(root.get("name")),
+                    "%" + predicateDto.name.lowercase() + "%"
+                )
+            }
+    }
+
+    if (StringUtils.isNotBlank(predicateDto.moduleId)) {
+        val idSpec =
+            Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                builder.like(
+                    builder.lower(root.get("extId")),
+                    "%" + predicateDto.moduleId.lowercase() + "%"
+                )
+            }
+        spec = spec?.or(idSpec) ?: idSpec
+    }
+
+    return spec
+
+}
+
+fun <T> Predicate.toValueModifiedSpec(): Specification<T>? {
     if (this is ValuePredicate) {
         if (RecordConstants.ATT_MODIFIED == getAttribute() && ValuePredicate.Type.GT == getType()) {
             val instant = Json.mapper.convert(getValue(), Instant::class.java)
@@ -29,30 +59,5 @@ fun <T> Predicate.toDefaultEntitySpec(): Specification<T>? {
         }
     }
 
-    val predicateDto = PredicateUtils.convertToDto(this, PredicateDto::class.java)
-    var spec: Specification<T>? = null
-
-    if (StringUtils.isNotBlank(predicateDto.name)) {
-        spec =
-            Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                builder.like(
-                    builder.lower(root.get("name")),
-                    "%" + predicateDto.name.toLowerCase() + "%"
-                )
-            }
-    }
-
-    if (StringUtils.isNotBlank(predicateDto.moduleId)) {
-        val idSpec =
-            Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                builder.like(
-                    builder.lower(root.get("extId")),
-                    "%" + predicateDto.moduleId.toLowerCase() + "%"
-                )
-            }
-        spec = spec?.or(idSpec) ?: idSpec
-    }
-
-    return spec
-
+    return null
 }

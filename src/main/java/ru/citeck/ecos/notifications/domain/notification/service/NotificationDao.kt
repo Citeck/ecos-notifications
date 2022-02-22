@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toDto
 import ru.citeck.ecos.notifications.domain.notification.converter.toEntity
@@ -14,11 +13,9 @@ import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordConstants
+import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
-import ru.citeck.ecos.records2.predicate.model.ValuePredicate
-import java.time.Instant
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
@@ -66,6 +63,12 @@ class NotificationDao(
     }
 
     @Transactional(readOnly = true)
+    fun getBulkMailStateSummary(bulkMailRef: String): Map<NotificationState, Long> {
+        return notificationRepository.getNotificationStateSummaryForBulkMail(bulkMailRef)
+            .associateBy({ NotificationState.valueOf(it.getState()) }, { it.getCount() })
+    }
+
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<NotificationDto> {
         val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
@@ -104,45 +107,27 @@ class NotificationDao(
     }
 
     private fun <T> toSpec(pred: Predicate): Specification<T>? {
+        pred.toValueModifiedSpec<T>()?.let { return it }
 
-        if (pred is ValuePredicate) {
-            if (RecordConstants.ATT_MODIFIED == pred.getAttribute() && ValuePredicate.Type.GT == pred.getType()) {
-                val instant = Json.mapper.convert(pred.getValue(), Instant::class.java)
-                if (instant != null) {
-                    return Specification { root: Root<T>, _: CriteriaQuery<*>, builder: CriteriaBuilder ->
-                        builder.greaterThan(
-                            root.get<Any>("lastModifiedDate").`as`(
-                                Instant::class.java
-                            ), instant
-                        )
-                    }
+        var spec: Specification<T>? = null
+
+        fun toLikeSpec(value: String, attName: String) {
+            if (value.isNotBlank()) {
+                val likeSpec = Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                    builder.like(
+                        builder.lower(root.get(attName)),
+                        "%" + value.lowercase() + "%"
+                    )
                 }
+
+                spec = spec?.or(likeSpec) ?: likeSpec
             }
         }
 
         val predicateDto = PredicateUtils.convertToDto(pred, NotificationPredicateDto::class.java)
-        var spec: Specification<T>? = null
 
-        if (StringUtils.isNotBlank(predicateDto.record)) {
-            spec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("record")),
-                        "%" + predicateDto.record.lowercase() + "%"
-                    )
-                }
-        }
-
-        if (StringUtils.isNotBlank(predicateDto.moduleId)) {
-            val idSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("extId")),
-                        "%" + predicateDto.moduleId.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(idSpec) ?: idSpec
-        }
+        toLikeSpec(predicateDto.record, "record")
+        toLikeSpec(predicateDto.moduleId, "extId")
 
         if (StringUtils.isNotBlank(predicateDto.state)) {
             val state = try {
@@ -178,16 +163,7 @@ class NotificationDao(
             spec = spec?.or(typeSpec) ?: typeSpec
         }
 
-        if (StringUtils.isNotBlank(predicateDto.template)) {
-            val templateSpec =
-                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get("template")),
-                        "%" + predicateDto.template.lowercase() + "%"
-                    )
-                }
-            spec = spec?.or(templateSpec) ?: templateSpec
-        }
+        toLikeSpec(predicateDto.template, "template")
 
         return spec
     }

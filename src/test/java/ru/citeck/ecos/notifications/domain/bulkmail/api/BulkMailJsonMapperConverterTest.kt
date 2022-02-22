@@ -35,7 +35,7 @@ class BulkMailJsonMapperConverterTest {
     @Test
     fun `bulk mail recipients data json converter test`() {
         val recipients = BulkMailRecipientsDataDto(
-            recipients = listOf(RecordRef.valueOf("test@1"), RecordRef.valueOf("test@2")),
+            refs = listOf(RecordRef.valueOf("test@1"), RecordRef.valueOf("test@2")),
             fromUserInput = "galina@mail.ru,vasya@mail.ru",
             custom = ObjectData.create(
                 """

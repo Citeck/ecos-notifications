@@ -9,4 +9,6 @@ interface BulkMailRepository : JpaRepository<BulkMailEntity, Long>,
 
     fun findOneByExtId(extId: String): Optional<BulkMailEntity>
 
+    fun findAllByStatusIn(statuses: List<String>): List<BulkMailEntity>
+
 }
