@@ -310,6 +310,9 @@ class BulkMailStateTest {
         @AttName("name")
         val name: String = "Nimbus Two Thousand",
 
+        @AttName("dateOfCreation")
+        val dateOfCreation: Int = 1993
+
     )
 
     class PotterRecord(

@@ -31,6 +31,15 @@ public class NotificationsDefault {
 
     }
 
+    public class BulkMail {
+
+        private BulkMail() {
+        }
+
+        public static final int SYNC_STATUS_DELAY = 7_000;
+
+    }
+
     public class AwaitingDispatch {
 
         private AwaitingDispatch() {

@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import mu.KotlinLogging
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -21,15 +22,13 @@ class BulkMailStatusSynchronizer(
 
     private val statusesToFind = listOf(BulkMailStatus.WAIT_FOR_DISPATCH, BulkMailStatus.TRYING_TO_DISPATCH)
 
-    //TODO: scheduled
+    @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.bulk-mail.sync-status-delay}")
     fun sync() {
         val bulkMails = bulkMailDao.findAllByStatuses(statusesToFind)
 
         log.debug { "Found bulk mails: $bulkMails" }
 
         bulkMails.forEach { bulkMail ->
-            val all = notificationDao.getAll()
-
             val notificationsSummary = notificationDao.getBulkMailStateSummary(bulkMail.recordRef.toString())
 
             log.debug { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
@@ -56,6 +55,8 @@ class BulkMailStatusSynchronizer(
     }
 
     private fun setBulkMailStatus(bulkMail: BulkMailDto, status: BulkMailStatus) {
+        log.debug { "Set new status: $status for ${bulkMail.recordRef}" }
+
         bulkMailDao.setStatus(bulkMail.extId!!, status)
     }
 

@@ -23,6 +23,8 @@ public class ApplicationProperties {
 
     private final AwaitingDispatch awaitingDispatch = new AwaitingDispatch();
 
+    private final BulkMail bulkMail = new BulkMail();
+
     private final Event event = new Event();
 
     private final Firebase firebase = new Firebase();
@@ -53,6 +55,10 @@ public class ApplicationProperties {
 
     public Email getEmail() {
         return email;
+    }
+
+    public BulkMail getBulkMail() {
+        return bulkMail;
     }
 
     public static class ErrorNotification {
@@ -101,6 +107,19 @@ public class ApplicationProperties {
 
         public void setMinTryCount(int minTryCount) {
             this.minTryCount = minTryCount;
+        }
+    }
+
+    public static class BulkMail {
+
+        private int syncStatusDelay = NotificationsDefault.BulkMail.SYNC_STATUS_DELAY;
+
+        public int getSyncStatusDelay() {
+            return syncStatusDelay;
+        }
+
+        public void setSyncStatusDelay(int syncStatusDelay) {
+            this.syncStatusDelay = syncStatusDelay;
         }
     }
 
