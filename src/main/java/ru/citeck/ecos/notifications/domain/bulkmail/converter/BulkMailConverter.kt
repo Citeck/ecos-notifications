@@ -19,6 +19,7 @@ private const val AUTHORITY_GROUP_PREFIX = "GROUP_"
 fun BulkMailEntity.toDto(): BulkMailDto {
     return BulkMailDto(
         id = id!!,
+        name = name,
         extId = extId ?: "",
         record = RecordRef.valueOf(record),
         template = RecordRef.valueOf(template),
@@ -48,6 +49,7 @@ fun BulkMailEntity.toDto(): BulkMailDto {
 fun BulkMailDto.toEntity(): BulkMailEntity {
     return BulkMailEntity(
         id = id,
+        name = name,
         extId = extId ?: UUID.randomUUID().toString(),
         record = record.toString(),
         template = template.toString(),
@@ -69,14 +71,15 @@ fun BulkMailDto.toEntity(): BulkMailEntity {
 fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
     return BulkMailDto(
         id = id,
+        name = name,
         extId = extId ?: UUID.randomUUID().toString(),
         record = RecordRef.valueOf(record),
         template = RecordRef.valueOf(template),
         type = type!!,
         title = title ?: "",
         body = body ?: "",
-        recipientsData = recipientsData?.let { BulkMailRecipientsDataDto.from(it) } ?: BulkMailRecipientsDataDto(),
-        config = config?.let { BulkMailConfigDto.from(it) } ?: BulkMailConfigDto(),
+        recipientsData = recipientsData ?: BulkMailRecipientsDataDto(),
+        config = config ?: BulkMailConfigDto(),
         status = status ?: BulkMailStatus.NEW.status,
         createdBy = creator,
         createdDate = created,

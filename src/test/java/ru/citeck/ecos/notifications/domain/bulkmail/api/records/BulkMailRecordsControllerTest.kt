@@ -112,6 +112,7 @@ class BulkMailRecordsControllerTest {
                               "attributes": {
                                 "title": "Foo",
                                 "body": "Bar",
+                                "name": "Bulk mail №123",
                                 "status": "new",
                                 "type": "EMAIL_NOTIFICATION",
                                 "record": "$docRef",
@@ -149,6 +150,7 @@ class BulkMailRecordsControllerTest {
         assertThat(bulkMail.extId).isNotBlank
         assertThat(bulkMail.title).isEqualTo("Foo")
         assertThat(bulkMail.body).isEqualTo("Bar")
+        assertThat(bulkMail.name).isEqualTo("Bulk mail №123")
         assertThat(bulkMail.status).isEqualTo("new")
         assertThat(bulkMail.type).isEqualTo(NotificationType.EMAIL_NOTIFICATION)
         assertThat(bulkMail.record).isEqualTo(docRef)
@@ -242,6 +244,7 @@ class BulkMailRecordsControllerTest {
     fun `check exists bulk mail payload`() {
         val toSave = BulkMailDto(
             id = null,
+            name = "Bulk mail №123",
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
                     RecordRef.valueOf("test@1"),
@@ -288,6 +291,7 @@ class BulkMailRecordsControllerTest {
                       "attributes": {
                         "title": "title",
                         "body": "body",
+                        "name": "name",
                         "status": "status",
                         "record": "record",
                         "type": "type",
@@ -304,6 +308,7 @@ class BulkMailRecordsControllerTest {
             .andExpect(jsonPath("$.attributes.title", `is`(saved.title)))
             .andExpect(jsonPath("$.attributes.body", `is`(saved.body)))
             .andExpect(jsonPath("$.attributes.status", `is`(saved.status)))
+            .andExpect(jsonPath("$.attributes.name", `is`(saved.name)))
             .andExpect(jsonPath("$.attributes.type", `is`(saved.type.name)))
             .andExpect(jsonPath("$.attributes.record", `is`("Документ №123")))
             .andExpect(jsonPath("$.attributes.template", `is`("Test template")))

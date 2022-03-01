@@ -8,9 +8,11 @@ import java.time.Instant
 data class BulkMailDto(
     val id: Long? = null,
 
+    var name: String? = null,
+
     val extId: String? = null,
 
-    val recipientsData: BulkMailRecipientsDataDto,
+    val recipientsData: BulkMailRecipientsDataDto = BulkMailRecipientsDataDto(),
 
     val config: BulkMailConfigDto = BulkMailConfigDto(),
 

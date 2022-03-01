@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.domain.notification.isExplicitPayload
+import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationSender
@@ -74,7 +74,7 @@ class UnsafeSendNotificationCommandExecutor(
     }
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {
-        if (command.isExplicitPayload()) {
+        if (command.isExplicitMsgPayload()) {
             return TemplateModelData()
         }
 

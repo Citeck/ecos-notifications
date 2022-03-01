@@ -3,9 +3,14 @@ package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
+import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
+import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
@@ -22,7 +27,8 @@ import java.time.Instant
 
 @Component
 class BulkMailRecords(
-    private val bulkMailDao: BulkMailDao
+    private val bulkMailDao: BulkMailDao,
+    private val bulkMailOperator: BulkMailOperator
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord> {
 
     companion object {
@@ -110,35 +116,57 @@ class BulkMailRecords(
     }
 
     override fun saveMutatedRec(record: BulkMailRecord): String {
+        if (isActionMutate(record)) {
+            processAction(record)
+            return record.extId!!
+        }
+
         return bulkMailDao.save(record.toDto()).extId!!
+    }
+
+    private fun processAction(record: BulkMailRecord) {
+        when (record.action) {
+            BulkMailAction.CALCULATE_RECIPIENTS -> bulkMailOperator.calculateRecipients(record.extId!!)
+            BulkMailAction.DISPATCH -> bulkMailOperator.dispatch(record.extId!!)
+            BulkMailAction.NONE -> {
+            }
+        }
+    }
+
+    private fun isActionMutate(record: BulkMailRecord): Boolean {
+        return record.action != BulkMailAction.NONE
     }
 
     data class BulkMailRecord(
         var id: Long? = null,
+        var name: String? = null,
         var extId: String? = null,
-        val recipientsData: ObjectData? = ObjectData.create(),
+        val recipientsData: BulkMailRecipientsDataDto? = BulkMailRecipientsDataDto(),
         var record: RecordRef? = RecordRef.EMPTY,
         var template: RecordRef? = RecordRef.EMPTY,
         val type: NotificationType? = null,
         val title: String? = null,
         val body: String? = null,
-        val config: ObjectData? = ObjectData.create(),
+        val config: BulkMailConfigDto? = BulkMailConfigDto(),
+        val action: BulkMailAction = BulkMailAction.NONE,
         val status: String? = null,
         val creator: String? = null,
         val created: Instant? = null,
         val modifier: String? = null,
-        val modified: Instant? = null,
+        val modified: Instant? = null
     ) {
         constructor(dto: BulkMailDto) : this(
             dto.id,
+            dto.name,
             dto.extId,
-            ObjectData.create(dto.recipientsData),
+            dto.recipientsData,
             dto.record,
             dto.template,
             dto.type,
             dto.title,
             dto.body,
-            ObjectData.create(dto.config),
+            dto.config,
+            BulkMailAction.NONE,
             dto.status,
             dto.createdBy,
             dto.createdDate,
@@ -159,8 +187,12 @@ class BulkMailRecords(
             get() = moduleId
 
         @get:AttName(".disp")
-        val disp: String
-            get() = moduleId
+        val disp: String?
+            get() = name
+
+        @get:AttName(StatusConstants.ATT_STATUS_STR)
+        val statusStr: String?
+            get() = status
 
         @get:AttName(".type")
         val ecosType: RecordRef
@@ -181,6 +213,10 @@ class BulkMailRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+    }
+
+    enum class BulkMailAction {
+        NONE, CALCULATE_RECIPIENTS, DISPATCH
     }
 
 }

@@ -128,6 +128,7 @@ class NotificationDao(
 
         toLikeSpec(predicateDto.record, "record")
         toLikeSpec(predicateDto.moduleId, "extId")
+        toLikeSpec(predicateDto.bulkMailRef, "bulkMailRef")
 
         if (StringUtils.isNotBlank(predicateDto.state)) {
             val state = try {
@@ -173,7 +174,8 @@ class NotificationDao(
         var moduleId: String = "",
         var state: String = "",
         var type: String = "",
-        var template: String = ""
+        var template: String = "",
+        var bulkMailRef: String = ""
     )
 
 }

@@ -8,5 +8,32 @@ name:
 system: true
 sourceId: notifications/bulk-mail
 
+actions:
+  - uiserv/action@bulk-mail-calculate-recipients-action
+  - uiserv/action@bulk-mail-dispatch-action
+
 journalRef: uiserv/journal@bulk-mail
 formRef: uiserv/form@bulk-mail
+
+model:
+  statuses:
+    - id: new
+      name:
+        en: New
+        ru: Новый
+    - id: wait-for-dispatch
+      name:
+        en: Wait for dispatch
+        ru: Ожидается отправка
+    - id: trying-to-dispatch
+      name:
+        en: Tryting to dispatch
+        ru: Осуществляются попытки отправки
+    - id: sent
+      name:
+        en: Sent
+        ru: Отправлено
+    - id: error
+      name:
+        en: Error
+        ru: Ошибка

@@ -11,14 +11,23 @@ columns:
     type: TEXT
     name: { ru: Идентификатор, en: Id }
 
-  - id: record
-    name: { ru: Рекорд, en: Record }
-
   - id: address
     name: { ru: Адрес, en: Address }
 
   - id: name
     name: { ru: Имя, en: Name }
 
+  - id: record
+    name: { ru: Рекорд, en: Record }
+
   - id: bulkMailRef
-    name: { ru: Массовая рассылка, en: bulkMailRef }
+    name:
+      ru: Рассылка
+      en: Bulk mail
+    type: ASSOC
+    formatter:
+      type: assoc
+    searchableByText: false
+    sortable: false
+    groupable: false
+    editable: false

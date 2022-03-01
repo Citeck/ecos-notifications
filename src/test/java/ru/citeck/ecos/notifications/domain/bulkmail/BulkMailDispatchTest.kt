@@ -146,7 +146,7 @@ class BulkMailDispatchTest {
     }
 
     @Test
-    fun `bulk mail with explicit title body`() {
+    fun `bulk mail with title, body and template should use template`() {
 
         val bulkMail = bulkMailDao.save(
             BulkMailDto(
@@ -177,18 +177,18 @@ class BulkMailDispatchTest {
         assertThat(emails[0].allRecipients.size).isEqualTo(2)
         assertThat(emails[0].allRecipients.map { it.toString() }.toList())
             .containsExactlyInAnyOrder(severusRecord.email, harryRecord.email)
-        assertThat(emails[0].subject).isEqualTo("Title")
-        assertThat(GreenMailUtil.getBody(emails[0])).isEqualTo("Body")
+        assertEnTitle(emails[0])
+        assertEnBody(emails[0])
 
         assertThat(emails[1].allRecipients.size).isEqualTo(2)
         assertThat(emails[1].allRecipients.map { it.toString() }.toList())
             .containsExactlyInAnyOrder(severusRecord.email, harryRecord.email)
-        assertThat(emails[1].subject).isEqualTo("Title")
-        assertThat(GreenMailUtil.getBody(emails[1])).isEqualTo("Body")
+        assertEnTitle(emails[1])
+        assertEnBody(emails[1])
     }
 
     @Test
-    fun `bulk mail with explicit title body and without template, record`() {
+    fun `bulk mail with title, body and without template`() {
 
         val bulkMail = bulkMailDao.save(
             BulkMailDto(

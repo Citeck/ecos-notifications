@@ -17,6 +17,7 @@ import java.util.regex.Pattern
 private const val ALFRESCO_APP = "alfresco"
 private const val AUTHORITY_SRC_ID = "authority"
 private const val PEOPLE_SRC_ID = "people"
+private const val WORKSPACE_PREFIX = "workspace://"
 
 /**
  * @author Roman Makarskiy
@@ -61,15 +62,6 @@ class RecipientsFinder(
         val usersFromGroup = recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
         allUsers.addAll(usersFromGroup)
 
-        //TODO: remove
-        allUsers.forEach {
-            val r = recordsService.getAtt(it, "?json")
-            println("----------------------")
-            println("$it:")
-            println(r)
-            println("----------------------")
-        }
-
         return recordsService.getAtts(allUsers, UserInfo::class.java)
             .filter { it.email?.isNotBlank() ?: false }
             .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
@@ -81,6 +73,10 @@ class RecipientsFinder(
      */
     private fun convertRecipientsToFullFilledRefs(recipients: List<RecordRef>): List<RecordRef> {
         return recipients.map {
+            if (it.id.startsWith(WORKSPACE_PREFIX)) {
+                throw IllegalArgumentException("NodeRef format does not support. Recipient: $it")
+            }
+
             var fullFilledRef = it
 
             if (fullFilledRef.appName.isBlank()) {

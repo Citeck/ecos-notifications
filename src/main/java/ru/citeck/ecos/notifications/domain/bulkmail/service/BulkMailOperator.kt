@@ -86,8 +86,6 @@ class BulkMailOperator(
             }
 
             result.add(notification)
-
-
         }
 
         return result

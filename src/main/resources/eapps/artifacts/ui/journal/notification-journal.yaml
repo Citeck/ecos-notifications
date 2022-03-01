@@ -16,6 +16,7 @@ columns:
           SENT: "#93C54B"
           ERROR: "#D79B7D"
           EXPIRED: "#E07171"
+          WAIT_FOR_DISPATCH: "#7dc3d7"
         defaultColor: white
 
   - id: moduleId
@@ -34,8 +35,20 @@ columns:
   - id: tryingCount
     name: { ru: Кол-во попыток, en: Number of attempts to send }
 
+  - id: delayedSend
+    name: { ru: Отложенная отправка, en: Delayed send }
+
   - id: lastTryingDate
     name: { ru: Время последней попытки, en: Last try time }
 
-  - id: _modified
-    name: { ru: Изменено, en: Modified }
+  - id: bulkMailRef
+    name:
+      ru: Рассылка
+      en: Bulk mail
+    type: ASSOC
+    formatter:
+      type: assoc
+    searchableByText: false
+    sortable: false
+    groupable: false
+    editable: false

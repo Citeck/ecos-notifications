@@ -7,6 +7,18 @@ actions:
 
 columns:
 
+  - id: status
+    name: { ru: Статус , en: State }
+    formatter:
+      type: colored
+      config:
+        color:
+          wait-for-dispatch: "#7dc3d7"
+          trying-to-dispatch: "#edeb87"
+          sent: "#93C54B"
+          error: "#E07171"
+        defaultColor: white
+
   - id: moduleId
     type: TEXT
     name: { ru: Идентификатор, en: Id }

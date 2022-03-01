@@ -1,0 +1,12 @@
+---
+id: bulk-mail-dispatch-action
+key: bulk-mail-dispatch-action
+name:
+  ru: Отправить сообщения
+  en: Dispatch notifications
+type: mutate
+config:
+  record:
+    id: "${recordRef}"
+    attributes:
+      action: DISPATCH

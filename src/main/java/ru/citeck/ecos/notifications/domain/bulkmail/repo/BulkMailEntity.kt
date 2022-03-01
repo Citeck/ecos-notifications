@@ -16,6 +16,8 @@ class BulkMailEntity @JvmOverloads constructor(
     @SequenceGenerator(name = "ecos_bulk_mail_id_gen")
     var id: Long? = null,
 
+    var name: String? = null,
+
     @get: NotNull
     @Column(columnDefinition = "VARCHAR(255)", unique = true, nullable = false)
     var extId: String? = null,

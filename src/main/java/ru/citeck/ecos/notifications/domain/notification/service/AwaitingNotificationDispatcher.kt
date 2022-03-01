@@ -49,7 +49,7 @@ class AwaitingNotificationDispatcher(
         log.debug {
             "Build notification from ${NotificationState.WAIT_FOR_DISPATCH} " +
                 "\nInput:" +
-                "\n${notificationDto.data}" +
+                "\n${notificationDto.data?.let { String(it) }}" +
                 "\nResult:" +
                 "\n${notification}"
         }
