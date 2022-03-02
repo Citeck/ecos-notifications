@@ -11,6 +11,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
+import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientRepository
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
@@ -23,8 +24,16 @@ import javax.persistence.criteria.Root
 @Service
 @Transactional
 class BulkMailDao(
-    private val bulkMailRepository: BulkMailRepository
+    private val bulkMailRepository: BulkMailRepository,
+    private val bulkMailRecipientRepository: BulkMailRecipientRepository
 ) {
+
+    fun remove(dto: BulkMailDto) {
+        val entity = dto.toEntity()
+
+        bulkMailRecipientRepository.deleteAllByBulkMail(entity)
+        bulkMailRepository.delete(entity)
+    }
 
     fun save(dto: BulkMailDto): BulkMailDto {
         return bulkMailRepository.save(
@@ -121,7 +130,7 @@ class BulkMailDao(
                     )
                 }
 
-                spec = spec?.or(likeSpec) ?: likeSpec
+                spec = spec?.and(likeSpec) ?: likeSpec
             }
         }
 
@@ -144,7 +153,7 @@ class BulkMailDao(
                         type
                     )
                 }
-            spec = spec?.or(typeSpec) ?: typeSpec
+            spec = spec?.and(typeSpec) ?: typeSpec
         }
 
         toLikeSpec(predicateDto.template, "template")

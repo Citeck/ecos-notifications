@@ -9,6 +9,8 @@ interface BulkMailRecipientRepository : JpaRepository<BulkMailRecipientEntity, L
 
     fun deleteAllByBulkMail(bulkMailEntity: BulkMailEntity)
 
+    fun deleteAllByExtIdIn(extIds: List<String>)
+
     fun findAllByBulkMail(bulkMailEntity: BulkMailEntity): List<BulkMailRecipientEntity>
 
     fun findOneByExtId(extId: String): Optional<BulkMailRecipientEntity>

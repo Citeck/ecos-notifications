@@ -11,6 +11,7 @@ sourceId: notifications/bulk-mail
 actions:
   - uiserv/action@bulk-mail-calculate-recipients-action
   - uiserv/action@bulk-mail-dispatch-action
+  - uiserv/action@delete
 
 journalRef: uiserv/journal@bulk-mail
 formRef: uiserv/form@bulk-mail

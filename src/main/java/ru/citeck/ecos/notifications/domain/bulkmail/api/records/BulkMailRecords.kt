@@ -2,12 +2,10 @@ package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
-import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
-import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
@@ -19,6 +17,8 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
+import ru.citeck.ecos.records3.record.dao.delete.DelStatus
+import ru.citeck.ecos.records3.record.dao.delete.RecordDeleteDao
 import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
@@ -28,11 +28,21 @@ import java.time.Instant
 @Component
 class BulkMailRecords(
     private val bulkMailDao: BulkMailDao,
-    private val bulkMailOperator: BulkMailOperator
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord> {
+    private val bulkMailOperator: BulkMailOperator,
+) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord>,
+    RecordDeleteDao {
 
     companion object {
         const val ID = "bulk-mail"
+    }
+
+    override fun delete(recordId: String): DelStatus {
+        val dto = bulkMailDao.findByExtId(recordId)
+            ?: throw IllegalArgumentException("Bulk mail with ext id $recordId not found")
+
+        bulkMailDao.remove(dto)
+
+        return DelStatus.OK
     }
 
     override fun getId(): String {
@@ -109,7 +119,6 @@ class BulkMailRecords(
             BulkMailRecord(it)
         }
     }
-
 
     override fun getRecToMutate(recordId: String): BulkMailRecord {
         return getRecordAtts(recordId) ?: BulkMailRecord()

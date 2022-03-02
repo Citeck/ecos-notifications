@@ -1,24 +1,30 @@
 ---
 id: bulk-mail-recipient
 name: { ru: Получатели массовой рассылки, en: Bulk mail recipients }
+editable: false
 
 actions:
-  - uiserv/action@view-dashboard
+  - uiserv/action@delete
 
 columns:
 
   - id: moduleId
     type: TEXT
     name: { ru: Идентификатор, en: Id }
+    sortable: false
 
   - id: address
     name: { ru: Адрес, en: Address }
+    sortable: false
 
   - id: name
     name: { ru: Имя, en: Name }
+    sortable: false
 
   - id: record
     name: { ru: Рекорд, en: Record }
+    searchableByText: false
+    sortable: false
 
   - id: bulkMailRef
     name:

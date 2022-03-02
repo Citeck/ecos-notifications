@@ -27,6 +27,10 @@ class BulkMailRecipientDao(
     private val bulkMailRecipientRepository: BulkMailRecipientRepository
 ) {
 
+    fun removeAllByExtId(extIds: List<String>) {
+        bulkMailRecipientRepository.deleteAllByExtIdIn(extIds)
+    }
+
     @Transactional(readOnly = true)
     fun findByExtId(extId: String): BulkMailRecipientDto? {
         val found = bulkMailRecipientRepository.findOneByExtId(extId)
@@ -111,7 +115,7 @@ class BulkMailRecipientDao(
                     )
                 }
 
-                spec = spec?.or(likeSpec) ?: likeSpec
+                spec = spec?.and(likeSpec) ?: likeSpec
             }
         }
 

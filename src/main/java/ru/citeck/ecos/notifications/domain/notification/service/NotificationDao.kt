@@ -120,7 +120,7 @@ class NotificationDao(
                     )
                 }
 
-                spec = spec?.or(likeSpec) ?: likeSpec
+                spec = spec?.and(likeSpec) ?: likeSpec
             }
         }
 
@@ -144,7 +144,18 @@ class NotificationDao(
                         state
                     )
                 }
-            spec = spec?.or(stateSpec) ?: stateSpec
+            spec = spec?.and(stateSpec) ?: stateSpec
+        }
+
+        predicateDto.tryingCount?.let { tryingCount ->
+            val tryingCountSpec =
+                Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                    builder.equal(
+                        root.get<Int>("tryingCount"),
+                        tryingCount
+                    )
+                }
+            spec = spec?.and(tryingCountSpec) ?: tryingCountSpec
         }
 
         if (StringUtils.isNotBlank(predicateDto.type)) {
@@ -161,7 +172,7 @@ class NotificationDao(
                         type
                     )
                 }
-            spec = spec?.or(typeSpec) ?: typeSpec
+            spec = spec?.and(typeSpec) ?: typeSpec
         }
 
         toLikeSpec(predicateDto.template, "template")
@@ -175,7 +186,8 @@ class NotificationDao(
         var state: String = "",
         var type: String = "",
         var template: String = "",
-        var bulkMailRef: String = ""
+        var bulkMailRef: String = "",
+        var tryingCount: Int? = null,
     )
 
 }

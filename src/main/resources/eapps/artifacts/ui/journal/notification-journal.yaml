@@ -1,6 +1,7 @@
 ---
 id: notification
 name: { ru: Уведомления, en: Notifications }
+editable: false
 
 actions:
   - uiserv/action@view-dashboard
@@ -18,28 +19,38 @@ columns:
           EXPIRED: "#E07171"
           WAIT_FOR_DISPATCH: "#7dc3d7"
         defaultColor: white
+    sortable: false
 
   - id: moduleId
     type: TEXT
     name: { ru: Идентификатор, en: Id }
+    sortable: false
 
   - id: record
     name: { ru: Рекорд, en: Record }
+    sortable: false
 
   - id: template
     name: { ru: Шаблон, en: Template }
+    sortable: false
 
   - id: type
     name: { ru: Тип уведомления, en: Notification type }
+    sortable: false
 
   - id: tryingCount
     name: { ru: Кол-во попыток, en: Number of attempts to send }
+    sortable: false
 
   - id: delayedSend
     name: { ru: Отложенная отправка, en: Delayed send }
+    sortable: false
+    searchableByText: false
 
   - id: lastTryingDate
     name: { ru: Время последней попытки, en: Last try time }
+    sortable: false
+    searchableByText: false
 
   - id: bulkMailRef
     name:

@@ -11,6 +11,8 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
+import ru.citeck.ecos.records3.record.dao.delete.DelStatus
+import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
@@ -22,7 +24,7 @@ import java.time.Instant
 @Component
 class BulkMailRecipientRecords(
     private val bulkMailRecipientDao: BulkMailRecipientDao
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao {
+) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordsDeleteDao {
 
     companion object {
         const val ID = "bulk-mail-recipient"
@@ -101,6 +103,14 @@ class BulkMailRecipientRecords(
         return dto?.let {
             BulkMailRecipientRecord(it)
         }
+    }
+
+    override fun delete(recordsId: List<String>): List<DelStatus> {
+        val result = generateSequence { DelStatus.OK }.take(recordsId.size).toMutableList()
+
+        bulkMailRecipientDao.removeAllByExtId(recordsId)
+
+        return result
     }
 
     data class BulkMailRecipientRecord(
