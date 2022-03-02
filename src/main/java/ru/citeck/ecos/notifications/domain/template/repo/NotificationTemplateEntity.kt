@@ -24,6 +24,9 @@ class NotificationTemplateEntity @JvmOverloads constructor(
 
     var model: String? = null,
 
+    @Column(columnDefinition = "VARCHAR(550)")
+    var tags: String? = null,
+
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")
     @MapKey(name = "lang")
     var data: MutableMap<String, TemplateDataEntity> = mutableMapOf(),

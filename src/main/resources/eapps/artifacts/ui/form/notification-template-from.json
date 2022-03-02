@@ -4,12 +4,10 @@
   "title": {
     "en": "Notification template"
   },
-  "description": {
-    "en": ""
-  },
+  "description": {},
   "customModule": null,
   "typeRef": "",
-  "width": "default",
+  "width": "lg",
   "i18n": {},
   "definition": {
     "components": [
@@ -33,6 +31,19 @@
         "key": "name",
         "type": "textfield",
         "input": true
+      },
+      {
+        "label": {
+          "ru": "Теги",
+          "en": "Tags"
+        },
+        "key": "tags",
+        "multiple": true,
+        "defaultValue": "",
+        "refreshOn": [],
+        "type": "textfield",
+        "input": true,
+        "reorder": false
       },
       {
         "label": "Notification Title",

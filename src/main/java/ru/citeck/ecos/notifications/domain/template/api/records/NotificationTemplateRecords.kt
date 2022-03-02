@@ -23,7 +23,6 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordMeta
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.graphql.meta.value.MetaField
 import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -41,7 +40,6 @@ import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import java.time.Instant
-import java.util.*
 import java.util.stream.Collectors
 
 private const val META_FILE_EXTENSION = "meta.yml"
@@ -79,7 +77,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     override fun save(values: List<NotTemplateRecord>): RecordsMutResult {
         val result = RecordsMutResult()
         val savedList = values.stream()
-            .map { dto: NotTemplateRecord? -> templateService.save(dto) }
+            .map { dto: NotTemplateRecord -> templateService.save(dto) }
             .map(NotificationTemplateWithMeta::id)
             .map { id: String? -> RecordMeta(id) }
             .collect(Collectors.toList())
@@ -90,9 +88,9 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     override fun getLocalRecordsMeta(records: List<RecordRef>, metaField: MetaField): List<NotTemplateRecord> {
         return records.stream()
             .map { obj: RecordRef -> obj.id }
-            .map { id: String? ->
+            .map { id: String ->
                 templateService.findById(id)
-                    .orElseGet { NotificationTemplateWithMeta(id!!) }
+                    .orElseGet { NotificationTemplateWithMeta(id) }
             }
             .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
             .collect(Collectors.toList())
@@ -182,7 +180,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             get() = let {
                 val attributes = mutableSetOf<String>()
 
-                this.model?.forEach { _, dataValue -> attributes.add(dataValue) }
+                this.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
 
                 addAttributesRecursive(this.multiTemplateConfig, attributes)
 

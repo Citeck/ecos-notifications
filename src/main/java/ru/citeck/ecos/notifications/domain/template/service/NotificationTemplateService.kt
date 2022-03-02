@@ -1,156 +1,191 @@
-package ru.citeck.ecos.notifications.domain.template.service;
+package ru.citeck.ecos.notifications.domain.template.service
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter;
-import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto;
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta;
-import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity;
-import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository;
-import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.predicate.model.Predicate;
-import ru.citeck.ecos.records2.predicate.model.VoidPredicate;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static ru.citeck.ecos.notifications.predicate.PredicateConverterKt.toDefaultEntitySpec;
+import org.apache.commons.collections.CollectionUtils
+import org.apache.commons.lang.StringUtils
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
+import org.springframework.stereotype.Service
+import org.springframework.util.Assert
+import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter
+import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
+import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
+import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity
+import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository
+import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
+import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records2.predicate.PredicateUtils
+import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records2.predicate.model.VoidPredicate
+import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Collectors
+import javax.persistence.criteria.CriteriaBuilder
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 
 @Service("domainNotificationTemplateService")
-public class NotificationTemplateService {
+class NotificationTemplateService(
+    private val templateRepository: NotificationTemplateRepository,
+    private val templateConverter: TemplateConverter
+) {
 
-    private final NotificationTemplateRepository templateRepository;
-    private final TemplateConverter templateConverter;
+    private var listener: Consumer<NotificationTemplateWithMeta>? = null
 
-    private Consumer<NotificationTemplateWithMeta> listener;
+    val count: Long
+        get() = templateRepository.count()
 
-
-    public NotificationTemplateService(NotificationTemplateRepository templateRepository,
-                                       TemplateConverter templateConverter) {
-        this.templateRepository = templateRepository;
-        this.templateConverter = templateConverter;
-    }
-
-    public void update(@NotNull NotificationTemplateWithMeta dto) {
-        NotificationTemplateEntity template = templateRepository.save(templateConverter.dtoToEntity(dto));
+    fun update(dto: NotificationTemplateWithMeta) {
+        val template = templateRepository.save(
+            templateConverter.dtoToEntity(dto)
+        )
         if (listener != null) {
-            listener.accept(templateConverter.entityToDto(template));
+            listener!!.accept(templateConverter.entityToDto(template))
         }
     }
 
-    public void deleteById(String id) {
-        if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException("Id parameter is mandatory for template deletion");
-        }
-        templateRepository.findOneByExtId(id).ifPresent(templateRepository::delete);
+    fun deleteById(id: String?) {
+        require(!StringUtils.isBlank(id)) { "Id parameter is mandatory for template deletion" }
+        templateRepository.findOneByExtId(id)
+            .ifPresent { entity: NotificationTemplateEntity -> templateRepository.delete(entity) }
     }
 
-    @NotNull
-    public List<RecordRef> findTemplateRefsForTypes(@NotNull List<RecordRef> typeRefs) {
-
+    fun findTemplateRefsForTypes(typeRefs: List<RecordRef>): List<RecordRef> {
         if (typeRefs.isEmpty()) {
-            return Collections.emptyList();
+            return emptyList()
         }
 
-        List<RecordRef> templates = new ArrayList<>();
+        val templates: MutableList<RecordRef> = ArrayList()
 
-        List<NotificationTemplateEntity> multiTemplates = templateRepository.findAllMultiTemplates();
-
-        for (NotificationTemplateEntity template : multiTemplates) {
-            NotificationTemplateWithMeta templateDto = templateConverter.entityToDto(template);
-            if (templateDto.getMultiTemplateConfig() != null) {
-                for (MultiTemplateElementDto configDto : templateDto.getMultiTemplateConfig()) {
-
-                    if (RecordRef.isNotEmpty(configDto.getType())
-                            && RecordRef.isNotEmpty(configDto.getTemplate())
-                            && typeRefs.contains(configDto.getType())) {
-
-                        templates.add(configDto.getTemplate());
+        templateRepository.findAllMultiTemplates().forEach { notificationTemplateEntity ->
+            templateConverter.entityToDto(notificationTemplateEntity).multiTemplateConfig?.let { multiTemplates ->
+                for ((template, type) in multiTemplates) {
+                    if (RecordRef.isNotEmpty(type)
+                        && RecordRef.isNotEmpty(template)
+                        && typeRefs.contains(type)
+                    ) {
+                        template?.let { templates.add(it) }
                     }
                 }
             }
         }
 
-        return templates;
+        return templates
     }
 
-    public Optional<NotificationTemplateWithMeta> findById(String id) {
-        if (StringUtils.isBlank(id)) {
-            return Optional.empty();
-        }
-        return templateRepository.findOneByExtId(id)
-            .map(templateConverter::entityToDto);
+    fun findById(id: String): Optional<NotificationTemplateWithMeta> {
+        return if (StringUtils.isBlank(id)) {
+            Optional.empty()
+        } else templateRepository.findOneByExtId(id)
+            .map { entity: NotificationTemplateEntity ->
+                templateConverter.entityToDto(
+                    entity
+                )
+            }
     }
 
-    public NotificationTemplateWithMeta save(NotificationTemplateWithMeta dto) {
-        if (dto != null && !CollectionUtils.isEmpty(dto.getMultiTemplateConfig())) {
-            List<MultiTemplateElementDto> notEmptyMultiTemplateConfigs = new ArrayList<>();
-            for (MultiTemplateElementDto template : dto.getMultiTemplateConfig()) {
-                if (template.getCondition() != null && !(template.getCondition() instanceof VoidPredicate)
-                        || RecordRef.isNotEmpty(template.getTemplate())
-                        || RecordRef.isNotEmpty(template.getType())) {
-                    notEmptyMultiTemplateConfigs.add(template);
+    fun save(dto: NotificationTemplateWithMeta): NotificationTemplateWithMeta {
+        if (CollectionUtils.isNotEmpty(dto.multiTemplateConfig)) {
+            val notEmptyMultiTemplateConfigs: MutableList<MultiTemplateElementDto> = ArrayList()
+            for (template in dto.multiTemplateConfig!!) {
+                if (template.condition != null && template.condition !is VoidPredicate
+                    || RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
+                ) {
+                    notEmptyMultiTemplateConfigs.add(template)
                 }
             }
-            if (notEmptyMultiTemplateConfigs.size() != dto.getMultiTemplateConfig().size()) {
-                dto.setMultiTemplateConfig(notEmptyMultiTemplateConfigs);
+            if (notEmptyMultiTemplateConfigs.size != dto.multiTemplateConfig!!.size) {
+                dto.multiTemplateConfig = notEmptyMultiTemplateConfigs
             }
         }
-        if (dto != null && CollectionUtils.isEmpty(dto.getMultiTemplateConfig())) {
-            Assert.notEmpty(dto.getTemplateData(), "Template content must be defined");
+
+        if (CollectionUtils.isEmpty(dto.multiTemplateConfig)) {
+            Assert.notEmpty(dto.templateData, "Template content must be defined")
         }
-        if (StringUtils.isBlank(dto.getId())) {
-            dto.setId(UUID.randomUUID().toString());
+
+        if (StringUtils.isBlank(dto.id)) {
+            dto.id = UUID.randomUUID().toString()
         }
-        NotificationTemplateEntity saved = templateRepository.save(templateConverter.dtoToEntity(dto));
-        NotificationTemplateWithMeta resultDto = templateConverter.entityToDto(saved);
+
+        val saved = templateRepository.save(
+            templateConverter.dtoToEntity(
+                dto
+            )
+        )
+        val resultDto = templateConverter.entityToDto(saved)
         if (listener != null) {
-            listener.accept(resultDto);
-        }
-        return resultDto;
-    }
-
-    public List<NotificationTemplateWithMeta> getAll(int max, int skip, Predicate predicate, Sort sort) {
-        if (sort == null) {
-            sort = Sort.by(Sort.Direction.DESC, "id");
+            listener!!.accept(resultDto)
         }
 
-        PageRequest page = PageRequest.of(skip / max, max, sort);
-
-        return templateRepository.findAll(toDefaultEntitySpec(predicate), page)
-            .stream()
-            .map(templateConverter::entityToDto)
-            .collect(Collectors.toList());
+        return resultDto
     }
 
-    public long getCount(Predicate predicate) {
-        Specification<NotificationTemplateEntity> spec = toDefaultEntitySpec(predicate);
-        return spec != null ? (int) templateRepository.count(spec) : getCount();
+    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<NotificationTemplateWithMeta> {
+        val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
+
+        val page = PageRequest.of(skip / max, max, sorting)
+
+        return templateRepository.findAll(toSpec(predicate), page)
+            .map { entity: NotificationTemplateEntity ->
+                templateConverter.entityToDto(
+                    entity
+                )
+            }
+            .toList()
     }
 
-    public long getCount() {
-        return templateRepository.count();
+    fun getCount(predicate: Predicate): Long {
+        val spec = toSpec<NotificationTemplateEntity>(predicate)
+        return if (spec != null) templateRepository.count(spec) else count
     }
 
-    public List<NotificationTemplateWithMeta> getAll(int max, int skip) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        PageRequest page = PageRequest.of(skip / max, max, sort);
-
+    fun getAll(max: Int, skip: Int): List<NotificationTemplateWithMeta> {
+        val sort = Sort.by(Sort.Direction.DESC, "id")
+        val page = PageRequest.of(skip / max, max, sort)
         return templateRepository.findAll(page)
             .stream()
-            .map(templateConverter::entityToDto)
-            .collect(Collectors.toList());
+            .map { entity: NotificationTemplateEntity ->
+                templateConverter.entityToDto(
+                    entity
+                )
+            }
+            .collect(Collectors.toList())
     }
 
-    public void addListener(Consumer<NotificationTemplateWithMeta> listener) {
-        this.listener = listener;
+    fun addListener(listener: Consumer<NotificationTemplateWithMeta>) {
+        this.listener = listener
     }
 
+    private fun <T> toSpec(pred: Predicate): Specification<T>? {
+        pred.toValueModifiedSpec<T>()?.let { return it }
+
+        var spec: Specification<T>? = null
+
+        fun toLikeSpec(value: String, attName: String) {
+            if (value.isNotBlank()) {
+                val likeSpec = Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
+                    builder.like(
+                        builder.lower(root.get(attName)),
+                        "%" + value.lowercase() + "%"
+                    )
+                }
+
+                spec = spec?.and(likeSpec) ?: likeSpec
+            }
+        }
+
+        val predicateDto = PredicateUtils.convertToDto(pred, NotificationTemplatePredicateDto::class.java)
+
+        toLikeSpec(predicateDto.record, "record")
+        toLikeSpec(predicateDto.moduleId, "extId")
+        toLikeSpec(predicateDto.tags, "tags")
+
+        return spec
+    }
+
+    data class NotificationTemplatePredicateDto(
+        var record: String = "",
+        var moduleId: String = "",
+        var tags: String = ""
+    )
 }

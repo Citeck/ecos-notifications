@@ -33,6 +33,8 @@
              relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220224153251_add_name_to_bulk_mail_changelog.xml"
              relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220302125017_add_tags_to_notification_template_changelog.xml"
+             relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

@@ -12,12 +12,19 @@ columns:
   - id: moduleId
     type: TEXT
     name: { ru: Идентификатор, en: Id }
+    sortable: false
 
   - id: name
     name: { ru: Имя, en: Name }
+    sortable: false
+
+  - id: tags
+    name: { ru: Теги, en: Tags }
+    sortable: false
 
   - id: _modified
     name: { ru: Изменен, en: Modified }
 
   - id: _modifier
     name: { ru: Кем изменен, en: Modified by }
+    sortable: false

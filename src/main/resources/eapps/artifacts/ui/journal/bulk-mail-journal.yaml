@@ -40,7 +40,6 @@ columns:
 
   - id: _modified
     name: { ru: Изменено, en: Modified }
-    sortable: false
     searchableByText: false
 
   - id: _modifier
