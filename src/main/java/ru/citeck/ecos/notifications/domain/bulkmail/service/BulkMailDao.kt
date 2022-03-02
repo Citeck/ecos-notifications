@@ -160,6 +160,7 @@ class BulkMailDao(
         toLikeSpec(predicateDto.status, "status")
         toLikeSpec(predicateDto.title, "title")
         toLikeSpec(predicateDto.body, "body")
+        toLikeSpec(predicateDto.name, "name")
 
         return spec
     }
@@ -171,7 +172,8 @@ class BulkMailDao(
         var type: String = "",
         var template: String = "",
         var title: String = "",
-        var body: String = ""
+        var body: String = "",
+        var name: String = ""
     )
 
 }

@@ -21,9 +21,9 @@ columns:
         defaultColor: white
     sortable: false
 
-  - id: moduleId
+  - id: name
     type: TEXT
-    name: { ru: Идентификатор, en: Id }
+    name: { ru: Имя, en: Name }
     sortable: false
 
   - id: record

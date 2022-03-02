@@ -7,7 +7,7 @@
   "description": {},
   "customModule": null,
   "typeRef": "",
-  "width": "lg",
+  "width": "extra-lg",
   "i18n": {},
   "definition": {
     "components": [
@@ -56,13 +56,168 @@
         "input": true
       },
       {
-        "label": "Template content",
+        "label": {
+          "ru": "Notification body"
+        },
+        "key": "bodyData",
         "multiple": true,
-        "storage": "base64",
-        "key": "templateContent",
-        "type": "file",
+        "validate": {
+          "minLength": "",
+          "maxLength": ""
+        },
+        "disableAddingRemovingRows": false,
+        "addAnotherPosition": "bottom",
+        "removePlacement": "col",
+        "defaultOpen": false,
+        "layoutFixed": false,
+        "enableRowGroups": false,
+        "reorder": false,
+        "defaultValue": [
+          {
+            "textField": "",
+            "lang": "",
+            "textArea": "",
+            "body": ""
+          }
+        ],
+        "refreshOn": [],
+        "type": "datagrid",
         "input": true,
-        "reorder": false
+        "components": [
+          {
+            "label": {
+              "ru": "Panel"
+            },
+            "key": "panel3",
+            "refreshOn": [],
+            "type": "panel",
+            "input": false,
+            "components": [
+              {
+                "label": {
+                  "en": "Lang"
+                },
+                "key": "lang",
+                "validate": {
+                  "required": true
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Body",
+                  "en": "Body"
+                },
+                "key": "body",
+                "validate": {
+                  "required": true
+                },
+                "editor": "ace",
+                "wysiwyg": {
+                  "theme": "snow",
+                  "placeholder": "",
+                  "modules": {
+                    "clipboard": {
+                      "matchVisual": false
+                    },
+                    "toolbar": [
+                      [
+                        {
+                          "size": [
+                            "small",
+                            false,
+                            "large",
+                            "huge"
+                          ]
+                        }
+                      ],
+                      [
+                        {
+                          "header": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            false
+                          ]
+                        }
+                      ],
+                      [
+                        {
+                          "font": []
+                        }
+                      ],
+                      [
+                        "bold",
+                        "italic",
+                        "underline",
+                        "strike",
+                        {
+                          "script": "sub"
+                        },
+                        {
+                          "script": "super"
+                        },
+                        "clean"
+                      ],
+                      [
+                        {
+                          "color": []
+                        },
+                        {
+                          "background": []
+                        }
+                      ],
+                      [
+                        {
+                          "list": "ordered"
+                        },
+                        {
+                          "list": "bullet"
+                        },
+                        {
+                          "indent": "-1"
+                        },
+                        {
+                          "indent": "+1"
+                        },
+                        {
+                          "align": []
+                        }
+                      ],
+                      [
+                        "blockquote",
+                        "code-block"
+                      ],
+                      [
+                        "link",
+                        "image",
+                        "video",
+                        "formula",
+                        "source"
+                      ]
+                    ]
+                  }
+                },
+                "defaultValue": "",
+                "inputFormat": "html",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "rows": 5,
+                "as": "",
+                "type": "textarea",
+                "input": true
+              }
+            ],
+            "row": "0-0"
+          }
+        ]
       },
       {
         "label": "Model",

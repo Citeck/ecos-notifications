@@ -24,7 +24,7 @@ class NotificationTemplateEntity @JvmOverloads constructor(
 
     var model: String? = null,
 
-    @Column(columnDefinition = "VARCHAR(550)")
+    @Column(columnDefinition = "VARCHAR(255)")
     var tags: String? = null,
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "template")

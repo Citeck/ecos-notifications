@@ -229,6 +229,35 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 return body
             }
 
+        @get:AttName("bodyData")
+        var bodyData: List<BodyTemplateData>
+            get() = let {
+                val result = mutableListOf<BodyTemplateData>()
+
+                for ((locale, data) in body.getValues()) {
+                    result.add(BodyTemplateData(locale.toString(), data))
+                }
+
+                return result
+            }
+            set(value) {
+
+                val newTemplateData: MutableMap<String, TemplateDataDto> = mutableMapOf()
+
+                value.forEach {
+                    val locale = LocaleUtils.toLocale(it.lang)
+
+                    val fileName = "${moduleId}.html_${locale}.ftl"
+                    val templateData = TemplateDataDto(fileName, it.body.toByteArray(Charsets.UTF_8))
+
+                    newTemplateData[locale.toString()] = templateData
+                }
+
+                this.templateData = newTemplateData
+
+            }
+
+
         @get:AttName("data")
         val data: ByteArray
             get() = let {
@@ -286,23 +315,11 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             mapper.applyData(this, data)
             this.templateData = templateData
         }
-
-        @JsonProperty("templateContent")
-        fun fillTemplateDataFromFiles(content: List<ObjectData>) {
-            val updatedData: MutableMap<String, TemplateDataDto> = templateData.toMutableMap()
-
-            content.forEach {
-                val fileName = it.get("originalName").asText()
-                val langKey = getLangKeyFromFileName(fileName)
-                val contentBytes = getContentBytesFromBase64ObjectData(it)
-
-                val templateData = TemplateDataDto(fileName, contentBytes)
-
-                updatedData[langKey] = templateData
-            }
-
-            this.templateData = updatedData
-        }
     }
+
+    data class BodyTemplateData(
+        var lang: String = "",
+        var body: String = ""
+    )
 
 }
