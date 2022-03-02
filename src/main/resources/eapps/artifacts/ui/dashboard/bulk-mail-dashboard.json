@@ -168,6 +168,31 @@
           "description": "Основное"
         },
         {
+          "name": "journal",
+          "label": "dashboard-settings.widget.journal",
+          "dndId": "eab50767-c348-4a41-8c14-c36f7ab7255f",
+          "id": "fc4b0d76-6c47-44d9-b0e7-525d1d7533fd",
+          "props": {
+            "id": "fc4b0d76-6c47-44d9-b0e7-525d1d7533fd",
+            "config": {
+              "widgetDisplayCondition": null,
+              "elementsDisplayCondition": {},
+              "version": "v2",
+              "v2": {
+                "onlyLinked": true,
+                "journalsListIds": [
+                  "uiserv/journal@notification"
+                ],
+                "journalSettingId": "",
+                "journalId": "notification",
+                "customJournalMode": false,
+                "customJournal": ""
+              }
+            }
+          },
+          "description": "Основное"
+        },
+        {
           "dndId": "aa0deb44-527e-4244-85cc-89757c0e07eb",
           "name": "comments",
           "label": "dashboard-settings.widget.comments",
@@ -180,6 +205,19 @@
             }
           },
           "description": "Основное"
+        },
+        {
+          "name": "doc-status",
+          "label": "dashboard-settings.widget.doc-status",
+          "dndId": "2360eb60-e59c-44a4-a641-d7d41cf8da22",
+          "id": "02fc4b7e-5d1b-4ca0-a694-29c6cda68264",
+          "props": {
+            "id": "02fc4b7e-5d1b-4ca0-a694-29c6cda68264",
+            "config": {
+              "widgetDisplayCondition": null,
+              "elementsDisplayCondition": {}
+            }
+          }
         },
         {
           "dndId": "8ecb125c-7a47-4d3b-b871-5868fbe76498",
@@ -209,11 +247,13 @@
               "widgets": [
                 "ecbede90-a55d-423a-9b6b-3ac523600335",
                 "c8a99afd-9243-414f-ae19-851f5d141b78",
+                "fc4b0d76-6c47-44d9-b0e7-525d1d7533fd",
                 "291afa3a-50c1-4a3a-9700-8b85767926af"
               ]
             },
             {
               "widgets": [
+                "02fc4b7e-5d1b-4ca0-a694-29c6cda68264",
                 "6cb0726f-07c2-4388-84bc-6651823e2ba9"
               ],
               "width": "25%"

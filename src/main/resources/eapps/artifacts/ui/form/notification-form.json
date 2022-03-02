@@ -289,9 +289,9 @@
                 "label": {
                   "ru": "Data"
                 },
+                "key": "notificationCommandPayload",
                 "hideLabel": true,
                 "disabled": true,
-                "key": "notificationCommandPayload",
                 "disableInlineEdit": true,
                 "editor": "ace",
                 "wysiwyg": {
