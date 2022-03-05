@@ -279,6 +279,10 @@
                   "en": "Language"
                 },
                 "key": "lang",
+                "tooltip": {
+                  "ru": "Например: 'ru', 'en' и т.д.",
+                  "en": "Example: 'ru', 'en' etc"
+                },
                 "defaultValue": "",
                 "refreshOn": [],
                 "type": "textfield",
