@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
@@ -24,7 +25,8 @@ import javax.persistence.criteria.Root
 @Service
 @Transactional
 class BulkMailRecipientDao(
-    private val bulkMailRecipientRepository: BulkMailRecipientRepository
+    private val bulkMailRecipientRepository: BulkMailRecipientRepository,
+    @Lazy private val bulkMailDao: BulkMailDao
 ) {
 
     fun removeAllByExtId(extIds: List<String>) {
@@ -94,7 +96,10 @@ class BulkMailRecipientDao(
 
         deleteAllForBulkMail(bulkMail)
 
-        return bulkMailRecipientRepository.saveAll(newRecipients).map { it.toDto() }
+        val result = bulkMailRecipientRepository.saveAll(newRecipients).map { it.toDto() }
+        bulkMail.extId?.let { bulkMailDao.updateModified(it) }
+
+        return result
     }
 
     private fun deleteAllForBulkMail(bulkMail: BulkMailDto) {

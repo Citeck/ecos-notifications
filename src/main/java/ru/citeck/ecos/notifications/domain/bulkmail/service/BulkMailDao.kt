@@ -17,6 +17,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import java.time.Instant
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
@@ -48,6 +49,18 @@ class BulkMailDao(
         }
 
         entity.status = status.status
+
+        bulkMailRepository.save(
+            entity
+        )
+    }
+
+    fun updateModified(extId: String) {
+        val entity = bulkMailRepository.findOneByExtId(extId).orElseThrow {
+            IllegalArgumentException("Bulk mail with exit id: $extId not found")
+        }
+
+        entity.lastModifiedDate = Instant.now()
 
         bulkMailRepository.save(
             entity
