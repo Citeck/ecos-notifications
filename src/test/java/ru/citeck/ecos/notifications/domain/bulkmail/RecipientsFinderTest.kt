@@ -9,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
-import ru.citeck.ecos.config.lib.dto.ConfigKey
-import ru.citeck.ecos.config.lib.zookeeper.ZkConfigService
+import ru.citeck.ecos.config.lib.provider.InMemConfigService
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -23,7 +22,6 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
-import java.util.concurrent.TimeUnit
 
 /**
  * @author Roman Makarskiy
@@ -43,7 +41,7 @@ class RecipientsFinderTest {
     private lateinit var localAppService: LocalAppService
 
     @Autowired
-    private lateinit var zkConfigService: ZkConfigService
+    private lateinit var inMemConfigService: InMemConfigService
 
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
@@ -372,14 +370,7 @@ class RecipientsFinderTest {
     }
 
     private fun setProviders(providers: List<String>) {
-        zkConfigService.setConfig(
-            ConfigKey(
-                id = "bulk-mail-custom-recipients-providers",
-                scope = "app/notifications"
-            ), providers, 2
-        )
-
-        TimeUnit.SECONDS.sleep(1)
+        inMemConfigService.setConfig("bulk-mail-custom-recipients-providers", providers)
     }
 
     class PotterRecord(
