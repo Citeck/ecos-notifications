@@ -66,8 +66,7 @@ public class FreemarkerTemplateEngineService {
                 templateKey, templateRepresentation), e);
         }
 
-        //TODO: why freemarker return double quotes?
-        String removedDoubleQuotes = StringUtils.isNotBlank(processedStr) ? processedStr.replaceAll("\"\"", "\"") : "";
+        String removedDoubleQuotes = removeDoubleQuotes(processedStr);
 
         log.debug("Processed template {}" +
             "\nmodel: {}" +
@@ -79,6 +78,10 @@ public class FreemarkerTemplateEngineService {
             "\n{}", templateKey, model, templateRepresentation, processedStr, removedDoubleQuotes);
 
         return removedDoubleQuotes;
+    }
+
+    private String removeDoubleQuotes(String data) {
+        return StringUtils.isNotBlank(data) ? data.replaceAll("\"\"", "\"") : "";
     }
 
 }

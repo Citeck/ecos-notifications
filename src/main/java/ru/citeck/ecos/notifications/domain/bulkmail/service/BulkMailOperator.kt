@@ -52,7 +52,6 @@ class BulkMailOperator(
 
             val notification: Notification
 
-            //TODO: refactor
             if (bulkMailDto.config.allCc) {
                 notification = Notification.Builder()
                     .record(bulkMailDto.record)
