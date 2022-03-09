@@ -20,6 +20,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import java.util.*
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
@@ -81,6 +82,7 @@ class EmailNotificationCommandTest {
     @Test
     fun sendMultiTemplateNotificationWithoutEcosTypeShouldUseBaseTemplate() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -112,6 +114,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -144,6 +147,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-1-template"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -176,6 +180,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -208,6 +213,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@type-2-template"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -236,6 +242,7 @@ class EmailNotificationCommandTest {
     fun sendEmailNotificationViaCommand() {
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -263,6 +270,7 @@ class EmailNotificationCommandTest {
     @Test
     fun sendEmailNotificationCommandWithoutRecipientsStatusCheck() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -286,6 +294,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -318,6 +327,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -350,6 +360,7 @@ class EmailNotificationCommandTest {
         templateModel["_etype?id"] = "emodel/type@test-type-multi-template-with-condition"
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,

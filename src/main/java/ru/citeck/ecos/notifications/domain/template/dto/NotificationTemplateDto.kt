@@ -7,6 +7,7 @@ open class NotificationTemplateDto(
     var id: String,
     var name: String? = null,
     var notificationTitle: MLText? = null,
+    var tags: List<String> = emptyList(),
     var model: Map<String, String>? = emptyMap(),
     var multiTemplateConfig: List<MultiTemplateElementDto>? = emptyList()
 
@@ -15,6 +16,7 @@ open class NotificationTemplateDto(
         dto.id,
         dto.name,
         dto.notificationTitle,
+        dto.tags,
         dto.model,
         dto.multiTemplateConfig
     )

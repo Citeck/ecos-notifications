@@ -112,10 +112,14 @@ jhipster:
 
 # application:
 ecos-notifications:
-  failure-notification:
+  error-notification:
     ttl: 30000
     delay: 5000
     min-try-count: 1
+  awaiting-dispatch:
+    delay: 15000
+  bulk-mail:
+    sync-status-delay: 7000
 
 notifications:
   default:

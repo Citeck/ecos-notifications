@@ -32,12 +32,15 @@ class EmailNotificationProvider(
 
         val helper = MimeMessageHelper(msg, isMultipartMessageType, StandardCharsets.UTF_8.name())
 
-        helper.setText(fitNotification.body, true)
-        helper.setTo(fitNotification.recipients.toTypedArray())
         fitNotification.title?.let { helper.setSubject(it) }
+        helper.setText(fitNotification.body, true)
+
         setFrom(helper, fitNotification)
+        
+        helper.setTo(fitNotification.recipients.toTypedArray())
         helper.setCc(fitNotification.cc.toTypedArray())
         helper.setBcc(fitNotification.bcc.toTypedArray())
+
         for ((key, value) in fitNotification.attachments) {
             helper.addAttachment(key, value)
         }

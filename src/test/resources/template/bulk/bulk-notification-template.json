@@ -1,0 +1,22 @@
+{
+  "id": "bulk-notification-template",
+  "name": "Bulk template",
+  "notificationTitle": {
+    "en": "Broom: ${name}",
+    "ru": "Метла: ${name}"
+  },
+  "model": {
+    "name": "name",
+    "created": "dateOfCreation"
+  },
+  "templateData": {
+    "ru": {
+      "name": "bulk-notification-template.html_ru.ftl",
+      "data": "0KHRg9C/0LXRgCDQsdGL0YHRgtGA0LDRjyDQvNC10YLQu9CwICR7bmFtZX0g0LIg0L/RgNC+0LTQsNC20LUhINCU0LDRgtCwINC/0YDQvtC40LfQstC+0LTRgdGC0LLQsDogJHtjcmVhdGVkfQ=="
+    },
+    "en": {
+      "name": "bulk-notification-template.html_en.ftl",
+      "data": "QW1hemluZyBicm9vbSAke25hbWV9IGF2YWlsYWJsZSBub3chIERhdGUgY3JlYXRpb246ICR7Y3JlYXRlZH0="
+    }
+  }
+}

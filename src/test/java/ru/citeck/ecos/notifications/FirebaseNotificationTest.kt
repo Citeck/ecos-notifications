@@ -86,7 +86,9 @@ class FirebaseNotificationTest {
                 .build()
         )
 
-        Mockito.`when`(ecosFirebaseService.sendMessage(any())).thenReturn(FirebaseMessageResult.OK)
+        Mockito.`when`(ecosFirebaseService.sendMessage(any())).thenReturn(
+            FirebaseMessageResult(FirebaseMessageResultCode.OK)
+        )
     }
 
     @Test

@@ -1,0 +1,13 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="romancha (generated)" id="1643114086519-2">
+        <addColumn tableName="notification">
+            <column name="ext_id" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="romancha (generated)" id="1643114086519-3">
+        <addUniqueConstraint columnNames="ext_id" constraintName="UC_NOTIFICATIONEXT_ID_COL" tableName="notification"/>
+    </changeSet>
+</databaseChangeLog>

@@ -11,14 +11,14 @@ import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
-import ru.citeck.ecos.notifications.domain.notification.service.FailureNotificationService
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationCommandResultHolder
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 
 @Service
 class SendNotificationCommandExecutor(
     private val unsafeSendNotificationCommandExecutor: UnsafeSendNotificationCommandExecutor,
-    private val failureNotificationService: FailureNotificationService,
+    private val notificationCommandResultHolder: NotificationCommandResultHolder,
     private val commandsServiceFactory: CommandsServiceFactory,
     private val notificationEventService: NotificationEventService
 ) : CommandExecutor<SendNotificationCommand> {
@@ -42,14 +42,17 @@ class SendNotificationCommandExecutor(
 
     private fun executeImpl(command: SendNotificationCommand): Any {
         return try {
-            unsafeSendNotificationCommandExecutor.execute(command)
+            val result = unsafeSendNotificationCommandExecutor.execute(command)
+
+            notificationCommandResultHolder.holdSuccess(command)
+
+            return result
         } catch (e: Exception) {
             log.error("Failed execute notification command", e)
 
-            failureNotificationService.holdFailure(command, e)
+            notificationCommandResultHolder.holdError(command, e)
 
             val failureEventInfo = prepareFailureEventInfo(command, e)
-
             notificationEventService.emitSendFailure(failureEventInfo)
 
             SendNotificationResult(NotificationResultStatus.ERROR.value, e.message ?: "")

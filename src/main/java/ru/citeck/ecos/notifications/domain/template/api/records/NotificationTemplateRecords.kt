@@ -1,9 +1,11 @@
 package ru.citeck.ecos.notifications.domain.template.api.records
 
 import ecos.com.fasterxml.jackson210.annotation.JsonProperty
+import org.apache.commons.lang.LocaleUtils
 import org.apache.commons.lang.StringUtils
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
@@ -21,7 +23,6 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordMeta
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.graphql.meta.value.MetaField
 import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -37,8 +38,8 @@ import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
+import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import java.time.Instant
-import java.util.*
 import java.util.stream.Collectors
 
 private const val META_FILE_EXTENSION = "meta.yml"
@@ -76,7 +77,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     override fun save(values: List<NotTemplateRecord>): RecordsMutResult {
         val result = RecordsMutResult()
         val savedList = values.stream()
-            .map { dto: NotTemplateRecord? -> templateService.save(dto) }
+            .map { dto: NotTemplateRecord -> templateService.save(dto) }
             .map(NotificationTemplateWithMeta::id)
             .map { id: String? -> RecordMeta(id) }
             .collect(Collectors.toList())
@@ -87,9 +88,9 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     override fun getLocalRecordsMeta(records: List<RecordRef>, metaField: MetaField): List<NotTemplateRecord> {
         return records.stream()
             .map { obj: RecordRef -> obj.id }
-            .map { id: String? ->
+            .map { id: String ->
                 templateService.findById(id)
-                    .orElseGet { NotificationTemplateWithMeta(id!!) }
+                    .orElseGet { NotificationTemplateWithMeta(id) }
             }
             .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
             .collect(Collectors.toList())
@@ -150,36 +151,36 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 id = value
             }
 
-        @get:MetaAtt(".type")
+        @get:AttName(".type")
         val ecosType: RecordRef
             get() = RecordRef.create("emodel", "type", "notification-template")
 
-        @get:MetaAtt(".disp")
+        @get:AttName(".disp")
         val displayName: String?
             get() = name
 
-        @get:MetaAtt(RecordConstants.ATT_MODIFIED)
+        @get:AttName(RecordConstants.ATT_MODIFIED)
         val recordModified: Instant?
             get() = modified
 
-        @get:MetaAtt(RecordConstants.ATT_MODIFIER)
+        @get:AttName(RecordConstants.ATT_MODIFIER)
         val recordModifier: String?
             get() = modifier
 
-        @get:MetaAtt(RecordConstants.ATT_CREATED)
+        @get:AttName(RecordConstants.ATT_CREATED)
         val recordCreated: Instant?
             get() = created
 
-        @get:MetaAtt(RecordConstants.ATT_CREATOR)
+        @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
 
-        @get:MetaAtt("multiModelAttributes")
+        @get:AttName("multiModelAttributes")
         val multiModel: Set<String>
             get() = let {
                 val attributes = mutableSetOf<String>()
 
-                this.model?.forEach { _, dataValue -> attributes.add(dataValue) }
+                this.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
 
                 addAttributesRecursive(this.multiTemplateConfig, attributes)
 
@@ -212,7 +213,52 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             }
         }
 
-        @get:MetaAtt("data")
+        @get:AttName("title")
+        val title: MLText
+            get() = dto.notificationTitle ?: MLText.EMPTY
+
+        @get:AttName("body")
+        val body: MLText
+            get() = let {
+                var body = MLText()
+
+                for ((locale, data) in dto.templateData) {
+                    body = body.withValue(LocaleUtils.toLocale(locale), String(data.data))
+                }
+
+                return body
+            }
+
+        @get:AttName("bodyData")
+        var bodyData: List<BodyTemplateData>
+            get() = let {
+                val result = mutableListOf<BodyTemplateData>()
+
+                for ((locale, data) in body.getValues()) {
+                    result.add(BodyTemplateData(locale.toString(), data))
+                }
+
+                return result
+            }
+            set(value) {
+
+                val newTemplateData: MutableMap<String, TemplateDataDto> = mutableMapOf()
+
+                value.forEach {
+                    val locale = LocaleUtils.toLocale(it.lang)
+
+                    val fileName = "${moduleId}.html_${locale}.ftl"
+                    val templateData = TemplateDataDto(fileName, it.body.toByteArray(Charsets.UTF_8))
+
+                    newTemplateData[locale.toString()] = templateData
+                }
+
+                this.templateData = newTemplateData
+
+            }
+
+
+        @get:AttName("data")
         val data: ByteArray
             get() = let {
                 val memDir = EcosMemDir()
@@ -269,23 +315,11 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             mapper.applyData(this, data)
             this.templateData = templateData
         }
-
-        @JsonProperty("templateContent")
-        fun fillTemplateDataFromFiles(content: List<ObjectData>) {
-            val updatedData: MutableMap<String, TemplateDataDto> = templateData.toMutableMap()
-
-            content.forEach {
-                val fileName = it.get("originalName").asText()
-                val langKey = getLangKeyFromFileName(fileName)
-                val contentBytes = getContentBytesFromBase64ObjectData(it)
-
-                val templateData = TemplateDataDto(fileName, contentBytes)
-
-                updatedData[langKey] = templateData
-            }
-
-            this.templateData = updatedData
-        }
     }
+
+    data class BodyTemplateData(
+        var lang: String = "",
+        var body: String = ""
+    )
 
 }

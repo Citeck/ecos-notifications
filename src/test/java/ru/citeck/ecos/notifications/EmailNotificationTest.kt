@@ -17,7 +17,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationService
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationSender
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -31,7 +31,7 @@ import javax.mail.internet.MimeMultipart
 class EmailNotificationTest {
 
     @Autowired
-    private lateinit var notificationService: NotificationService
+    private lateinit var notificationSender: NotificationSender
 
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
@@ -105,7 +105,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -137,7 +137,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -166,7 +166,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -189,7 +189,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -212,7 +212,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -235,7 +235,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -258,7 +258,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -275,7 +275,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -299,7 +299,7 @@ class EmailNotificationTest {
             from = "test@mail.ru"
         )
 
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -323,7 +323,7 @@ class EmailNotificationTest {
             from = "test@mail.ru"
         )
 
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -346,7 +346,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -359,7 +359,7 @@ class EmailNotificationTest {
 
 
         notificationTemplate.notificationTitle = MLText("Its new title for \${firstName}")
-        notificationService.send(notification)
+        notificationSender.send(notification)
         val emails2 = greenMail.receivedMessages
 
         assertThat(emails2.size).isEqualTo(2)
@@ -381,7 +381,7 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -412,7 +412,7 @@ class EmailNotificationTest {
             model = localModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -478,7 +478,7 @@ class EmailNotificationTest {
             model = localModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -541,7 +541,7 @@ class EmailNotificationTest {
             model = localModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -582,7 +582,7 @@ class EmailNotificationTest {
             model = localModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -606,7 +606,7 @@ class EmailNotificationTest {
             model = localModel,
             from = "test@mail.ru"
         )
-        notificationService.send(notification)
+        notificationSender.send(notification)
 
         val emails = greenMail.receivedMessages
 
@@ -639,7 +639,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -667,7 +667,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -695,7 +695,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -723,7 +723,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -751,7 +751,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -779,7 +779,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -807,7 +807,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 
@@ -835,7 +835,7 @@ class EmailNotificationTest {
         )
 
         assertThrows<NotificationException> {
-            notificationService.send(notification)
+            notificationSender.send(notification)
         }
     }
 

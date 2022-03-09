@@ -4,12 +4,10 @@
   "title": {
     "en": "Notification template"
   },
-  "description": {
-    "en": ""
-  },
+  "description": {},
   "customModule": null,
   "typeRef": "",
-  "width": "default",
+  "width": "extra-lg",
   "i18n": {},
   "definition": {
     "components": [
@@ -35,6 +33,19 @@
         "input": true
       },
       {
+        "label": {
+          "ru": "Теги",
+          "en": "Tags"
+        },
+        "key": "tags",
+        "multiple": true,
+        "defaultValue": "",
+        "refreshOn": [],
+        "type": "textfield",
+        "input": true,
+        "reorder": false
+      },
+      {
         "label": "Notification Title",
         "defaultValue": {
           "ru": "",
@@ -45,35 +56,94 @@
         "input": true
       },
       {
-        "label": "Template content",
-        "multiple": true,
-        "storage": "base64",
-        "key": "templateContent",
-        "validate": {
-          "required": true
+        "label": {
+          "ru": "Notification body"
         },
-        "type": "file",
-        "input": true,
+        "key": "bodyData",
+        "multiple": true,
+        "validate": {
+          "minLength": "",
+          "maxLength": ""
+        },
+        "disableAddingRemovingRows": false,
+        "addAnotherPosition": "bottom",
+        "removePlacement": "col",
+        "defaultOpen": false,
+        "layoutFixed": false,
+        "enableRowGroups": false,
         "reorder": false,
-        "logic": [
+        "defaultValue": [
           {
-            "name": "updateRequirement",
-            "trigger": {
-              "type": "javascript",
-              "javascript": "const multiTemplateConfig = _.get(data, 'multiTemplateConfig');\r\n\r\nresult = (multiTemplateConfig || [])\r\n  .some(item => !_.isEmpty(_.get(item, 'template')));"
+            "textField": "",
+            "lang": "",
+            "textArea": "",
+            "body": "",
+            "submit": false,
+            "submit2": false
+          }
+        ],
+        "refreshOn": [],
+        "type": "datagrid",
+        "input": true,
+        "components": [
+          {
+            "label": {
+              "ru": "Panel"
             },
-            "actions": [
+            "key": "panel3",
+            "refreshOn": [],
+            "type": "panel",
+            "input": false,
+            "components": [
               {
-                "name": "setRequired",
-                "type": "property",
-                "property": {
-                  "label": "Required",
-                  "value": "validate.required",
-                  "type": "boolean"
+                "label": {
+                  "en": "Lang"
                 },
-                "state": "false"
+                "key": "lang",
+                "validate": {
+                  "required": true
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Body",
+                  "en": "Body"
+                },
+                "key": "body",
+                "validate": {
+                  "required": true
+                },
+                "editor": "ace",
+                "wysiwyg": "",
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "rows": 20,
+                "as": "",
+                "type": "textarea",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Редактировать как HTML",
+                  "en": "Edit as HTML"
+                },
+                "key": "submit2",
+                "action": "custom",
+                "state": "",
+                "showValidations": false,
+                "custom": "var body = row.body || \"\";\nvar lang = row.lang || \"\";\n\nvar formData = {\n    lang: lang,\n    body: body\n};\n\nlet formInstance = instance.root;\nformInstance.showErrors([]);\n\nvar incomeBodyData = formInstance.submission.data.bodyData\n\nconst applyBodyData = (newBody) => {\n\n    let unescapeFormattedBody = format(newBody.replace(/&lt;/g, '<').replace(/&gt;/g, '>'));\n    let updatedData = [];\n\n    incomeBodyData.forEach(bodyByLang => {\n        if (bodyByLang.lang === lang) {\n            let updated = {\n                ...bodyByLang,\n                body: unescapeFormattedBody\n            }\n            updatedData.push(updated)\n        } else {\n            updatedData.push(bodyByLang)\n        }\n    })\n\n    submission = {\n        ...submission,\n        data: {\n            ...submission.data,\n            bodyData: updatedData\n        }\n    }\n    formInstance.submission = submission;\n}\n\nCiteck.EcosFormUtils.getFormById('uiserv/form@notification-template-edit-as-html-form', {\n    definition: 'definition?json'\n}).then(function (formConfig) {\n\n    Citeck.Dialogs.showFormDialog({\n        title: 'Notification body HTML for: ' + lang,\n        showDefaultButtons: true,\n        modalClass: 'ecos-modal_width-full',\n        formDefinition: formConfig.definition,\n        formData: formData,\n        onSubmit: submission => {\n            let data = submission.data || {};\n            applyBodyData(data.body)\n        }\n    })\n\n});\n\nfunction format(html) {\n    var tab = '\\t';\n    var result = '';\n    var indent = '';\n\n    html.split(/>\\s*</).forEach(function (element) {\n        if (element.match(/^\\/\\w/)) {\n            indent = indent.substring(tab.length);\n        }\n\n        result += indent + '<' + element + '>\\r\\n';\n\n        if (element.match(/^<?\\w[^>]*[^\\/]$/) && !element.startsWith(\"input\")) {\n            indent += tab;\n        }\n    });\n\n    return result.substring(1, result.length - 3);\n}",
+                "refreshOn": [],
+                "type": "button",
+                "input": true
               }
-            ]
+            ],
+            "row": "0-0"
           }
         ]
       },

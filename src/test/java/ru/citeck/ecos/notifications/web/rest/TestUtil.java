@@ -30,6 +30,7 @@ public final class TestUtil {
             MediaType.APPLICATION_JSON.getSubtype(), StandardCharsets.UTF_8);
 
     public static final String URL_RECORDS_MUTATE = "/api/records/mutate";
+    public static final String URL_RECORDS_QUERY = "/api/records/query";
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
