@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.converter
 
 import org.apache.commons.lang3.LocaleUtils
+import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
@@ -8,13 +9,34 @@ import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.*
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientEntity
+import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientRepository
+import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
 import ru.citeck.ecos.notifications.domain.bulkmail.service.UserInfo
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
+import javax.annotation.PostConstruct
 
 private const val AUTHORITY_GROUP_PREFIX = "GROUP_"
+
+/**
+ * @author Roman Makarskiy
+ */
+@Component
+class BulkMailConverter(
+    val bulkMailRepository: BulkMailRepository,
+    val bulkMailRecipientRepository: BulkMailRecipientRepository
+) {
+
+    @PostConstruct
+    private fun init() {
+        converter = this
+    }
+
+}
+
+private lateinit var converter: BulkMailConverter
 
 fun BulkMailEntity.toDto(): BulkMailDto {
     return BulkMailDto(
@@ -47,25 +69,28 @@ fun BulkMailEntity.toDto(): BulkMailDto {
 }
 
 fun BulkMailDto.toEntity(): BulkMailEntity {
-    return BulkMailEntity(
-        id = id,
-        name = name,
-        extId = extId ?: UUID.randomUUID().toString(),
-        record = record.toString(),
-        template = template.toString(),
-        type = type,
-        title = title,
-        body = body,
-        recipientsData = Json.mapper.toString(recipientsData),
-        batchSize = config.batchConfig.size,
-        personalizedMails = config.batchConfig.personalizedMails,
-        delayedSend = config.delayedSend,
-        allTo = config.allTo,
-        allCc = config.allCc,
-        allBcc = config.allBcc,
-        lang = config.lang?.toString(),
-        status = status,
-    )
+    val explicitExtId = if (extId.isNullOrBlank()) UUID.randomUUID().toString() else extId
+    val dto = this
+
+    return converter.bulkMailRepository.findOneByExtId(explicitExtId).orElse(BulkMailEntity()).apply {
+        id = dto.id
+        name = dto.name
+        extId = explicitExtId
+        record = dto.record.toString()
+        template = dto.template.toString()
+        type = dto.type
+        title = dto.title
+        body = dto.body
+        recipientsData = Json.mapper.toString(dto.recipientsData)
+        batchSize = dto.config.batchConfig.size
+        personalizedMails = dto.config.batchConfig.personalizedMails
+        delayedSend = dto.config.delayedSend
+        allTo = dto.config.allTo
+        allCc = dto.config.allCc
+        allBcc = dto.config.allBcc
+        lang = dto.config.lang?.toString()
+        status = dto.status
+    }
 }
 
 fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
@@ -94,15 +119,18 @@ fun BulkMailRecipientsDataDto.Companion.from(data: String): BulkMailRecipientsDa
 }
 
 fun BulkMailRecipientDto.toEntity(bulkMailDto: BulkMailDto): BulkMailRecipientEntity {
-    return BulkMailRecipientEntity(
-        id = id,
-        extId = extId,
-        record = record.toString(),
-        address = address,
-        name = name,
-        bulkMailRef = bulkMailDto.recordRef.toString(),
+    val explicitExtId = if (extId.isNullOrBlank()) UUID.randomUUID().toString() else extId
+    val dto = this
+
+    return converter.bulkMailRecipientRepository.findOneByExtId(explicitExtId).orElse(BulkMailRecipientEntity()).apply {
+        id = dto.id
+        extId = explicitExtId
+        record = dto.record.toString()
+        address = dto.address
+        name = dto.name
+        bulkMailRef = bulkMailDto.recordRef.toString()
         bulkMail = BulkMailEntity.fromId(bulkMailDto.id!!)
-    )
+    }
 }
 
 fun BulkMailRecipientEntity.toDto(): BulkMailRecipientDto {

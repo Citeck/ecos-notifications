@@ -7,10 +7,12 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
+import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import java.time.Instant
+import java.util.*
 import javax.annotation.PostConstruct
 
 /**
@@ -18,17 +20,18 @@ import javax.annotation.PostConstruct
  */
 @Component
 class NotificationConverter(
-    val recordsService: RecordsService
+    val recordsService: RecordsService,
+    val notificationRepository: NotificationRepository
 ) {
 
     @PostConstruct
     private fun init() {
-        notificationConverter = this
+        converter = this
     }
 
 }
 
-private lateinit var notificationConverter: NotificationConverter
+private lateinit var converter: NotificationConverter
 
 fun NotificationEntity.toDto(): NotificationDto {
     return NotificationDto(
@@ -53,21 +56,24 @@ fun NotificationEntity.toDto(): NotificationDto {
 }
 
 fun NotificationDto.toEntity(): NotificationEntity {
-    return NotificationEntity(
-        id = id,
-        extId = extId,
-        record = record.toString(),
-        template = template.toString(),
-        type = type,
-        data = data,
-        errorMessage = errorMessage,
-        errorStackTrace = errorStackTrace,
-        tryingCount = tryingCount,
-        lastTryingDate = lastTryingDate,
-        state = state,
-        bulkMailRef = bulkMailRef.toString(),
-        delayedSend = delayedSend
-    )
+    val explicitExtId = extId.ifBlank { UUID.randomUUID().toString() }
+    val dto = this
+
+    return converter.notificationRepository.findOneByExtId(explicitExtId).orElse(NotificationEntity()).apply {
+        id = dto.id
+        extId = explicitExtId
+        record = dto.record.toString()
+        template = dto.template.toString()
+        type = dto.type
+        data = dto.data
+        errorMessage = dto.errorMessage
+        errorStackTrace = dto.errorStackTrace
+        tryingCount = dto.tryingCount
+        lastTryingDate = dto.lastTryingDate
+        state = dto.state
+        bulkMailRef = dto.bulkMailRef.toString()
+        delayedSend = dto.delayedSend
+    }
 }
 
 fun Notification.toDtoWithState(
@@ -81,7 +87,7 @@ fun Notification.toDtoWithState(
         record = if (record is RecordRef) {
             record as RecordRef
         } else {
-            RecordRef.valueOf(notificationConverter.recordsService.getAtt(record, "?id").asText())
+            RecordRef.valueOf(converter.recordsService.getAtt(record, "?id").asText())
         },
         template = templateRef,
         state = state,
