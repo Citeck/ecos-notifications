@@ -22,20 +22,24 @@ class ErrorNotificationRepeater(
     private val props: ApplicationProperties
 ) {
 
+    private val handleErrorLock = Object()
+
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.error-notification.delay}")
     fun handleErrors() {
-        val activeErrors = notificationDao.findAllEntitiesByState(NotificationState.ERROR)
+        synchronized(handleErrorLock) {
+            val activeErrors = notificationDao.findAllEntitiesByState(NotificationState.ERROR)
 
-        if (activeErrors.isNotEmpty()) {
-            log.info { "Found notification error. Count: ${activeErrors.size}" }
-        }
+            if (activeErrors.isNotEmpty()) {
+                log.info { "Found notification error. Count: ${activeErrors.size}" }
+            }
 
-        AuthContext.runAsSystem {
-            activeErrors.forEach { error -> reexecuteCommand(error) }
+            AuthContext.runAsSystem {
+                activeErrors.forEach { error -> reexecuteCommand(error) }
+            }
         }
     }
 
