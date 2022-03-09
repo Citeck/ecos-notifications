@@ -14,9 +14,9 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import java.time.Duration
+import java.util.*
 
 @RunWith(SpringRunner::class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
 class HandleFailureMinTryCountNotificationTest {
 

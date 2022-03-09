@@ -45,7 +45,6 @@ import java.util.*
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class BulkMailRecordsControllerTest {
 
     companion object {

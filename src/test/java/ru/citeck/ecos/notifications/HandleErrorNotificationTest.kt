@@ -29,7 +29,6 @@ import java.time.Duration
 import java.util.*
 
 @RunWith(SpringRunner::class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
 class HandleErrorNotificationTest {
 
@@ -53,6 +52,8 @@ class HandleErrorNotificationTest {
 
     @Before
     fun setup() {
+        notificationRepository.deleteAll()
+
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
 

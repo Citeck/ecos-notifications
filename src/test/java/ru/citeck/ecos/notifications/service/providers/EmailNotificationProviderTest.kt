@@ -21,7 +21,6 @@ import javax.mail.internet.MimeMultipart
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class EmailNotificationProviderTest {
 
     private lateinit var notificationProvider: EmailNotificationProvider

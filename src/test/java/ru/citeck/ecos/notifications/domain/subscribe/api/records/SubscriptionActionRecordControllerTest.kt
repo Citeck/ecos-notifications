@@ -31,7 +31,6 @@ import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class SubscriptionActionRecordControllerTest {
 
     @Autowired

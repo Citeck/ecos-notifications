@@ -32,7 +32,6 @@ import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class FirebaseNotificationProcessorTest {
 
     companion object {
