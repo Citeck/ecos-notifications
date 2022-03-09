@@ -7,7 +7,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.config.ApplicationProperties

@@ -12,6 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.NotificationsApp
@@ -39,6 +40,7 @@ import javax.mail.internet.MimeMessage
  * @author Roman Makarskiy
  */
 @RunWith(SpringRunner::class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
 class BulkMailDispatchTest {
 
@@ -111,6 +113,12 @@ class BulkMailDispatchTest {
                 )
                 .build()
         )
+    }
+
+
+    @After
+    fun stopMailServer() {
+        greenMail.stop()
     }
 
     @Test
@@ -686,11 +694,6 @@ class BulkMailDispatchTest {
     private fun assertRecipients(msg: MimeMessage, type: Message.RecipientType) {
         assertThat(msg.getRecipients(type).map { it.toString() }.toList())
             .containsExactlyInAnyOrder(severusRecord.email, harryRecord.email)
-    }
-
-    @After
-    fun stopMailServer() {
-        greenMail.stop()
     }
 
     class NimbusRecord(
