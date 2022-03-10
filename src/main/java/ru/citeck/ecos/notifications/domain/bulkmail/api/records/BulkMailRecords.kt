@@ -9,6 +9,8 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
@@ -29,6 +31,7 @@ import java.time.Instant
 class BulkMailRecords(
     private val bulkMailDao: BulkMailDao,
     private val bulkMailOperator: BulkMailOperator,
+    private val notificationDao: NotificationDao
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord>,
     RecordDeleteDao {
 
@@ -146,7 +149,7 @@ class BulkMailRecords(
         return record.action != BulkMailAction.NONE
     }
 
-    data class BulkMailRecord(
+    open inner class BulkMailRecord(
         var id: Long? = null,
         var name: String? = null,
         var extId: String? = null,
@@ -202,6 +205,14 @@ class BulkMailRecords(
         @get:AttName(StatusConstants.ATT_STATUS_STR)
         val statusStr: String?
             get() = status
+
+        @get:AttName("stateSummary")
+        val stateSummary: String
+            get() = let {
+                return notificationDao.getBulkMailStateSummary("notifications/$ID@$recordId").map {
+                    "${it.key.name}: ${it.value}"
+                }.joinToString("\n")
+            }
 
         @get:AttName(".type")
         val ecosType: RecordRef

@@ -28,6 +28,22 @@
       },
       {
         "label": {
+          "ru": "Сводка уведомлений",
+          "en": "Notifications summary"
+        },
+        "key": "stateSummary",
+        "tooltip": {
+          "ru": "Сводка уведомлений по статусам",
+          "en": "Summary of  notifications by status"
+        },
+        "disabled": true,
+        "defaultValue": "",
+        "refreshOn": [],
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
           "ru": "Panel"
         },
         "key": "panel-message",
