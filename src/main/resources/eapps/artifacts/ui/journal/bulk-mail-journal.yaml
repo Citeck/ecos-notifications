@@ -1,6 +1,6 @@
 ---
 id: bulk-mail
-name: { ru: Массовая расылка, en: Bulk mail }
+name: { ru: Массовая рассылка, en: Bulk mail }
 
 actions:
   - uiserv/action@view-dashboard

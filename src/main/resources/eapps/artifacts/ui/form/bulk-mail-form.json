@@ -257,6 +257,7 @@
               "en": "Notification type"
             },
             "key": "type",
+            "disabled": true,
             "validate": {
               "required": true
             },
@@ -299,8 +300,30 @@
                   "ru": "Например: 'ru', 'en' и т.д.",
                   "en": "Example: 'ru', 'en' etc"
                 },
-                "defaultValue": "",
+                "clearOnHide": false,
+                "defaultValue": "ru",
                 "refreshOn": [],
+                "logic": [
+                  {
+                    "name": "template is not selected",
+                    "trigger": {
+                      "type": "javascript",
+                      "javascript": "result = !!!data.template;"
+                    },
+                    "actions": [
+                      {
+                        "name": "hide",
+                        "type": "property",
+                        "property": {
+                          "label": "Hidden",
+                          "value": "hidden",
+                          "type": "boolean"
+                        },
+                        "state": "true"
+                      }
+                    ]
+                  }
+                ],
                 "type": "textfield",
                 "input": true
               },

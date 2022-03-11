@@ -86,6 +86,23 @@
           },
           {
             "label": {
+              "ru": "Отложенная отправка",
+              "en": "Delayed send"
+            },
+            "key": "delayedSend",
+            "disabled": true,
+            "datePicker": {
+              "minDate": "",
+              "maxDate": ""
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "datetime",
+            "input": true,
+            "suffix": true
+          },
+          {
+            "label": {
               "ru": "Изменено",
               "en": "Modified"
             },
