@@ -12,4 +12,3 @@ journalRef: uiserv/journal@bulk-mail-recipient
 formRef: uiserv/form@bulk-mail-recipient
 
 defaultCreateVariant: false
-createVariants: {}
