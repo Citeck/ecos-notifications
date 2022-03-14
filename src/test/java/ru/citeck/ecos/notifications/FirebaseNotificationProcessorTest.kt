@@ -14,7 +14,6 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
@@ -32,7 +31,6 @@ import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class FirebaseNotificationProcessorTest {
 
     companion object {
@@ -93,10 +91,9 @@ class FirebaseNotificationProcessorTest {
                 .build()
         )
 
-        Mockito.`when`(ecosFirebaseService.sendMessage(any())).thenReturn(FirebaseMessageResult.OK)
-
-        val all = notificationTemplateService.getAll(100, 0)
-        println(all)
+        Mockito.`when`(ecosFirebaseService.sendMessage(any())).thenReturn(
+            FirebaseMessageResult(FirebaseMessageResultCode.OK)
+        )
     }
 
     @Test

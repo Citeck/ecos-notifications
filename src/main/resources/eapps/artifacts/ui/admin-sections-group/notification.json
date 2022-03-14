@@ -9,6 +9,18 @@
     {
       "type": "JOURNAL",
       "config": {
+        "journalId": "notification"
+      }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
+        "journalId": "bulk-mail"
+      }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
         "journalId": "notification-templates"
       }
     },

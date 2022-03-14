@@ -1,0 +1,12 @@
+---
+id: bulk-mail-calculate-recipients-action
+key: bulk-mail-calculate-recipients-action
+name:
+  ru: Сформировать получателей
+  en: Calculate recipients
+type: mutate
+config:
+  record:
+    id: "${recordRef}"
+    attributes:
+      action: CALCULATE_RECIPIENTS

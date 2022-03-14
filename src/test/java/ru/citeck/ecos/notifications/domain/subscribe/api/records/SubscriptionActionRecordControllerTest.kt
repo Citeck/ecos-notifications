@@ -11,7 +11,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
@@ -31,7 +30,6 @@ import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class SubscriptionActionRecordControllerTest {
 
     @Autowired

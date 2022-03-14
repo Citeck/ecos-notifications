@@ -19,7 +19,11 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
-    private final FailureNotification failureNotification = new FailureNotification();
+    private final ErrorNotification errorNotification = new ErrorNotification();
+
+    private final AwaitingDispatch awaitingDispatch = new AwaitingDispatch();
+
+    private final BulkMail bulkMail = new BulkMail();
 
     private final Event event = new Event();
 
@@ -29,8 +33,12 @@ public class ApplicationProperties {
 
     private final Email email = new Email();
 
-    public FailureNotification getFailureNotification() {
-        return this.failureNotification;
+    public ErrorNotification getErrorNotification() {
+        return this.errorNotification;
+    }
+
+    public AwaitingDispatch getAwaitingDispatch() {
+        return awaitingDispatch;
     }
 
     public Event getEvent() {
@@ -49,13 +57,33 @@ public class ApplicationProperties {
         return email;
     }
 
-    public static class FailureNotification {
+    public BulkMail getBulkMail() {
+        return bulkMail;
+    }
 
-        private int ttl = NotificationsDefault.FailureNotification.TTL;
+    public static class ErrorNotification {
 
-        private int delay = NotificationsDefault.FailureNotification.DELAY;
+        /**
+         * Time to live (milliseconds) of error notifications. <br>
+         * The exact countdown is the time the notification was created. <br>
+         * After the time has elapsed, the notification is transferred to the expired status
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#EXPIRED},
+         * no more sending attempts.
+         * For infinity ttl use -1
+         */
+        private int ttl = NotificationsDefault.ErrorNotification.TTL;
 
-        private int minTryCount = NotificationsDefault.FailureNotification.MIN_TRY_COUNT;
+        /**
+         * Frequency (milliseconds) of the job on resending notification with an error status -
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#ERROR}
+         */
+        private int delay = NotificationsDefault.ErrorNotification.DELAY;
+
+        /**
+         * Minimum trying count of attempts to resend notification. <br>
+         * Times of specified attempts will be made to send a message, regardless of the ttl.
+         */
+        private int minTryCount = NotificationsDefault.ErrorNotification.MIN_TRY_COUNT;
 
         public int getTtl() {
             return this.ttl;
@@ -82,11 +110,56 @@ public class ApplicationProperties {
         }
     }
 
+    public static class BulkMail {
+
+        private int syncStatusDelay = NotificationsDefault.BulkMail.SYNC_STATUS_DELAY;
+
+        public int getSyncStatusDelay() {
+            return syncStatusDelay;
+        }
+
+        public void setSyncStatusDelay(int syncStatusDelay) {
+            this.syncStatusDelay = syncStatusDelay;
+        }
+    }
+
+    public static class AwaitingDispatch {
+
+        /**
+         * Frequency (milliseconds) of the job on dispatch notifications with a wait for dispatch status -
+         * {@link ru.citeck.ecos.notifications.domain.notification.NotificationState#WAIT_FOR_DISPATCH}
+         */
+        private int delay = NotificationsDefault.AwaitingDispatch.DELAY;
+
+        public int getDelay() {
+            return delay;
+        }
+
+        public void setDelay(int delay) {
+            this.delay = delay;
+        }
+    }
+
     public static class Event {
 
+        /**
+         * Host for connect to ecos-events rabbitmq.
+         */
         private String host = NotificationsDefault.Event.HOST;
+
+        /**
+         * Port for connect to ecos-events rabbitmq.
+         */
         private int port = NotificationsDefault.Event.PORT;
+
+        /**
+         * Username for connect to ecos-events rabbitmq.
+         */
         private String username = NotificationsDefault.Event.USERNAME;
+
+        /**
+         * Password for connect to ecos-events rabbitmq.
+         */
         private String password = NotificationsDefault.Event.PASSWORD;
 
         public String getHost() {

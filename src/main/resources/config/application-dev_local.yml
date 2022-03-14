@@ -1,4 +1,3 @@
-
 alfresco:
   ribbon:
     listOfServers: localhost:8080
@@ -18,3 +17,7 @@ emodel:
     listOfServers: localhost:8094
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
 
+ecos:
+  zookeeper:
+    host: localhost
+    port: 2181

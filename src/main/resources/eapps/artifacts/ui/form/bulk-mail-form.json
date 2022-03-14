@@ -1,0 +1,515 @@
+{
+  "id": "bulk-mail",
+  "formKey": "",
+  "title": {
+    "en": "Bulk mail"
+  },
+  "description": {},
+  "customModule": null,
+  "typeRef": "",
+  "width": "extra-lg",
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "Имя",
+          "en": "Name"
+        },
+        "key": "name",
+        "validate": {
+          "required": true
+        },
+        "defaultValue": "",
+        "refreshOn": [],
+        "type": "textfield",
+        "input": true,
+        "optionalWhenDisabled": false
+      },
+      {
+        "label": {
+          "ru": "Сводка уведомлений",
+          "en": "Notifications summary"
+        },
+        "key": "stateSummary",
+        "tooltip": {
+          "ru": "Сводка уведомлений по статусам",
+          "en": "Summary of  notifications by status"
+        },
+        "disabled": true,
+        "defaultValue": "",
+        "refreshOn": [],
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-message",
+        "tooltip": {
+          "ru": "Выберите шаблон уведомления или введите текст уведомления"
+        },
+        "title": "Сообщение",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Шаблон уведомления"
+            },
+            "key": "template",
+            "journalId": "notification-templates",
+            "refreshOn": [],
+            "type": "selectJournal",
+            "input": true,
+            "queryData": ""
+          },
+          {
+            "label": {
+              "ru": "Record уведомления"
+            },
+            "key": "record",
+            "tooltip": {
+              "ru": "Базовый RecordRef по которому отправляется уведомление"
+            },
+            "hidden": true,
+            "defaultValue": "",
+            "refreshOn": [],
+            "logic": [
+              {
+                "name": "is template selected",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "return !!data.template"
+                },
+                "actions": [
+                  {
+                    "name": "display",
+                    "type": "property",
+                    "property": {
+                      "label": "Hidden",
+                      "value": "hidden",
+                      "type": "boolean"
+                    },
+                    "state": "false"
+                  }
+                ]
+              }
+            ],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Заголовок",
+              "en": " Title"
+            },
+            "key": "title",
+            "defaultValue": "",
+            "refreshOn": [],
+            "logic": [
+              {
+                "name": "is template selected",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "result = !!data.template;"
+                },
+                "actions": [
+                  {
+                    "name": "hide",
+                    "type": "property",
+                    "property": {
+                      "label": "Hidden",
+                      "value": "hidden",
+                      "type": "boolean"
+                    },
+                    "state": "true"
+                  }
+                ]
+              }
+            ],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Тело сообщения",
+              "en": "Body"
+            },
+            "key": "body",
+            "editor": "ckeditor",
+            "wysiwyg": "",
+            "defaultValue": "",
+            "refreshOn": [],
+            "logic": [
+              {
+                "name": "is template selected",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "result = !!data.template;"
+                },
+                "actions": [
+                  {
+                    "name": "hide",
+                    "type": "property",
+                    "property": {
+                      "label": "Hidden",
+                      "value": "hidden",
+                      "type": "boolean"
+                    },
+                    "state": "true"
+                  }
+                ]
+              }
+            ],
+            "rows": 5,
+            "type": "textarea",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Загрузить текст из шаблона",
+              "en": "Load text from template"
+            },
+            "key": "loadTextFromTemplate",
+            "action": "custom",
+            "state": "",
+            "showValidations": false,
+            "custom": "let formInstance = instance.root;\nformInstance.showErrors([]);\n\nconst applyMessageData = (data) => {\n\n    submission = {\n        ...submission,\n        data: {\n            ...submission.data,\n            title: data.title,\n            body: data.body\n        }\n    }\n    formInstance.submission = submission;\n}\n\nCiteck.Dialogs.showFormDialog({\n    title: 'Выберите шаблон уведомления для подстановки текста',\n    showDefaultButtons: true,\n    formDefinition: {\n        components: [\n            {\n                label: 'Шаблон',\n                key: 'selectTextTemplate',\n                type: \"selectJournal\",\n                journalId: 'notification-templates',\n                multiple: false\n            }\n        ]\n    },\n    onSubmit: result => {\n        let templateRef = result.data['selectTextTemplate']\n        Citeck.Records.get(templateRef)\n            .load({title: 'title', body: 'body'})\n            .then(applyMessageData)\n            .catch(e => formInstance.showErrors(e));\n    }\n});\n\n\n",
+            "refreshOn": [],
+            "customConditional": "show = !data.template;",
+            "type": "button",
+            "input": true
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-recipients",
+        "title": "Выбор получателей",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Container"
+            },
+            "key": "recipientsData",
+            "hideLabel": true,
+            "refreshOn": [],
+            "type": "container",
+            "input": true,
+            "components": [
+              {
+                "label": {
+                  "ru": "Оргструктура",
+                  "en": "Orgstructure"
+                },
+                "key": "refs",
+                "multiple": true,
+                "reorder": false,
+                "allowedAuthorityType": "USER,GROUP",
+                "allowedGroupType": "ROLE,BRANCH,GROUP",
+                "isIncludedAdminGroup": true,
+                "dataType": "authority",
+                "defaultValue": [],
+                "refreshOn": [],
+                "type": "selectOrgstruct",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Пользовательский ввод получателей",
+                  "en": "User input of recipients"
+                },
+                "key": "fromUserInput",
+                "tooltip": {
+                  "ru": "email или userName"
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "rows": 5,
+                "type": "textarea",
+                "input": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "panel-config",
+        "title": "Настройки",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Тип уведомления",
+              "en": "Notification type"
+            },
+            "key": "type",
+            "disabled": true,
+            "validate": {
+              "required": true
+            },
+            "dataSrc": "values",
+            "data": {
+              "values": [
+                {
+                  "label": "Электронная почта",
+                  "value": "EMAIL_NOTIFICATION"
+                },
+                {
+                  "label": "Мобильное push уведомление",
+                  "value": "FIREBASE_NOTIFICATION"
+                }
+              ]
+            },
+            "defaultValue": "",
+            "customDefaultValue": "value = \"EMAIL_NOTIFICATION\"",
+            "optionalWhenDisabled": false,
+            "type": "ecosSelect",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Container"
+            },
+            "key": "config",
+            "hideLabel": true,
+            "refreshOn": [],
+            "type": "container",
+            "input": true,
+            "components": [
+              {
+                "label": {
+                  "ru": "Язык",
+                  "en": "Language"
+                },
+                "key": "lang",
+                "tooltip": {
+                  "ru": "Например: 'ru', 'en' и т.д.",
+                  "en": "Example: 'ru', 'en' etc"
+                },
+                "clearOnHide": false,
+                "defaultValue": "ru",
+                "refreshOn": [],
+                "logic": [
+                  {
+                    "name": "template is not selected",
+                    "trigger": {
+                      "type": "javascript",
+                      "javascript": "result = !!!data.template;"
+                    },
+                    "actions": [
+                      {
+                        "name": "hide",
+                        "type": "property",
+                        "property": {
+                          "label": "Hidden",
+                          "value": "hidden",
+                          "type": "boolean"
+                        },
+                        "state": "true"
+                      }
+                    ]
+                  }
+                ],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Всех получателей в копию",
+                  "en": "All to CC"
+                },
+                "key": "allCc",
+                "defaultValue": false,
+                "refreshOn": [],
+                "logic": [
+                  {
+                    "name": "is all bcc true",
+                    "trigger": {
+                      "type": "javascript",
+                      "javascript": "return data.config.allBcc === true"
+                    },
+                    "actions": [
+                      {
+                        "name": "set-disabled",
+                        "type": "property",
+                        "property": {
+                          "label": "Disabled",
+                          "value": "disabled",
+                          "type": "boolean"
+                        },
+                        "state": "true"
+                      },
+                      {
+                        "name": "set-value-false",
+                        "type": "value",
+                        "value": "value = false;"
+                      }
+                    ]
+                  }
+                ],
+                "type": "checkbox",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Всех получателей в скрытую копию",
+                  "en": "All to BCC"
+                },
+                "key": "allBcc",
+                "defaultValue": false,
+                "refreshOn": [],
+                "logic": [
+                  {
+                    "name": "is all cc true",
+                    "trigger": {
+                      "type": "javascript",
+                      "javascript": "return data.config.allCc === true"
+                    },
+                    "actions": [
+                      {
+                        "name": "set-disabled",
+                        "type": "property",
+                        "property": {
+                          "label": "Disabled",
+                          "value": "disabled",
+                          "type": "boolean"
+                        },
+                        "state": "true"
+                      },
+                      {
+                        "name": "set-value-false",
+                        "type": "value",
+                        "value": "value = false;"
+                      }
+                    ]
+                  }
+                ],
+                "type": "checkbox",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Отложенная отправка",
+                  "en": "Delaying dispatch"
+                },
+                "key": "delayedSend",
+                "format": "yyyy-MM-dd HH:mm",
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "timePicker": {
+                  "showMeridian": false
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
+              },
+              {
+                "label": {
+                  "ru": "Пакетная обработка"
+                },
+                "key": "batchConfig",
+                "refreshOn": [],
+                "type": "container",
+                "input": true,
+                "components": [
+                  {
+                    "label": {
+                      "ru": "Размер пакета",
+                      "en": "Batching size"
+                    },
+                    "key": "size",
+                    "tooltip": {
+                      "ru": "Размер пакета при разбиении рассылки по получателям. \nНапример, если размер равен 0, то будет отправлено одно сообщение. Если получателей 10, а размер равен 2, то будет отправлено 5 сообщений.\nЭта опция может быть полезна, если почтовый сервер не может обработать отсылку сообщения большому количеству получателей в одном сообщении.\n"
+                    },
+                    "validate": {
+                      "integer": true,
+                      "min": 0
+                    },
+                    "isBigNumber": false,
+                    "delimiterValue": " ",
+                    "refreshOn": [],
+                    "logic": [
+                      {
+                        "name": "personalized-is-true",
+                        "trigger": {
+                          "type": "javascript",
+                          "javascript": "return data.config.batchConfig.personalizedMails === true;"
+                        },
+                        "actions": [
+                          {
+                            "name": "set-disabled",
+                            "type": "property",
+                            "property": {
+                              "label": "Disabled",
+                              "value": "disabled",
+                              "type": "boolean"
+                            },
+                            "state": "true"
+                          },
+                          {
+                            "name": "set-to-zero",
+                            "type": "value",
+                            "value": "value = 0;"
+                          }
+                        ]
+                      }
+                    ],
+                    "defaultValue": "",
+                    "type": "number",
+                    "input": true
+                  },
+                  {
+                    "label": {
+                      "ru": "Персонализированная рассылка",
+                      "en": "Personalized mails"
+                    },
+                    "key": "personalizedMails",
+                    "tooltip": {
+                      "ru": "Отправка персонализированного сообщения каждому получателю"
+                    },
+                    "defaultValue": false,
+                    "refreshOn": [],
+                    "type": "checkbox",
+                    "input": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": {
+          "en": "Submit",
+          "ru": "Сохранить"
+        },
+        "key": "submit",
+        "state": "",
+        "theme": "primary",
+        "disableOnInvalid": true,
+        "refreshOn": [],
+        "type": "button",
+        "input": true
+      }
+    ]
+  },
+  "attributes": {}
+}

@@ -1,0 +1,31 @@
+{
+  "id": "notification-template-edit-as-html-form",
+  "formKey": "",
+  "title": {
+    "en": "Notification template edit as HTML form"
+  },
+  "description": {},
+  "customModule": null,
+  "typeRef": "",
+  "width": "full",
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "Тело сообщения",
+          "en": "Notification body"
+        },
+        "key": "body",
+        "editor": "ckeditor",
+        "wysiwyg": "",
+        "defaultValue": "",
+        "refreshOn": [],
+        "rows": 17,
+        "type": "textarea",
+        "input": true
+      }
+    ]
+  },
+  "attributes": {}
+}

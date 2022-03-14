@@ -1,20 +1,34 @@
 package ru.citeck.ecos.notifications.domain.notification.repo
 
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
-import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
 import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table(name = "failure_notification")
-class FailureNotificationEntity @JvmOverloads constructor(
+@Table(name = "notification")
+class NotificationEntity @JvmOverloads constructor(
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
+
+    @Column(columnDefinition = "VARCHAR(255)", unique = true)
+    var extId: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    var type: NotificationType? = null,
+
+    var template: String? = null,
+
+    @Column(columnDefinition = "VARCHAR(255)")
+    var bulkMailRef: String? = null,
+
+    var record: String? = null,
 
     var data: ByteArray? = null,
 
@@ -26,12 +40,14 @@ class FailureNotificationEntity @JvmOverloads constructor(
 
     var tryingCount: Int? = 0,
 
+    var delayedSend: Instant? = null,
+
     var lastTryingDate: Instant? = null,
 
     @get: NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var state: FailureNotificationState? = null,
+    var state: NotificationState? = null,
 
     createdBy: String? = null,
     createdDate: Instant? = Instant.now(),
@@ -43,7 +59,7 @@ class FailureNotificationEntity @JvmOverloads constructor(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as FailureNotificationEntity
+        other as NotificationEntity
 
         if (id != other.id) return false
 
@@ -55,7 +71,7 @@ class FailureNotificationEntity @JvmOverloads constructor(
     }
 
     override fun toString(): String {
-        return "FailureNotificationEntity(id=$id," +
+        return "NotificationEntity(id=$id," +
             " tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state)"
     }
 

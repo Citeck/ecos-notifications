@@ -1,0 +1,44 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="roman.makarskiy (generated)" id="1645177392772-1">
+        <createTable tableName="bulk_mail_recipient">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="bulk_mail_recipientPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="TIMESTAMP"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP"/>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bulk_mail_ref" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ext_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="record" type="VARCHAR(255)"/>
+            <column name="bulk_mail_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="roman.makarskiy (generated)" id="1645177392772-3">
+        <addUniqueConstraint columnNames="ext_id" constraintName="UC_BULK_MAIL_RECIPIENTEXT_ID_COL"
+                             tableName="bulk_mail_recipient"/>
+    </changeSet>
+    <changeSet author="roman.makarskiy (generated)" id="1645177392772-4">
+        <addForeignKeyConstraint baseColumnNames="bulk_mail_id"
+                                 baseTableName="bulk_mail_recipient"
+                                 constraintName="FKbd39cl7b09gewu8oo285kvnna"
+                                 deferrable="false"
+                                 initiallyDeferred="false"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bulk_mail"/>
+    </changeSet>
+</databaseChangeLog>

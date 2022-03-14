@@ -38,8 +38,11 @@ class NotificationTemplateArtifactHandler(
         val dto = NotificationTemplateWithMeta(meta.get("id").asText())
         dto.notificationTitle = meta.get("notificationTitle", MLText::class.java)
         dto.name = meta.get("name").asText()
+        dto.tags = meta.get("tags").asList(String::class.java)
+
         val memDir = extractZip(module.data)
         dto.templateData = TemplateDataFinder(memDir).find()
+
         dto.model = meta.get("model").asMap(String::class.java, String::class.java)
         dto.multiTemplateConfig = meta.get("multiTemplateConfig").asList(MultiTemplateElementDto::class.java)
 
@@ -59,6 +62,7 @@ class NotificationTemplateArtifactHandler(
             val meta = ObjectData.create()
             meta.set("id", dto.id)
             meta.set("name", dto.name)
+            meta.set("tags", dto.tags)
             meta.set("model", dto.model)
             meta.set("multiTemplateConfig", dto.multiTemplateConfig)
             meta.set("notificationTitle", dto.notificationTitle)

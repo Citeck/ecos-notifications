@@ -12,6 +12,8 @@ import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRep
 import ru.citeck.ecos.notifications.domain.template.repo.TemplateDataEntity
 import java.util.*
 
+private const val TAGS_SEPARATOR = ","
+
 @Component
 class TemplateConverter {
 
@@ -22,6 +24,7 @@ class TemplateConverter {
         val entity = templateRepository.findOneByExtId(dto.id).orElse(NotificationTemplateEntity())
         entity.name = dto.name
         entity.notificationTitle = mapper.toString(dto.notificationTitle)
+        entity.tags = dto.tags.joinToString(TAGS_SEPARATOR)
         entity.extId = dto.id
         entity.model = mapper.toString(dto.model)
         entity.multiTemplateConfig = mapper.toString(dto.multiTemplateConfig)
@@ -47,6 +50,8 @@ class TemplateConverter {
             id = entity.extId!!,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
+            tags = if (entity.tags.isNullOrBlank()) emptyList() else entity.tags!!.split(TAGS_SEPARATOR)
+                .map { it.trim() },
             model = mapper.readMap(entity.model, String::class.java, String::class.java),
             multiTemplateConfig = mapper.readList(entity.multiTemplateConfig, MultiTemplateElementDto::class.java),
             creator = entity.createdBy,

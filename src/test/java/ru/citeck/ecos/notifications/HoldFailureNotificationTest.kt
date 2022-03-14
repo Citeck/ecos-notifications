@@ -12,15 +12,16 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
-import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
+import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import java.util.*
 
 
 @RunWith(SpringRunner::class)
@@ -31,7 +32,7 @@ class HoldFailureNotificationTest {
     private lateinit var commandsService: CommandsService
 
     @Autowired
-    private lateinit var failureNotificationRepository: FailureNotificationRepository
+    private lateinit var notificationRepository: NotificationRepository
 
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
@@ -49,8 +50,10 @@ class HoldFailureNotificationTest {
         templateModel["lastName"] = "Skywalker"
         templateModel["age"] = "25"
 
-        val notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java)!!
+        val notificationTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTemplate)
     }
@@ -58,12 +61,13 @@ class HoldFailureNotificationTest {
     @After
     fun clear() {
         greenMail.stop()
-        failureNotificationRepository.deleteAll()
+        notificationRepository.deleteAll()
     }
 
     @Test
     fun sendNotificationWithPotentialErrorShouldSaveFailureNotification() {
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -76,7 +80,7 @@ class HoldFailureNotificationTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        val allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        val allFailures = notificationRepository.findAllByState(NotificationState.ERROR)
 
         assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
         assertThat(allFailures.size).isEqualTo(1)
@@ -88,6 +92,7 @@ class HoldFailureNotificationTest {
         greenMail.stop()
 
         val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
             record = RecordRef.EMPTY,
             templateRef = RecordRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -100,7 +105,7 @@ class HoldFailureNotificationTest {
         val result = commandsService.executeSync(command, "notifications")
             .getResultAs(SendNotificationResult::class.java)
 
-        val allFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        val allFailures = notificationRepository.findAllByState(NotificationState.ERROR)
 
         assertThat(result!!.status).isEqualTo(NotificationResultStatus.ERROR.value)
         assertThat(allFailures.size).isEqualTo(1)
