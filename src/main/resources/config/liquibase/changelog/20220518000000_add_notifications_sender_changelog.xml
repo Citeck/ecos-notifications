@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="elena.shushunova" id="1645577392788-1">
+        <createTable tableName="notifications_sender">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="notifications_senderPK"/>
+            </column>
+
+            <column name="ext_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN"/>
+            <column name="notification_type" type="VARCHAR(255)"/>
+            <column name="order" type="FLOAT"/>
+            <column name="sender_type" type="VARCHAR"/>
+            <column name="condition" type="TEXT"/>
+            <column name="templates" type="TEXT"/>
+            <column name="senderConfig" type="TEXT"/>
+
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="TIMESTAMP"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="elena.shushunova" id="1645577392788-2">
+        <addUniqueConstraint columnNames="ext_id" constraintName="UC_NOTIFICATIONS_SENDER_EXT_ID_COL"
+                             tableName="notifications_sender"/>
+    </changeSet>
+</databaseChangeLog>

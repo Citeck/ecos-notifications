@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
+import ru.citeck.ecos.notifications.domain.sender.converter.toDtoWithMeta
 import ru.citeck.ecos.notifications.domain.sender.converter.toEntity
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
@@ -38,7 +39,12 @@ class NotificationsSenderServiceImpl (val repository: NotificationsSenderReposit
     }
 
     @Transactional
-    override fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta? {
+    override fun removeAllByExtId(extIds: List<String>) {
+        repository.deleteAllByExtIdIn(extIds)
+    }
+
+    @Transactional
+    override fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta {
         val beforeSenderDto = getSenderById(senderDto.id)?.toDto()
         val entity = repository.save(senderDto.toEntity())
         val afterSenderDto = entity.toDto()
@@ -58,25 +64,31 @@ class NotificationsSenderServiceImpl (val repository: NotificationsSenderReposit
     }
 
     override fun getCount(predicate: Predicate?): Long {
-        TODO("Not yet implemented")
+        return repository.count(toSpecification(predicate))
+    }
+
+    override fun getAll(): List<NotificationsSenderDtoWithMeta> {
+        return repository.findAll().map { it.toDtoWithMeta() }.toList()
     }
 
     override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
-        List<NotificationsSenderDtoWithMeta?>? {
+        List<NotificationsSenderDtoWithMeta> {
         if (maxItems == 0) {
             return emptyList()
         }
         val page = PageRequest.of(skipCount / maxItems, maxItems,
             sort ?: Sort.by(Sort.Direction.DESC, NotificationsSenderEntity.ID)
         )
-
-        TODO("Not yet implemented")
+        return repository.findAll(toSpecification(predicate), page)
+            .map{it -> it.toDtoWithMeta()}
+            .toList()
     }
 
     fun toSpecification(predicate: Predicate?): Specification<NotificationsSenderEntity>? {
         if (predicate == null) {
             return null
         }
-        TODO("Not yet implemented")
+        //TODO("Not yet implemented")
+        return null
     }
 }

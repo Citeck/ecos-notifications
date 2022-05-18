@@ -15,7 +15,7 @@ class NotificationsSenderEntity @JvmOverloads constructor(
     var id: Long? = null,
 
     @NotNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     var extId: String? = null,
     var enabled: Boolean = false,
     @Enumerated(EnumType.STRING)

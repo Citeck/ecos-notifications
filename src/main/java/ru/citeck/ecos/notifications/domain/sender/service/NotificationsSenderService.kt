@@ -12,14 +12,18 @@ interface NotificationsSenderService {
 
     fun delete(id: String)
 
-    fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta?
+    fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta
 
     fun getCount(): Long
 
     fun getCount(predicate: Predicate?): Long
 
     fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
-        List<NotificationsSenderDtoWithMeta?>?
+        List<NotificationsSenderDtoWithMeta>
+
+    fun getAll(): List<NotificationsSenderDtoWithMeta>
 
     fun onSenderChanged(listener: BiConsumer<NotificationsSenderDto?, NotificationsSenderDto?>)
+
+    fun removeAllByExtId(extIds: List<String>)
 }

@@ -16,7 +16,7 @@ import java.time.Instant
 
 /**
  * Class supports uploading board from yml-file,
- * editing board with JSON Editor
+ * editing sender with JSON Editor
  */
 @Data
 class NotificationsSenderRecord (

@@ -9,4 +9,5 @@ interface NotificationsSenderRepository : JpaRepository<NotificationsSenderEntit
 
     fun findOneByExtId(extId: String): Optional<NotificationsSenderEntity>
 
+    fun deleteAllByExtIdIn(extIds: List<String>)
 }

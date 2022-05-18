@@ -43,6 +43,10 @@ fun NotificationsSenderEntity.toDto(): NotificationsSenderDto {
     )
 }
 
+fun NotificationsSenderEntity.toDtoWithMeta(): NotificationsSenderDtoWithMeta{
+    return NotificationsSenderDtoWithMeta(toDto())
+}
+
 fun NotificationsSenderDto.toEntity(): NotificationsSenderEntity {
     val dto = this
     var entity: NotificationsSenderEntity? = null
@@ -96,4 +100,8 @@ fun NotificationsSenderRecord.toDto(): NotificationsSenderDto{
         modifier,
         modified
     )
+}
+
+fun NotificationsSenderRecord.toDtoWithMeta(): NotificationsSenderDtoWithMeta{
+    return NotificationsSenderDtoWithMeta(toDto())
 }
