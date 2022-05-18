@@ -28,6 +28,7 @@ private lateinit var converter: NotificationsSenderConverter
 fun NotificationsSenderEntity.toDto(): NotificationsSenderDto {
     return NotificationsSenderDto(
         id = extId ?: "",
+        name = name,
         enabled = enabled,
         condition = mapper.read(condition, Predicate::class.java),
         notificationType = notificationType,
@@ -51,13 +52,14 @@ fun NotificationsSenderDto.toEntity(): NotificationsSenderEntity {
     val dto = this
     var entity: NotificationsSenderEntity? = null
     if (converter.notificationsSenderRepository != null && !StringUtils.isBlank(id)) {
-        entity = converter.notificationsSenderRepository.findOneByExtId(id).orElse(null)
+        entity = converter.notificationsSenderRepository.findOneByExtId(id!!).orElse(null)
     }
     val explicitExtId = if (id.isNullOrBlank()) UUID.randomUUID().toString() else id
     if (entity == null) {
         entity = NotificationsSenderEntity(null, explicitExtId)
     }
 
+    entity.name = dto.name
     entity.enabled = dto.enabled
     entity.condition = mapper.toString(dto.condition)
     entity.notificationType = dto.notificationType
@@ -71,6 +73,7 @@ fun NotificationsSenderDto.toEntity(): NotificationsSenderEntity {
 fun NotificationsSenderDtoWithMeta.toDto(): NotificationsSenderDto {
     return NotificationsSenderDto(
         id ?: UUID.randomUUID().toString(),
+        name,
         enabled,
         condition,
         notificationType,
@@ -88,6 +91,7 @@ fun NotificationsSenderDtoWithMeta.toDto(): NotificationsSenderDto {
 fun NotificationsSenderRecord.toDto(): NotificationsSenderDto{
     return NotificationsSenderDto(
         id ?: UUID.randomUUID().toString(),
+        name,
         enabled,
         condition,
         notificationType,

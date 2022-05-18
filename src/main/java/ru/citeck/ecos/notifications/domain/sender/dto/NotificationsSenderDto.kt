@@ -7,18 +7,19 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import java.time.Instant
 
 data class NotificationsSenderDto(
-    val id: String,
-    val enabled: Boolean = false,
-    val condition: Predicate? = null,
-    val notificationType: NotificationType? = null,
-    val order: Float? = null,
-    val senderType: String? = null,
-    val templates: List<RecordRef> = emptyList(),
-    val senderConfig: ObjectData = ObjectData.create(),
+    var id: String? = null,
+    var name: String? = null,
+    var enabled: Boolean = false,
+    var condition: Predicate? = null,
+    var notificationType: NotificationType? = null,
+    var order: Float? = null,
+    var senderType: String? = null,
+    var templates: List<RecordRef> = emptyList(),
+    var senderConfig: ObjectData = ObjectData.create(),
 
-    val createdBy: String? = null,
+    var createdBy: String? = null,
     val createdDate: Instant? = Instant.now(),
-    val lastModifiedBy: String? = null,
+    var lastModifiedBy: String? = null,
     val lastModifiedDate: Instant? = Instant.now()) {
 
     override fun equals(other: Any?): Boolean {

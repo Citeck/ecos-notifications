@@ -1,0 +1,212 @@
+{
+  "id": "notifications-sender-form",
+  "formKey": "notifications-sender-form",
+  "title": {
+    "en": "Notifications sender"
+  },
+  "description": {},
+  "customModule": null,
+  "typeRef": "emodel/type@notifications-sender",
+  "width": "m",
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "moduleId"
+        },
+        "key": "moduleId",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "moduleId"
+        },
+        "type": "textfield",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "name"
+        },
+        "key": "name",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "name"
+        },
+        "type": "textfield",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "objectObject",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "enabled"
+                },
+                "key": "enabled",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "enabled"
+                },
+                "type": "checkbox",
+                "input": true
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0,
+            "md": 3
+          },
+          {
+            "index": 1,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": [
+              {
+                "label": {
+                  "ru": "notificationType"
+                },
+                "key": "notificationType",
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "notificationType"
+                },
+                "type": "textfield",
+                "input": true
+              }
+            ],
+            "md": 9
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
+      },
+      {
+        "label": {
+          "ru": "condition"
+        },
+        "key": "condition",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "condition"
+        },
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "columns2",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "order"
+                },
+                "key": "order",
+                "validate": {
+                  "integer": false
+                },
+                "isBigNumber": false,
+                "delimiterValue": " ",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "order"
+                },
+                "defaultValue": "",
+                "type": "number",
+                "input": true
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0,
+            "md": 3
+          },
+          {
+            "index": 1,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": [
+              {
+                "label": {
+                  "ru": "senderType"
+                },
+                "key": "senderType",
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "senderType"
+                },
+                "type": "textfield",
+                "input": true
+              }
+            ],
+            "md": 9
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
+      },
+      {
+        "label": {
+          "ru": "senderConfig"
+        },
+        "key": "senderConfig",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "senderConfig"
+        },
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "templates"
+        },
+        "key": "templates",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attributes": "templates"
+        },
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "type": "button",
+        "key": "submit",
+        "disableOnInvalid": true,
+        "theme": "primary",
+        "input": true
+      }
+    ]
+  },
+  "attributes": {}
+}

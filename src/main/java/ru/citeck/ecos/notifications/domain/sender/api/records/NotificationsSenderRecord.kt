@@ -21,6 +21,7 @@ import java.time.Instant
 @Data
 class NotificationsSenderRecord (
     var id: String?= null,
+    var name: String? = null,
     var enabled: Boolean = false,
     var condition: Predicate? = null,
     var notificationType: NotificationType? = null,
@@ -37,6 +38,7 @@ class NotificationsSenderRecord (
 
     constructor(dtoWithMeta: NotificationsSenderDtoWithMeta): this (
         dtoWithMeta.id,
+        dtoWithMeta.name,
         dtoWithMeta.enabled,
         dtoWithMeta.condition,
         dtoWithMeta.notificationType,

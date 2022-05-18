@@ -12,7 +12,8 @@ import java.time.Instant
 
 @Data
 data class NotificationsSenderDtoWithMeta(
-    var id: String?= null,
+    var id: String? = null,
+    var name: String? = null,
     var enabled: Boolean = false,
     var condition: Predicate? = null,
     var notificationType: NotificationType? = null,
@@ -25,10 +26,11 @@ data class NotificationsSenderDtoWithMeta(
     val created: Instant? = null,
     val modifier: String? = null,
     val modified: Instant? = null
-    ){
+) {
 
-    constructor(dto: NotificationsSenderDto): this(
+    constructor(dto: NotificationsSenderDto) : this(
         dto.id,
+        dto.name,
         dto.enabled,
         dto.condition,
         dto.notificationType,
