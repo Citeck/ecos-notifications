@@ -21,6 +21,7 @@ class NotificationsSenderEntity @JvmOverloads constructor(
     var enabled: Boolean = false,
     @Enumerated(EnumType.STRING)
     var notificationType: NotificationType? = null,
+    @Column(name = "sender_order")
     var order: Float? = null,
     var senderType: String? = null,
     var condition: String? = null,
