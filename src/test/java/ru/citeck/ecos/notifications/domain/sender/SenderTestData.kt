@@ -7,7 +7,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 class SenderTestData {
     companion object {
         const val SOURCE_ID = "notifications-sender"
-        const val NOTIFICATION_APP_ID = "notification"
+        const val NOTIFICATION_APP_ID = "notifications"
         const val TEST_SENDER_ID = "test-sender-00"
         const val PROP_ID = "id"
         const val PROP_EXT_ID = "extId"
@@ -17,7 +17,7 @@ class SenderTestData {
 
         @JvmStatic
         fun getTestSender(): NotificationsSenderDto {
-            var sender = NotificationsSenderDto(TEST_SENDER_ID)
+            val sender = NotificationsSenderDto(TEST_SENDER_ID)
             sender.order = 0f
             sender.notificationType = NotificationType.EMAIL_NOTIFICATION
             sender.name = "test notifications sender"
@@ -26,7 +26,7 @@ class SenderTestData {
 
         @JvmStatic
         fun getNewSender(): NotificationsSenderDto {
-            var sender = getTestSender()
+            val sender = getTestSender()
             sender.id = null
             return sender
         }

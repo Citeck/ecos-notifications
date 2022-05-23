@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.sender.dto
 
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.Predicate
@@ -33,5 +34,9 @@ data class NotificationsSenderDto(
 
     override fun hashCode(): Int {
         return id?.hashCode() ?: 0
+    }
+
+    fun getRef(): RecordRef {
+        return RecordRef.create("notifications", NotificationsSenderRecordsDao.ID, id)
     }
 }

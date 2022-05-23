@@ -31,6 +31,7 @@ public final class TestUtil {
 
     public static final String URL_RECORDS_MUTATE = "/api/records/mutate";
     public static final String URL_RECORDS_QUERY = "/api/records/query";
+    public static final String URL_RECORDS_DELETE = "/api/records/delete";
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();

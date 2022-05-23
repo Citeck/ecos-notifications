@@ -1,8 +1,8 @@
 package ru.citeck.ecos.notifications.domain.sender.dto
 
 import lombok.Data
-import lombok.EqualsAndHashCode
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
@@ -75,4 +75,8 @@ data class NotificationsSenderDtoWithMeta(
     @get:AttName(RecordConstants.ATT_CREATOR)
     val recordCreator: String?
         get() = creator
+
+    fun getRef(): RecordRef {
+        return RecordRef.create("notifications", NotificationsSenderRecordsDao.ID, moduleId)
+    }
 }
