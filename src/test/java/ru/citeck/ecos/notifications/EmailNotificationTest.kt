@@ -17,7 +17,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationSender
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationSenderServiceImpl
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -31,7 +31,7 @@ import javax.mail.internet.MimeMultipart
 class EmailNotificationTest {
 
     @Autowired
-    private lateinit var notificationSender: NotificationSender
+    private lateinit var notificationSender: NotificationSenderServiceImpl
 
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService

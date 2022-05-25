@@ -15,10 +15,7 @@ import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWith
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.predicate.model.AndPredicate
-import ru.citeck.ecos.records2.predicate.model.ComposedPredicate
-import ru.citeck.ecos.records2.predicate.model.Predicate
-import ru.citeck.ecos.records2.predicate.model.ValuePredicate
+import ru.citeck.ecos.records2.predicate.model.*
 import java.lang.reflect.Field
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -35,8 +32,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         private val attributeNames: Set<String>
             get() {
                 if (attributeNamesSet.isEmpty()) {
-                    attributeNamesSet = NotificationsSenderEntity::class.java.declaredFields.map {
-                        attribute -> attribute.name }.toSet()
+                    attributeNamesSet =
+                        NotificationsSenderEntity::class.java.declaredFields.map { attribute -> attribute.name }.toSet()
                 }
                 return attributeNamesSet
             }
@@ -94,13 +91,34 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         return repository.findAll().map { it.toDtoWithMeta() }.toList()
     }
 
+    override fun getAllEnabled(): List<NotificationsSenderDtoWithMeta> {
+        return getEnabled(null, null)
+    }
+
+    override fun getEnabled(predicate: Predicate?, sort: Sort?): List<NotificationsSenderDtoWithMeta> {
+        val page = PageRequest.of(
+            0, 10000,
+            sort ?: Sort.by(Sort.Direction.ASC, NotificationsSenderEntity.PROP_ORDER)
+        )
+        val enablePredicate = Predicates.eq(NotificationsSenderEntity.PROP_ENABLED, true)
+        val specification = if (predicate == null) {
+            toSpecification(enablePredicate)
+        } else {
+            toSpecification(Predicates.and(enablePredicate, predicate))
+        }
+        return repository.findAll(specification, page)
+            .map { it.toDtoWithMeta() }
+            .toList()
+    }
+
     override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
         List<NotificationsSenderDtoWithMeta> {
         if (maxItems == 0) {
             return emptyList()
         }
-        val page = PageRequest.of(skipCount / maxItems, maxItems,
-            sort ?: Sort.by(Sort.Direction.DESC, NotificationsSenderEntity.ID)
+        val page = PageRequest.of(
+            skipCount / maxItems, maxItems,
+            sort ?: Sort.by(Sort.Direction.DESC, NotificationsSenderEntity.PROP_ID)
         )
         return repository.findAll(toSpecification(predicate), page)
             .map { it.toDtoWithMeta() }
@@ -160,7 +178,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         }
         var specification: Specification<NotificationsSenderEntity>? = null
         if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()
-            || ValuePredicate.Type.LIKE == valuePredicate.getType()) {
+            || ValuePredicate.Type.LIKE == valuePredicate.getType()
+        ) {
             val recordRef = RecordRef.valueOf(valuePredicate.getValue().asText())
             val tmpValue = if (RecordRef.isEmpty(recordRef)) valuePredicate.getValue().asText() else recordRef.id
             val attributeValue = if (ValuePredicate.Type.CONTAINS == valuePredicate.getType())
@@ -172,16 +191,22 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
             val objectValue = getObjectValue(attributeName, valuePredicate.getValue().asText())
             if (objectValue != null) {
                 if (ValuePredicate.Type.EQ == valuePredicate.getType()) {
-                    specification = Specification<NotificationsSenderEntity> { root,query, builder ->
+                    specification = Specification<NotificationsSenderEntity> { root, query, builder ->
                         builder.equal(root.get<Any>(attributeName), objectValue)
                     }
                 } else if (ValuePredicate.Type.GT == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.greaterThan<Comparable<*>>(root.get<Comparable<Comparable<*>>>(attributeName), objectValue)
+                        builder.greaterThan<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
                     }
                 } else if (ValuePredicate.Type.GE == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.greaterThanOrEqualTo<Comparable<*>>(root.get<Comparable<Comparable<*>>>(attributeName), objectValue)
+                        builder.greaterThanOrEqualTo<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
                     }
                 } else if (ValuePredicate.Type.LT == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
@@ -189,7 +214,10 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
                     }
                 } else if (ValuePredicate.Type.LE == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.lessThanOrEqualTo<Comparable<*>>(root.get<Comparable<Comparable<*>>>(attributeName), objectValue)
+                        builder.lessThanOrEqualTo<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
                     }
                 }
             }

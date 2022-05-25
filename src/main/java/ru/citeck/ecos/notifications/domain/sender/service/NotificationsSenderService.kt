@@ -18,10 +18,23 @@ interface NotificationsSenderService {
 
     fun getCount(predicate: Predicate?): Long
 
+    /**
+     * Default sort is by ID
+     */
     fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
         List<NotificationsSenderDtoWithMeta>
 
     fun getAll(): List<NotificationsSenderDtoWithMeta>
+
+    /**
+     * Default sort is by ORDER. Maximum result size is 10000
+     */
+    fun getAllEnabled(): List<NotificationsSenderDtoWithMeta>
+
+    /**
+     * Default sort is by ORDER. Maximum result size is 10000
+     */
+    fun getEnabled(predicate: Predicate?, sort: Sort?): List<NotificationsSenderDtoWithMeta>
 
     fun onSenderChanged(listener: BiConsumer<NotificationsSenderDto?, NotificationsSenderDto?>)
 

@@ -35,6 +35,9 @@ class NotificationsSenderEntity @JvmOverloads constructor(
 
 ) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate) {
     companion object {
-        const val ID = "id"
+        const val PROP_ID = "id"
+        const val PROP_ENABLED = "enabled"
+        const val PROP_NOTIFICATION_TYPE = "notificationType"
+        const val PROP_ORDER = "order"
     }
 }
