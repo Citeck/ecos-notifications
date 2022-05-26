@@ -1,5 +1,5 @@
 {
-  "id": "default-email-sender-with-condition",
+  "id": "command-email-sender-with-condition",
   "notificationType": "EMAIL_NOTIFICATION",
   "condition": {
     "t": "eq",
@@ -8,5 +8,9 @@
   },
   "enabled": true,
   "order": 1.0,
-  "senderType": "default"
+  "senderType": "command",
+  "senderConfig": {
+    "targetApp": "notifications",
+    "commandType": "send-email-handler"
+  }
 }

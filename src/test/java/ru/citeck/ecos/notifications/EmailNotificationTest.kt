@@ -55,8 +55,11 @@ class EmailNotificationTest {
     private lateinit var notificationTestIncludeTemplate: NotificationTemplateWithMeta
 
     private lateinit var notificationTestBeansTemplate: NotificationTemplateWithMeta
+    private lateinit var rawNotification: RawNotification
 
-    private lateinit var defaultNotificationSender: NotificationsSenderDto
+    companion object{
+        const val DEFAULT_EMAIL_SENDER_ID = "default-email-sender"
+    }
 
     @Before
     fun setup() {
@@ -67,6 +70,7 @@ class EmailNotificationTest {
         templateModel["firstName"] = "Ivan"
         templateModel["lastName"] = "Petrenko"
         templateModel["age"] = "25"
+        templateModel["process-definition"] = "flowable\$confirm"
 
         notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
             NotificationTemplateWithMeta::class.java)!!
@@ -104,11 +108,8 @@ class EmailNotificationTest {
             NotificationsSenderDto::class.java)!!
 
         notificationsSenderService.save(defaultSenderDto)
-    }
 
-    @Test
-    fun sendEmailWithImportsTest() {
-        val notification = RawNotification(
+        rawNotification = RawNotification(
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
@@ -117,7 +118,11 @@ class EmailNotificationTest {
             model = templateModel,
             from = "test@mail.ru"
         )
-        notificationSender.sendNotification(notification)
+    }
+
+    @Test
+    fun sendEmailWithImportsTest() {
+        notificationSender.sendNotification(rawNotification)
 
         val emails = greenMail.receivedMessages
 
@@ -844,6 +849,80 @@ class EmailNotificationTest {
             from = "test@mail.ru"
         )
 
+        assertThrows<NotificationException> {
+            notificationSender.sendNotification(notification)
+        }
+    }
+
+    @Test
+    fun sendEmailThroughSenderWithCondition() {
+        notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
+        val defaultSenderDto = Json.mapper.convert(
+            stringJsonFromResource("sender/default_email_sender_with_condition.json"),
+            NotificationsSenderDto::class.java)!!
+
+        notificationsSenderService.save(defaultSenderDto)
+        notificationSender.sendNotification(rawNotification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+    }
+
+    @Test
+    fun sendEmailThroughSenderWithTemplates() {
+        notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
+        val defaultSenderDto = Json.mapper.convert(
+            stringJsonFromResource("sender/default_email_sender_with_template.json"),
+            NotificationsSenderDto::class.java)!!
+
+        notificationsSenderService.save(defaultSenderDto)
+        notificationSender.sendNotification(rawNotification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+    }
+
+    @Test
+    fun sendEmailWithoutTemplate() {
+        notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
+        val defaultSenderDto = Json.mapper.convert(
+            stringJsonFromResource("sender/default_email_sender_with_template.json"),
+            NotificationsSenderDto::class.java)!!
+
+        notificationsSenderService.save(defaultSenderDto)
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationSender.sendNotification(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+    }
+
+    @Test
+    fun sendEmailWithEmptyModel() {
+        notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
+        val defaultSenderDto = Json.mapper.convert(
+            stringJsonFromResource("sender/default_email_sender_with_condition.json"),
+            NotificationsSenderDto::class.java)!!
+
+        notificationsSenderService.save(defaultSenderDto)
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf("some-recipient@gmail.com"),
+            model = emptyMap(),
+            from = "test@mail.ru"
+        )
         assertThrows<NotificationException> {
             notificationSender.sendNotification(notification)
         }

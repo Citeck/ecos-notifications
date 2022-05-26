@@ -10,7 +10,7 @@ import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationSenderServiceImpl
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
@@ -24,7 +24,7 @@ private const val ECOS_TYPE_ID_KEY = "_etype?id"
 
 @Service
 class UnsafeSendNotificationCommandExecutor(
-    val notificationService: NotificationSenderServiceImpl,
+    val notificationService: NotificationSenderService,
     val notificationTemplateService: NotificationTemplateService,
     val predicateService: PredicateService
 ) {
@@ -68,7 +68,7 @@ class UnsafeSendNotificationCommandExecutor(
             bcc = command.bcc
         )
 
-        notificationService.send(notification)
+        notificationService.sendNotification(notification)
 
         return SendNotificationResult(NotificationResultStatus.OK.value, "")
     }

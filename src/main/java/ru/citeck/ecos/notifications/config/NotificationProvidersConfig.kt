@@ -9,7 +9,6 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 
 @Slf4j
-@Deprecated("NotificationProvider replaced by NotificationSender")
 @Configuration
 class NotificationProvidersConfig {
 

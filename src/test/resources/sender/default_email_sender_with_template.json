@@ -1,9 +1,9 @@
 {
-  "id": "default-email-sender",
+  "id": "default-email-sender-with-template",
   "notificationType": "EMAIL_NOTIFICATION",
   "templates": [
     "notifications/template@some-template",
-    "notifications/template@some-template2"
+    "notifications/template@test-import-template"
   ],
   "enabled": true,
   "order": 0.0,

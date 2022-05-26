@@ -38,10 +38,11 @@ class CommandNotificationSender(): NotificationSender<CommandSenderConfig> {
         if (config==null){
             log.error("Failed to send notification through command sender - config was not defined")
         }
+        val cmdNotification = CmdFitNotification(notification)
         //catch exceptions
         val result =  commandsService.execute {
             targetApp = config!!.targetApp
-            body = CmdFitNotification(notification)
+            body = cmdNotification
             type = config!!.commandType
         }.get()
         result.errors.forEach{

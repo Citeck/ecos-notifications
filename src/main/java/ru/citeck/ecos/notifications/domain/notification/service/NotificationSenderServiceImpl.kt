@@ -60,49 +60,54 @@ class NotificationSenderServiceImpl(
 
     override fun sendNotification(notification: RawNotification): NotificationSenderSendStatus {
         log.debug("Send notification raw $notification")
-        //выборка из дао по типу нотификации с сортировкой по порядку
         val senders = notificationsSenderService.getEnabled(
             Predicates.eq(NotificationsSenderEntity.PROP_NOTIFICATION_TYPE, notification.type), null
         )
         if (senders.isEmpty()) {
-            throw NotificationException("Failed to find notifications sender for type ${notification.type}")
+            throw NotificationException("Failed to find notifications sender for type '${notification.type}'")
         }
         val fitNotification = convertRawNotificationToFit(notification)
         senders.forEach {
             if (it.senderType == null) {
-                log.warn { "Sender type is undefined at #${it.id} notifications sender" }
+                log.warn { "Sender type is undefined at '${it.id}' notifications sender" }
                 return@forEach
             }
             if (it.templates.isNotEmpty() && notification.template != null) {
                 var acceptable = false
                 for (recordRef in it.templates) {
-                    if (it.id == notification.template.id) {
+                    if (recordRef.id == notification.template.id) {
                         acceptable = true
                         break
                     }
                 }
                 if (!acceptable) {
-                    log.debug { "Sender #${it.id} does not fit for notification by template" }
+                    log.debug { "Sender '${it.id}' does not fit for notification by template" }
                     return@forEach
                 }
             }
             if (it.condition != null) {
-                val atts = ObjectData.create();
-                notification.model.forEach { (attName, value) -> atts.add(attName, value) }
+                if (notification.model.isEmpty()) {
+                    log.debug {
+                        "Sender '${it.id}' does not fit for notification " +
+                            "with empty model by condition '${it.condition}'"
+                    }
+                    return@forEach
+                }
+                val attributes = ObjectData.create()
+                notification.model.forEach { (attName, value) -> attributes.set(attName, value) }
                 val recAtts = RecordAtts()
-                recAtts.setAtts(atts)
+                recAtts.setAtts(attributes)
                 val element = RecordAttsElement("", recAtts)
                 val acceptable = predicateService.isMatch(element, it.condition!!)
                 if (!acceptable) {
-                    log.debug { "Sender #${it.id} does not fit for notification by condition ${it.condition}" }
+                    log.debug { "Sender '${it.id}' does not fit for notification by condition '${it.condition}'" }
                     return@forEach
                 }
             }
-            //для каждой записи ищем в notificationSenders соответствующий типу бин
             val senderBeanList = sendersMap[it.senderType]
                 ?: throw NotificationException(
-                    "Failed to find sender implementation for type ${it.senderType} " +
-                        "for #${it.id} notifications sender"
+                    "Failed to find sender implementation for type '${it.senderType}' " +
+                        "for '${it.id}' notifications sender"
                 )
             val notificationEventDto = NotificationEventDto(
                 rec = notification.record,
@@ -110,42 +115,40 @@ class NotificationSenderServiceImpl(
                 notification = fitNotification,
                 model = notification.model
             )
-            //у бина вызываем sendNotification с конфигурацией
             for (senderBean in senderBeanList) {
                 if (senderBean.getNotificationType() != it.notificationType) {
                     continue
                 }
-                log.debug { "Send notification through sender ${it.id} with type ${it.senderType}" }
-                /*senderBean.javaClass.interfaces
-                    .filter { type -> type.javaClass.equals(NotificationSender::class) }
-                    .first().typeParameters*/
+                log.debug { "Send notification through sender '${it.id}' with type '${it.senderType}'" }
                 val configClass = senderBean.getConfigClass()
-                var result: NotificationSenderSendStatus? = null
+                var result: NotificationSenderSendStatus?
                 try {
                     result = senderBean.sendNotification(fitNotification, it.senderConfig.getAs(configClass))
                     log.debug { "Send result is $result" }
-                } catch (e: NotificationException){
-                    log.error("Failed to send notification through sender ${it.id} \n ${e.message}", e)
+                } catch (e: NotificationException) {
+                    log.error("Failed to send notification through sender '${it.id}' \n ${e.message}", e)
                     notificationEventService.emitSendFailure(notificationEventDto)
                     continue
                 }
-                if (NotificationSenderSendStatus.SKIPPED.equals(result)) {
-                    continue
-                } else {
-                    when (result) {
-                        NotificationSenderSendStatus.SENT ->
-                            notificationEventService.emitSendSuccess(notificationEventDto)
-                        NotificationSenderSendStatus.BLOCKED ->
-                            notificationEventService.emitSendBlocked(notificationEventDto)
-                    }
-                    return result
+                when (result) {
+                    NotificationSenderSendStatus.SENT ->
+                        notificationEventService.emitSendSuccess(notificationEventDto)
+                    NotificationSenderSendStatus.BLOCKED ->
+                        notificationEventService.emitSendBlocked(notificationEventDto)
+                    NotificationSenderSendStatus.SKIPPED -> continue
                 }
+                return result
             }
         }
         throw NotificationException("Failed to send notification")
         // Так же этот статус отправляется в таблицу нотификаций (см. NotificationState)
     }
 
+    @Deprecated(
+        "Use the new sendNotification(notification: RawNotification): " +
+            "NotificationSenderSendStatus method",
+        replaceWith = ReplaceWith("sendNotification(notification: RawNotification)")
+    )
     fun send(rawNotification: RawNotification) {
         log.debug("Send notification raw: $rawNotification")
 
