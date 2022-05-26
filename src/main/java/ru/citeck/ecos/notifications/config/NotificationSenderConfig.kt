@@ -16,11 +16,12 @@ class NotificationSenderConfig {
     }
 
     @Bean(name = ["notificationSenders"])
-    fun notificationSenders(context: ApplicationContext): Map<String, List<NotificationSender<*>>> {
-        val sendersMap = mutableMapOf<String, MutableList<NotificationSender<*>>>()
+    fun notificationSenders(context: ApplicationContext): Map<String, List<NotificationSender<Any>>> {
+        val sendersMap = mutableMapOf<String, MutableList<NotificationSender<Any>>>()
 
         context.getBeansOfType(NotificationSender::class.java).forEach { (id, sender) ->
-            sendersMap.computeIfAbsent(sender.getSenderType()) { mutableListOf() }.add(sender)
+            sendersMap.computeIfAbsent(sender.getSenderType()) { mutableListOf() }
+                .add(sender as NotificationSender<Any>)
             log.info(
                 "Register notification sender with id: $id, type: ${sender.getSenderType()}," +
                     "notification type: ${sender.getNotificationType()}")

@@ -4,7 +4,9 @@ import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.lib.NotificationType
 
 interface NotificationSender<T> {
-    fun sendNotification(notification: FitNotification, config: T): NotificationSenderSendStatus
+    fun sendNotification(notification: FitNotification, config: T?): NotificationSenderSendStatus
     fun getNotificationType(): NotificationType
     fun getSenderType(): String
+
+    fun getConfigClass(): Class<T>
 }

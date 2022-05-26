@@ -29,19 +29,26 @@ class CommandNotificationSender(): NotificationSender<CommandSenderConfig> {
         return NotificationType.EMAIL_NOTIFICATION
     }
 
-    override fun sendNotification(notification: FitNotification, config: CommandSenderConfig):
+    override fun getConfigClass(): Class<CommandSenderConfig> {
+        return CommandSenderConfig::class.java
+    }
+
+    override fun sendNotification(notification: FitNotification, config: CommandSenderConfig?):
         NotificationSenderSendStatus {
+        if (config==null){
+            log.error("Failed to send notification through command sender - config was not defined")
+        }
         //catch exceptions
         val result =  commandsService.execute {
-            targetApp = config.targetApp
+            targetApp = config!!.targetApp
             body = CmdFitNotification(notification)
-            type = config.commandType
+            type = config!!.commandType
         }.get()
         result.errors.forEach{
-            log.error("Command {} execution error: {}\n{}", config.commandType, it.message, it.stackTrace) }
+            log.error("Command {} execution error: {}\n{}", config!!.commandType, it.message, it.stackTrace) }
         val cmdResult : NotificationSenderSendStatus? = result.getResultAs(NotificationSenderSendStatus::class.java)
         return cmdResult ?:
-            throw NotificationException(String.format(
-                "Failed to get notification send status from command '%s' execution", config.commandType))
+            throw NotificationException(
+                "Failed to get notification send status from command '${config!!.commandType}' execution")
     }
 }

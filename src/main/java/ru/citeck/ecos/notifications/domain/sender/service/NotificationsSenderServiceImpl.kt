@@ -228,6 +228,23 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
     private fun getObjectValue(attributeName: String, attributeValue: String): Comparable<*>? {
         try {
             val searchField: Field = NotificationsSenderEntity::class.java.getDeclaredField(attributeName)
+            if (searchField.type.isEnum){
+
+                val enumClz = searchField.type.enumConstants as Array<Enum<*>>
+                val result = enumClz.first { it.name == attributeValue }
+                return result
+                /*val enumClass = searchField.type::class.java
+                searchField.type.isEnum
+                enumValueOf<searchField.type.name>()
+                try {
+                    val result = java.lang.Enum.valueOf(enumClass::class.java, attributeValue)
+                    return result
+                } catch (e: IllegalArgumentException){
+                    log.error("Failed to convert ${attributeValue} value to ${searchField.type}")
+                    return null
+                }*/
+                //enumClass.valueOf
+            }
             when (searchField.type) {
                 java.lang.String::class.java -> {
                     return attributeValue

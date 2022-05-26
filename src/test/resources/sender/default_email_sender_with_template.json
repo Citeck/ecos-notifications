@@ -1,0 +1,11 @@
+{
+  "id": "default-email-sender",
+  "notificationType": "EMAIL_NOTIFICATION",
+  "templates": [
+    "notifications/template@some-template",
+    "notifications/template@some-template2"
+  ],
+  "enabled": true,
+  "order": 0.0,
+  "senderType": "default"
+}

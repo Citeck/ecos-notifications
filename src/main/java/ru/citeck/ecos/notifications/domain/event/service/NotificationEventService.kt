@@ -17,6 +17,7 @@ class NotificationEventService(
     companion object {
         private const val SUCCESS_NOTIFICATION_EVENT_TYPE = "ecos.notification.send.success"
         private const val FAILURE_NOTIFICATION_EVENT_TYPE = "ecos.notification.send.failure"
+        private const val BLOCKED_NOTIFICATION_EVENT_TYPE = "ecos.notification.send.blocked"
     }
 
     private val emitterSuccess = eventsService.getEmitter(EmitterConfig.create<NotificationEventDto> {
@@ -31,6 +32,12 @@ class NotificationEventService(
         eventClass = NotificationEventDto::class.java
     })
 
+    private val emitterBlocked = eventsService.getEmitter(EmitterConfig.create<NotificationEventDto> {
+        source = appName
+        eventType = BLOCKED_NOTIFICATION_EVENT_TYPE
+        eventClass = NotificationEventDto::class.java
+    })
+
     fun emitSendSuccess(notificationEvent: NotificationEventDto) {
         emitterSuccess.emit(notificationEvent)
     }
@@ -38,5 +45,10 @@ class NotificationEventService(
     fun emitSendFailure(notificationEvent: NotificationEventDto) {
         emitterFailure.emit(notificationEvent)
     }
+
+    fun emitSendBlocked(notificationEvent: NotificationEventDto) {
+        emitterBlocked.emit(notificationEvent)
+    }
+
 
 }

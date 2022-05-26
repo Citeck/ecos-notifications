@@ -15,7 +15,6 @@ import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
-import ru.citeck.ecos.notifications.domain.sender.command.CommandSenderConfig
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -38,7 +37,7 @@ class NotificationSenderServiceImpl(
     private val providers: Map<NotificationType, List<NotificationProvider>>,
 
     @Qualifier("notificationSenders")
-    private val sendersMap: Map<String, List<NotificationSender<*>>>,
+    private val sendersMap: Map<String, List<NotificationSender<Any>>>,
 
     private val freemarkerService: FreemarkerTemplateEngineService,
 
@@ -105,21 +104,46 @@ class NotificationSenderServiceImpl(
                     "Failed to find sender implementation for type ${it.senderType} " +
                         "for #${it.id} notifications sender"
                 )
+            val notificationEventDto = NotificationEventDto(
+                rec = notification.record,
+                notificationType = notification.type,
+                notification = fitNotification,
+                model = notification.model
+            )
             //у бина вызываем sendNotification с конфигурацией
             for (senderBean in senderBeanList) {
                 if (senderBean.getNotificationType() != it.notificationType) {
-                   // senderBean.sendNotification(fitNotification,  it.senderConfig)
+                    continue
+                }
+                log.debug { "Send notification through sender ${it.id} with type ${it.senderType}" }
+                /*senderBean.javaClass.interfaces
+                    .filter { type -> type.javaClass.equals(NotificationSender::class) }
+                    .first().typeParameters*/
+                val configClass = senderBean.getConfigClass()
+                var result: NotificationSenderSendStatus? = null
+                try {
+                    result = senderBean.sendNotification(fitNotification, it.senderConfig.getAs(configClass))
+                    log.debug { "Send result is $result" }
+                } catch (e: NotificationException){
+                    log.error("Failed to send notification through sender ${it.id} \n ${e.message}", e)
+                    notificationEventService.emitSendFailure(notificationEventDto)
+                    continue
+                }
+                if (NotificationSenderSendStatus.SKIPPED.equals(result)) {
+                    continue
+                } else {
+                    when (result) {
+                        NotificationSenderSendStatus.SENT ->
+                            notificationEventService.emitSendSuccess(notificationEventDto)
+                        NotificationSenderSendStatus.BLOCKED ->
+                            notificationEventService.emitSendBlocked(notificationEventDto)
+                    }
+                    return result
                 }
             }
-
         }
-
-
-// если результат skipped продолжаем перебор
-
-
+        throw NotificationException("Failed to send notification")
         // Так же этот статус отправляется в таблицу нотификаций (см. NotificationState)
-        TODO("Not yet implemented")
     }
 
     fun send(rawNotification: RawNotification) {

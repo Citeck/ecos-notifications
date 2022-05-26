@@ -29,10 +29,14 @@ class EmailNotificationProvider(
         return "default"
     }
 
-    override fun sendNotification(notification: FitNotification, config: Unit):
+    override fun sendNotification(notification: FitNotification, config: Unit?):
         NotificationSenderSendStatus {
         send(notification)
         return NotificationSenderSendStatus.SENT
+    }
+
+    override fun getConfigClass(): Class<Unit> {
+        return Unit::class.java
     }
 
     override fun getType(): NotificationType {
