@@ -16,6 +16,9 @@
           "ru": "moduleId"
         },
         "key": "moduleId",
+        "validate": {
+          "required": true
+        },
         "defaultValue": "",
         "refreshOn": [],
         "optionalWhenDisabled": false,
@@ -78,13 +81,28 @@
                   "ru": "notificationType"
                 },
                 "key": "notificationType",
+                "validate": {
+                  "required": true
+                },
+                "dataSrc": "values",
+                "data": {
+                  "values": [
+                    {
+                      "label": "Email",
+                      "value": "email"
+                    },
+                    {
+                      "label": "Firebase",
+                      "value": "firebase"
+                    }
+                  ]
+                },
                 "defaultValue": "",
-                "refreshOn": [],
                 "optionalWhenDisabled": false,
                 "properties": {
                   "attribute": "notificationType"
                 },
-                "type": "textfield",
+                "type": "ecosSelect",
                 "input": true
               }
             ],
@@ -94,20 +112,6 @@
         "oneColumnInViewMode": false,
         "type": "columns",
         "input": false
-      },
-      {
-        "label": {
-          "ru": "condition"
-        },
-        "key": "condition",
-        "defaultValue": "",
-        "refreshOn": [],
-        "optionalWhenDisabled": false,
-        "properties": {
-          "attribute": "condition"
-        },
-        "type": "textarea",
-        "input": true
       },
       {
         "label": {
@@ -123,6 +127,7 @@
                 },
                 "key": "order",
                 "validate": {
+                  "required": true,
                   "integer": false
                 },
                 "isBigNumber": false,
@@ -154,6 +159,9 @@
                   "ru": "senderType"
                 },
                 "key": "senderType",
+                "validate": {
+                  "required": true
+                },
                 "defaultValue": "",
                 "refreshOn": [],
                 "optionalWhenDisabled": false,
@@ -170,6 +178,20 @@
         "oneColumnInViewMode": false,
         "type": "columns",
         "input": false
+      },
+      {
+        "label": {
+          "ru": "condition"
+        },
+        "key": "condition",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "condition"
+        },
+        "type": "textarea",
+        "input": true
       },
       {
         "label": {

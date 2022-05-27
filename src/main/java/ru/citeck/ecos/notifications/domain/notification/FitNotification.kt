@@ -11,4 +11,11 @@ data class FitNotification(
     var bcc: Set<String> = emptySet(),
     var attachments: Map<String, DataSource> = emptyMap(),
     var data: Map<String, Any> = emptyMap()
-)
+){
+    override fun toString(): String {
+        val attachmentStr = attachments
+            .map { it.key }.joinToString(",", "{", "}")
+        return "FitNotification(body='$body', title=$title, recipients=$recipients, from='$from', " +
+            "cc=$cc, bcc=$bcc, attachments=$attachmentStr  data=$data)"
+    }
+}

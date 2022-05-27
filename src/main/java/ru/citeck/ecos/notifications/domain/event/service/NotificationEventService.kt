@@ -49,6 +49,4 @@ class NotificationEventService(
     fun emitSendBlocked(notificationEvent: NotificationEventDto) {
         emitterBlocked.emit(notificationEvent)
     }
-
-
 }

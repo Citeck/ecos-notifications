@@ -13,6 +13,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
+import org.testng.Assert
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
@@ -57,8 +58,9 @@ class EmailNotificationTest {
     private lateinit var notificationTestBeansTemplate: NotificationTemplateWithMeta
     private lateinit var rawNotification: RawNotification
 
-    companion object{
+    companion object {
         const val DEFAULT_EMAIL_SENDER_ID = "default-email-sender"
+        const val RECIPIENT_EMAIL = TestUtils.RECIPIENT_EMAIL
     }
 
     @Before
@@ -113,7 +115,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -128,7 +130,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualToIgnoringNewLines("user@example.com<br>\n" +
@@ -149,7 +151,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestIncludeTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -160,7 +162,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualToIgnoringNewLines("Шаблон с вложенным шаблоном<br>\n" +
@@ -178,7 +180,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -189,7 +191,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
@@ -201,7 +203,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -212,7 +214,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Привет Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Привет Ivan, твоя фамилия Petrenko? Тебе 25 лет?")
@@ -224,7 +226,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationHtmlTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -235,7 +237,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("<i>Hi Ivan, <b>your</b> last name is Petrenko? You are 25 old?</i>")
@@ -247,7 +249,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationHtmlTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -258,7 +260,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Привет Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("<i>Привет Ivan, <b>твоя</b> фамилия Petrenko? Тебе 25 лет?</i>")
@@ -270,7 +272,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("ru"),
-            recipients = setOf("some-recipient@gmail.com", "some-recipient-1@gmail.com", "some-recipient2@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL, "some-recipient-1@gmail.com", "some-recipient2@gmail.com"),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -287,7 +289,7 @@ class EmailNotificationTest {
         val notification = RawNotification(
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -298,7 +300,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
@@ -310,7 +312,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.FRENCH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -321,7 +323,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
@@ -333,7 +335,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationWrongLocaleTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -344,7 +346,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Привет Ivan, твоя фамилия Petrenko? Тебе 25 лет?")
@@ -356,7 +358,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -367,7 +369,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("Hi Ivan Petrenko")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
@@ -379,7 +381,7 @@ class EmailNotificationTest {
 
         assertThat(emails2.size).isEqualTo(2)
         assertThat(emails2[1].subject).isEqualTo("Its new title for Ivan")
-        assertThat(emails2[1].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails2[1].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body2 = MimeMessageParser(emails2[1]).parse().htmlContent.trim()
         assertThat(body2).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
@@ -391,7 +393,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = LocaleUtils.toLocale("en"),
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestBeansTemplate,
             model = templateModel,
             from = "test@mail.ru"
@@ -422,7 +424,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -433,7 +435,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val content = emails[0].content
 
@@ -444,7 +446,8 @@ class EmailNotificationTest {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+            ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
             }
@@ -488,7 +491,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -499,7 +502,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val content = emails[0].content
 
@@ -551,7 +554,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -562,7 +565,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val content = emails[0].content
 
@@ -592,7 +595,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -603,7 +606,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
     }
 
     @Test
@@ -616,7 +619,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -627,7 +630,7 @@ class EmailNotificationTest {
 
         assertThat(emails.size).isEqualTo(1)
         assertThat(emails[0].subject).isEqualTo("")
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
+        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
     }
 
     @Test
@@ -647,7 +650,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -675,7 +678,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -703,7 +706,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -731,7 +734,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -759,7 +762,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -787,7 +790,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -815,7 +818,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -843,7 +846,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTestImportTemplate,
             model = localModel,
             from = "test@mail.ru"
@@ -865,8 +868,7 @@ class EmailNotificationTest {
         notificationSender.sendNotification(rawNotification)
 
         val emails = greenMail.receivedMessages
-
-        assertThat(emails.size).isEqualTo(1)
+        Assert.assertEquals(1, emails.size)
     }
 
     @Test
@@ -880,8 +882,7 @@ class EmailNotificationTest {
         notificationSender.sendNotification(rawNotification)
 
         val emails = greenMail.receivedMessages
-
-        assertThat(emails.size).isEqualTo(1)
+        Assert.assertEquals(1, emails.size)
     }
 
     @Test
@@ -896,15 +897,14 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             model = templateModel,
             from = "test@mail.ru"
         )
         notificationSender.sendNotification(notification)
 
         val emails = greenMail.receivedMessages
-
-        assertThat(emails.size).isEqualTo(1)
+        Assert.assertEquals(1, emails.size)
     }
 
     @Test
@@ -919,7 +919,7 @@ class EmailNotificationTest {
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf("some-recipient@gmail.com"),
+            recipients = setOf(RECIPIENT_EMAIL),
             model = emptyMap(),
             from = "test@mail.ru"
         )
