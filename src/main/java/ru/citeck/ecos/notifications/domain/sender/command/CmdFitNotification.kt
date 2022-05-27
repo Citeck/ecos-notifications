@@ -2,12 +2,9 @@ package ru.citeck.ecos.notifications.domain.sender.command
 
 import com.sun.istack.internal.ByteArrayDataSource
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
-import java.util.*
 import javax.activation.DataSource
 
-data class CmdFitNotification(
+class CmdFitNotification(
     val body: String,
     var title: String? = "",
     val recipients: Set<String>,
@@ -38,11 +35,21 @@ data class CmdFitNotification(
             }
     }
 
-    fun toFit(): FitNotification {
-        val attachmentMap = mutableMapOf<String, DataSource>()
-        attachments.forEach {
-            attachmentMap[it.key] = ByteArrayDataSource(it.value.content, it.value.contentType)
+    companion object {
+
+        @JvmStatic
+        fun convertAttachments(attachments: Map<String, AttachmentData>):  Map<String, DataSource>{
+            val attachmentMap = mutableMapOf<String, DataSource>()
+            if (attachments!=null) {
+                attachments.forEach {
+                    attachmentMap[it.key] = ByteArrayDataSource(it.value.content, it.value.contentType)
+                }
+            }
+            return attachmentMap
         }
+    }
+
+    fun toFit(): FitNotification {
         return FitNotification(
             body,
             title,
@@ -50,7 +57,7 @@ data class CmdFitNotification(
             from,
             cc,
             bcc,
-            attachmentMap,
+            convertAttachments(attachments),
             data
         )
     }
