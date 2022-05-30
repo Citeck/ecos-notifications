@@ -13,9 +13,9 @@
     "components": [
       {
         "label": {
-          "ru": "moduleId"
+          "ru": "id"
         },
-        "key": "moduleId",
+        "key": "id",
         "validate": {
           "required": true
         },
@@ -23,7 +23,7 @@
         "refreshOn": [],
         "optionalWhenDisabled": false,
         "properties": {
-          "attribute": "moduleId"
+          "attribute": "id"
         },
         "type": "textfield",
         "input": true
@@ -89,11 +89,11 @@
                   "values": [
                     {
                       "label": "Email",
-                      "value": "email"
+                      "value": "EMAIL_NOTIFICATION"
                     },
                     {
                       "label": "Firebase",
-                      "value": "firebase"
+                      "value": "FIREBASE_NOTIFICATION"
                     }
                   ]
                 },
@@ -212,13 +212,16 @@
           "ru": "templates"
         },
         "key": "templates",
-        "defaultValue": "",
+        "multiple": true,
+        "reorder": false,
+        "journalId": "notification-templates",
+        "queryData": "",
+        "defaultValue": [],
         "refreshOn": [],
-        "optionalWhenDisabled": false,
         "properties": {
-          "attributes": "templates"
+          "attribute": "templates"
         },
-        "type": "textarea",
+        "type": "selectJournal",
         "input": true
       },
       {

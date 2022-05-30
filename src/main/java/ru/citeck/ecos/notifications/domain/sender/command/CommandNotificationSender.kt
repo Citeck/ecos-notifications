@@ -10,6 +10,9 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 
+/**
+ * Send email notification to the command with type (config.commandType) at application (config.targetApp)
+ */
 @Component
 class CommandNotificationSender(): NotificationSender<CommandSenderConfig> {
 

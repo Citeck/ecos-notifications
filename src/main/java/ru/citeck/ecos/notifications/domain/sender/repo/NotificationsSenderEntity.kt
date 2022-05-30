@@ -23,6 +23,9 @@ class NotificationsSenderEntity @JvmOverloads constructor(
     var notificationType: NotificationType? = null,
     @Column(name = "sender_order")
     var order: Float? = null,
+    /**
+     * Value has to match with one of the NotificationSender.getSenderType() implementation
+     */
     var senderType: String? = null,
     var condition: String? = null,
     var templates: String? = null,

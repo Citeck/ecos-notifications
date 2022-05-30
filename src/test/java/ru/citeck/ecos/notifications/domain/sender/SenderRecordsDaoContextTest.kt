@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.sender
 
 import org.hamcrest.Matchers.stringContainsInOrder
+//import org.hamcrest.core.IsNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,7 +118,7 @@ class SenderRecordsDaoContextTest {
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(getTestSenderJson()))
             .andDo(MockMvcResultHandlers.print())
-        //.andExpect(jsonPath("$.." + BoardTestData.PROP_NAME + STR).value(IsNull.nullValue()));
+        //.andExpect(jsonPath("$.." + SenderTestData.PROP_NAME + STR).value(IsNull.nullValue()))
     }
 
     @Test

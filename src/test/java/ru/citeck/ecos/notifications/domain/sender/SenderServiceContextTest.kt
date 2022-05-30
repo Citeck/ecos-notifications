@@ -16,7 +16,6 @@ import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
-import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.predicate.model.Predicates
 
 @RunWith(SpringRunner::class)
@@ -63,7 +62,6 @@ class SenderServiceContextTest {
         val senderDtoMatcher: Matcher<NotificationsSenderDto> = Matchers.`is`(testDto)
         Assert.assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto(), senderDtoMatcher)
         testDto.order = 5f
-        //testDto.notificationType = NotificationType.valueOf("email")
         service.save(testDto)
         Assert.assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto(), senderDtoMatcher)
         testDto.enabled = true

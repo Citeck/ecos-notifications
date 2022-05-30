@@ -1,18 +1,20 @@
 ---
 id: notifications-sender
 name: { ru: Отправители, en: Senders }
-editable: false
+editable: true
 
 actions:
   - uiserv/action@view-dashboard
+  - uiserv/action@view-dashboard-in-background
   - uiserv/action@ecos-module-download
   - uiserv/action@edit-json
+  - uiserv/action@delete
 
 columns:
-  - id: moduleId
+  - id: id
   - id: name
   - id: notificationType
   - id: enabled
     type: BOOLEAN
   - id: order
-  - id: type
+  - id: senderType

@@ -15,14 +15,18 @@ defaultCreateVariant: false
 
 createVariants:
   - id: create-new-sender
-      name: { ru: Создать отправителя, en: Create sender }
+    name: { ru: Создать отправителя, en: Create sender}
   - id: upload-sender
     name: { ru: Загрузить отправителя, en: Upload sender }
     formRef: uiserv/form@ecos-module-upload
 
+dispNameTemplate:
+  en: Sender ${senderType} ${id}
+  ru: Отправитель ${senderType} ${id}
+
 model:
   attributes:
-    - id: moduleId
+    - id: id
       name: { ru: Идентификатор, en: Id }
       type: TEXT
     - id: name
@@ -45,7 +49,10 @@ model:
       type: TEXT
     - id: templates
       name: { ru: Шаблоны, en: Templates }
-      type: JSON
+      type: ASSOC
+      multiple: true
+      formatter:
+        type: assoc
     - id: senderConfig
       name: { ru: Конфигурация, en: Configuration }
       type: JSON
