@@ -1,11 +1,8 @@
 package ru.citeck.ecos.notifications
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
@@ -20,9 +17,7 @@ import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
-import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
@@ -31,21 +26,11 @@ import javax.mail.internet.MimeMultipart
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class EmailNotificationTest {
+class EmailNotificationTest : BaseMailTest() {
 
     @Autowired
     private lateinit var notificationSender: NotificationSenderService
 
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
-
-    @Autowired
-    private lateinit var notificationsSenderService: NotificationsSenderService
-
-    private lateinit var greenMail: GreenMail
-    private lateinit var templateModel: MutableMap<String, Any>
-
-    private lateinit var notificationTemplate: NotificationTemplateWithMeta
     private lateinit var notificationWrongLocaleTemplate: NotificationTemplateWithMeta
     private lateinit var notificationHtmlTemplate: NotificationTemplateWithMeta
 
@@ -65,23 +50,13 @@ class EmailNotificationTest {
 
     @Before
     fun setup() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
-        templateModel = mutableMapOf()
-        templateModel["firstName"] = "Ivan"
-        templateModel["lastName"] = "Petrenko"
-        templateModel["age"] = "25"
         templateModel["process-definition"] = "flowable\$confirm"
 
-        notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java)!!
         notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
             NotificationTemplateWithMeta::class.java)!!
         notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
             "template/test-template-wrong-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
 
-        notificationTemplateService.save(notificationTemplate)
         notificationTemplateService.save(notificationHtmlTemplate)
         notificationTemplateService.save(notificationWrongLocaleTemplate)
 
@@ -105,11 +80,6 @@ class EmailNotificationTest {
             "template/test-beans-template.json"), NotificationTemplateWithMeta::class.java)!!
 
         notificationTemplateService.save(notificationTestBeansTemplate)
-
-        val defaultSenderDto = Json.mapper.convert(stringJsonFromResource("sender/default_email_sender.json"),
-            NotificationsSenderDto::class.java)!!
-
-        notificationsSenderService.save(defaultSenderDto)
 
         rawNotification = RawNotification(
             record = RecordRef.EMPTY,
@@ -927,10 +897,4 @@ class EmailNotificationTest {
             notificationSender.sendNotification(notification)
         }
     }
-
-    @After
-    fun stopMailServer() {
-        greenMail.stop()
-    }
-
 }
