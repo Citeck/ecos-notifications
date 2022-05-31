@@ -165,7 +165,9 @@ class UnsafeSendNotificationCommandExecutor(
             }
         }
 
-        filledModel.putAll(prefilledModel)
+        prefilledModel.forEach { (attrKey, attrValue) ->
+            filledModel.putIfAbsent(attrKey, attrValue)
+        }
 
         return filledModel
     }

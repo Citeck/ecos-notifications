@@ -11,7 +11,8 @@ actions:
   - uiserv/action@delete
 
 columns:
-  - id: id
+  - id: _localId
+    name: { ru: Идентификатор, en: Id }
   - id: name
   - id: notificationType
   - id: enabled
