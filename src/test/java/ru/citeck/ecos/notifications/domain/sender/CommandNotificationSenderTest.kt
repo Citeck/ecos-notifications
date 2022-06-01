@@ -39,7 +39,6 @@ class CommandNotificationSenderTest : BaseMailTest() {
     @Autowired
     private lateinit var emailProvider: EmailNotificationProvider
 
-    private lateinit var notificationTestTemplate: NotificationTemplateWithMeta
     private lateinit var rawNotification: RawNotification
 
     companion object {
@@ -78,7 +77,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             locale = Locale.ENGLISH,
             recipients = setOf(RECIPIENT_EMAIL),
             title = "Will be result status",
-            template = notificationTestTemplate,
+            template = notificationTemplate,
             model = templateModel,
             from = "test@mail.ru"
         )
@@ -113,7 +112,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
-            template = notificationTestTemplate,
+            template = notificationTemplate,
             model = model,
             from = "test@mail.ru"
         )
