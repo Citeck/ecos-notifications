@@ -127,6 +127,7 @@ class NotificationSenderServiceImpl(
                     log.debug { "Send result is $result" }
                 } catch (e: NotificationException) {
                     log.error("Failed to send notification through sender '${it.id}' \n ${e.message}", e)
+                    //todo: ??? нужно ли создавать событие, если нужно, то заполнить данные об ошибке в notificationEventDto
                     notificationEventService.emitSendFailure(notificationEventDto)
                     continue
                 }
@@ -141,7 +142,6 @@ class NotificationSenderServiceImpl(
             }
         }
         throw NotificationException("Failed to send notification")
-        // Так же этот статус отправляется в таблицу нотификаций (см. NotificationState)
     }
 
     @Deprecated(
