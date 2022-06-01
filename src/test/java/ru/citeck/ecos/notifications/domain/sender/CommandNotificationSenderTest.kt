@@ -19,8 +19,8 @@ import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.sender.command.AttachmentData
 import ru.citeck.ecos.notifications.domain.sender.command.CmdFitNotification
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.service.providers.EmailNotificationProvider
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*

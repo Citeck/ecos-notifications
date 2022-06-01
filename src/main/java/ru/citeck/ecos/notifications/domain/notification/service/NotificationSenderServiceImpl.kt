@@ -13,12 +13,12 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
-import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -211,11 +211,13 @@ class NotificationSenderServiceImpl(
 
     @Suppress("UNCHECKED_CAST")
     private fun prepareData(model: Map<String, Any>): Map<String, Any> {
+        val result = mutableMapOf<String, Any>()
+        result[NotificationConstants.MODEL] = model.toMap()
         if (model[NotificationConstants.DATA] == null) {
-            return emptyMap()
+            return result
         }
-
-        return model[NotificationConstants.DATA] as Map<String, Any>
+        result.putAll(model[NotificationConstants.DATA] as Map<String, Any>)
+        return result
     }
 
     @Suppress("UNCHECKED_CAST")

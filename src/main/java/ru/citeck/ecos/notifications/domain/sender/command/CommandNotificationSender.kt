@@ -7,7 +7,7 @@ import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
-import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 
 /**

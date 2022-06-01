@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.sender
 
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 
 /**

@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.sender
 
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 
 interface NotificationSenderService {
     /**

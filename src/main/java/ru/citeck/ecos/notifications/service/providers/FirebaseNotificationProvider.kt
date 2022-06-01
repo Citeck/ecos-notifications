@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
-import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.NotificationType
 

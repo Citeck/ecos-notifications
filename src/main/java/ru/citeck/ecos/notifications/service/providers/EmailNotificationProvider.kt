@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
-import ru.citeck.ecos.notifications.domain.sender.NotificationSenderSendStatus
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
