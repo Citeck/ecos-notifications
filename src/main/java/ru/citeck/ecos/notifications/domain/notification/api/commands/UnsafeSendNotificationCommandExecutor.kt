@@ -13,6 +13,7 @@ import ru.citeck.ecos.notifications.domain.notification.service.NotificationExce
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
@@ -68,9 +69,8 @@ class UnsafeSendNotificationCommandExecutor(
             bcc = command.bcc
         )
 
-        notificationService.sendNotification(notification)
-
-        return SendNotificationResult(NotificationResultStatus.OK.value, "")
+        val status: NotificationSenderSendStatus? = notificationService.sendNotification(notification)
+        return SendNotificationResult(NotificationResultStatus.OK.value, status?.toString()?:"")
     }
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {

@@ -5,6 +5,7 @@ name:
   en: Sender
   ru: Отправитель
 
+
 system: true
 sourceId: notifications/notifications-sender
 
@@ -37,7 +38,7 @@ model:
       type: BOOLEAN
     - id: condition
       name: { ru: Условие использования, en: Condition}
-      type: JSON
+      type: TEXT
     - id: notificationType
       name: { ru: Тип уведомления, en: Notification type }
       type: TEXT
@@ -55,7 +56,7 @@ model:
         type: assoc
     - id: senderConfig
       name: { ru: Конфигурация, en: Configuration }
-      type: JSON
+      type: TEXT
 
     - id: _created
       name: { ru: Создан, en: Created }
