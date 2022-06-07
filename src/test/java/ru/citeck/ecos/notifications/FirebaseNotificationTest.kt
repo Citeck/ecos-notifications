@@ -1,15 +1,14 @@
 package ru.citeck.ecos.notifications
 
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -21,8 +20,9 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class FirebaseNotificationTest {
 
@@ -63,7 +63,7 @@ class FirebaseNotificationTest {
         return additionalMeta
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         val notificationTemplate = Json.mapper.convert(
             stringJsonFromResource("template/firebase/test-firebase-message-template.json"),
@@ -206,5 +206,4 @@ class FirebaseNotificationTest {
         @AttName("?disp")
         val name: String = "Документ №123"
     )
-
 }

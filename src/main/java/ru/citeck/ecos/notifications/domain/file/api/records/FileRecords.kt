@@ -33,7 +33,8 @@ import java.util.stream.Collectors
 const val ID = "file"
 
 @Component
-class FileRecords(val fileService: FileService) : LocalRecordsDao(),
+class FileRecords(val fileService: FileService) :
+    LocalRecordsDao(),
     LocalRecordsQueryWithMetaDao<FileRecords.FileRecord>,
     LocalRecordsMetaDao<FileRecords.FileRecord>,
     MutableRecordsLocalDao<FileRecords.FileRecord> {
@@ -42,8 +43,10 @@ class FileRecords(val fileService: FileService) : LocalRecordsDao(),
         id = ID
     }
 
-    override fun queryLocalRecords(recordsQuery: RecordsQuery,
-                                   metaField: MetaField): RecordsQueryResult<FileRecord> {
+    override fun queryLocalRecords(
+        recordsQuery: RecordsQuery,
+        metaField: MetaField
+    ): RecordsQueryResult<FileRecord> {
         val records = RecordsQueryResult<FileRecord>()
         var max = recordsQuery.maxItems
         if (max <= 0) {
@@ -172,5 +175,4 @@ class FileRecords(val fileService: FileService) : LocalRecordsDao(),
             this.data = contentBytes
         }
     }
-
 }

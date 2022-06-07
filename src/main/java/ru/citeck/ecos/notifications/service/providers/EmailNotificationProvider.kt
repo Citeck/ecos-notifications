@@ -36,7 +36,7 @@ class EmailNotificationProvider(
         helper.setText(fitNotification.body, true)
 
         setFrom(helper, fitNotification)
-        
+
         helper.setTo(fitNotification.recipients.toTypedArray())
         helper.setCc(fitNotification.cc.toTypedArray())
         helper.setBcc(fitNotification.bcc.toTypedArray())

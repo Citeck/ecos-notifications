@@ -17,5 +17,4 @@ class NotificationCommandUtils {
             return RecordRef.EMPTY
         }
     }
-
 }

@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.api
 
 import org.assertj.core.api.Assertions
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
@@ -45,7 +45,7 @@ class BulkMailJsonMapperConverterTest {
                             "bar"
                           ]
                         }
-                    """.trimIndent()
+                """.trimIndent()
             )
         )
 
@@ -53,5 +53,4 @@ class BulkMailJsonMapperConverterTest {
 
         Assertions.assertThat(Json.mapper.read(json, BulkMailRecipientsDataDto::class.java)).isEqualTo(recipients)
     }
-
 }

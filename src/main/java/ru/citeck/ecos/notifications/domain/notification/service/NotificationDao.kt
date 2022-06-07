@@ -189,5 +189,4 @@ class NotificationDao(
         var bulkMailRef: String = "",
         var tryingCount: Int? = null,
     )
-
 }

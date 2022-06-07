@@ -1,8 +1,10 @@
 package ru.citeck.ecos.notifications.domain.template
 
-import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.mock
 import org.springframework.util.ResourceUtils
 import ru.citeck.ecos.apps.artifact.controller.type.binary.BinArtifact
 import ru.citeck.ecos.commons.data.ObjectData
@@ -22,12 +24,15 @@ class NotificationTemplateArtifactHandlerTest {
         val updatedDto = mutableListOf<NotificationTemplateWithMeta>()
         val onDtoChanged = mutableListOf<Consumer<NotificationTemplateWithMeta>>()
 
-        val service = Mockito.mock(NotificationTemplateService::class.java)
-        Mockito.`when`(service.update(Mockito.any())).then { args ->
-            updatedDto.add(args.getArgument(0))
-        }
-        Mockito.`when`(service.addListener(Mockito.any())).then { args ->
-            onDtoChanged.add(args.getArgument(0))
+        val service = mock<NotificationTemplateService> {
+            on { update(any()) } doAnswer { args ->
+                updatedDto.add(args.getArgument(0))
+                Unit
+            }
+            on { addListener(any()) } doAnswer { args ->
+                onDtoChanged.add(args.getArgument(0))
+                Unit
+            }
         }
 
         val metaFile = ResourceUtils.getFile("classpath:template/NotificationTemplateArtifactHandlerTest/meta.json")
@@ -41,9 +46,9 @@ class NotificationTemplateArtifactHandlerTest {
         assertEquals(1, updatedDto.size)
 
         val binArtifacts = mutableListOf<BinArtifact>()
-        handler.listenChanges(Consumer {
+        handler.listenChanges {
             binArtifacts.add(it)
-        })
+        }
         onDtoChanged[0].accept(updatedDto[0])
 
         handler.deployArtifact(binArtifacts[0])

@@ -8,9 +8,9 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import java.time.Instant
 import java.util.*
 
-interface NotificationRepository : JpaRepository<NotificationEntity, Long>,
+interface NotificationRepository :
+    JpaRepository<NotificationEntity, Long>,
     JpaSpecificationExecutor<NotificationEntity> {
-
 
     @Query(
         value = "select * from notification where state = 'WAIT_FOR_DISPATCH' and (delayed_send is null or :now > delayed_send)",
@@ -31,5 +31,4 @@ interface NotificationRepository : JpaRepository<NotificationEntity, Long>,
     fun getNotificationStateSummaryForBulkMail(
         @Param("bulkMailRef") bulkMailRef: String
     ): List<BulkNotificationStateSummaryProjection>
-
 }

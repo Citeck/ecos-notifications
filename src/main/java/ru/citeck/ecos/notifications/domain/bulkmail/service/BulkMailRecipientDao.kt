@@ -142,5 +142,4 @@ class BulkMailRecipientDao(
         var name: String = "",
         var address: String = ""
     )
-
 }

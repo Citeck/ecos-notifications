@@ -22,7 +22,6 @@ class EcosTemplateLoader(
 ) : TemplateLoader {
 
     override fun closeTemplateSource(templateSource: Any?) {
-
     }
 
     override fun getReader(templateSource: Any?, encoding: String?): Reader {
@@ -72,7 +71,6 @@ class EcosTemplateLoader(
         return Template(name!!, modified, templateData)
     }
 
-
     fun resolveTemplateData(templateData: Map<String, TemplateDataDto>, lang: String): ByteArray? {
         if (templateData.isEmpty()) {
             return null
@@ -82,7 +80,6 @@ class EcosTemplateLoader(
             ?: templateData[DEFAULT_LOCALE.toString()]?.data
             ?: templateData.entries.first().value.data
     }
-
 
     data class Template(
         val id: String,
@@ -106,6 +103,5 @@ class EcosTemplateLoader(
             result = 31 * result + data.contentHashCode()
             return result
         }
-
     }
 }

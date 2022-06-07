@@ -4,13 +4,12 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
@@ -28,6 +27,7 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -35,7 +35,7 @@ import java.time.temporal.ChronoUnit
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class BulkMailStateTest {
 
@@ -71,7 +71,7 @@ class BulkMailStateTest {
         private val nimbusRecord = NimbusRecord()
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -253,9 +253,7 @@ class BulkMailStateTest {
             bulkMailStatusSynchronizer.sync()
             val updatedBulkMail = bulkMailDao.findByExtId(bulkMail.extId!!)
             assertThat(updatedBulkMail!!.status).isEqualTo(BulkMailStatus.ERROR.status)
-
         }
-
     }
 
     @Test
@@ -295,12 +293,10 @@ class BulkMailStateTest {
 
             bulkMailStatusSynchronizer.sync()
             assertThat(bulkMailDao.findByExtId(bulkMail.extId!!)!!.status).isEqualTo(BulkMailStatus.SENT.status)
-
         }
-
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
@@ -327,5 +323,4 @@ class BulkMailStateTest {
         @AttName("email")
         val email: String = "severus.snape@hogwarts.com"
     )
-
 }

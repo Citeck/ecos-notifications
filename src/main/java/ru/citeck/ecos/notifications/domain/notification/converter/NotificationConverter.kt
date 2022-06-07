@@ -28,7 +28,6 @@ class NotificationConverter(
     private fun init() {
         converter = this
     }
-
 }
 
 private lateinit var converter: NotificationConverter
@@ -102,4 +101,3 @@ fun Notification.toDtoWithState(
 
 val BulkMailDto.recordRef: RecordRef
     get() = RecordRef.create("notifications", BulkMailRecords.ID, extId)
-

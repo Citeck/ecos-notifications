@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<configuration>
+    <include resource="ecos/logback-base.xml" />
+    <root level="WARN" />
+    <logger name="ru.citeck.ecos.notifications" level="DEBUG" />
+    <logger name="com.icegreen.greenmail" level="DEBUG" />
+</configuration>

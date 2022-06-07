@@ -188,5 +188,4 @@ class BulkMailDao(
         var body: String = "",
         var name: String = ""
     )
-
 }

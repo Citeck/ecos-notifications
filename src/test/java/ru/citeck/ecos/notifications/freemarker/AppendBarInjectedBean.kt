@@ -9,8 +9,7 @@ class AppendBarInjectedBean : InjectedFreemarkerBean {
         return "barService"
     }
 
-    fun append(str : String): String {
+    fun append(str: String): String {
         return str + "bar"
     }
-
 }

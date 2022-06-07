@@ -1,17 +1,15 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records
 
-
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.hamcrest.Matchers.stringContainsInOrder
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -22,13 +20,14 @@ import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.web.rest.TestUtil
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.spring.config.RecordsServiceFactoryConfiguration
-import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
+import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
+import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
 class SubscriptionActionRecordControllerTest {
 
@@ -75,9 +74,9 @@ class SubscriptionActionRecordControllerTest {
                 }
               ]
             }
-        """.trimIndent()
+    """.trimIndent()
 
-    @Before
+    @BeforeEach
     fun setUp() {
         val recordsApi = RecordsRestApi(factoryConfig)
         this.mockRecordsApi = MockMvcBuilders
@@ -202,6 +201,4 @@ class SubscriptionActionRecordControllerTest {
 
         return action.get()
     }
-
-
 }

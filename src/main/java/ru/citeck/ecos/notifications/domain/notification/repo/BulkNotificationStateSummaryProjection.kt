@@ -8,5 +8,4 @@ interface BulkNotificationStateSummaryProjection {
     fun getState(): String
 
     fun getCount(): Long
-
 }

@@ -40,7 +40,6 @@ fun <T> Predicate.toDefaultEntitySpec(): Specification<T>? {
     }
 
     return spec
-
 }
 
 fun <T> Predicate.toValueModifiedSpec(): Specification<T>? {
@@ -52,7 +51,8 @@ fun <T> Predicate.toValueModifiedSpec(): Specification<T>? {
                     builder.greaterThan(
                         root.get<Any>("lastModifiedDate").`as`(
                             Instant::class.java
-                        ), instant
+                        ),
+                        instant
                     )
                 }
             }

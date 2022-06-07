@@ -118,7 +118,6 @@ class EcosFirebaseService {
             .setToken(firebaseMessage.token)
             .build()
     }
-
 }
 
 data class FirebaseMessage(

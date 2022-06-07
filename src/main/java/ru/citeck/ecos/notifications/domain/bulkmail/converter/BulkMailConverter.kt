@@ -33,7 +33,6 @@ class BulkMailConverter(
     private fun init() {
         converter = this
     }
-
 }
 
 private lateinit var converter: BulkMailConverter

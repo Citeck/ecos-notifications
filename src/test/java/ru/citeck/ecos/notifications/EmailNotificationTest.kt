@@ -5,14 +5,13 @@ import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
@@ -22,11 +21,11 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 import javax.mail.internet.MimeMultipart
 
-
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class EmailNotificationTest {
 
@@ -51,7 +50,7 @@ class EmailNotificationTest {
 
     private lateinit var notificationTestBeansTemplate: NotificationTemplateWithMeta
 
-    @Before
+    @BeforeEach
     fun setup() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -61,35 +60,63 @@ class EmailNotificationTest {
         templateModel["lastName"] = "Petrenko"
         templateModel["age"] = "25"
 
-        notificationTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java)!!
-        notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
-            NotificationTemplateWithMeta::class.java)!!
-        notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-template-wrong-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationHtmlTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template-html.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationWrongLocaleTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-template-wrong-locale-test.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTemplate)
         notificationTemplateService.save(notificationHtmlTemplate)
         notificationTemplateService.save(notificationWrongLocaleTemplate)
 
-        notificationLibMacroTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/lib-macro-template.json"), NotificationTemplateWithMeta::class.java)!!
-        notificationTestImportTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-import-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationLibMacroTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/lib-macro-template.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationTestImportTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-import-template.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationLibMacroTemplate)
         notificationTemplateService.save(notificationTestImportTemplate)
 
-        notificationLibIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/lib-include-template.json"), NotificationTemplateWithMeta::class.java)!!
-        notificationTestIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-include-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationLibIncludeTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/lib-include-template.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationTestIncludeTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-include-template.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationLibIncludeTemplate)
         notificationTemplateService.save(notificationTestIncludeTemplate)
 
-        notificationTestBeansTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-beans-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationTestBeansTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-beans-template.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTestBeansTemplate)
     }
@@ -114,16 +141,18 @@ class EmailNotificationTest {
         assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
-        assertThat(body).isEqualToIgnoringNewLines("user@example.com<br>\n" +
-            "\n" +
-            "LibDefault: Copyright (C) 1999-2002 Someone. All rights reserved.\n" +
-            "<br>\n" +
-            "LibEn: Copyright (C) 2000-2002 Someone. All rights reserved.\n" +
-            "<br>\n" +
-            "LibRu: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
-            "<br>\n" +
-            "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
-            "<br>")
+        assertThat(body).isEqualToIgnoringNewLines(
+            "user@example.com<br>\n" +
+                "\n" +
+                "LibDefault: Copyright (C) 1999-2002 Someone. All rights reserved.\n" +
+                "<br>\n" +
+                "LibEn: Copyright (C) 2000-2002 Someone. All rights reserved.\n" +
+                "<br>\n" +
+                "LibRu: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+                "<br>\n" +
+                "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+                "<br>"
+        )
     }
 
     @Test
@@ -146,13 +175,15 @@ class EmailNotificationTest {
         assertThat(emails[0].allRecipients[0].toString()).isEqualTo("some-recipient@gmail.com")
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
-        assertThat(body).isEqualToIgnoringNewLines("Шаблон с вложенным шаблоном<br>\n" +
-            "По умолчанию - This text should be included. Value from model - Ivan<br>\n" +
-            "Английский - This text should be included. Value from model - Ivan<br>\n" +
-            "Русский - Этот текст должен быть включен. Значение из модели - Ivan<br>\n" +
-            "По умолчанию короткий id - This text should be included. Value from model - Ivan<br>\n" +
-            "Английский короткий id - This text should be included. Value from model - Ivan<br>\n" +
-            "Русский короткий id- Этот текст должен быть включен. Значение из модели - Ivan")
+        assertThat(body).isEqualToIgnoringNewLines(
+            "Шаблон с вложенным шаблоном<br>\n" +
+                "По умолчанию - This text should be included. Value from model - Ivan<br>\n" +
+                "Английский - This text should be included. Value from model - Ivan<br>\n" +
+                "Русский - Этот текст должен быть включен. Значение из модели - Ivan<br>\n" +
+                "По умолчанию короткий id - This text should be included. Value from model - Ivan<br>\n" +
+                "Английский короткий id - This text should be included. Value from model - Ivan<br>\n" +
+                "Русский короткий id- Этот текст должен быть включен. Значение из модели - Ivan"
+        )
     }
 
     @Test
@@ -357,7 +388,6 @@ class EmailNotificationTest {
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
 
-
         notificationTemplate.notificationTitle = MLText("Its new title for \${firstName}")
         notificationSender.send(notification)
         val emails2 = greenMail.receivedMessages
@@ -429,7 +459,8 @@ class EmailNotificationTest {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+            ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
             }
@@ -497,17 +528,20 @@ class EmailNotificationTest {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }) {
+                .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment1 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "application/pdf; name=test2.pdf" }) {
+                .any { it == "application/pdf; name=test2.pdf" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment2 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "image/jpeg; name=test3.jpg" }) {
+                .any { it == "image/jpeg; name=test3.jpg" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment3 = true
             }
@@ -558,7 +592,8 @@ class EmailNotificationTest {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+            ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
             }
@@ -839,9 +874,8 @@ class EmailNotificationTest {
         }
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
-
 }

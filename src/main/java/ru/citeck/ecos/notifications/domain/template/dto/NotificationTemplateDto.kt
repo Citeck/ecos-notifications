@@ -32,11 +32,12 @@ open class NotificationTemplateDto(
 
         other as NotificationTemplateDto
 
-        if (id != other.id
-                || name != other.name
-                || notificationTitle != other.notificationTitle
-                || model != other.model
-                || multiTemplateConfig != other.multiTemplateConfig) {
+        if (id != other.id ||
+            name != other.name ||
+            notificationTitle != other.notificationTitle ||
+            model != other.model ||
+            multiTemplateConfig != other.multiTemplateConfig
+        ) {
 
             return false
         }

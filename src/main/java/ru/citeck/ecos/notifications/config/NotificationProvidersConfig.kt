@@ -27,5 +27,4 @@ class NotificationProvidersConfig {
 
         return providers
     }
-
 }

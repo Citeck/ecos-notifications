@@ -3,14 +3,13 @@ package ru.citeck.ecos.notifications
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
@@ -20,9 +19,10 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(classes = [NotificationsApp::class])
 class NotificationStoreTest {
@@ -39,7 +39,7 @@ class NotificationStoreTest {
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
 
-    @Before
+    @BeforeEach
     fun setup() {
 
         greenMail = GreenMail(ServerSetupTest.SMTP)
@@ -56,7 +56,6 @@ class NotificationStoreTest {
         )!!
 
         notificationTemplateService.save(notificationTemplate)
-
     }
 
     @Test
@@ -133,9 +132,8 @@ class NotificationStoreTest {
         assertThat(notification.state).isEqualTo(NotificationState.ERROR)
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
-
 }

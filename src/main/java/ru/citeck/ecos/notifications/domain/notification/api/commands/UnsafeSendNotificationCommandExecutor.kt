@@ -175,5 +175,4 @@ class UnsafeSendNotificationCommandExecutor(
         val templateMeta: NotificationTemplateWithMeta? = null,
         val filledModel: Map<String, Any> = emptyMap()
     )
-
 }

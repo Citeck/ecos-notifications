@@ -191,5 +191,4 @@ class NotificationRecords(
         val recordCreator: String?
             get() = creator
     }
-
 }

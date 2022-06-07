@@ -4,13 +4,12 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
@@ -20,9 +19,10 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class EmailNotificationCommandTest {
 
@@ -35,7 +35,7 @@ class EmailNotificationCommandTest {
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
 
-    @Before
+    @BeforeEach
     fun setup() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -55,22 +55,26 @@ class EmailNotificationCommandTest {
         val multiTemplate = Json.mapper.convert(
             stringJsonFromResource(
                 "template/multi-template/test-multi-template.json"
-            ), NotificationTemplateWithMeta::class.java
+            ),
+            NotificationTemplateWithMeta::class.java
         )!!
         val multiType1Template = Json.mapper.convert(
             stringJsonFromResource(
                 "template/multi-template/test-type-1-template.json"
-            ), NotificationTemplateWithMeta::class.java
+            ),
+            NotificationTemplateWithMeta::class.java
         )!!
         val multiType2Template = Json.mapper.convert(
             stringJsonFromResource(
                 "template/multi-template/test-type-2-template.json"
-            ), NotificationTemplateWithMeta::class.java
+            ),
+            NotificationTemplateWithMeta::class.java
         )!!
         val multiType3Template = Json.mapper.convert(
             stringJsonFromResource(
                 "template/multi-template/test-multi-template-with-condition.json"
-            ), NotificationTemplateWithMeta::class.java
+            ),
+            NotificationTemplateWithMeta::class.java
         )!!
 
         notificationTemplateService.save(multiTemplate)
@@ -385,9 +389,8 @@ class EmailNotificationCommandTest {
         assertThat(body).isEqualTo("Its multi template with condition")
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
-
 }

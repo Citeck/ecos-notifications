@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.rabbitmq.client.Delivery
 import org.assertj.core.api.Assertions
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.never
@@ -14,7 +14,6 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
@@ -28,8 +27,9 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class FirebaseNotificationProcessorTest {
 
@@ -61,8 +61,7 @@ class FirebaseNotificationProcessorTest {
     @Autowired
     private lateinit var localAppService: LocalAppService
 
-
-    @Before
+    @BeforeEach
     fun setUp() {
         localAppService.deployLocalArtifacts()
 
@@ -131,7 +130,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -141,7 +139,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -190,7 +189,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -200,7 +198,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -249,7 +248,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -259,7 +257,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -308,7 +307,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -318,7 +316,8 @@ class FirebaseNotificationProcessorTest {
               "document": "$procDocRef",
               "taskInstanceId": "$alfTaskRef"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -375,7 +374,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -385,7 +383,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -432,7 +431,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -441,7 +439,8 @@ class FirebaseNotificationProcessorTest {
               "id": "event-id-1",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -498,7 +497,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -508,7 +506,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -556,7 +555,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -566,7 +564,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -623,7 +622,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -633,7 +631,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -690,7 +689,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -700,7 +698,8 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
@@ -831,7 +830,6 @@ class FirebaseNotificationProcessorTest {
 
         val actionEntity = actionService.findById(actionRef.id.toLong()).get()
 
-
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
             """
@@ -841,13 +839,13 @@ class FirebaseNotificationProcessorTest {
               "document": "${alfDocRef.id}",
               "taskInstanceId": "${alfTaskRef.id}"
             }
-        """.trimIndent(), JsonNode::class.java
+            """.trimIndent(),
+            JsonNode::class.java
         )
 
         val deliveryMessageStub = Delivery(null, null, null)
 
         firebaseNotificationProcessor.process(deliveryMessageStub, eventDto, actionEntity)
-
     }
 
     class AlfDocRefAlfrescoDto(
@@ -855,7 +853,7 @@ class FirebaseNotificationProcessorTest {
         val documentNumber: Long = 76342,
 
         @AttName("?disp")
-        val name: String = "Alfresco Документ №${documentNumber}"
+        val name: String = "Alfresco Документ №$documentNumber"
     )
 
     class AlfTaskDto(
@@ -868,7 +866,6 @@ class FirebaseNotificationProcessorTest {
         val documentNumber: Long = 9002873,
 
         @AttName("?disp")
-        val name: String = "Proc Документ №${documentNumber}"
+        val name: String = "Proc Документ №$documentNumber"
     )
-
 }

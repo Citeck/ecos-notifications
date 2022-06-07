@@ -14,7 +14,6 @@ import java.util.Map;
  * Properties specific to Notifications.
  * <p>
  * Properties are configured in the {@code application.yml} file.
- * See {@link io.github.jhipster.config.JHipsterProperties} for a good example.
  */
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {

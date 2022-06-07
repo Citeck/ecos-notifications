@@ -7,7 +7,6 @@ import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.NotificationType
 
-
 @Component
 class FirebaseNotificationProvider(
     private val ecosFirebaseService: EcosFirebaseService,
@@ -96,5 +95,4 @@ class FirebaseNotificationProvider(
             log.error("Failed to delete subscription action by id. Data:\n" + fitNotification.data, e)
         }
     }
-
 }

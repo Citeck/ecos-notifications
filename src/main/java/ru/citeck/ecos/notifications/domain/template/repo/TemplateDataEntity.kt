@@ -45,6 +45,4 @@ class TemplateDataEntity @JvmOverloads constructor(
     override fun toString(): String {
         return "TemplateData(id=$id, name=$name, lang=$lang)"
     }
-
-
 }

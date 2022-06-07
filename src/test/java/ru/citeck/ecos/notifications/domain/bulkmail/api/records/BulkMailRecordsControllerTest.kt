@@ -6,12 +6,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.nullValue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -34,15 +33,16 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
-import ru.citeck.ecos.records3.spring.config.RecordsServiceFactoryConfiguration
-import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
+import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
+import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 import java.util.*
 
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
 class BulkMailRecordsControllerTest {
 
@@ -72,7 +72,7 @@ class BulkMailRecordsControllerTest {
 
     private lateinit var mockRecordsApi: MockMvc
 
-    @Before
+    @BeforeEach
     fun setUp() {
         val recordsApi = RecordsRestApi(factoryConfig)
         this.mockRecordsApi = MockMvcBuilders
@@ -167,7 +167,7 @@ class BulkMailRecordsControllerTest {
                         "field0": 451,
                         "field1": "Fahrenheit"
                       }
-                """.trimIndent()
+                    """.trimIndent()
                 )
             )
         )
@@ -298,7 +298,7 @@ class BulkMailRecordsControllerTest {
                         "config": "config?json"
                       }
                     }
-                """.trimIndent()
+                    """.trimIndent()
                 )
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -310,7 +310,6 @@ class BulkMailRecordsControllerTest {
             .andExpect(jsonPath("$.attributes.type", `is`(saved.type.name)))
             .andExpect(jsonPath("$.attributes.record", `is`("Документ №123")))
             .andExpect(jsonPath("$.attributes.template", `is`("Test template")))
-
             .andExpect(jsonPath("$.attributes.recipientsData.refs[*]", Matchers.hasSize<Any>(2)))
             .andExpect(
                 jsonPath(
@@ -324,14 +323,12 @@ class BulkMailRecordsControllerTest {
                     `is`(saved.recipientsData.refs[1].toString())
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.recipientsData.fromUserInput",
                     `is`(saved.recipientsData.fromUserInput)
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.recipientsData.custom.someCustom[*]",
@@ -340,7 +337,6 @@ class BulkMailRecordsControllerTest {
             )
             .andExpect(jsonPath("$.attributes.recipientsData.custom.someCustom[0]", `is`("foo")))
             .andExpect(jsonPath("$.attributes.recipientsData.custom.someCustom[1]", `is`("bar")))
-
             .andExpect(
                 jsonPath(
                     "$.attributes.config.batchConfig.size",
@@ -353,14 +349,12 @@ class BulkMailRecordsControllerTest {
                     `is`(saved.config.batchConfig.personalizedMails)
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.config.delayedSend",
                     `is`(toSave.config.delayedSend!!.toEpochMilli())
                 )
             )
-
             .andExpect(jsonPath("$.attributes.config.allTo", `is`(saved.config.allTo)))
             .andExpect(jsonPath("$.attributes.config.allCc", `is`(saved.config.allCc)))
             .andExpect(jsonPath("$.attributes.config.allBcc", `is`(saved.config.allBcc)))
@@ -407,7 +401,7 @@ class BulkMailRecordsControllerTest {
                         "config": "config?json"
                       }
                     }
-                """.trimIndent()
+                    """.trimIndent()
                 )
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -418,7 +412,6 @@ class BulkMailRecordsControllerTest {
             .andExpect(jsonPath("$.attributes.type", `is`(saved.type.name)))
             .andExpect(jsonPath("$.attributes.record", `is`("Документ №123")))
             .andExpect(jsonPath("$.attributes.template", `is`("Test template")))
-
             .andExpect(jsonPath("$.attributes.recipientsData.refs[*]", Matchers.hasSize<Any>(2)))
             .andExpect(
                 jsonPath(
@@ -432,21 +425,18 @@ class BulkMailRecordsControllerTest {
                     `is`(saved.recipientsData.refs[1].toString())
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.recipientsData.fromUserInput",
                     `is`(saved.recipientsData.fromUserInput)
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.recipientsData.custom[*]",
                     Matchers.hasSize<Any>(0)
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.config.batchConfig.size",
@@ -459,14 +449,12 @@ class BulkMailRecordsControllerTest {
                     `is`(saved.config.batchConfig.personalizedMails)
                 )
             )
-
             .andExpect(
                 jsonPath(
                     "$.attributes.config.delayedSend",
                     `is`(nullValue())
                 )
             )
-
             .andExpect(jsonPath("$.attributes.config.allTo", `is`(saved.config.allTo)))
             .andExpect(jsonPath("$.attributes.config.allCc", `is`(saved.config.allCc)))
             .andExpect(jsonPath("$.attributes.config.allBcc", `is`(saved.config.allBcc)))
@@ -561,7 +549,7 @@ class BulkMailRecordsControllerTest {
                         "field0": 451,
                         "field1": "Fahrenheit"
                       }
-                """.trimIndent()
+                    """.trimIndent()
                 )
             )
         )
@@ -599,5 +587,4 @@ class BulkMailRecordsControllerTest {
         @AttName("?disp")
         val name: String = "Документ №123"
     )
-
 }

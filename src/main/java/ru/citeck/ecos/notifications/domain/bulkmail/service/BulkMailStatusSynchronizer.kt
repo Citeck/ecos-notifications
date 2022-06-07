@@ -49,7 +49,6 @@ class BulkMailStatusSynchronizer(
                 notificationsSummary.containsKey(NotificationState.SENT) -> {
                     setBulkMailStatus(bulkMail, BulkMailStatus.SENT)
                 }
-
             }
         }
     }
@@ -59,5 +58,4 @@ class BulkMailStatusSynchronizer(
 
         bulkMailDao.setStatus(bulkMail.extId!!, status)
     }
-
 }

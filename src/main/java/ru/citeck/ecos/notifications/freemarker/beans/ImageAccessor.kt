@@ -33,5 +33,4 @@ class ImageAccessor(val fileService: FileService) : InjectedFreemarkerBean {
             IllegalArgumentException("File with id: <$fileName> not found")
         }
     }
-
 }

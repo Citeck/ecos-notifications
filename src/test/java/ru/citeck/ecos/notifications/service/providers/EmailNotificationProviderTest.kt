@@ -2,15 +2,15 @@ package ru.citeck.ecos.notifications.service.providers
 
 import com.sun.istack.internal.ByteArrayDataSource
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 import javax.mail.Message
 import javax.mail.Session
@@ -18,7 +18,7 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class EmailNotificationProviderTest {
 
@@ -87,13 +87,15 @@ class EmailNotificationProviderTest {
     fun testWithFromMapping() {
 
         val props = ApplicationProperties.Email()
-        props.from.setMapping(mapOf(
-            "from-mapping-key0@email.ru" to "from-mapping-value0@email.ru",
-            "from-mapping-key1@email.ru" to "from-mapping-value1@email.ru",
-            "from-mapping-key2@email.ru" to "from-mapping-value2@email.ru"
-        ).map {
-            ApplicationProperties.EmailMapping(it.key, it.value)
-        }.toList())
+        props.from.setMapping(
+            mapOf(
+                "from-mapping-key0@email.ru" to "from-mapping-value0@email.ru",
+                "from-mapping-key1@email.ru" to "from-mapping-value1@email.ru",
+                "from-mapping-key2@email.ru" to "from-mapping-value2@email.ru"
+            ).map {
+                ApplicationProperties.EmailMapping(it.key, it.value)
+            }.toList()
+        )
 
         initProvider(props)
 
@@ -161,16 +163,22 @@ class EmailNotificationProviderTest {
         }
         assertThat(emails[0].subject).isEqualTo(notification.title)
 
-        assertThat(emails[0].getRecipients(Message.RecipientType.TO).map {
-            (it as InternetAddress).address
-        }).containsExactlyInAnyOrder(*notification.recipients.toTypedArray())
+        assertThat(
+            emails[0].getRecipients(Message.RecipientType.TO).map {
+                (it as InternetAddress).address
+            }
+        ).containsExactlyInAnyOrder(*notification.recipients.toTypedArray())
 
-        assertThat(emails[0].getRecipients(Message.RecipientType.CC).map {
-            (it as InternetAddress).address
-        }).containsExactlyInAnyOrder(*notification.cc.toTypedArray())
+        assertThat(
+            emails[0].getRecipients(Message.RecipientType.CC).map {
+                (it as InternetAddress).address
+            }
+        ).containsExactlyInAnyOrder(*notification.cc.toTypedArray())
 
-        assertThat(emails[0].getRecipients(Message.RecipientType.BCC).map {
-            (it as InternetAddress).address
-        }).containsExactlyInAnyOrder(*notification.bcc.toTypedArray())
+        assertThat(
+            emails[0].getRecipients(Message.RecipientType.BCC).map {
+                (it as InternetAddress).address
+            }
+        ).containsExactlyInAnyOrder(*notification.bcc.toTypedArray())
     }
 }

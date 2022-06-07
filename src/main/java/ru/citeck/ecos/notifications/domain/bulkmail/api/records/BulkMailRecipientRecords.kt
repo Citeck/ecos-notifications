@@ -173,8 +173,5 @@ class BulkMailRecipientRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
-
     }
-
-
 }

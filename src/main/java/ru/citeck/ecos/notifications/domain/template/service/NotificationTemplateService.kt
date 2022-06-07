@@ -60,9 +60,9 @@ class NotificationTemplateService(
         templateRepository.findAllMultiTemplates().forEach { notificationTemplateEntity ->
             templateConverter.entityToDto(notificationTemplateEntity).multiTemplateConfig?.let { multiTemplates ->
                 for ((template, type) in multiTemplates) {
-                    if (RecordRef.isNotEmpty(type)
-                        && RecordRef.isNotEmpty(template)
-                        && typeRefs.contains(type)
+                    if (RecordRef.isNotEmpty(type) &&
+                        RecordRef.isNotEmpty(template) &&
+                        typeRefs.contains(type)
                     ) {
                         template?.let { templates.add(it) }
                     }
@@ -88,8 +88,8 @@ class NotificationTemplateService(
         if (CollectionUtils.isNotEmpty(dto.multiTemplateConfig)) {
             val notEmptyMultiTemplateConfigs: MutableList<MultiTemplateElementDto> = ArrayList()
             for (template in dto.multiTemplateConfig!!) {
-                if (template.condition != null && template.condition !is VoidPredicate
-                    || RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
+                if (template.condition != null && template.condition !is VoidPredicate ||
+                    RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
                 ) {
                     notEmptyMultiTemplateConfigs.add(template)
                 }

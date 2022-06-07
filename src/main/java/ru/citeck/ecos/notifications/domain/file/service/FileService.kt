@@ -70,5 +70,4 @@ class FileService(
             .map { entity: FileEntity -> fileConverter.entityToDto(entity) }
             .collect(Collectors.toList())
     }
-
 }

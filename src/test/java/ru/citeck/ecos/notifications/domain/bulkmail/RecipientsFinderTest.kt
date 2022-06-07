@@ -1,12 +1,11 @@
 package ru.citeck.ecos.notifications.domain.bulkmail
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.config.lib.provider.InMemConfigService
@@ -22,14 +21,14 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class RecipientsFinderTest {
-
 
     @Autowired
     private lateinit var recordsService: RecordsService
@@ -53,7 +52,7 @@ class RecipientsFinderTest {
         private val hogwartsRecord = HogwartsRecord()
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         localAppService.deployLocalArtifacts()
 
@@ -115,7 +114,6 @@ class RecipientsFinderTest {
                     )
                 )
             )
-
     }
 
     @Test
@@ -227,7 +225,6 @@ class RecipientsFinderTest {
                     )
                 )
             )
-
     }
 
     @Test
@@ -264,7 +261,6 @@ class RecipientsFinderTest {
                     )
                 )
             )
-
     }
 
     @Test
@@ -305,7 +301,6 @@ class RecipientsFinderTest {
                     )
                 )
             )
-
     }
 
     @Test
@@ -321,7 +316,7 @@ class RecipientsFinderTest {
                         "generateSize": 3,
                         "prefix": "user"
                       }
-                """.trimIndent()
+                    """.trimIndent()
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -430,5 +425,4 @@ class RecipientsFinderTest {
             return result
         }
     }
-
 }

@@ -2,19 +2,19 @@ package ru.citeck.ecos.notifications
 
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Duration
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class HandleFailureMinTryCountNotificationTest {
 
@@ -24,7 +24,7 @@ class HandleFailureMinTryCountNotificationTest {
     private lateinit var activeFailureMinTryCount: NotificationEntity
     private lateinit var activeFailureMinTryCountZero: NotificationEntity
 
-    @Before
+    @BeforeEach
     fun setup() {
 
         activeFailureMinTryCount = notificationRepository.save(
@@ -40,10 +40,9 @@ class HandleFailureMinTryCountNotificationTest {
                 state = NotificationState.ERROR
             )
         )
-
     }
 
-    @After
+    @AfterEach
     fun clear() {
         notificationRepository.deleteAll()
     }
@@ -61,5 +60,4 @@ class HandleFailureMinTryCountNotificationTest {
             assertThat(errorFailures[0].id).isEqualTo(activeFailureMinTryCount.id)
         }
     }
-
 }

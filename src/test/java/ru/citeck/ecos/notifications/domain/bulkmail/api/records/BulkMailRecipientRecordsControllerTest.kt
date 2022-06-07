@@ -1,15 +1,15 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
 import org.hamcrest.Matchers
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
@@ -19,17 +19,17 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailRecipientDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.web.rest.TestUtil
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.RecordsService
-import ru.citeck.ecos.records3.spring.config.RecordsServiceFactoryConfiguration
-import ru.citeck.ecos.records3.spring.web.rest.RecordsRestApi
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
+import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
+import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
 class BulkMailRecipientRecordsControllerTest {
 
@@ -52,7 +52,7 @@ class BulkMailRecipientRecordsControllerTest {
 
     private lateinit var mockRecordsApi: MockMvc
 
-    @Before
+    @BeforeEach
     fun setUp() {
         val recordsApi = RecordsRestApi(factoryConfig)
         this.mockRecordsApi = MockMvcBuilders
@@ -65,7 +65,6 @@ class BulkMailRecipientRecordsControllerTest {
                 .build()
         )
     }
-
 
     @Test
     fun `check exists bulk mail recipient payload`() {
@@ -100,7 +99,7 @@ class BulkMailRecipientRecordsControllerTest {
                         "bulkMail": "bulkMailRef?id"
                       }
                     }
-                """.trimIndent()
+                    """.trimIndent()
                 )
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -112,15 +111,16 @@ class BulkMailRecipientRecordsControllerTest {
             .andExpect(jsonPath("$.attributes.address", Matchers.`is`(saved.address)))
             .andExpect(jsonPath("$.attributes.disp", Matchers.`is`(saved.name)))
             .andExpect(jsonPath("$.attributes.record", Matchers.`is`(docRecord.name)))
-            .andExpect(jsonPath("$.attributes.bulkMail",
-                Matchers.`is`("notifications/bulk-mail@${bulkMail.extId}"))
+            .andExpect(
+                jsonPath(
+                    "$.attributes.bulkMail",
+                    Matchers.`is`("notifications/bulk-mail@${bulkMail.extId}")
+                )
             )
-
     }
 
     class DocDto(
         @AttName("?disp")
         val name: String = "Документ №123"
     )
-
 }

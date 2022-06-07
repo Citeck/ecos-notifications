@@ -52,8 +52,8 @@ class ErrorNotificationRepeater(
         try {
             val currentTryCount = notification.tryingCount ?: 0
 
-            if (currentTryCount > props.errorNotification.minTryCount
-                && props.errorNotification.ttl > INFINITY_TTL
+            if (currentTryCount > props.errorNotification.minTryCount &&
+                props.errorNotification.ttl > INFINITY_TTL
             ) {
                 val created = notification.createdDate
                     ?: throw IllegalStateException("Created date cannot be null. $notification")
@@ -105,5 +105,4 @@ class ErrorNotificationRepeater(
             notificationDao.save(updatedNotification)
         }
     }
-
 }

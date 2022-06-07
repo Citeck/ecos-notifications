@@ -38,13 +38,14 @@ class CustomDataMailRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
                 val result = arrayListOf<RecipientInfo>()
 
                 for (i in 1..generateSize) {
-                    result.add(RecipientInfo(
-                        address = "${prefix}_$i@mail.ru"
-                    ))
+                    result.add(
+                        RecipientInfo(
+                            address = "${prefix}_$i@mail.ru"
+                        )
+                    )
                 }
 
                 return result
             }
-
     }
 }

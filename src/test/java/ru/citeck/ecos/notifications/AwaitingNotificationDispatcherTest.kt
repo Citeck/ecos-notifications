@@ -4,13 +4,12 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificationService
@@ -24,13 +23,14 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class AwaitingNotificationDispatcherTest {
 
@@ -57,10 +57,9 @@ class AwaitingNotificationDispatcherTest {
         private val templateRef = RecordRef.valueOf(
             "notifications/template@test-awaiting-notification-template"
         )
-
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -230,11 +229,10 @@ class AwaitingNotificationDispatcherTest {
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
-
 
     inner class AlfPersonDocRef(
 
@@ -248,5 +246,4 @@ class AwaitingNotificationDispatcherTest {
         val age: Int = 25
 
     )
-
 }

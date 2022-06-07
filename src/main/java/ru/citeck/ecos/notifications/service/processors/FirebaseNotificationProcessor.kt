@@ -211,7 +211,4 @@ class FirebaseNotificationProcessor(
             }
         }
     }
-
 }
-
-

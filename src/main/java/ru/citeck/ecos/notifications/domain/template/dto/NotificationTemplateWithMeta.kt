@@ -35,5 +35,4 @@ open class NotificationTemplateWithMeta(
     override fun toString(): String {
         return "NotificationTemplateWithMeta(id=$id)"
     }
-
 }

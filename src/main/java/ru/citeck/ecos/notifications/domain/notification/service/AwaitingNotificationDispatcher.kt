@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
-import lombok.Synchronized
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -28,7 +27,7 @@ class AwaitingNotificationDispatcher(
 
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.awaiting-dispatch.delay}")
     fun dispatchNotifications() {
-       synchronized(dispatchLock) {
+        synchronized(dispatchLock) {
             val toDispatch = notificationDao.findAllToDispatch()
 
             log.debug { "Found notifications to dispatch: ${toDispatch.size}" }
@@ -36,7 +35,7 @@ class AwaitingNotificationDispatcher(
             AuthContext.runAsSystem {
                 toDispatch.forEach { error -> dispatch(error) }
             }
-       }
+        }
     }
 
     private fun dispatch(notificationDto: NotificationDto) {
@@ -55,10 +54,9 @@ class AwaitingNotificationDispatcher(
                 "\nInput:" +
                 "\n${notificationDto.data?.let { String(it) }}" +
                 "\nResult:" +
-                "\n${notification}"
+                "\n$notification"
         }
 
         notificationService.send(notification)
     }
-
 }

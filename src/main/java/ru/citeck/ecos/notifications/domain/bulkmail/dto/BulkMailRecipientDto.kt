@@ -39,5 +39,4 @@ data class BulkMailRecipientDto(
     override fun hashCode(): Int {
         return address.hashCode()
     }
-
 }

@@ -60,6 +60,4 @@ class NotificationTemplateEntity @JvmOverloads constructor(
     companion object {
         private const val serialVersionUID = 1L
     }
-
-
 }

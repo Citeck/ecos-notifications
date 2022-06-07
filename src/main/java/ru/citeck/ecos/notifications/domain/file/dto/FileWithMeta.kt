@@ -24,5 +24,4 @@ open class FileWithMeta(
     override fun toString(): String {
         return "FileWithMeta(id=$id)"
     }
-
 }

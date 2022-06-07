@@ -6,14 +6,13 @@ import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
@@ -31,6 +30,7 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.mail.Message
@@ -39,7 +39,7 @@ import javax.mail.internet.MimeMessage
 /**
  * @author Roman Makarskiy
  */
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
 class BulkMailDispatchTest {
@@ -80,7 +80,7 @@ class BulkMailDispatchTest {
             "${nimbusRecord.dateOfCreation}"
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -115,8 +115,7 @@ class BulkMailDispatchTest {
         )
     }
 
-
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }
@@ -272,7 +271,6 @@ class BulkMailDispatchTest {
         )
     }
 
-
     @Test
     fun `bulk mail default config should sent all to recipients`() {
 
@@ -311,7 +309,6 @@ class BulkMailDispatchTest {
         assertEnBody(emails[1])
     }
 
-
     @Test
     fun `bulk mail all cc config`() {
 
@@ -340,7 +337,6 @@ class BulkMailDispatchTest {
 
         val emails = greenMail.receivedMessages
 
-
         assertThat(emails.size).isEqualTo(2)
 
         assertThat(emails[0].getRecipients(Message.RecipientType.CC).size).isEqualTo(2)
@@ -352,7 +348,6 @@ class BulkMailDispatchTest {
         assertRecipients(emails[1], Message.RecipientType.CC)
         assertEnTitle(emails[1])
         assertEnBody(emails[1])
-
     }
 
     @Test
@@ -383,10 +378,9 @@ class BulkMailDispatchTest {
 
         val emails = greenMail.receivedMessages
 
-
         assertThat(emails.size).isEqualTo(2)
 
-        //BCC addresses are not contained in the message since other receivers are not allowed to know the list of
+        // BCC addresses are not contained in the message since other receivers are not allowed to know the list of
         assertThat(emails[0].allRecipients).isNull()
         assertThat(emails[1].allRecipients).isNull()
 
@@ -509,7 +503,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -539,7 +533,6 @@ class BulkMailDispatchTest {
         assertThat(emails.size).isEqualTo(200)
         assertThat(emails.first().allRecipients.size).isEqualTo(7)
         assertThat(emails.last().allRecipients.size).isEqualTo(4)
-
     }
 
     @Test
@@ -548,7 +541,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -587,7 +580,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -719,5 +712,4 @@ class BulkMailDispatchTest {
         val email: String = "severus.snape@hogwarts.com"
 
     )
-
 }

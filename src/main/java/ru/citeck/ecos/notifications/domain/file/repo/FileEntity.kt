@@ -39,6 +39,4 @@ class FileEntity @JvmOverloads constructor(
     override fun toString(): String {
         return "FileEntity(id=$id, extId=$extId"
     }
-
-
 }

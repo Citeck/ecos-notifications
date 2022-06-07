@@ -1,0 +1,19 @@
+
+spring:
+  mail:
+    port: 3025
+
+ecos-notifications:
+  error-notification:
+    ttl: 30000
+    delay: 5000
+    min-try-count: 1
+  awaiting-dispatch:
+    delay: 15000
+  bulk-mail:
+    sync-status-delay: 7000
+
+notifications:
+  default:
+    locale: en
+    from: ecos.notifications@citeck.ru

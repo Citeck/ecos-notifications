@@ -145,7 +145,6 @@ class RecipientsFinder(
 
         return result
     }
-
 }
 
 data class UserInfo(
@@ -168,7 +167,6 @@ data class RecipientInfo(
 
     @AttName("address")
     var address: String? = "",
-
 
     @AttName(".disp")
     var disp: String? = "",

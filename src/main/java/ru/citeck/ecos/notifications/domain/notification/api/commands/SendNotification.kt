@@ -30,7 +30,7 @@ class SendNotificationCommandExecutor(
     override fun execute(command: SendNotificationCommand): Any? {
         val currentCommandUser = commandsServiceFactory.commandCtxManager.getCurrentUser()
 
-        //TODO: Are the ecos-commands supposed to be run themselves under the command user auth?
+        // TODO: Are the ecos-commands supposed to be run themselves under the command user auth?
         return if (currentCommandUser.isNotBlank()) {
             AuthContext.runAs(currentCommandUser) {
                 executeImpl(command)
@@ -82,6 +82,4 @@ class SendNotificationCommandExecutor(
             error = errorInfo
         )
     }
-
 }
-

@@ -37,6 +37,5 @@ class CustomDataFixedRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
                     address = "recipient_2@mail.ru"
                 )
             )
-
     }
 }

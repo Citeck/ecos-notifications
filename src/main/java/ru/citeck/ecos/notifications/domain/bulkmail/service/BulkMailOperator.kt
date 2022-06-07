@@ -104,5 +104,4 @@ class BulkMailOperator(
 
         return listOf(allAddresses)
     }
-
 }

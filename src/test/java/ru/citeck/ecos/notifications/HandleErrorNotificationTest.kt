@@ -4,13 +4,12 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
@@ -24,10 +23,11 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Duration
 import java.util.*
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class HandleErrorNotificationTest {
 
@@ -49,7 +49,7 @@ class HandleErrorNotificationTest {
     private lateinit var greenMail: GreenMail
     private lateinit var templateModel: MutableMap<String, Any>
 
-    @Before
+    @BeforeEach
     fun setup() {
         notificationRepository.deleteAll()
 
@@ -68,7 +68,6 @@ class HandleErrorNotificationTest {
 
         notificationTemplateService.save(notificationTemplate)
 
-
         activeFailure = notificationRepository.save(
             NotificationEntity(
                 tryingCount = 0,
@@ -82,15 +81,13 @@ class HandleErrorNotificationTest {
                 state = NotificationState.EXPIRED
             )
         )
-
     }
 
-    @After
+    @AfterEach
     fun clear() {
         greenMail.stop()
         notificationRepository.deleteAll()
     }
-
 
     @Test
     fun processFailuresMustIncrementTryingCount() {
@@ -240,5 +237,4 @@ class HandleErrorNotificationTest {
             assertThat(allExpired.size).isEqualTo(3)
         }
     }
-
 }

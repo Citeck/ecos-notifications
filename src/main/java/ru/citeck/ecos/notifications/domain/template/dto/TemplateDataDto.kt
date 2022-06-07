@@ -3,7 +3,7 @@ package ru.citeck.ecos.notifications.domain.template.dto
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-data class TemplateDataDto (
+data class TemplateDataDto(
     val name: String,
     val data: ByteArray
 ) {
@@ -25,6 +25,4 @@ data class TemplateDataDto (
     override fun toString(): String {
         return "TemplateDataDto(name='$name')"
     }
-
-
 }

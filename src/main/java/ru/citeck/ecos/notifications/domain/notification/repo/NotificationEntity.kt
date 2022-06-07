@@ -74,6 +74,4 @@ class NotificationEntity @JvmOverloads constructor(
         return "NotificationEntity(id=$id," +
             " tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state)"
     }
-
-
 }

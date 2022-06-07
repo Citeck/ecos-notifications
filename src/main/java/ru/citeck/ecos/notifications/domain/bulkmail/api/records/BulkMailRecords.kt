@@ -9,7 +9,6 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
-import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
@@ -32,7 +31,10 @@ class BulkMailRecords(
     private val bulkMailDao: BulkMailDao,
     private val bulkMailOperator: BulkMailOperator,
     private val notificationDao: NotificationDao
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDtoDao<BulkMailRecords.BulkMailRecord>,
+) : AbstractRecordsDao(),
+    RecordsQueryDao,
+    RecordAttsDao,
+    RecordMutateDtoDao<BulkMailRecords.BulkMailRecord>,
     RecordDeleteDao {
 
     companion object {
@@ -238,5 +240,4 @@ class BulkMailRecords(
     enum class BulkMailAction {
         NONE, CALCULATE_RECIPIENTS, DISPATCH
     }
-
 }

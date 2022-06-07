@@ -52,7 +52,8 @@ private val TEMPLATE_INFO_MAP = mapOf(
 const val ID = "template"
 
 @Component
-class NotificationTemplateRecords(val templateService: NotificationTemplateService) : LocalRecordsDao(),
+class NotificationTemplateRecords(val templateService: NotificationTemplateService) :
+    LocalRecordsDao(),
     LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
     LocalRecordsMetaDao<NotTemplateRecord>,
     MutableRecordsLocalDao<NotTemplateRecord> {
@@ -184,7 +185,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
                 addAttributesRecursive(this.multiTemplateConfig, attributes)
 
-                return attributes;
+                return attributes
             }
 
         private fun addAttributesRecursive(
@@ -247,16 +248,14 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 value.forEach {
                     val locale = LocaleUtils.toLocale(it.lang)
 
-                    val fileName = "${moduleId}.html_${locale}.ftl"
+                    val fileName = "$moduleId.html_$locale.ftl"
                     val templateData = TemplateDataDto(fileName, it.body.toByteArray(Charsets.UTF_8))
 
                     newTemplateData[locale.toString()] = templateData
                 }
 
                 this.templateData = newTemplateData
-
             }
-
 
         @get:AttName("data")
         val data: ByteArray
@@ -321,5 +320,4 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
         var lang: String = "",
         var body: String = ""
     )
-
 }
