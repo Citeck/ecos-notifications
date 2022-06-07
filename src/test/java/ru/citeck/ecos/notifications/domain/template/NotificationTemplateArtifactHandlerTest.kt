@@ -25,11 +25,11 @@ class NotificationTemplateArtifactHandlerTest {
         val onDtoChanged = mutableListOf<Consumer<NotificationTemplateWithMeta>>()
 
         val service = mock<NotificationTemplateService> {
-            on { update(any<NotificationTemplateWithMeta>()) } doAnswer { args ->
+            on { update(any()) } doAnswer { args ->
                 updatedDto.add(args.getArgument(0))
                 Unit
             }
-            on { addListener(any<Consumer<NotificationTemplateWithMeta>>()) } doAnswer { args ->
+            on { addListener(any()) } doAnswer { args ->
                 onDtoChanged.add(args.getArgument(0))
                 Unit
             }
