@@ -129,7 +129,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         Assert.assertTrue(content is MimeMultipart)
         Assert.assertEquals(2, (content as MimeMultipart).count)
 
-        var isHaveAttachment = hasAttachment(
+        val isHaveAttachment = hasAttachment(
             content, MimeTypeUtils.TEXT_PLAIN.toString(),
             TestUtils.TEXT_TXT_FILENAME, "us-ascii", DECODED_ATTACHMENT_CONTENT
         )
@@ -148,8 +148,10 @@ class CommandNotificationSenderTest : BaseMailTest() {
             model = templateModel,
             from = "test@mail.ru"
         )
-        Assert.assertEquals(NotificationSenderSendStatus.BLOCKED,
-            notificationSenderService.sendNotification(notification))
+        Assert.assertEquals(
+            NotificationSenderSendStatus.BLOCKED,
+            notificationSenderService.sendNotification(notification)
+        )
     }
 
     /**
@@ -158,25 +160,22 @@ class CommandNotificationSenderTest : BaseMailTest() {
     inner class SendEmailExecutor : CommandExecutor<SendNotificationCommand> {
 
         override fun execute(command: SendNotificationCommand): NotificationSenderSendStatus {
-            var resultStatus: NotificationSenderSendStatus? = null
-            if (command.title != null) {
-                try {
-                    resultStatus = NotificationSenderSendStatus.valueOf(command.title!!)
-                } catch (e: java.lang.IllegalArgumentException) {
-                }
+            return if (command.title == NotificationSenderSendStatus.BLOCKED.toString()) {
+                return NotificationSenderSendStatus.BLOCKED
+            } else {
+                emailProvider.sendNotification(
+                    FitNotification(
+                        command.body,
+                        TEST_SUBJECT,
+                        command.recipients,
+                        command.from,
+                        command.cc,
+                        command.bcc,
+                        CmdFitNotification.convertAttachments(command.attachments),
+                        command.data
+                    ), Unit
+                )
             }
-            return resultStatus ?: emailProvider.sendNotification(
-                FitNotification(
-                    command.body,
-                    TEST_SUBJECT,
-                    command.recipients,
-                    command.from,
-                    command.cc,
-                    command.bcc,
-                    CmdFitNotification.convertAttachments(command.attachments),
-                    command.data
-                ), null
-            )
         }
     }
 

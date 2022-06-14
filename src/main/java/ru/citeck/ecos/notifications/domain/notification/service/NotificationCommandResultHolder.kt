@@ -82,7 +82,7 @@ class NotificationCommandResultHolder(
                    state = NotificationState.BLOCKED
                 }
             } catch (e: java.lang.IllegalArgumentException) {
-                log.warn { "Unkown send result '${result.result}'" }
+                log.warn { "Unknown send result '${result.result}'" }
             }
         }
 

@@ -8,5 +8,6 @@ interface NotificationSenderService {
      * Attributes from all enabled sender dto's conditions
      */
     fun getModel(): Set<String>
+
     fun sendNotification(notification: RawNotification): NotificationSenderSendStatus
 }

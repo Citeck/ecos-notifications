@@ -30,7 +30,7 @@ class FirebaseNotificationProvider(
         return NotificationType.FIREBASE_NOTIFICATION
     }
 
-    override fun sendNotification(notification: FitNotification, config: Unit?): NotificationSenderSendStatus {
+    override fun sendNotification(notification: FitNotification, config: Unit): NotificationSenderSendStatus {
         send(notification)
         return NotificationSenderSendStatus.SENT
     }

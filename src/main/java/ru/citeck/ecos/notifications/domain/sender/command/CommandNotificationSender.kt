@@ -14,13 +14,13 @@ import ru.citeck.ecos.notifications.lib.NotificationType
  * Send email notification to the command with type (config.commandType) at application (config.targetApp)
  */
 @Component
-class CommandNotificationSender(): NotificationSender<CommandSenderConfig> {
+class CommandNotificationSender : NotificationSender<CommandSenderConfig> {
 
     @Autowired
     private lateinit var commandsService: CommandsService
 
     companion object {
-        const val SENDER_TYPE = "command"
+        private const val SENDER_TYPE = "command"
         private val log = KotlinLogging.logger {}
     }
 
@@ -36,23 +36,24 @@ class CommandNotificationSender(): NotificationSender<CommandSenderConfig> {
         return CommandSenderConfig::class.java
     }
 
-    override fun sendNotification(notification: FitNotification, config: CommandSenderConfig?):
-        NotificationSenderSendStatus {
-        if (config==null){
-            log.error("Failed to send notification through command sender - config was not defined")
-        }
-        val cmdNotification = CmdFitNotification(notification)
-        //catch exceptions
-        val result =  commandsService.execute {
-            targetApp = config!!.targetApp
-            body = cmdNotification
-            type = config!!.commandType
+    override fun sendNotification(
+        notification: FitNotification,
+        config: CommandSenderConfig
+    ): NotificationSenderSendStatus {
+        val result = commandsService.execute {
+            targetApp = config.targetApp
+            body = CmdFitNotification(notification)
+            type = config.commandType
         }.get()
-        result.errors.forEach{
-            log.error("Command {} execution error: {}\n{}", config!!.commandType, it.message, it.stackTrace) }
-        val cmdResult : NotificationSenderSendStatus? = result.getResultAs(NotificationSenderSendStatus::class.java)
-        return cmdResult ?:
-            throw NotificationException(
-                "Failed to get notification send status from command '${config!!.commandType}' execution")
+
+        result.errors.forEach {
+            log.error("Command {} execution error: {}\n{}", config.commandType, it.message, it.stackTrace)
+        }
+
+        val cmdResult = result.getResultAs(NotificationSenderSendStatus::class.java)
+
+        return cmdResult ?: throw NotificationException(
+            "Failed to get notification send status from command '${config.commandType}' execution"
+        )
     }
 }

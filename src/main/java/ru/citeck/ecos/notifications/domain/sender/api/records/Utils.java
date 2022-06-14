@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 /**
  * Utils class for RecordsDao
- * */
+ */
 public class Utils {
 
     public static Map<String, String> ATTRIBUTES_MAP = Stream.of(

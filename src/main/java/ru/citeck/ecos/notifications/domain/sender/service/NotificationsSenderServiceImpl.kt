@@ -32,21 +32,23 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         private val attributeNames: Set<String>
             get() {
                 if (attributeNamesSet.isEmpty()) {
-                    attributeNamesSet =
-                        NotificationsSenderEntity::class.java.declaredFields.map { attribute -> attribute.name }.toSet()
+                    attributeNamesSet = NotificationsSenderEntity::class.java.declaredFields
+                        .map { attribute -> attribute.name }
+                        .toSet()
                 }
                 return attributeNamesSet
             }
     }
 
     private val changeListeners: MutableList<BiConsumer<NotificationsSenderDto?, NotificationsSenderDto?>> =
-        CopyOnWriteArrayList()
+        arrayListOf()
 
-    override fun getSenderById(id: String?): NotificationsSenderDtoWithMeta? {
-        if (StringUtils.isBlank(id)) {
+    override fun getSenderById(id: String): NotificationsSenderDtoWithMeta? {
+        if (id.isBlank()) {
             return null
         }
-        val found = repository.findOneByExtId(id!!)
+        val found = repository.findOneByExtId(id)
+
         return if (found.isPresent) {
             NotificationsSenderDtoWithMeta(found.get().toDto())
         } else
@@ -65,7 +67,7 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
 
     @Transactional
     override fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta {
-        val beforeSenderDto = getSenderById(senderDto.id)?.toDto()
+        val beforeSenderDto = senderDto.id?.let { getSenderById(it)?.toDto() }
         val entity = repository.save(senderDto.toEntity())
         val afterSenderDto = entity.toDto()
 
@@ -132,9 +134,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         var result: Specification<NotificationsSenderEntity>? = null
         when (predicate) {
             is ComposedPredicate -> {
-                val composedPredicate = predicate
                 val specifications = ArrayList<Specification<NotificationsSenderEntity>>()
-                composedPredicate.getPredicates().forEach(Consumer { subPredicate: Predicate? ->
+                predicate.getPredicates().forEach(Consumer { subPredicate: Predicate? ->
                     var subSpecification: Specification<NotificationsSenderEntity>? = null
                     if (subPredicate is ValuePredicate) {
                         subSpecification = fromValuePredicate((subPredicate as ValuePredicate?)!!)
@@ -149,7 +150,7 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
                     result = specifications[0]
                     if (specifications.size > 1) {
                         for (idx in 1 until specifications.size) {
-                            result = if (composedPredicate is AndPredicate)
+                            result = if (predicate is AndPredicate)
                                 result!!.and(specifications[idx])
                             else result!!.or(specifications[idx])
                         }
@@ -228,7 +229,7 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
     private fun getObjectValue(attributeName: String, attributeValue: String): Comparable<*>? {
         try {
             val searchField: Field = NotificationsSenderEntity::class.java.getDeclaredField(attributeName)
-            if (searchField.type.isEnum){
+            if (searchField.type.isEnum) {
                 val enumClz = searchField.type.enumConstants as Array<Enum<*>>
                 return enumClz.first { it.name == attributeValue }
             }

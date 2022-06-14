@@ -13,7 +13,7 @@ fun stringJsonFromResource(path: String): String {
 
 fun hasAttachment(content: MimeMultipart, mimeType: String, attachmentName: String, charset: String?,
                   valueToCompare: String?) : Boolean{
-    var contentHeader = "$mimeType;${charset?.let{" charset=$charset;"} ?: ""} name=$attachmentName"
+    val contentHeader = "$mimeType;${charset?.let{" charset=$charset;"} ?: ""} name=$attachmentName"
     for (i in 0 until content.count) {
         if (content.getBodyPart(i).getHeader("Content-Type")
                 .any { it == contentHeader }) {

@@ -17,9 +17,9 @@ import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
 
 
 @Component
-class NotificationsSenderRecordsDao (
+class NotificationsSenderRecordsDao(
     private val notificationsSenderService: NotificationsSenderService
-    ): AbstractRecordsDao(), RecordsDeleteDao, RecordAttsDao, RecordMutateDtoDao<NotificationsSenderRecord>,
+) : AbstractRecordsDao(), RecordsDeleteDao, RecordAttsDao, RecordMutateDtoDao<NotificationsSenderRecord>,
     RecordsQueryDao {
 
     companion object {
@@ -28,12 +28,12 @@ class NotificationsSenderRecordsDao (
     }
 
     override fun getId(): String {
-        return ID;
+        return ID
     }
 
     override fun delete(recordsId: List<String>): List<DelStatus> {
         notificationsSenderService.removeAllByExtId(recordsId)
-        return generateSequence { DelStatus.OK }.take(recordsId.size).toMutableList()
+        return generateSequence { DelStatus.OK }.take(recordsId.size).toList()
     }
 
     override fun getRecordAtts(recordId: String): NotificationsSenderRecord? {
@@ -55,22 +55,22 @@ class NotificationsSenderRecordsDao (
         return notificationsSenderService.save(record.toDto()).id!!
     }
 
-    override fun queryRecords(recordsQuery: RecordsQuery):  RecsQueryRes<NotificationsSenderRecord> {
+    override fun queryRecords(recsQuery: RecordsQuery): RecsQueryRes<NotificationsSenderRecord> {
         val result = RecsQueryRes<NotificationsSenderRecord>()
-        val sort = Utils.getSort(recordsQuery)
-        val (maxItems, skipCount) = recordsQuery.page
+        val sort = Utils.getSort(recsQuery)
+        val (maxItems, skipCount) = recsQuery.page
         val maxItemsCount = if (maxItems <= 0) 10000 else maxItems
 
-        when (recordsQuery.language) {
+        when (recsQuery.language) {
             PredicateService.LANGUAGE_PREDICATE -> {
-                val predicate = recordsQuery.getQuery(Predicate::class.java)
+                val predicate = recsQuery.getQuery(Predicate::class.java)
                 result.setRecords(notificationsSenderService.getAll(maxItemsCount, skipCount, predicate, sort)
                     .map { NotificationsSenderRecord(it) }
                     .toList())
                 result.setTotalCount(notificationsSenderService.getCount(predicate))
             }
             else -> {
-                log.warn("Unsupported query language '{}'", recordsQuery.language)
+                log.warn("Unsupported query language '{}'", recsQuery.language)
                 val types = if (maxItems < 0) {
                     notificationsSenderService.getAll()
                 } else {

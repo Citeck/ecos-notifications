@@ -8,7 +8,8 @@ import ru.citeck.ecos.notifications.lib.NotificationType
  * @param T sender configuration
  */
 interface NotificationSender<T> {
-    fun sendNotification(notification: FitNotification, config: T?): NotificationSenderSendStatus
+    fun sendNotification(notification: FitNotification, config: T): NotificationSenderSendStatus
+
     fun getNotificationType(): NotificationType
 
     /**

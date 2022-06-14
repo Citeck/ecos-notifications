@@ -24,7 +24,8 @@ class NotificationSenderConfig {
                 .add(sender as NotificationSender<Any>)
             log.info(
                 "Register notification sender with id: $id, type: ${sender.getSenderType()}," +
-                    "notification type: ${sender.getNotificationType()}")
+                    "notification type: ${sender.getNotificationType()}"
+            )
         }
 
         return sendersMap

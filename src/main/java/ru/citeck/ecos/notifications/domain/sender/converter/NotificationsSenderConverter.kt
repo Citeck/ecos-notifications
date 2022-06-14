@@ -44,16 +44,17 @@ fun NotificationsSenderEntity.toDto(): NotificationsSenderDto {
     )
 }
 
-fun NotificationsSenderEntity.toDtoWithMeta(): NotificationsSenderDtoWithMeta{
+fun NotificationsSenderEntity.toDtoWithMeta(): NotificationsSenderDtoWithMeta {
     return NotificationsSenderDtoWithMeta(toDto())
 }
 
 fun NotificationsSenderDto.toEntity(): NotificationsSenderEntity {
     val dto = this
     var entity: NotificationsSenderEntity? = null
-    if (converter.notificationsSenderRepository != null && !StringUtils.isBlank(id)) {
+    if (StringUtils.isNoneBlank(id)) {
         entity = converter.notificationsSenderRepository.findOneByExtId(id!!).orElse(null)
     }
+
     val explicitExtId = if (id.isNullOrBlank()) UUID.randomUUID().toString() else id
     if (entity == null) {
         entity = NotificationsSenderEntity(null, explicitExtId)
@@ -88,7 +89,7 @@ fun NotificationsSenderDtoWithMeta.toDto(): NotificationsSenderDto {
     )
 }
 
-fun NotificationsSenderRecord.toDto(): NotificationsSenderDto{
+fun NotificationsSenderRecord.toDto(): NotificationsSenderDto {
     return NotificationsSenderDto(
         id ?: UUID.randomUUID().toString(),
         name,
@@ -106,6 +107,6 @@ fun NotificationsSenderRecord.toDto(): NotificationsSenderDto{
     )
 }
 
-fun NotificationsSenderRecord.toDtoWithMeta(): NotificationsSenderDtoWithMeta{
+fun NotificationsSenderRecord.toDtoWithMeta(): NotificationsSenderDtoWithMeta {
     return NotificationsSenderDtoWithMeta(toDto())
 }

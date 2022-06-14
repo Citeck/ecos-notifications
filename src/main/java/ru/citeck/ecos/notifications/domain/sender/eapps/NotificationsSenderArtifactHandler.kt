@@ -10,12 +10,12 @@ import java.util.function.Consumer
 class NotificationsSenderArtifactHandler(var service: NotificationsSenderService) :
     EcosArtifactHandler<NotificationsSenderDto> {
 
-    override fun deleteArtifact( id: String) {
-        service.delete(id)
+    override fun deleteArtifact(artifactId: String) {
+        service.delete(artifactId)
     }
 
-    override fun deployArtifact(notificationsSenderDto: NotificationsSenderDto) {
-        service.save(notificationsSenderDto)
+    override fun deployArtifact(artifact: NotificationsSenderDto) {
+        service.save(artifact)
     }
 
     override fun getArtifactType(): String {
@@ -23,6 +23,6 @@ class NotificationsSenderArtifactHandler(var service: NotificationsSenderService
     }
 
     override fun listenChanges(listener: Consumer<NotificationsSenderDto>) {
-        service.onSenderChanged() { before, after -> after?.let { listener.accept(it)} }
+        service.onSenderChanged { _, after -> after?.let { listener.accept(it) } }
     }
 }

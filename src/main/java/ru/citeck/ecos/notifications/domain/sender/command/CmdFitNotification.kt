@@ -24,41 +24,24 @@ class CmdFitNotification(
         emptyMap(),
         fitNotification.data
     ) {
-        attachments =
-            fitNotification.attachments.let {
-                it.mapValues {
-                    AttachmentData(
-                        it.value.contentType,
-                        it.value.inputStream.readBytes()
-                    )
-                }
+        attachments = fitNotification.attachments.let { attachments ->
+            attachments.mapValues {
+                AttachmentData(
+                    it.value.contentType,
+                    it.value.inputStream.readBytes()
+                )
             }
+        }
     }
 
     companion object {
 
-        @JvmStatic
-        fun convertAttachments(attachments: Map<String, AttachmentData>):  Map<String, DataSource>{
+        fun convertAttachments(attachments: Map<String, AttachmentData>): Map<String, DataSource> {
             val attachmentMap = mutableMapOf<String, DataSource>()
-            if (attachments!=null) {
-                attachments.forEach {
-                    attachmentMap[it.key] = ByteArrayDataSource(it.value.content, it.value.contentType)
-                }
+            attachments.forEach {
+                attachmentMap[it.key] = ByteArrayDataSource(it.value.content, it.value.contentType)
             }
             return attachmentMap
         }
-    }
-
-    fun toFit(): FitNotification {
-        return FitNotification(
-            body,
-            title,
-            recipients,
-            from,
-            cc,
-            bcc,
-            convertAttachments(attachments),
-            data
-        )
     }
 }

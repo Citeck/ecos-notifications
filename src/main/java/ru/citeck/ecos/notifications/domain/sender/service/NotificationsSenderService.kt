@@ -8,7 +8,7 @@ import java.util.function.BiConsumer
 
 interface NotificationsSenderService {
 
-    fun getSenderById(id: String?): NotificationsSenderDtoWithMeta?
+    fun getSenderById(id: String): NotificationsSenderDtoWithMeta?
 
     fun delete(id: String)
 
