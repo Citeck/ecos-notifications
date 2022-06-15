@@ -10,9 +10,10 @@ import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationSender
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
@@ -24,7 +25,7 @@ private const val ECOS_TYPE_ID_KEY = "_etype?id"
 
 @Service
 class UnsafeSendNotificationCommandExecutor(
-    val notificationService: NotificationSender,
+    val notificationService: NotificationSenderService,
     val notificationTemplateService: NotificationTemplateService,
     val predicateService: PredicateService
 ) {
@@ -68,9 +69,8 @@ class UnsafeSendNotificationCommandExecutor(
             bcc = command.bcc
         )
 
-        notificationService.send(notification)
-
-        return SendNotificationResult(NotificationResultStatus.OK.value, "")
+        val status: NotificationSenderSendStatus? = notificationService.sendNotification(notification)
+        return SendNotificationResult(NotificationResultStatus.OK.value, status?.toString()?:"")
     }
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {
@@ -165,7 +165,9 @@ class UnsafeSendNotificationCommandExecutor(
             }
         }
 
-        filledModel.putAll(prefilledModel)
+        prefilledModel.forEach { (attrKey, attrValue) ->
+            filledModel.putIfAbsent(attrKey, attrValue)
+        }
 
         return filledModel
     }

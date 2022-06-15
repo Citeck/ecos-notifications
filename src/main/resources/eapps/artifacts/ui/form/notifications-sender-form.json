@@ -1,0 +1,237 @@
+{
+  "id": "notifications-sender-form",
+  "formKey": "notifications-sender-form",
+  "title": {
+    "en": "Notifications sender"
+  },
+  "description": {},
+  "customModule": null,
+  "typeRef": "emodel/type@notifications-sender",
+  "width": "m",
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "id"
+        },
+        "key": "id",
+        "validate": {
+          "required": true
+        },
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "id"
+        },
+        "type": "textfield",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "name"
+        },
+        "key": "name",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "name"
+        },
+        "type": "textfield",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "objectObject",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "enabled"
+                },
+                "key": "enabled",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "enabled"
+                },
+                "type": "checkbox",
+                "input": true
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0,
+            "md": 3
+          },
+          {
+            "index": 1,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": [
+              {
+                "label": {
+                  "ru": "notificationType"
+                },
+                "key": "notificationType",
+                "validate": {
+                  "required": true
+                },
+                "dataSrc": "values",
+                "data": {
+                  "values": [
+                    {
+                      "label": "Email",
+                      "value": "EMAIL_NOTIFICATION"
+                    },
+                    {
+                      "label": "Firebase",
+                      "value": "FIREBASE_NOTIFICATION"
+                    }
+                  ]
+                },
+                "defaultValue": "",
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "notificationType"
+                },
+                "type": "ecosSelect",
+                "input": true
+              }
+            ],
+            "md": 9
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "columns2",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "order"
+                },
+                "key": "order",
+                "validate": {
+                  "required": true,
+                  "integer": false
+                },
+                "isBigNumber": false,
+                "delimiterValue": " ",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "order"
+                },
+                "defaultValue": "",
+                "type": "number",
+                "input": true
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0,
+            "md": 3
+          },
+          {
+            "index": 1,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": [
+              {
+                "label": {
+                  "ru": "senderType"
+                },
+                "key": "senderType",
+                "validate": {
+                  "required": true
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "properties": {
+                  "attribute": "senderType"
+                },
+                "type": "textfield",
+                "input": true
+              }
+            ],
+            "md": 9
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
+      },
+      {
+        "label": {
+          "ru": "condition"
+        },
+        "key": "condition",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "condition"
+        },
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "senderConfig"
+        },
+        "key": "senderConfig",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "properties": {
+          "attribute": "senderConfig"
+        },
+        "type": "textarea",
+        "input": true
+      },
+      {
+        "label": {
+          "ru": "templates"
+        },
+        "key": "templates",
+        "multiple": true,
+        "reorder": false,
+        "journalId": "notification-templates",
+        "queryData": "",
+        "defaultValue": [],
+        "refreshOn": [],
+        "properties": {
+          "attribute": "templates"
+        },
+        "type": "selectJournal",
+        "input": true
+      },
+      {
+        "type": "button",
+        "key": "submit",
+        "disableOnInvalid": true,
+        "theme": "primary",
+        "input": true
+      }
+    ]
+  },
+  "attributes": {}
+}

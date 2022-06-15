@@ -5,8 +5,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.converter.toNotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
+import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import java.time.Instant
 
 @Component
@@ -52,16 +54,17 @@ class NotificationCommandResultHolder(
         notificationDao.save(toSave)
     }
 
-    fun holdSuccess(command: SendNotificationCommand) {
-        log.debug { "hold success notification command:\n $command" }
+    fun holdSuccess(command: SendNotificationCommand, result: SendNotificationResult) {
+        log.debug { "Hold success notification command:\n $command \nwith result $result" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
+        val state = result.toNotificationState()
 
-        val toSave: NotificationDto = existsNotifications?.copy(
+        val toSave = existsNotifications?.copy(
             type = command.type,
             record = command.record,
             template = command.templateRef,
-            state = NotificationState.SENT,
+            state = state,
             errorMessage = "",
             errorStackTrace = "",
             data = Json.mapper.toBytes(command),
@@ -73,7 +76,7 @@ class NotificationCommandResultHolder(
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,
-                state = NotificationState.SENT,
+                state = state,
                 errorMessage = "",
                 errorStackTrace = "",
                 data = Json.mapper.toBytes(command),
@@ -85,6 +88,5 @@ class NotificationCommandResultHolder(
 
         notificationDao.save(toSave)
     }
-
 
 }

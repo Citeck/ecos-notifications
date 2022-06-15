@@ -21,3 +21,7 @@ ecos:
   zookeeper:
     host: localhost
     port: 2181
+
+spring:
+  mail:
+    port: 1025

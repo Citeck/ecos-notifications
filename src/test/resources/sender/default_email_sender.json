@@ -1,0 +1,7 @@
+{
+  "id": "default-email-sender",
+  "notificationType": "EMAIL_NOTIFICATION",
+  "enabled": true,
+  "order": 1000.0,
+  "senderType": "default"
+}

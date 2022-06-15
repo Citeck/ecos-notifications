@@ -1,10 +1,7 @@
 package ru.citeck.ecos.notifications
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,7 +14,6 @@ import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificatio
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
@@ -32,10 +28,7 @@ import java.time.temporal.ChronoUnit
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class AwaitingNotificationDispatcherTest {
-
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
+class AwaitingNotificationDispatcherTest : BaseMailTest() {
 
     @Autowired
     private lateinit var awaitingNotificationDispatcher: AwaitingNotificationDispatcher
@@ -49,8 +42,6 @@ class AwaitingNotificationDispatcherTest {
     @Autowired
     private lateinit var recordsService: RecordsService
 
-    private lateinit var greenMail: GreenMail
-
     companion object {
 
         private val alfPersonRef = RecordRef.valueOf("alfresco/@workspace://SpacesStore/123-aaa")
@@ -62,14 +53,10 @@ class AwaitingNotificationDispatcherTest {
 
     @Before
     fun setUp() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
         val notificationTemplate = Json.mapper.convert(
             stringJsonFromResource("template/awaiting/test-awaiting-notification-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
-
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
@@ -230,12 +217,6 @@ class AwaitingNotificationDispatcherTest {
         assertThat(body).isEqualTo("Hi Ivan, your last name is Petrenko? You are 25 old?")
     }
 
-    @After
-    fun stopMailServer() {
-        greenMail.stop()
-    }
-
-
     inner class AlfPersonDocRef(
 
         @AttName("firstName")
@@ -248,5 +229,4 @@ class AwaitingNotificationDispatcherTest {
         val age: Int = 25
 
     )
-
 }

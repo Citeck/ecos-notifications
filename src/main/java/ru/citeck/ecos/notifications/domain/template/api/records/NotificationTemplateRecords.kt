@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.template.api.records
 import ecos.com.fasterxml.jackson210.annotation.JsonProperty
 import org.apache.commons.lang.LocaleUtils
 import org.apache.commons.lang.StringUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
@@ -11,6 +12,7 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.utils.ZipUtils
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords.NotTemplateRecord
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
@@ -56,6 +58,9 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
     LocalRecordsMetaDao<NotTemplateRecord>,
     MutableRecordsLocalDao<NotTemplateRecord> {
+
+    @Autowired
+    private lateinit var sendersService: NotificationSenderService
 
     init {
         id = ID
@@ -183,6 +188,8 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 this.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
 
                 addAttributesRecursive(this.multiTemplateConfig, attributes)
+
+                attributes.addAll(sendersService.getModel())
 
                 return attributes;
             }

@@ -1,0 +1,11 @@
+{
+  "id": "block-emails_sender",
+  "enabled": true,
+  "notificationType": "EMAIL_NOTIFICATION",
+  "order": 1,
+  "senderType": "command",
+  "senderConfig": {
+    "targetApp": "notifications",
+    "commandType": "block-email-notification"
+  }
+}

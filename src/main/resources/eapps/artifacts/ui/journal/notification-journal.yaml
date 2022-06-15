@@ -18,6 +18,7 @@ columns:
           ERROR: "#D79B7D"
           EXPIRED: "#E07171"
           WAIT_FOR_DISPATCH: "#7dc3d7"
+          BLOCKED: "#c9d1be"
         defaultColor: white
     sortable: false
 

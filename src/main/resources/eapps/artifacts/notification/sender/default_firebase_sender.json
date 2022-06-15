@@ -1,0 +1,7 @@
+{
+  "id": "default-firebase-sender",
+  "notificationType": "FIREBASE_NOTIFICATION",
+  "enabled": true,
+  "order": 1000.0,
+  "senderType": "default"
+}
