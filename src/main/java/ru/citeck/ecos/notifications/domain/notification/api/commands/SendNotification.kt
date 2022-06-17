@@ -44,7 +44,7 @@ class SendNotificationCommandExecutor(
         return try {
             val result = unsafeSendNotificationCommandExecutor.execute(command)
 
-            notificationCommandResultHolder.holdSuccess(command)
+            notificationCommandResultHolder.holdSuccess(command, result)
 
             return result
         } catch (e: Exception) {

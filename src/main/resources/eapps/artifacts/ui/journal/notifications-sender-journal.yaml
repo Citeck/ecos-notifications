@@ -1,0 +1,21 @@
+---
+id: notifications-sender
+name: { ru: Отправители, en: Senders }
+editable: true
+
+actions:
+  - uiserv/action@view-dashboard
+  - uiserv/action@view-dashboard-in-background
+  - uiserv/action@ecos-module-download
+  - uiserv/action@edit-json
+  - uiserv/action@delete
+
+columns:
+  - id: _localId
+    name: { ru: Идентификатор, en: Id }
+  - id: name
+  - id: notificationType
+  - id: enabled
+    type: BOOLEAN
+  - id: order
+  - id: senderType

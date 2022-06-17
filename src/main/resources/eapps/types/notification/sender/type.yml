@@ -1,0 +1,11 @@
+
+modelVersion: "1.0"
+
+name:
+  ru: Отправитель
+  en: Sender
+
+source-id: "sender"
+
+controller:
+  type: json

@@ -9,6 +9,8 @@ import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.Notification
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
+import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import java.time.Instant
@@ -103,3 +105,20 @@ fun Notification.toDtoWithState(
 val BulkMailDto.recordRef: RecordRef
     get() = RecordRef.create("notifications", BulkMailRecords.ID, extId)
 
+fun SendNotificationResult.toNotificationState(): NotificationState {
+    if (this.result.isEmpty()) {
+        return NotificationState.SENT
+    }
+
+    val senderStatus = try {
+        NotificationSenderSendStatus.valueOf(this.result)
+    } catch (e: Exception) {
+        null
+    }
+
+    if (senderStatus == NotificationSenderSendStatus.BLOCKED) {
+        return NotificationState.BLOCKED
+    }
+
+    return NotificationState.SENT
+}

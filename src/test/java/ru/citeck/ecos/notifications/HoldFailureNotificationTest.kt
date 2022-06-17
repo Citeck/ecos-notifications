@@ -1,22 +1,16 @@
 package ru.citeck.ecos.notifications
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
@@ -26,7 +20,7 @@ import java.util.*
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class HoldFailureNotificationTest {
+class HoldFailureNotificationTest: BaseMailTest() {
 
     @Autowired
     private lateinit var commandsService: CommandsService
@@ -34,33 +28,8 @@ class HoldFailureNotificationTest {
     @Autowired
     private lateinit var notificationRepository: NotificationRepository
 
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
-
-    private lateinit var greenMail: GreenMail
-    private lateinit var templateModel: MutableMap<String, Any>
-
-    @Before
-    fun setup() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
-        templateModel = mutableMapOf()
-        templateModel["firstName"] = "Luke"
-        templateModel["lastName"] = "Skywalker"
-        templateModel["age"] = "25"
-
-        val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationTemplate)
-    }
-
     @After
     fun clear() {
-        greenMail.stop()
         notificationRepository.deleteAll()
     }
 
@@ -111,5 +80,4 @@ class HoldFailureNotificationTest {
         assertThat(allFailures.size).isEqualTo(1)
         assertThat(allFailures[0].errorMessage).contains("Mail server connection failed")
     }
-
 }

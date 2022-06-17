@@ -1,10 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.BaseMailTest
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -21,7 +19,6 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailStatusSynchronizer
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.stringJsonFromResource
 import ru.citeck.ecos.records2.RecordRef
@@ -37,10 +34,7 @@ import java.time.temporal.ChronoUnit
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class BulkMailStateTest {
-
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
+class BulkMailStateTest : BaseMailTest() {
 
     @Autowired
     private lateinit var bulkMailDao: BulkMailDao
@@ -57,8 +51,6 @@ class BulkMailStateTest {
     @Autowired
     private lateinit var recordsService: RecordsService
 
-    private lateinit var greenMail: GreenMail
-
     companion object {
 
         private val harryRef = RecordRef.valueOf("alfresco/user@harry")
@@ -73,8 +65,6 @@ class BulkMailStateTest {
 
     @Before
     fun setUp() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
 
         val notificationTemplate = Json.mapper.convert(
             stringJsonFromResource("template/bulk/bulk-notification-template.json"),
@@ -298,11 +288,6 @@ class BulkMailStateTest {
 
         }
 
-    }
-
-    @After
-    fun stopMailServer() {
-        greenMail.stop()
     }
 
     class NimbusRecord(
