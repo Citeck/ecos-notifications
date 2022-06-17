@@ -204,6 +204,7 @@
         "properties": {
           "attribute": "senderConfig"
         },
+        "rows": 5,
         "type": "textarea",
         "input": true
       },
