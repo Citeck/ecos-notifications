@@ -1,9 +1,9 @@
 
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/notifications
-    username: notifications
-    password:
+ecos:
+  webapp:
+    dataSources:
+      main:
+        url: jdbc:postgresql://localhost:5432/notifications
 
 ecos-notifications:
   firebase:

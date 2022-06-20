@@ -1,9 +1,13 @@
 
+ecos:
+  webapp:
+    dataSources:
+      main:
+        url: jdbc:postgresql://localhost:5439/notifications
+        username: notifications
+        password:
+
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5439/notifications
-    username: notifications
-    password:
   mail:
     host: localhost
     port: 25
