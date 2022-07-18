@@ -126,8 +126,11 @@ class RecipientsFinder(
     }
 
     private fun getRecipientsFromCustom(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
+        if (bulkMail.recipientsData.custom.isEmpty()) {
+            return emptyList()
+        }
+
         val result = mutableListOf<BulkMailRecipientDto>()
-        if (bulkMail.recipientsData.custom.size() == 0) return result
 
         customProviders.forEach { provider ->
 
