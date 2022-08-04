@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.data.ObjectData
-import ru.citeck.ecos.config.lib.provider.InMemConfigService
+import ru.citeck.ecos.config.lib.provider.InMemConfigProvider
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -40,7 +40,7 @@ class RecipientsFinderTest {
     private lateinit var localAppService: LocalAppService
 
     @Autowired
-    private lateinit var inMemConfigService: InMemConfigService
+    private lateinit var inMemConfigService: InMemConfigProvider
 
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
