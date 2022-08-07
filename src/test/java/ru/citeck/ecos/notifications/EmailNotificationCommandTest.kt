@@ -1,7 +1,5 @@
 package ru.citeck.ecos.notifications
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -14,7 +12,6 @@ import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
@@ -24,34 +21,13 @@ import java.util.*
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class EmailNotificationCommandTest {
+class EmailNotificationCommandTest :BaseMailTest() {
 
     @Autowired
     private lateinit var commandsService: CommandsService
 
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
-
-    private lateinit var greenMail: GreenMail
-    private lateinit var templateModel: MutableMap<String, Any>
-
-    @BeforeEach
+    @Before
     fun setup() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
-        templateModel = mutableMapOf()
-        templateModel["firstName"] = "Ivan"
-        templateModel["lastName"] = "Petrenko"
-        templateModel["age"] = "25"
-
-        val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationTemplate)
-
         val multiTemplate = Json.mapper.convert(
             stringJsonFromResource(
                 "template/multi-template/test-multi-template.json"
@@ -387,10 +363,5 @@ class EmailNotificationCommandTest {
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
         assertThat(body).isEqualTo("Its multi template with condition")
-    }
-
-    @AfterEach
-    fun stopMailServer() {
-        greenMail.stop()
     }
 }

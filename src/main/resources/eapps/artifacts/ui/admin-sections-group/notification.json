@@ -29,6 +29,12 @@
       "config": {
         "journalId": "notification-files"
       }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
+        "journalId": "notifications-sender"
+      }
     }
   ]
 }

@@ -10,5 +10,6 @@ class NotificationConstants {
         const val ORIGINAL_NAME: String = "originalName"
         const val ORIGINAL_EXT: String = "originalExt"
         const val MIMETYPE: String = "mimetype"
+        const val MODEL: String = "model"
     }
 }

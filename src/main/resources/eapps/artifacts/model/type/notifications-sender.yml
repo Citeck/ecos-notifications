@@ -1,0 +1,68 @@
+---
+id: notifications-sender
+
+name:
+  en: Sender
+  ru: Отправитель
+
+
+system: true
+sourceId: notifications/notifications-sender
+
+journalRef: uiserv/journal@notifications-sender
+formRef: uiserv/form@notifications-sender-form
+
+defaultCreateVariant: false
+
+createVariants:
+  - id: create-new-sender
+    name: { ru: Создать отправителя, en: Create sender}
+  - id: upload-sender
+    name: { ru: Загрузить отправителя, en: Upload sender }
+    formRef: uiserv/form@ecos-module-upload
+
+dispNameTemplate:
+  en: Sender ${senderType} ${id}
+  ru: Отправитель ${senderType} ${id}
+
+model:
+  attributes:
+    - id: id
+      name: { ru: Идентификатор, en: Id }
+      type: TEXT
+    - id: name
+      type: TEXT
+      name: { ru: Имя, en: Name }
+    - id: enabled
+      name: { ru: Активен, en: Is active }
+      type: BOOLEAN
+    - id: condition
+      name: { ru: Условие использования, en: Condition}
+      type: TEXT
+    - id: notificationType
+      name: { ru: Тип уведомления, en: Notification type }
+      type: TEXT
+    - id: order
+      name: { ru: Порядок, en: Order }
+      type: NUMBER
+    - id: senderType
+      name: { ru: Тип, en: Type }
+      type: TEXT
+    - id: templates
+      name: { ru: Шаблоны, en: Templates }
+      type: ASSOC
+      multiple: true
+      formatter:
+        type: assoc
+    - id: senderConfig
+      name: { ru: Конфигурация, en: Configuration }
+      type: TEXT
+
+    - id: _created
+      name: { ru: Создан, en: Created }
+    - id: _creator
+      name: { ru: Кем создан, en: Created by }
+    - id: _modified
+      name: { ru: Изменен, en: Modified }
+    - id: _modifier
+      name: { ru: Кем изменен, en: Modified by }

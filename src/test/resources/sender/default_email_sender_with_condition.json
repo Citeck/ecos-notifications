@@ -1,0 +1,12 @@
+{
+  "id": "default-email-sender-with-condition",
+  "notificationType": "EMAIL_NOTIFICATION",
+  "condition": {
+    "t": "eq",
+    "a": "process-definition",
+    "v": "flowable$confirm"
+  },
+  "enabled": true,
+  "order": 1.0,
+  "senderType": "default"
+}

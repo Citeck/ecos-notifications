@@ -1,7 +1,5 @@
 package ru.citeck.ecos.notifications
 
-import com.icegreen.greenmail.util.GreenMail
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
@@ -11,14 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ru.citeck.ecos.commands.CommandsService
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.domain.notification.service.ErrorNotificationRepeater
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
@@ -29,7 +24,7 @@ import java.util.*
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class HandleErrorNotificationTest {
+class HandleErrorNotificationTest : BaseMailTest() {
 
     @Autowired
     private lateinit var notificationRepository: NotificationRepository
@@ -40,33 +35,12 @@ class HandleErrorNotificationTest {
     @Autowired
     private lateinit var commandsService: CommandsService
 
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
-
     private lateinit var activeFailure: NotificationEntity
     private lateinit var disabledFailure: NotificationEntity
-
-    private lateinit var greenMail: GreenMail
-    private lateinit var templateModel: MutableMap<String, Any>
 
     @BeforeEach
     fun setup() {
         notificationRepository.deleteAll()
-
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
-        templateModel = mutableMapOf()
-        templateModel["firstName"] = "Luke"
-        templateModel["lastName"] = "Skywalker"
-        templateModel["age"] = "25"
-
-        val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationTemplate)
 
         activeFailure = notificationRepository.save(
             NotificationEntity(
@@ -85,7 +59,6 @@ class HandleErrorNotificationTest {
 
     @AfterEach
     fun clear() {
-        greenMail.stop()
         notificationRepository.deleteAll()
     }
 

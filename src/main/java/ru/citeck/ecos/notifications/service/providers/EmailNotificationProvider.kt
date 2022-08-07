@@ -6,6 +6,8 @@ import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.sender.NotificationSender
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
 
@@ -13,11 +15,28 @@ import java.nio.charset.StandardCharsets
 class EmailNotificationProvider(
     private val emailSender: JavaMailSender,
     properties: ApplicationProperties
-) : NotificationProvider {
+) : NotificationProvider, NotificationSender<Unit> {
 
     private val log = KotlinLogging.logger {}
 
     private val emailProps = initEmailProps(properties)
+
+    override fun getNotificationType(): NotificationType {
+        return NotificationType.EMAIL_NOTIFICATION
+    }
+
+    override fun getSenderType(): String {
+        return "default"
+    }
+
+    override fun sendNotification(notification: FitNotification, config: Unit): NotificationSenderSendStatus {
+        send(notification)
+        return NotificationSenderSendStatus.SENT
+    }
+
+    override fun getConfigClass(): Class<Unit> {
+        return Unit::class.java
+    }
 
     override fun getType(): NotificationType {
         return NotificationType.EMAIL_NOTIFICATION

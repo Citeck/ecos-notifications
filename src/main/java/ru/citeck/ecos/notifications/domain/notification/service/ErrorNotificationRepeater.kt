@@ -9,6 +9,7 @@ import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.api.commands.UnsafeSendNotificationCommandExecutor
+import ru.citeck.ecos.notifications.domain.notification.converter.toNotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import java.time.Instant
@@ -80,10 +81,10 @@ class ErrorNotificationRepeater(
                     "Failed convert notification data to command. Notification: $notification"
                 )
 
-            unsafeSendNotificationCommandExecutor.execute(command)
+            val result = unsafeSendNotificationCommandExecutor.execute(command)
 
             val updatedNotification = notification.copy(
-                state = NotificationState.SENT,
+                state = result.toNotificationState(),
                 tryingCount = notification.tryingCount.plus(1),
                 lastTryingDate = Instant.now()
             )

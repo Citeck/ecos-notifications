@@ -1,8 +1,6 @@
 package ru.citeck.ecos.notifications.domain.bulkmail
 
-import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.GreenMailUtil
-import com.icegreen.greenmail.util.ServerSetupTest
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
@@ -14,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.BaseMailTest
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
@@ -23,7 +22,6 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
-import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.stringJsonFromResource
 import ru.citeck.ecos.records2.RecordRef
@@ -42,10 +40,7 @@ import javax.mail.internet.MimeMessage
 @ExtendWith(EcosSpringExtension::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(classes = [NotificationsApp::class])
-class BulkMailDispatchTest {
-
-    @Autowired
-    private lateinit var notificationTemplateService: NotificationTemplateService
+class BulkMailDispatchTest : BaseMailTest() {
 
     @Autowired
     private lateinit var bulkMailDao: BulkMailDao
@@ -58,8 +53,6 @@ class BulkMailDispatchTest {
 
     @Autowired
     private lateinit var recordsService: RecordsService
-
-    private lateinit var greenMail: GreenMail
 
     companion object {
 
@@ -82,9 +75,6 @@ class BulkMailDispatchTest {
 
     @BeforeEach
     fun setUp() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
-
         val notificationTemplate = Json.mapper.convert(
             stringJsonFromResource("template/bulk/bulk-notification-template.json"),
             NotificationTemplateWithMeta::class.java
@@ -113,11 +103,6 @@ class BulkMailDispatchTest {
                 )
                 .build()
         )
-    }
-
-    @AfterEach
-    fun stopMailServer() {
-        greenMail.stop()
     }
 
     @Test
@@ -503,7 +488,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
+            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -541,7 +526,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
+            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -580,7 +565,7 @@ class BulkMailDispatchTest {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
+            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(

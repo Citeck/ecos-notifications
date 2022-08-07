@@ -4,6 +4,8 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.sender.NotificationSender
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.NotificationType
 
@@ -11,9 +13,26 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 class FirebaseNotificationProvider(
     private val ecosFirebaseService: EcosFirebaseService,
     private val actionService: ActionService
-) : NotificationProvider {
+) : NotificationProvider, NotificationSender<Unit> {
 
     private val log = KotlinLogging.logger {}
+
+    override fun getConfigClass(): Class<Unit> {
+        return Unit::class.java
+    }
+
+    override fun getSenderType(): String {
+        return "default"
+    }
+
+    override fun getNotificationType(): NotificationType {
+        return NotificationType.FIREBASE_NOTIFICATION
+    }
+
+    override fun sendNotification(notification: FitNotification, config: Unit): NotificationSenderSendStatus {
+        send(notification)
+        return NotificationSenderSendStatus.SENT
+    }
 
     override fun getType(): NotificationType {
         return NotificationType.FIREBASE_NOTIFICATION
