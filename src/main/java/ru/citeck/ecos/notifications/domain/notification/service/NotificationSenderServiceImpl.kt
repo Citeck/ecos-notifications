@@ -20,15 +20,12 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
-import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
-import java.util.stream.Collectors
 import javax.activation.DataSource
 
 @Component

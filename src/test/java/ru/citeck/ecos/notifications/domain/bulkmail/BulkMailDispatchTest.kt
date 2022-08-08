@@ -4,7 +4,6 @@ import com.icegreen.greenmail.util.GreenMailUtil
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -488,7 +487,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -526,7 +525,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(
@@ -565,7 +564,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         var manyEmails = ""
 
         for (i in 1..200) {
-            manyEmails = manyEmails.plus("mail-${i}@mail.ru,")
+            manyEmails = manyEmails.plus("mail-$i@mail.ru,")
         }
 
         val bulkMail = bulkMailDao.save(

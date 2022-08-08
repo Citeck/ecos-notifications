@@ -3,7 +3,7 @@ package ru.citeck.ecos.notifications
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -53,10 +53,16 @@ class EmailNotificationTest : BaseMailTest() {
     fun setup() {
         templateModel["process-definition"] = "flowable\$confirm"
 
-        notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
-            NotificationTemplateWithMeta::class.java)!!
-        notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-template-wrong-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationHtmlTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template-html.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationWrongLocaleTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-template-wrong-locale-test.json"
+            ),
+            NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationHtmlTemplate)
         notificationTemplateService.save(notificationWrongLocaleTemplate)
@@ -440,7 +446,7 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
             ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
@@ -860,13 +866,14 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_condition.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         notificationSender.sendNotification(rawNotification)
 
         val emails = greenMail.receivedMessages
-        Assert.assertEquals(1, emails.size)
+        assertEquals(1, emails.size)
     }
 
     @Test
@@ -874,13 +881,14 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_template.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         notificationSender.sendNotification(rawNotification)
 
         val emails = greenMail.receivedMessages
-        Assert.assertEquals(1, emails.size)
+        assertEquals(1, emails.size)
     }
 
     @Test
@@ -888,7 +896,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_template.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         val notification = RawNotification(
@@ -902,7 +911,7 @@ class EmailNotificationTest : BaseMailTest() {
         notificationSender.sendNotification(notification)
 
         val emails = greenMail.receivedMessages
-        Assert.assertEquals(1, emails.size)
+        assertEquals(1, emails.size)
     }
 
     @Test
@@ -910,7 +919,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_condition.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         val notification = RawNotification(

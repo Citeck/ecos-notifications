@@ -2,8 +2,8 @@ package ru.citeck.ecos.notifications
 
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
-import org.junit.After
-import org.junit.Before
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
@@ -24,7 +24,7 @@ open class BaseMailTest {
 
     protected lateinit var notificationTemplate: NotificationTemplateWithMeta
 
-    @Before
+    @BeforeEach
     fun setupTestContext() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.start()
@@ -41,13 +41,15 @@ open class BaseMailTest {
 
         notificationTemplateService.save(notificationTemplate)
 
-        val defaultSenderDto = Json.mapper.convert(stringJsonFromResource("sender/default_email_sender.json"),
-            NotificationsSenderDto::class.java)!!
+        val defaultSenderDto = Json.mapper.convert(
+            stringJsonFromResource("sender/default_email_sender.json"),
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
     }
 
-    @After
+    @AfterEach
     fun stopMailServer() {
         greenMail.stop()
     }

@@ -1,25 +1,24 @@
 package ru.citeck.ecos.notifications.domain.sender
 
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers
-import org.junit.After
-import org.junit.Assert
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit4.SpringRunner
+import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.converter.toEntity
-import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.records2.predicate.model.Predicates
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
+@ExtendWith(EcosSpringExtension::class)
+@SpringBootTest(classes = [NotificationsApp::class])
 @DirtiesContext
 class SenderServiceContextTest {
     @Autowired
@@ -29,7 +28,7 @@ class SenderServiceContextTest {
     private lateinit var repository: NotificationsSenderRepository
     private val itemsCount = 10
 
-    @After
+    @AfterEach
     fun clearRepository() {
         repository.deleteAll()
         repository.flush()
@@ -40,58 +39,66 @@ class SenderServiceContextTest {
         val testDto = SenderTestData.getNewSender()
         val testDtoWithMeta = service.save(testDto)
 
-        Assert.assertNotNull(testDtoWithMeta.modifier)
+        assertNotNull(testDtoWithMeta.modifier)
         val createdDto = testDtoWithMeta.toDto()
         testDto.id = createdDto.id
 
-        val senderDtoMatcher: Matcher<NotificationsSenderDto> = Matchers.`is`(testDto)
-        Assert.assertThat(createdDto, senderDtoMatcher)
+        assertThat(createdDto).isEqualTo(testDto)
     }
 
     @Test
     fun deleteTest() {
         repository.save(SenderTestData.getTestSender().toEntity())
         service.delete(SenderTestData.TEST_SENDER_ID)
-        Assert.assertNull(service.getSenderById(SenderTestData.TEST_SENDER_ID))
+        assertNull(service.getSenderById(SenderTestData.TEST_SENDER_ID))
     }
 
     @Test
     fun modifyTest() {
         val testDto = SenderTestData.getTestSender()
         service.save(testDto)
-        val senderDtoMatcher: Matcher<NotificationsSenderDto> = Matchers.`is`(testDto)
-        Assert.assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto(), senderDtoMatcher)
+        assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto()).isEqualTo(testDto)
         testDto.order = 5f
         service.save(testDto)
-        Assert.assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto(), senderDtoMatcher)
+        assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto()).isEqualTo(testDto)
         testDto.enabled = true
         testDto.name = "changed name"
         service.save(testDto)
-        Assert.assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto(), senderDtoMatcher)
+        assertThat(service.getSenderById(SenderTestData.TEST_SENDER_ID)!!.toDto()).isEqualTo(testDto)
     }
 
     @Test
     fun queryTest() {
         val testDto = SenderTestData.getTestSender()
         repository.save(testDto.toEntity())
-        var result = service.getAll(50, 0, Predicates.eq(SenderTestData.PROP_NAME,
-            SenderTestData.getTestSender().name), null)
-        Assert.assertEquals(result.size, 1)
+        var result = service.getAll(
+            50, 0,
+            Predicates.eq(
+                SenderTestData.PROP_NAME,
+                SenderTestData.getTestSender().name
+            ),
+            null
+        )
+        assertEquals(result.size, 1)
 
-        val senderDtoMatcher: Matcher<NotificationsSenderDto> = Matchers.`is`(testDto)
-        Assert.assertThat(result[0].toDto(), senderDtoMatcher)
+        assertThat(result[0].toDto()).isEqualTo(testDto)
 
         repository.saveAll(generateEntities())
-        result = service.getAll(50, 0,
-            Predicates.and(Predicates.eq(SenderTestData.PROP_ENABLED, true),
-            Predicates.gt(SenderTestData.PROP_ORDER, 0)), null)
-        Assert.assertEquals(result.size, itemsCount)
+        result = service.getAll(
+            50, 0,
+            Predicates.and(
+                Predicates.eq(SenderTestData.PROP_ENABLED, true),
+                Predicates.gt(SenderTestData.PROP_ORDER, 0)
+            ),
+            null
+        )
+        assertEquals(result.size, itemsCount)
 
         result = service.getAll()
-        Assert.assertEquals(result.size, itemsCount + 1)
+        assertEquals(result.size, itemsCount + 1)
 
-        result = service.getAll(50,0,Predicates.eq("invalidPropName", true), null)
-        Assert.assertEquals(result.size, itemsCount + 1)
+        result = service.getAll(50, 0, Predicates.eq("invalidPropName", true), null)
+        assertEquals(result.size, itemsCount + 1)
     }
 
     private fun generateEntities(): List<NotificationsSenderEntity> {

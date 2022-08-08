@@ -192,7 +192,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
                 attributes.addAll(sendersService.getModel())
 
-                return attributes;
+                return attributes
             }
 
         private fun addAttributesRecursive(

@@ -1,13 +1,12 @@
 package ru.citeck.ecos.notifications.domain.sender.block
 
 import org.assertj.core.api.Assertions
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.BaseMailTest
@@ -23,9 +22,10 @@ import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.notifications.stringJsonFromResource
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class BlockedNotificationsSendersTest : BaseMailTest() {
 
@@ -53,7 +53,7 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
         )
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         val sender = Json.mapper.convert(
             stringJsonFromResource("sender/block_emails_sender.json"),
@@ -62,7 +62,7 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
         notificationsSenderService.save(sender)
     }
 
-    @After
+    @AfterEach
     fun clear() {
         notificationRepository.deleteAll()
     }
@@ -147,7 +147,6 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
 
         val emails = greenMail.receivedMessages
         Assertions.assertThat(emails.size).isEqualTo(1)
-
     }
 
     @Test
@@ -173,6 +172,4 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
         val emails = greenMail.receivedMessages
         Assertions.assertThat(emails.size).isEqualTo(0)
     }
-
-
 }

@@ -1,12 +1,12 @@
 package ru.citeck.ecos.notifications.domain.sender
 
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.util.MimeTypeUtils
 import ru.citeck.ecos.commands.CommandExecutor
 import ru.citeck.ecos.commands.CommandsService
@@ -19,15 +19,16 @@ import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.sender.command.AttachmentData
 import ru.citeck.ecos.notifications.domain.sender.command.CmdFitNotification
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
-import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
+import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.EmailNotificationProvider
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 import javax.mail.internet.MimeMultipart
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(classes = [ru.citeck.ecos.notifications.NotificationsApp::class])
+@ExtendWith(EcosSpringExtension::class)
+@SpringBootTest(classes = [NotificationsApp::class])
 class CommandNotificationSenderTest : BaseMailTest() {
 
     @Autowired
@@ -60,7 +61,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             "\\u0442\\u044c\\u0020\\u000d\\u000a"
     }
 
-    @Before
+    @BeforeEach
     fun setup() {
         templateModel["process-definition"] = "flowable\$confirm"
 
@@ -90,9 +91,9 @@ class CommandNotificationSenderTest : BaseMailTest() {
         notificationSenderService.sendNotification(rawNotification)
         val emails = greenMail.receivedMessages
 
-        Assert.assertEquals(1, emails.size)
-        Assert.assertEquals(TEST_SUBJECT, emails[0].subject)
-        Assert.assertEquals(RECIPIENT_EMAIL, emails[0].allRecipients[0].toString())
+        assertEquals(1, emails.size)
+        assertEquals(TEST_SUBJECT, emails[0].subject)
+        assertEquals(RECIPIENT_EMAIL, emails[0].allRecipients[0].toString())
     }
 
     @Test
@@ -120,20 +121,20 @@ class CommandNotificationSenderTest : BaseMailTest() {
 
         val emails = greenMail.receivedMessages
 
-        Assert.assertEquals(1, emails.size)
-        Assert.assertEquals(TEST_SUBJECT, emails[0].subject)
-        Assert.assertEquals(RECIPIENT_EMAIL, emails[0].allRecipients[0].toString())
+        assertEquals(1, emails.size)
+        assertEquals(TEST_SUBJECT, emails[0].subject)
+        assertEquals(RECIPIENT_EMAIL, emails[0].allRecipients[0].toString())
 
         val content = emails[0].content
 
-        Assert.assertTrue(content is MimeMultipart)
-        Assert.assertEquals(2, (content as MimeMultipart).count)
+        assertTrue(content is MimeMultipart)
+        assertEquals(2, (content as MimeMultipart).count)
 
         val isHaveAttachment = hasAttachment(
             content, MimeTypeUtils.TEXT_PLAIN.toString(),
             TestUtils.TEXT_TXT_FILENAME, "us-ascii", DECODED_ATTACHMENT_CONTENT
         )
-        Assert.assertTrue(isHaveAttachment)
+        assertTrue(isHaveAttachment)
     }
 
     @Test
@@ -148,7 +149,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             model = templateModel,
             from = "test@mail.ru"
         )
-        Assert.assertEquals(
+        assertEquals(
             NotificationSenderSendStatus.BLOCKED,
             notificationSenderService.sendNotification(notification)
         )
@@ -173,7 +174,8 @@ class CommandNotificationSenderTest : BaseMailTest() {
                         command.bcc,
                         CmdFitNotification.convertAttachments(command.attachments),
                         command.data
-                    ), Unit
+                    ),
+                    Unit
                 )
             }
         }

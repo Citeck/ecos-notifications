@@ -88,5 +88,4 @@ class NotificationCommandResultHolder(
 
         notificationDao.save(toSave)
     }
-
 }

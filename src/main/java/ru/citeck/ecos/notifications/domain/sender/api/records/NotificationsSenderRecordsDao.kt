@@ -15,11 +15,13 @@ import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
 
-
 @Component
 class NotificationsSenderRecordsDao(
     private val notificationsSenderService: NotificationsSenderService
-) : AbstractRecordsDao(), RecordsDeleteDao, RecordAttsDao, RecordMutateDtoDao<NotificationsSenderRecord>,
+) : AbstractRecordsDao(),
+    RecordsDeleteDao,
+    RecordAttsDao,
+    RecordMutateDtoDao<NotificationsSenderRecord>,
     RecordsQueryDao {
 
     companion object {
@@ -64,9 +66,11 @@ class NotificationsSenderRecordsDao(
         when (recsQuery.language) {
             PredicateService.LANGUAGE_PREDICATE -> {
                 val predicate = recsQuery.getQuery(Predicate::class.java)
-                result.setRecords(notificationsSenderService.getAll(maxItemsCount, skipCount, predicate, sort)
-                    .map { NotificationsSenderRecord(it) }
-                    .toList())
+                result.setRecords(
+                    notificationsSenderService.getAll(maxItemsCount, skipCount, predicate, sort)
+                        .map { NotificationsSenderRecord(it) }
+                        .toList()
+                )
                 result.setTotalCount(notificationsSenderService.getCount(predicate))
             }
             else -> {
@@ -80,6 +84,6 @@ class NotificationsSenderRecordsDao(
                 result.setTotalCount(notificationsSenderService.getCount())
             }
         }
-        return result;
+        return result
     }
 }

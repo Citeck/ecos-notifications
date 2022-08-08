@@ -2,15 +2,12 @@ package ru.citeck.ecos.notifications
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import ru.citeck.ecos.commands.CommandsService
-import ru.citeck.ecos.notifications.domain.notification.NotificationState
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
@@ -24,7 +21,7 @@ import java.util.*
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class HoldFailureNotificationTest: BaseMailTest() {
+class HoldFailureNotificationTest : BaseMailTest() {
 
     @Autowired
     private lateinit var commandsService: CommandsService

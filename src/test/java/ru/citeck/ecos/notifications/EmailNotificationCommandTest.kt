@@ -2,7 +2,6 @@ package ru.citeck.ecos.notifications
 
 import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,12 +20,12 @@ import java.util.*
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class EmailNotificationCommandTest :BaseMailTest() {
+class EmailNotificationCommandTest : BaseMailTest() {
 
     @Autowired
     private lateinit var commandsService: CommandsService
 
-    @Before
+    @BeforeEach
     fun setup() {
         val multiTemplate = Json.mapper.convert(
             stringJsonFromResource(

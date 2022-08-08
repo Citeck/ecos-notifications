@@ -21,7 +21,8 @@ data class NotificationsSenderDto(
     var createdBy: String? = null,
     val createdDate: Instant? = Instant.now(),
     var lastModifiedBy: String? = null,
-    val lastModifiedDate: Instant? = Instant.now()) {
+    val lastModifiedDate: Instant? = Instant.now()
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

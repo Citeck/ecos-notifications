@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
-import ru.citeck.ecos.notifications.domain.bulkmail.converter.toEntity
 import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecord
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
@@ -68,7 +67,7 @@ fun NotificationsSenderDto.toEntity(): NotificationsSenderEntity {
     entity.senderType = dto.senderType
     entity.templates = mapper.toString(dto.templates)
     entity.senderConfig = dto.senderConfig.toString()
-    return entity;
+    return entity
 }
 
 fun NotificationsSenderDtoWithMeta.toDto(): NotificationsSenderDto {

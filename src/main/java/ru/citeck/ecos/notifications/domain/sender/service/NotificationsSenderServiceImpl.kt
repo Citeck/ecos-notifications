@@ -18,7 +18,6 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.*
 import java.lang.reflect.Field
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 
@@ -135,17 +134,19 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         when (predicate) {
             is ComposedPredicate -> {
                 val specifications = ArrayList<Specification<NotificationsSenderEntity>>()
-                predicate.getPredicates().forEach(Consumer { subPredicate: Predicate? ->
-                    var subSpecification: Specification<NotificationsSenderEntity>? = null
-                    if (subPredicate is ValuePredicate) {
-                        subSpecification = fromValuePredicate((subPredicate as ValuePredicate?)!!)
-                    } else if (subPredicate is ComposedPredicate) {
-                        subSpecification = toSpecification(subPredicate)
+                predicate.getPredicates().forEach(
+                    Consumer { subPredicate: Predicate? ->
+                        var subSpecification: Specification<NotificationsSenderEntity>? = null
+                        if (subPredicate is ValuePredicate) {
+                            subSpecification = fromValuePredicate((subPredicate as ValuePredicate?)!!)
+                        } else if (subPredicate is ComposedPredicate) {
+                            subSpecification = toSpecification(subPredicate)
+                        }
+                        if (subSpecification != null) {
+                            specifications.add(subSpecification)
+                        }
                     }
-                    if (subSpecification != null) {
-                        specifications.add(subSpecification)
-                    }
-                })
+                )
                 if (specifications.isNotEmpty()) {
                     result = specifications[0]
                     if (specifications.size > 1) {
@@ -169,7 +170,7 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
     }
 
     private fun fromValuePredicate(valuePredicate: ValuePredicate): Specification<NotificationsSenderEntity>? {
-        //ValuePredicate.Type.IN was not implemented
+        // ValuePredicate.Type.IN was not implemented
         if (StringUtils.isBlank(valuePredicate.getAttribute())) {
             return null
         }
@@ -178,47 +179,48 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
             return null
         }
         var specification: Specification<NotificationsSenderEntity>? = null
-        if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()
-            || ValuePredicate.Type.LIKE == valuePredicate.getType()
+        if (ValuePredicate.Type.CONTAINS == valuePredicate.getType() ||
+            ValuePredicate.Type.LIKE == valuePredicate.getType()
         ) {
             val recordRef = RecordRef.valueOf(valuePredicate.getValue().asText())
-            val tmpValue = if (RecordRef.isEmpty(recordRef)) valuePredicate.getValue().asText() else recordRef.id
-            val attributeValue = if (ValuePredicate.Type.CONTAINS == valuePredicate.getType())
-                "%" + tmpValue.lowercase(Locale.getDefault()) + "%" else tmpValue.lowercase(Locale.getDefault())
+            val tmpValue = if (RecordRef.isEmpty(recordRef)) {
+                valuePredicate.getValue().asText()
+            } else {
+                recordRef.id
+            }
+            val attributeValue = if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()) {
+                "%" + tmpValue.lowercase() + "%"
+            } else {
+                tmpValue.lowercase()
+            }
             specification = Specification<NotificationsSenderEntity> { root, query, builder ->
                 builder.like(builder.lower(root.get(attributeName)), attributeValue)
             }
         } else {
             val objectValue = getObjectValue(attributeName, valuePredicate.getValue().asText())
             if (objectValue != null) {
+                @Suppress("UNCHECKED_CAST")
+                val comparableValue = objectValue as Comparable<Comparable<*>>
+
                 if (ValuePredicate.Type.EQ == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
                         builder.equal(root.get<Any>(attributeName), objectValue)
                     }
                 } else if (ValuePredicate.Type.GT == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.greaterThan<Comparable<*>>(
-                            root.get<Comparable<Comparable<*>>>(attributeName),
-                            objectValue
-                        )
+                        builder.greaterThan(root.get(attributeName), comparableValue)
                     }
                 } else if (ValuePredicate.Type.GE == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.greaterThanOrEqualTo<Comparable<*>>(
-                            root.get<Comparable<Comparable<*>>>(attributeName),
-                            objectValue
-                        )
+                        builder.greaterThanOrEqualTo(root.get(attributeName), comparableValue)
                     }
                 } else if (ValuePredicate.Type.LT == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.lessThan<Comparable<*>>(root.get<Comparable<Comparable<*>>>(attributeName), objectValue)
+                        builder.lessThan(root.get(attributeName), comparableValue)
                     }
                 } else if (ValuePredicate.Type.LE == valuePredicate.getType()) {
                     specification = Specification<NotificationsSenderEntity> { root, query, builder ->
-                        builder.lessThanOrEqualTo<Comparable<*>>(
-                            root.get<Comparable<Comparable<*>>>(attributeName),
-                            objectValue
-                        )
+                        builder.lessThanOrEqualTo(root.get(attributeName), comparableValue)
                     }
                 }
             }

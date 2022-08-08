@@ -30,5 +30,4 @@ class NotificationSenderConfig {
 
         return sendersMap
     }
-
 }

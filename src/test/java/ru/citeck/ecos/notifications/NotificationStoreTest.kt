@@ -1,8 +1,6 @@
 package ru.citeck.ecos.notifications
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +18,7 @@ import java.util.*
 @ExtendWith(EcosSpringExtension::class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(classes = [NotificationsApp::class])
-class NotificationStoreTest: BaseMailTest() {
+class NotificationStoreTest : BaseMailTest() {
 
     @Autowired
     private lateinit var commandsService: CommandsService
