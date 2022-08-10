@@ -1,5 +1,21 @@
+image: maven:latest
+
 stages:
   - mirror
+  - test
+
+test:
+  tags:
+    - docker-com
+  stage: test
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event')
+  cache:
+    paths:
+      - .m2/repository/
+      - target/
+  script:
+    - mvn test
 
 mirror:
   tags:
