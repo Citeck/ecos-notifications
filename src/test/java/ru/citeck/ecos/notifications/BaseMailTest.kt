@@ -27,7 +27,7 @@ open class BaseMailTest {
     @BeforeEach
     fun setupTestContext() {
         greenMail = GreenMail(ServerSetupTest.SMTP)
-        greenMail.start()
+        greenMail.reset()
 
         templateModel = mutableMapOf()
         templateModel["firstName"] = "Ivan"

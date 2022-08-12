@@ -56,4 +56,12 @@ data class NotificationDto(
     override fun hashCode(): Int {
         return id?.hashCode() ?: 0
     }
+
+    override fun toString(): String {
+        return "NotificationDto(id=$id, extId='$extId', record=$record, template=$template, type=$type, " +
+            "errorMessage='$errorMessage', errorStackTrace='$errorStackTrace', bulkMailRef=$bulkMailRef, " +
+            "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state, " +
+            "createdBy=$createdBy, createdDate=$createdDate, lastModifiedBy=$lastModifiedBy, " +
+            "lastModifiedDate=$lastModifiedDate)"
+    }
 }

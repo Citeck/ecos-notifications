@@ -1,4 +1,4 @@
-image: maven:latest
+image:  nexus.citeck.ru/ecos-maven-nonroot:1.0.0
 
 stages:
   - mirror
@@ -10,12 +10,16 @@ test:
   stage: test
   rules:
     - if: ($CI_PIPELINE_SOURCE == 'merge_request_event')
+  variables:
+    MAVEN_CLI_OPTS: "--batch-mode"
+    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   cache:
     paths:
       - .m2/repository/
       - target/
   script:
-    - mvn test
+    - sudo chown -R maven:maven /builds
+    - mvn $MAVEN_CLI_OPTS test
 
 mirror:
   tags:
