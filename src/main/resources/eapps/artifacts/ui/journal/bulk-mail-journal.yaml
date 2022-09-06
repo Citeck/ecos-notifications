@@ -2,6 +2,8 @@
 id: bulk-mail
 name: { ru: Массовая рассылка, en: Bulk mail }
 
+system: true
+
 actions:
   - uiserv/action@view-dashboard
   - uiserv/action@delete

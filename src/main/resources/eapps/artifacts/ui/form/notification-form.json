@@ -1,5 +1,6 @@
 {
   "id": "notification-form",
+  "system": true,
   "formKey": "notification-form",
   "title": {
     "en": "Notification form"

@@ -2,6 +2,8 @@
 id: notification-templates
 name: { ru: Шаблоны уведомлений, en: Notification templates }
 
+system: true
+
 actions:
   - uiserv/action@download-base64-data-zip
   - uiserv/action@edit

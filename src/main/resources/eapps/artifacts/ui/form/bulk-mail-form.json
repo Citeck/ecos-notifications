@@ -1,5 +1,6 @@
 {
   "id": "bulk-mail",
+  "system": true,
   "formKey": "",
   "title": {
     "en": "Bulk mail"

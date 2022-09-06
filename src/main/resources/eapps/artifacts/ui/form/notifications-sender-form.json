@@ -1,5 +1,6 @@
 {
   "id": "notifications-sender-form",
+  "system": true,
   "formKey": "notifications-sender-form",
   "title": {
     "en": "Notifications sender"

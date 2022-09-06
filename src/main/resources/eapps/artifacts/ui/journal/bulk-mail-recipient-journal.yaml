@@ -3,6 +3,8 @@ id: bulk-mail-recipient
 name: { ru: Получатели массовой рассылки, en: Bulk mail recipients }
 editable: false
 
+system: true
+
 actions:
   - uiserv/action@delete
 

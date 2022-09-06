@@ -3,6 +3,8 @@ id: notifications-sender
 name: { ru: Отправители, en: Senders }
 editable: true
 
+system: true
+
 actions:
   - uiserv/action@view-dashboard
   - uiserv/action@view-dashboard-in-background

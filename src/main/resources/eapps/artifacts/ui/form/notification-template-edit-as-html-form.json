@@ -1,5 +1,6 @@
 {
   "id": "notification-template-edit-as-html-form",
+  "system": true,
   "formKey": "",
   "title": {
     "en": "Notification template edit as HTML form"

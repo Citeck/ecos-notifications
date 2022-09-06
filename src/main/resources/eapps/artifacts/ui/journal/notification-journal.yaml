@@ -3,6 +3,8 @@ id: notification
 name: { ru: Уведомления, en: Notifications }
 editable: false
 
+system: true
+
 actions:
   - uiserv/action@view-dashboard
 

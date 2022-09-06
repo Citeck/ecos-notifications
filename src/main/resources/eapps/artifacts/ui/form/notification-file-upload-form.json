@@ -1,5 +1,6 @@
 {
   "id": "ecos-notification-file-upload",
+  "system": true,
   "formKey": "ecos-notification-file-upload",
   "title": {
     "en": "ecos-notification-file-upload"
