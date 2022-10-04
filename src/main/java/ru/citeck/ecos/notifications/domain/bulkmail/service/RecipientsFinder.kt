@@ -3,8 +3,10 @@ package ru.citeck.ecos.notifications.domain.bulkmail.service
 import com.google.common.base.CharMatcher
 import com.google.common.base.Splitter
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.config.lib.consumer.bean.EcosConfig
-import ru.citeck.ecos.notifications.domain.bulkmail.converter.*
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.from
+import ru.citeck.ecos.notifications.domain.bulkmail.converter.isAuthorityGroupRef
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
@@ -29,6 +31,7 @@ class RecipientsFinder(
 
     private val emailPattern = Pattern.compile("^.+@.+\\..+$")
     private val recipientsAttribute = "recipients[]?json"
+    private val emptyObjectData = ObjectData.create()
 
     @EcosConfig("bulk-mail-custom-recipients-providers")
     var customProviders: List<String> = emptyList()
@@ -59,11 +62,17 @@ class RecipientsFinder(
             if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
         }
 
-        val usersFromGroup = recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
-        allUsers.addAll(usersFromGroup)
+        if (groups.isNotEmpty()) {
+            val usersFromGroup =
+                recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
+            allUsers.addAll(usersFromGroup)
+        }
 
+        if (allUsers.isEmpty()) {
+            return emptyList();
+        }
         return recordsService.getAtts(allUsers, UserInfo::class.java)
-            .filter { it.email?.isNotBlank() ?: false }
+            .filter { activeUserFilter(it) }
             .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
     }
 
@@ -116,17 +125,24 @@ class RecipientsFinder(
             result.add(BulkMailRecipientDto.from(email, bulkMail.recordRef))
         }
 
-        recordsService.getAtts(userRefs, UserInfo::class.java)
-            .filter { it.email?.isNotBlank() ?: false }
-            .forEach { userInfo ->
-                result.add(BulkMailRecipientDto.from(userInfo, bulkMail.recordRef))
-            }
+        if (userRefs.isNotEmpty()) {
+            recordsService.getAtts(userRefs, UserInfo::class.java)
+                .filter { activeUserFilter(it) }
+                .forEach { userInfo ->
+                    result.add(BulkMailRecipientDto.from(userInfo, bulkMail.recordRef))
+                }
+        }
 
         return result
     }
 
+    private fun activeUserFilter(user: UserInfo) = (user.disabled != true) && (user.email?.isNotBlank() ?: false)
+
     private fun getRecipientsFromCustom(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
         val result = mutableListOf<BulkMailRecipientDto>()
+        if (emptyObjectData == bulkMail.recipientsData.custom) {
+            return result;
+        }
 
         customProviders.forEach { provider ->
 
@@ -149,7 +165,10 @@ class RecipientsFinder(
 }
 
 data class UserInfo(
-    @AttName("email")
+    @AttName("ecos:isPersonDisabled")
+    var disabled: Boolean? = false,
+
+   @AttName("email")
     var email: String? = "",
 
     @AttName(".disp")
@@ -165,10 +184,8 @@ data class GroupInfo(
 )
 
 data class RecipientInfo(
-
     @AttName("address")
     var address: String? = "",
-
 
     @AttName(".disp")
     var disp: String? = "",
