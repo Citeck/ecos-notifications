@@ -407,7 +407,7 @@ class RecipientsFinderTest {
 
     class DobbyRecord(
 
-        @AttName("isDisabled")
+        @AttName("personDisabled")
         var disabled: Boolean = true,
 
         @AttName("email")

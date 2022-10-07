@@ -158,7 +158,7 @@ class RecipientsFinder(
 }
 
 data class UserInfo(
-    @AttName("isDisabled")
+    @AttName("personDisabled")
     var disabled: Boolean? = false,
 
    @AttName("email")
