@@ -93,8 +93,7 @@ class RecipientsFinderTest {
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
                     harryRef,
-                    severusRef,
-                    dobbyRef
+                    severusRef
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -123,6 +122,35 @@ class RecipientsFinderTest {
                 )
             )
 
+    }
+
+    @Test
+    fun `resolve recipients should ignore disabled persons`() {
+        val bulkMail = BulkMailDto(
+            id = null,
+            recipientsData = BulkMailRecipientsDataDto(
+                refs = listOf(
+                    harryRef,
+                    severusRef,
+                    dobbyRef
+                )
+            ),
+            type = NotificationType.EMAIL_NOTIFICATION,
+        )
+
+        val recipients = recipientsFinder.resolveRecipients(bulkMail).map { RecipientsEqualsWrapper(it) }
+
+        assertThat(recipients.size).isEqualTo(2)
+        assertThat(recipients).doesNotContain(
+            RecipientsEqualsWrapper(
+                BulkMailRecipientDto(
+                    address = dobbyRecord.email,
+                    name = dobbyRecord.name,
+                    record = dobbyRef,
+                    bulkMailRef = bulkMail.recordRef
+                )
+            )
+        )
     }
 
     @Test
