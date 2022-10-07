@@ -46,10 +46,12 @@ class RecipientsFinderTest {
     companion object {
         private val harryRef = RecordRef.valueOf("alfresco/people@harry")
         private val severusRef = RecordRef.valueOf("alfresco/people@severus")
+        private val dobbyRef = RecordRef.valueOf("alfresco/people@dobby")
         private val hogwartsRef = RecordRef.valueOf("alfresco/authority@GROUP_hogwarts")
 
         private val harryRecord = PotterRecord()
         private val severusRecord = SnapeRecord()
+        private val dobbyRecord = DobbyRecord()
         private val hogwartsRecord = HogwartsRecord()
     }
 
@@ -66,6 +68,10 @@ class RecipientsFinderTest {
                 .addRecord(
                     severusRef.id,
                     severusRecord
+                )
+                .addRecord(
+                    dobbyRef.id,
+                    dobbyRecord
                 )
                 .build()
         )
@@ -87,7 +93,8 @@ class RecipientsFinderTest {
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
                     harryRef,
-                    severusRef
+                    severusRef,
+                    dobbyRef
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -396,6 +403,21 @@ class RecipientsFinderTest {
 
         @AttName(".id")
         val id: RecordRef = severusRef
+    )
+
+    class DobbyRecord(
+
+        @AttName("isDisabled")
+        var disabled: Boolean = true,
+
+        @AttName("email")
+        val email: String = "elf.dobby@hogwarts.com",
+
+        @AttName(".disp")
+        val name: String = "Elf Dobby",
+
+        @AttName(".id")
+        val id: RecordRef = dobbyRef
     )
 
     class HogwartsRecord(

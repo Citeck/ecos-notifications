@@ -62,15 +62,10 @@ class RecipientsFinder(
             if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
         }
 
-        if (groups.isNotEmpty()) {
-            val usersFromGroup =
-                recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
-            allUsers.addAll(usersFromGroup)
-        }
+        val usersFromGroup =
+            recordsService.getAtts(groups, GroupInfo::class.java).map { it.containedUsers }.flatten()
+        allUsers.addAll(usersFromGroup)
 
-        if (allUsers.isEmpty()) {
-            return emptyList();
-        }
         return recordsService.getAtts(allUsers, UserInfo::class.java)
             .filter { activeUserFilter(it) }
             .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
@@ -125,13 +120,11 @@ class RecipientsFinder(
             result.add(BulkMailRecipientDto.from(email, bulkMail.recordRef))
         }
 
-        if (userRefs.isNotEmpty()) {
-            recordsService.getAtts(userRefs, UserInfo::class.java)
-                .filter { activeUserFilter(it) }
-                .forEach { userInfo ->
-                    result.add(BulkMailRecipientDto.from(userInfo, bulkMail.recordRef))
-                }
-        }
+        recordsService.getAtts(userRefs, UserInfo::class.java)
+            .filter { activeUserFilter(it) }
+            .forEach { userInfo ->
+                result.add(BulkMailRecipientDto.from(userInfo, bulkMail.recordRef))
+            }
 
         return result
     }
@@ -165,7 +158,7 @@ class RecipientsFinder(
 }
 
 data class UserInfo(
-    @AttName("ecos:isPersonDisabled")
+    @AttName("isDisabled")
     var disabled: Boolean? = false,
 
    @AttName("email")
