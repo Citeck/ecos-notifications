@@ -29,7 +29,7 @@ public class FreemarkerTemplateEngineService {
         try {
             template = freemarkerCfg.getTemplate(templateKey, locale);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed find freemarker template. Key: <%s>, Locale:\n%s",
+            throw new RuntimeException(String.format("Failed to find freemarker template. Key: <%s>, Locale:\n%s",
                 templateKey, locale), e);
         }
 
