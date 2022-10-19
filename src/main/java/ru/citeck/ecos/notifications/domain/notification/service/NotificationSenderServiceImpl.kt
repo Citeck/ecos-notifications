@@ -20,15 +20,12 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
-import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.service.providers.NotificationProvider
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
-import java.util.stream.Collectors
 import javax.activation.DataSource
 
 @Component
@@ -66,7 +63,6 @@ class NotificationSenderServiceImpl(
         if (senders.isEmpty()) {
             throw NotificationException("Failed to find notifications sender for type '${notification.type}'")
         }
-
         val fitNotification = convertRawNotificationToFit(notification)
 
         senders.forEach { sender ->
@@ -157,10 +153,14 @@ class NotificationSenderServiceImpl(
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
-        val body = if (rawNotification.isExplicitMsgPayload()) {
-            rawNotification.body
+        //TODO: Revert this.
+        // 99.9% that this is not a fix for the problem and will be reproduced in the future.
+        // Decided to merge and watch.
+        var body: String? = null
+        if (rawNotification.isExplicitMsgPayload()) {
+            body = rawNotification.body
         } else {
-            prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
+            body = prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
         val attachments = prepareAttachments(rawNotification.model)
         val data = prepareData(rawNotification.model)
