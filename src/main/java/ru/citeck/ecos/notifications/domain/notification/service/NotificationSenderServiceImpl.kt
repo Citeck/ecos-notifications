@@ -153,6 +153,9 @@ class NotificationSenderServiceImpl(
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
+        //TODO: Revert this.
+        // 99.9% that this is not a fix for the problem and will be reproduced in the future.
+        // Decided to merge and watch.
         var body: String? = null
         if (rawNotification.isExplicitMsgPayload()) {
             body = rawNotification.body
