@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.service
 
+import mu.KotlinLogging
 import org.apache.commons.collections.CollectionUtils
 import org.apache.commons.lang.StringUtils
 import org.springframework.data.domain.PageRequest
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.util.Assert
+import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -15,8 +17,12 @@ import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRep
 import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
-import ru.citeck.ecos.records2.predicate.model.Predicate
-import ru.citeck.ecos.records2.predicate.model.VoidPredicate
+import ru.citeck.ecos.records2.predicate.model.*
+import java.lang.reflect.Field
+import java.time.DateTimeException
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
@@ -29,6 +35,10 @@ class NotificationTemplateService(
     private val templateRepository: NotificationTemplateRepository,
     private val templateConverter: TemplateConverter
 ) {
+
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     private var listener: Consumer<NotificationTemplateWithMeta>? = null
 
@@ -125,7 +135,8 @@ class NotificationTemplateService(
 
         val page = PageRequest.of(skip / max, max, sorting)
 
-        return templateRepository.findAll(toSpec(predicate), page)
+        val specification: Specification<NotificationTemplateEntity>? = specificationFromPredicate(predicate)
+        return templateRepository.findAll(specification, page)
             .map { entity: NotificationTemplateEntity ->
                 templateConverter.entityToDto(
                     entity
@@ -135,7 +146,7 @@ class NotificationTemplateService(
     }
 
     fun getCount(predicate: Predicate): Long {
-        val spec = toSpec<NotificationTemplateEntity>(predicate)
+        val spec = specificationFromPredicate(predicate)
         return if (spec != null) templateRepository.count(spec) else count
     }
 
@@ -154,6 +165,207 @@ class NotificationTemplateService(
 
     fun addListener(listener: Consumer<NotificationTemplateWithMeta>) {
         this.listener = listener
+    }
+
+    private fun specificationFromPredicate(predicate: Predicate?): Specification<NotificationTemplateEntity>? {
+        if (predicate == null) {
+            return null
+        }
+        var result: Specification<NotificationTemplateEntity>? = null
+        if (predicate is ComposedPredicate) {
+            val specifications: ArrayList<Specification<NotificationTemplateEntity>> =
+                ArrayList<Specification<NotificationTemplateEntity>>()
+            predicate.getPredicates().forEach(
+                Consumer { subPredicate: Predicate? ->
+                    var subSpecification: Specification<NotificationTemplateEntity>? = null
+                    if (subPredicate is ValuePredicate) {
+                        subSpecification = fromValuePredicate(subPredicate)
+                    } else if (subPredicate is ComposedPredicate) {
+                        subSpecification = specificationFromPredicate(subPredicate)
+                    }
+                    if (subSpecification != null) {
+                        specifications.add(subSpecification)
+                    }
+                })
+            if (specifications.isNotEmpty()) {
+                result = specifications[0]
+                if (specifications.size > 1) {
+                    for (idx in 1 until specifications.size) {
+                        result =
+                            if (predicate is AndPredicate) {
+                                result!!.and(specifications[idx])
+                            } else {
+                                result!!.or(specifications[idx])
+                            }
+                    }
+                }
+            }
+            return result
+        } else if (predicate is ValuePredicate) {
+            return fromValuePredicate(predicate)
+        }
+        log.warn("Unexpected predicate class: {}", predicate.javaClass)
+        return null
+    }
+
+    private fun fromValuePredicate(valuePredicate: ValuePredicate): Specification<NotificationTemplateEntity>? {
+        //ValuePredicate.Type.IN was not implemented
+        if (StringUtils.isBlank(valuePredicate.getAttribute())) {
+            return null
+        }
+        val attributeName = NotificationTemplateEntity.replaceNameValid(StringUtils.trim(valuePredicate.getAttribute()))
+        if (NotificationTemplateEntity.isAttributeNameNotValid(attributeName)) {
+            return null
+        }
+
+        var specification: Specification<NotificationTemplateEntity>? = null
+        if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()
+            || ValuePredicate.Type.LIKE == valuePredicate.getType()
+        ) {
+            if (canSearchAsString(attributeName)) {
+                val attributeValue = "%" + valuePredicate.getValue().asText().lowercase() + "%"
+                specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                _: CriteriaQuery<*>?,
+                                                builder: CriteriaBuilder ->
+                    builder.like(builder.lower(root.get(attributeName)), attributeValue)
+                }
+            } else {
+                return null
+            }
+        } else {
+            val objectValue: Comparable<*>? = getObjectValue(attributeName, valuePredicate.getValue().asText())
+            if (objectValue != null) {
+                if (ValuePredicate.Type.EQ == valuePredicate.getType()) {
+                    specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                    _: CriteriaQuery<*>?,
+                                                    builder: CriteriaBuilder ->
+                        builder.equal(root.get<Any>(attributeName), objectValue)
+                    }
+                } else if (ValuePredicate.Type.GT == valuePredicate.getType()) {
+                    specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                    _: CriteriaQuery<*>?,
+                                                    builder: CriteriaBuilder ->
+                        builder.greaterThan<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
+                    }
+                } else if (ValuePredicate.Type.GE == valuePredicate.getType()) {
+                    specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                    _: CriteriaQuery<*>?,
+                                                    builder: CriteriaBuilder ->
+                        builder.greaterThanOrEqualTo<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
+                    }
+                } else if (ValuePredicate.Type.LT == valuePredicate.getType()) {
+                    specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                    _: CriteriaQuery<*>?,
+                                                    builder: CriteriaBuilder ->
+                        builder.lessThan<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
+                    }
+                } else if (ValuePredicate.Type.LE == valuePredicate.getType()) {
+                    specification = Specification { root: Root<NotificationTemplateEntity>,
+                                                    _: CriteriaQuery<*>?,
+                                                    builder: CriteriaBuilder ->
+                        builder.lessThanOrEqualTo<Comparable<*>>(
+                            root.get<Comparable<Comparable<*>>>(attributeName),
+                            objectValue
+                        )
+                    }
+                }
+            }
+        }
+        return specification
+    }
+
+    private fun canSearchAsString(attributeName: String): Boolean {
+        var searchField = getTemplateField(attributeName)
+        if (searchField == null) {
+            return false
+        }
+        if (searchField.type == Instant::class.java || searchField.type == java.util.Date::class.java) {
+            return false
+        }
+        return true
+    }
+
+    private fun getTemplateField(attributeName: String): Field? {
+        var searchField: Field? = null
+        try {
+            searchField = NotificationTemplateEntity::class.java.getDeclaredField(attributeName)
+        } catch (e: NoSuchFieldException) {
+            var superclass: Class<in Nothing> = NotificationTemplateEntity::class.java.superclass
+            while (searchField == null) {
+                searchField = superclass.getDeclaredField(attributeName)
+                superclass = superclass::class.java.superclass
+            }
+        }
+        return searchField
+    }
+
+    private fun getObjectValue(attributeName: String, attributeValue: String): Comparable<*>? {
+        var searchField = getTemplateField(attributeName)
+        if (searchField != null)
+            try {
+                when (searchField.type) {
+                    java.lang.String::class.java, String::class.java -> {
+                        return attributeValue
+                    }
+
+                    java.lang.Long::class.java, Long::class.java -> {
+                        return attributeValue.toLong()
+                    }
+
+                    java.lang.Boolean::class.java, Boolean::class.java -> {
+                        return attributeValue.toBoolean()
+                    }
+
+                    java.util.Date::class.java -> {
+                        //saved values has no milliseconds part cause of dateFormat
+                        try {
+                            val calendar = Calendar.getInstance()
+                            calendar.timeInMillis = attributeValue.toLong()
+                            calendar[Calendar.MILLISECOND] = 0
+                            return calendar.time
+                        } catch (formatException: NumberFormatException) {
+                            try {
+                                var valueObject =
+                                    Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(attributeValue))
+                                valueObject = valueObject.truncatedTo(ChronoUnit.SECONDS)
+                                return Date.from(valueObject)
+                            } catch (e: DateTimeException) {
+                                log.error(
+                                    "Failed to convert attribute '{}' value ({}) to date", attributeName,
+                                    attributeValue, e
+                                )
+                            }
+                        }
+                    }
+
+                    Instant::class.java -> {
+                        return Json.mapper.convert(attributeValue.toLong(), Instant::class.java)
+                    }
+
+                    java.lang.Float::class.java, Float::class.java -> {
+                        return attributeValue.toFloat()
+                    }
+
+                    else -> {
+                        log.error("Unexpected attribute type {} for predicate", searchField.type)
+                    }
+                }
+            } catch (e: NumberFormatException) {
+                log.error(
+                    "Failed to convert attribute '{}' value ({}) to number", attributeName,
+                    attributeValue, e
+                )
+            }
+        return null
     }
 
     private fun <T> toSpec(pred: Predicate): Specification<T>? {
