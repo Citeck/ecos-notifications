@@ -214,7 +214,7 @@ class NotificationTemplateService(
             return null
         }
         val attributeName = NotificationTemplateEntity.replaceNameValid(StringUtils.trim(valuePredicate.getAttribute()))
-        if (!NotificationTemplateEntity.isAttributeNameValid(attributeName)) {
+        if (NotificationTemplateEntity.isAttributeNameNotValid(attributeName)) {
             return null
         }
 

@@ -61,7 +61,6 @@ class NotificationTemplateEntity @JvmOverloads constructor(
     companion object {
         private const val serialVersionUID = 1L
 
-        @JvmStatic
         fun replaceNameValid(attributeName: String): String {
             if (RecordConstants.ATT_MODIFIED.equals(attributeName)) {
                 return "lastModifiedDate"
@@ -69,18 +68,14 @@ class NotificationTemplateEntity @JvmOverloads constructor(
             if (RecordConstants.ATT_MODIFIER.equals(attributeName)) {
                 return "lastModifiedBy"
             }
-            if ("moduleId".equals(attributeName)){
+            if ("moduleId".equals(attributeName)) {
                 return "extId"
             }
             return attributeName
         }
 
-        @JvmStatic
-        fun isAttributeNameValid(attributeName: String): Boolean {
-            if (RecordConstants.ATT_TYPE.equals(attributeName)){
-                return false
-            }
-            return true
+        fun isAttributeNameNotValid(attributeName: String): Boolean {
+            return RecordConstants.ATT_TYPE.equals(attributeName)
         }
     }
 
