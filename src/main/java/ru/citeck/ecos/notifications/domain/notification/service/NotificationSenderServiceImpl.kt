@@ -219,8 +219,11 @@ class NotificationSenderServiceImpl(
             val fileBytes: ByteArray = Base64.getMimeDecoder().decode(contentStr)
 
             val fileInfoMap: Map<String, String> = it[NotificationConstants.PREVIEW_INFO] as Map<String, String>
+            log.debug { "Attachment preview info:\n $fileInfoMap" }
             val fileName: String = getAttachmentName(fileInfoMap)
+            log.debug { "Set attachment file name $fileName" }
             val fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
+            log.debug { "Attachment mimetype $fileMimeType" }
             if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
 
             result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
@@ -231,8 +234,10 @@ class NotificationSenderServiceImpl(
 
     private fun getAttachmentName(infoAttachment: Map<String, String>): String {
         val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
+        log.debug { "Attachment original name '${fileName}'" }
         if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
         val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
+        log.debug { "Attachment original ext '${fileExt}'" }
         if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {

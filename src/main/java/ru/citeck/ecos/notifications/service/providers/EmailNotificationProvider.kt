@@ -10,6 +10,7 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
+import javax.mail.internet.MimeUtility
 
 @Component
 class EmailNotificationProvider(
@@ -61,6 +62,7 @@ class EmailNotificationProvider(
         helper.setBcc(fitNotification.bcc.toTypedArray())
 
         for ((key, value) in fitNotification.attachments) {
+            log.debug {"Add an attachment '$key' to the MimeMessage as '${MimeUtility.encodeText(key)}'"}
             helper.addAttachment(key, value)
         }
 
