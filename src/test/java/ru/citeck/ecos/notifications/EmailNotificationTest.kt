@@ -779,6 +779,7 @@ class EmailNotificationTest : BaseMailTest() {
             "bytes" to "MTIz",
             "previewInfo" to mapOf(
                 "originalName" to "test",
+                "originalExt" to "",
                 "mimetype" to ""
             )
         )
