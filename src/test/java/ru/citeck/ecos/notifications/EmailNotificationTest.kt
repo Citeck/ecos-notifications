@@ -806,14 +806,14 @@ class EmailNotificationTest : BaseMailTest() {
     }
 
     @Test
-    fun sendEmailWithEmptyMimetypeShouldThrow() {
+    fun sendEmailWithEmptyMimetypeAndOriginalExtShouldThrow() {
         val localModel = templateModel
 
         localModel["_attachments"] = mapOf(
             "bytes" to "MTIz",
             "previewInfo" to mapOf(
                 "originalName" to "test",
-                "originalExt" to "txt",
+                "originalExt" to "",
                 "mimetype" to ""
             )
         )
@@ -834,14 +834,14 @@ class EmailNotificationTest : BaseMailTest() {
     }
 
     @Test
-    fun sendEmailWithNullMimetypeShouldThrow() {
+    fun sendEmailWithNullMimetypeAndNullOriginalExtShouldThrow() {
         val localModel = templateModel
 
         localModel["_attachments"] = mapOf(
             "bytes" to "MTIz",
             "previewInfo" to mapOf(
                 "originalName" to "test",
-                "originalExt" to "txt",
+                "originalExt" to null,
                 "mimetype" to null
             )
         )
