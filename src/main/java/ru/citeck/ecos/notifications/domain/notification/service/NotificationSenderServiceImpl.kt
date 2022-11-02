@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification.service
 import com.sun.istack.internal.ByteArrayDataSource
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.web.server.MimeMappings
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
@@ -27,6 +28,7 @@ import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
 import javax.activation.DataSource
+import org.springframework.mail.javamail.MimeMessageHelper
 
 @Component
 class NotificationSenderServiceImpl(
@@ -222,8 +224,18 @@ class NotificationSenderServiceImpl(
             log.debug { "Attachment preview info:\n $fileInfoMap" }
             val fileName: String = getAttachmentName(fileInfoMap)
             log.debug { "Set attachment file name $fileName" }
-            val fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
-            log.debug { "Attachment mimetype $fileMimeType" }
+            var fileMimeType = it[NotificationConstants.MIMETYPE] as? String
+            log.debug { "Map attachment mimetype $fileMimeType" }
+            if (fileMimeType.isNullOrBlank()) {
+                val originalExt = fileInfoMap[NotificationConstants.ORIGINAL_EXT]
+                log.debug { "Attachment original extension $originalExt" }
+                fileMimeType = MimeMappings.DEFAULT.get(originalExt)
+                log.debug { "Calculated attachment mimetype $fileMimeType" }
+                if (fileMimeType.isNullOrBlank()) {
+                    fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
+                }
+            }
+            log.debug { "Result attachment mimetype $fileMimeType" }
             if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
 
             result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
