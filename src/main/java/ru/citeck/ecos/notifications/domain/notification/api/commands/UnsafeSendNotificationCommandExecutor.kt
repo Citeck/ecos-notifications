@@ -39,12 +39,12 @@ class UnsafeSendNotificationCommandExecutor(
 
         if (recipientsNotSpecified(command)) {
             log.warn {
-                "Notification not sent, no recipients found. " +
+                "Notification was not sent, no recipients found. " +
                     "Template: ${command.templateRef}, record: ${command.record}"
             }
             return SendNotificationResult(
                 NotificationResultStatus.RECIPIENTS_NOT_FOUND.value,
-                "Notification not sent, no recipients found"
+                "Notification was not sent, no recipients found"
             )
         }
 

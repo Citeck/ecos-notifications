@@ -19,6 +19,7 @@ columns:
           EXPIRED: "#E07171"
           WAIT_FOR_DISPATCH: "#7dc3d7"
           BLOCKED: "#c9d1be"
+          RECIPIENTS_NOT_FOUND: "#9fb0b5"
         defaultColor: white
     sortable: false
 

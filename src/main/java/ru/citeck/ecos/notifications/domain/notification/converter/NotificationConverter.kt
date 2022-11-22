@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
+import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationEntity
@@ -108,6 +109,10 @@ val BulkMailDto.recordRef: RecordRef
 fun SendNotificationResult.toNotificationState(): NotificationState {
     if (this.result.isEmpty()) {
         return NotificationState.SENT
+    }
+
+    if (this.status == NotificationResultStatus.RECIPIENTS_NOT_FOUND.value){
+        return NotificationState.RECIPIENTS_NOT_FOUND
     }
 
     val senderStatus = try {
