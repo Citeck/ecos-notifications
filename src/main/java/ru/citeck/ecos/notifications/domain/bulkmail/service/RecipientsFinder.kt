@@ -138,7 +138,7 @@ class RecipientsFinder(
 
         val result = mutableListOf<BulkMailRecipientDto>()
         if (emptyObjectData == bulkMail.recipientsData.custom) {
-            return result;
+            return result
         }
 
         customProviders.forEach { provider ->
@@ -164,7 +164,7 @@ data class UserInfo(
     @AttName("personDisabled")
     var disabled: Boolean? = false,
 
-   @AttName("email")
+    @AttName("email")
     var email: String? = "",
 
     @AttName(".disp")

@@ -72,7 +72,8 @@ class SenderServiceContextTest {
         val testDto = SenderTestData.getTestSender()
         repository.save(testDto.toEntity())
         var result = service.getAll(
-            50, 0,
+            50,
+            0,
             Predicates.eq(
                 SenderTestData.PROP_NAME,
                 SenderTestData.getTestSender().name
@@ -85,7 +86,8 @@ class SenderServiceContextTest {
 
         repository.saveAll(generateEntities())
         result = service.getAll(
-            50, 0,
+            50,
+            0,
             Predicates.and(
                 Predicates.eq(SenderTestData.PROP_ENABLED, true),
                 Predicates.gt(SenderTestData.PROP_ORDER, 0)

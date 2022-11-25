@@ -62,7 +62,7 @@ class EmailNotificationProvider(
         helper.setBcc(fitNotification.bcc.toTypedArray())
 
         for ((key, value) in fitNotification.attachments) {
-            log.debug {"Add an attachment '$key' to the MimeMessage as '${MimeUtility.encodeText(key)}'"}
+            log.debug { "Add an attachment '$key' to the MimeMessage as '${MimeUtility.encodeText(key)}'" }
             helper.addAttachment(key, value)
         }
 

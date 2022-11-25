@@ -23,7 +23,8 @@ class CustomDataMailRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
         val prefix = recsQuery.query.get("prefix").asText()
 
         return Result(
-            generateSize, prefix
+            generateSize,
+            prefix
         )
     }
 

@@ -24,7 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
-//TODO: https://citeck.atlassian.net/browse/ECOSCOM-4811
+// TODO: https://citeck.atlassian.net/browse/ECOSCOM-4811
 @Service("domainNotificationTemplateService")
 class NotificationTemplateService(
     private val templateRepository: NotificationTemplateRepository,
@@ -61,9 +61,9 @@ class NotificationTemplateService(
         templateRepository.findAllMultiTemplates().forEach { notificationTemplateEntity ->
             templateConverter.entityToDto(notificationTemplateEntity).multiTemplateConfig?.let { multiTemplates ->
                 for ((template, type) in multiTemplates) {
-                    if (RecordRef.isNotEmpty(type)
-                        && RecordRef.isNotEmpty(template)
-                        && typeRefs.contains(type)
+                    if (RecordRef.isNotEmpty(type) &&
+                        RecordRef.isNotEmpty(template) &&
+                        typeRefs.contains(type)
                     ) {
                         template?.let { templates.add(it) }
                     }
@@ -89,8 +89,8 @@ class NotificationTemplateService(
         if (CollectionUtils.isNotEmpty(dto.multiTemplateConfig)) {
             val notEmptyMultiTemplateConfigs: MutableList<MultiTemplateElementDto> = ArrayList()
             for (template in dto.multiTemplateConfig!!) {
-                if (template.condition != null && template.condition !is VoidPredicate
-                    || RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
+                if (template.condition != null && template.condition !is VoidPredicate ||
+                    RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
                 ) {
                     notEmptyMultiTemplateConfigs.add(template)
                 }

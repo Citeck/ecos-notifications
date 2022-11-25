@@ -50,8 +50,9 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
 
         return if (found.isPresent) {
             NotificationsSenderDtoWithMeta(found.get().toDto())
-        } else
+        } else {
             null
+        }
     }
 
     @Transactional
@@ -98,7 +99,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
 
     override fun getEnabled(predicate: Predicate?, sort: Sort?): List<NotificationsSenderDtoWithMeta> {
         val page = PageRequest.of(
-            0, 10000,
+            0,
+            10000,
             sort ?: Sort.by(Sort.Direction.ASC, NotificationsSenderEntity.PROP_ORDER)
         )
         val enablePredicate = Predicates.eq(NotificationsSenderEntity.PROP_ENABLED, true)
@@ -118,7 +120,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
             return emptyList()
         }
         val page = PageRequest.of(
-            skipCount / maxItems, maxItems,
+            skipCount / maxItems,
+            maxItems,
             sort ?: Sort.by(Sort.Direction.DESC, NotificationsSenderEntity.PROP_ID)
         )
         return repository.findAll(toSpecification(predicate), page)
@@ -151,9 +154,9 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
                     result = specifications[0]
                     if (specifications.size > 1) {
                         for (idx in 1 until specifications.size) {
-                            result = if (predicate is AndPredicate)
+                            result = if (predicate is AndPredicate) {
                                 result!!.and(specifications[idx])
-                            else result!!.or(specifications[idx])
+                            } else result!!.or(specifications[idx])
                         }
                     }
                 }

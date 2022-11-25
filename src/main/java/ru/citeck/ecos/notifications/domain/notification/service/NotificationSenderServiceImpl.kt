@@ -28,7 +28,6 @@ import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
 import javax.activation.DataSource
-import org.springframework.mail.javamail.MimeMessageHelper
 
 @Component
 class NotificationSenderServiceImpl(
@@ -60,7 +59,8 @@ class NotificationSenderServiceImpl(
         log.debug("Send notification raw $notification")
 
         val senders = notificationsSenderService.getEnabled(
-            Predicates.eq(NotificationsSenderEntity.PROP_NOTIFICATION_TYPE, notification.type), null
+            Predicates.eq(NotificationsSenderEntity.PROP_NOTIFICATION_TYPE, notification.type),
+            null
         )
         if (senders.isEmpty()) {
             throw NotificationException("Failed to find notifications sender for type '${notification.type}'")
@@ -155,7 +155,7 @@ class NotificationSenderServiceImpl(
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
-        //TODO: Revert this.
+        // TODO: Revert this.
         // 99.9% that this is not a fix for the problem and will be reproduced in the future.
         // Decided to merge and watch.
         var body: String? = null
@@ -246,10 +246,10 @@ class NotificationSenderServiceImpl(
 
     private fun getAttachmentName(infoAttachment: Map<String, String>): String {
         val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
-        log.debug { "Attachment original name '${fileName}'" }
+        log.debug { "Attachment original name '$fileName'" }
         if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
         val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
-        log.debug { "Attachment original ext '${fileExt}'" }
+        log.debug { "Attachment original ext '$fileExt'" }
         if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {
