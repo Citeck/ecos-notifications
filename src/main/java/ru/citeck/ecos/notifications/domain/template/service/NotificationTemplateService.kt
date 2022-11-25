@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
 
+//TODO: https://citeck.atlassian.net/browse/ECOSCOM-4811
 @Service("domainNotificationTemplateService")
 class NotificationTemplateService(
     private val templateRepository: NotificationTemplateRepository,

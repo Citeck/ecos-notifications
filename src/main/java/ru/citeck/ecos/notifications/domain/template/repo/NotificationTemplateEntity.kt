@@ -1,7 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.repo
 
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
-import ru.citeck.ecos.records2.RecordConstants
 import java.io.Serializable
 import java.time.Instant
 import javax.persistence.*
@@ -56,26 +55,5 @@ class NotificationTemplateEntity @JvmOverloads constructor(
             "name=$name, " +
             "notificationTitle=$notificationTitle, " +
             "data=$data)"
-    }
-
-    companion object {
-        private const val serialVersionUID = 1L
-
-        fun replaceNameValid(attributeName: String): String {
-            if (RecordConstants.ATT_MODIFIED.equals(attributeName)) {
-                return "lastModifiedDate"
-            }
-            if (RecordConstants.ATT_MODIFIER.equals(attributeName)) {
-                return "lastModifiedBy"
-            }
-            if ("moduleId".equals(attributeName)) {
-                return "extId"
-            }
-            return attributeName
-        }
-
-        fun isAttributeNameNotValid(attributeName: String): Boolean {
-            return RecordConstants.ATT_TYPE.equals(attributeName)
-        }
     }
 }
