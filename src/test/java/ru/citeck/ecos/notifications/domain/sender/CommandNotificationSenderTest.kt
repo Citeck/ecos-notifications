@@ -131,8 +131,11 @@ class CommandNotificationSenderTest : BaseMailTest() {
         assertEquals(2, (content as MimeMultipart).count)
 
         val isHaveAttachment = hasAttachment(
-            content, MimeTypeUtils.TEXT_PLAIN.toString(),
-            TestUtils.TEXT_TXT_FILENAME, "us-ascii", DECODED_ATTACHMENT_CONTENT
+            content,
+            MimeTypeUtils.TEXT_PLAIN.toString(),
+            TestUtils.TEXT_TXT_FILENAME,
+            "us-ascii",
+            DECODED_ATTACHMENT_CONTENT
         )
         assertTrue(isHaveAttachment)
     }

@@ -56,8 +56,4 @@ class NotificationTemplateEntity @JvmOverloads constructor(
             "notificationTitle=$notificationTitle, " +
             "data=$data)"
     }
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
 }

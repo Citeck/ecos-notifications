@@ -443,7 +443,11 @@ class BulkMailDispatchTest : BaseMailTest() {
         assertThat(emails.size).isEqualTo(5)
         assertThat(emails[0].allRecipients.map { it.toString() }.toList())
             .containsExactlyInAnyOrder(
-                "test1@mail.ru", "test2@mail.ru", "test3@mail.ru", "test4@mail.ru", "test5@mail.ru"
+                "test1@mail.ru",
+                "test2@mail.ru",
+                "test3@mail.ru",
+                "test4@mail.ru",
+                "test5@mail.ru"
             )
     }
 
@@ -476,8 +480,13 @@ class BulkMailDispatchTest : BaseMailTest() {
         assertThat(emails.size).isEqualTo(7)
         assertThat(emails[0].allRecipients.map { it.toString() }.toList())
             .containsExactlyInAnyOrder(
-                "test1@mail.ru", "test2@mail.ru", "test3@mail.ru", "test4@mail.ru", "test5@mail.ru",
-                harryRecord.email, severusRecord.email
+                "test1@mail.ru",
+                "test2@mail.ru",
+                "test3@mail.ru",
+                "test4@mail.ru",
+                "test5@mail.ru",
+                harryRecord.email,
+                severusRecord.email
             )
     }
 

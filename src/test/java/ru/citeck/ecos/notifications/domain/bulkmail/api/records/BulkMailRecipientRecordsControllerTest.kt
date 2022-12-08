@@ -105,7 +105,8 @@ class BulkMailRecipientRecordsControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(
                 jsonPath(
-                    "$.id", Matchers.`is`("bulk-mail-recipient@${saved.extId}")
+                    "$.id",
+                    Matchers.`is`("bulk-mail-recipient@${saved.extId}")
                 )
             )
             .andExpect(jsonPath("$.attributes.address", Matchers.`is`(saved.address)))
