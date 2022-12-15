@@ -1,6 +1,5 @@
 {
   "id": "notification-template",
-  "system": true,
   "formKey": "notification-template",
   "title": {
     "en": "Notification template"
@@ -9,6 +8,7 @@
   "customModule": null,
   "typeRef": "",
   "width": "extra-lg",
+  "system": true,
   "i18n": {},
   "definition": {
     "components": [
@@ -112,8 +112,8 @@
               },
               {
                 "label": {
-                  "ru": "Body",
-                  "en": "Body"
+                  "ru": "Body (шаблон Freemarker)",
+                  "en": "Body (Freemarker template)"
                 },
                 "key": "body",
                 "validate": {
@@ -128,6 +128,23 @@
                 "as": "",
                 "type": "textarea",
                 "input": true
+              },
+              {
+                "label": {
+                  "ru": "HTML"
+                },
+                "key": "html",
+                "tag": "div",
+                "className": "",
+                "content": {
+                  "ru": "<div class=\"alert alert-warning\" role=\"alert\">\n    <strong>Внимание!</strong>\n    <div>\n        Предыдущая разметка может быть изменена при сохранении\n    </div>\n</div>",
+                  "en": "<div class=\"alert alert-warning\" role=\"alert\">\n    <strong>Attention!</strong>\n    <div>\n        The previous markup can be modified on save\n    </div>\n</div>"
+                },
+                "refreshOnChange": false,
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "htmlelement",
+                "input": false
               },
               {
                 "label": {
@@ -416,7 +433,8 @@
           "when": null
         }
       }
-    ]
+    ],
+    "formId": "notification-template"
   },
   "attributes": {}
 }
