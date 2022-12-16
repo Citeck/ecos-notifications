@@ -210,4 +210,32 @@ class HandleErrorNotificationTest : BaseMailTest() {
             assertThat(allExpired.size).isEqualTo(3)
         }
     }
+
+    @Test
+    fun sendRecipientsNotFound() {
+        var allRecipientsNotFound = notificationRepository.findAllByState(NotificationState.RECIPIENTS_NOT_FOUND)
+        var allSent = notificationRepository.findAllByState(NotificationState.SENT)
+        assertThat(allRecipientsNotFound.size).isEqualTo(0)
+        assertThat(allSent.size).isEqualTo(0)
+
+        val command = SendNotificationCommand(
+            id = UUID.randomUUID().toString(),
+            record = RecordRef.EMPTY,
+            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf(),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        val result = commandsService.executeSync(command, "notifications")
+            .getResultAs(SendNotificationResult::class.java)
+
+        assertThat(result!!.status).isEqualTo(NotificationResultStatus.RECIPIENTS_NOT_FOUND.value)
+
+        allRecipientsNotFound = notificationRepository.findAllByState(NotificationState.RECIPIENTS_NOT_FOUND)
+        assertThat(allRecipientsNotFound.size).isEqualTo(1)
+    }
+
 }
