@@ -1,0 +1,13 @@
+{
+  "id": "test-meta-bean-template",
+  "name": "Test Meta bean template",
+  "notificationTitle": {
+    "ru": "Hello"
+  },
+  "templateData": {
+    "en": {
+      "name": "test-meta-bean-template.html_en.ftl",
+      "data": "V2ViVXJsOiAke21ldGEuZ2V0V2ViVXJsKCl9"
+    }
+  }
+}

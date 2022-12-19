@@ -11,7 +11,9 @@ private const val ID = "image"
 private const val IMAGE_DATA_FORMAT = "data:image/%s;base64,%s"
 
 @Component
-class ImageAccessor(val fileService: FileService) : InjectedFreemarkerBean {
+class ImageAccessor(
+    private val fileService: FileService
+) : InjectedFreemarkerBean {
 
     override fun getId(): String {
         return ID

@@ -42,6 +42,9 @@ class EmailNotificationTest : BaseMailTest() {
     private lateinit var notificationTestIncludeTemplate: NotificationTemplateWithMeta
 
     private lateinit var notificationTestBeansTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationTestMetaBeanTemplate: NotificationTemplateWithMeta
+    private lateinit var notificationTestLinkBeanTemplate: NotificationTemplateWithMeta
+
     private lateinit var rawNotification: RawNotification
 
     companion object {
@@ -52,61 +55,17 @@ class EmailNotificationTest : BaseMailTest() {
     @BeforeEach
     fun setup() {
         templateModel["process-definition"] = "flowable\$confirm"
+        templateModel["doc"] = "store/document@123"
 
-        notificationHtmlTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template-html.json"),
-            NotificationTemplateWithMeta::class.java
-        )!!
-        notificationWrongLocaleTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/test-template-wrong-locale-test.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationHtmlTemplate)
-        notificationTemplateService.save(notificationWrongLocaleTemplate)
-
-        notificationLibMacroTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/lib-macro-template.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-        notificationTestImportTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/test-import-template.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationLibMacroTemplate)
-        notificationTemplateService.save(notificationTestImportTemplate)
-
-        notificationLibIncludeTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/lib-include-template.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-        notificationTestIncludeTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/test-include-template.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationLibIncludeTemplate)
-        notificationTemplateService.save(notificationTestIncludeTemplate)
-
-        notificationTestBeansTemplate = Json.mapper.convert(
-            stringJsonFromResource(
-                "template/test-beans-template.json"
-            ),
-            NotificationTemplateWithMeta::class.java
-        )!!
-
-        notificationTemplateService.save(notificationTestBeansTemplate)
+        notificationHtmlTemplate = "template/test-template-html.json".saveTemplate()
+        notificationWrongLocaleTemplate = "template/test-template-wrong-locale-test.json".saveTemplate()
+        notificationLibMacroTemplate = "template/lib-macro-template.json".saveTemplate()
+        notificationTestImportTemplate = "template/test-import-template.json".saveTemplate()
+        notificationLibIncludeTemplate = "template/lib-include-template.json".saveTemplate()
+        notificationTestIncludeTemplate = "template/test-include-template.json".saveTemplate()
+        notificationTestBeansTemplate = "template/test-beans-template.json".saveTemplate()
+        notificationTestMetaBeanTemplate = "template/test-meta-bean-template.json".saveTemplate()
+        notificationTestLinkBeanTemplate = "template/test-link-bean-template.json".saveTemplate()
 
         rawNotification = RawNotification(
             record = RecordRef.EMPTY,
@@ -407,6 +366,51 @@ class EmailNotificationTest : BaseMailTest() {
     }
 
     @Test
+    fun emailMetaBeanTest() {
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = LocaleUtils.toLocale("en"),
+            recipients = setOf(RECIPIENT_EMAIL),
+            template = notificationTestMetaBeanTemplate,
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationSender.sendNotification(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo("WebUrl: http://localhost")
+    }
+
+    @Test
+    fun emailLinkBeanTest() {
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = LocaleUtils.toLocale("en"),
+            recipients = setOf(RECIPIENT_EMAIL),
+            template = notificationTestLinkBeanTemplate,
+            model = templateModel,
+            from = "test@mail.ru"
+        )
+        notificationSender.sendNotification(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo(
+            "Link explicit: http://localhost/v2/dashboard?recordRef=store@doc1, " +
+                "Link from model: http://localhost/v2/dashboard?recordRef=${templateModel["doc"]}"
+        )
+    }
+
+    @Test
     fun sendEmailWithAttachmentTest() {
         val localModel = templateModel
         val unencodedFileContent = "123"
@@ -446,7 +450,7 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
             ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
@@ -515,19 +519,19 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
+                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment1 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                .any { it == "application/pdf; name=test2.pdf" }
+                    .any { it == "application/pdf; name=test2.pdf" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment2 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                .any { it == "image/jpeg; name=test3.jpg" }
+                    .any { it == "image/jpeg; name=test3.jpg" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment3 = true
@@ -579,7 +583,7 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
             ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
@@ -934,5 +938,16 @@ class EmailNotificationTest : BaseMailTest() {
         assertThrows<NotificationException> {
             notificationSender.sendNotification(notification)
         }
+    }
+
+    private fun String.saveTemplate(): NotificationTemplateWithMeta {
+        return notificationTemplateService.save(
+            Json.mapper.convert(
+                stringJsonFromResource(
+                    this
+                ),
+                NotificationTemplateWithMeta::class.java
+            )!!
+        )
     }
 }
