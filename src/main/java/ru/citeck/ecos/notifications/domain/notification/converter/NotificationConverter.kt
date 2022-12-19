@@ -110,7 +110,7 @@ fun SendNotificationResult.toNotificationState(): NotificationState {
         return NotificationState.SENT
     }
 
-    if (this.status == NotificationResultStatus.RECIPIENTS_NOT_FOUND.value){
+    if (this.status == NotificationResultStatus.RECIPIENTS_NOT_FOUND.value) {
         return NotificationState.RECIPIENTS_NOT_FOUND
     }
 

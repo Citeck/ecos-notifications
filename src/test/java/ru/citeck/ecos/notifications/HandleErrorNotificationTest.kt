@@ -237,5 +237,4 @@ class HandleErrorNotificationTest : BaseMailTest() {
         allRecipientsNotFound = notificationRepository.findAllByState(NotificationState.RECIPIENTS_NOT_FOUND)
         assertThat(allRecipientsNotFound.size).isEqualTo(1)
     }
-
 }

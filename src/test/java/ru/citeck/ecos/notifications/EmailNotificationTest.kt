@@ -450,7 +450,7 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
             ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
@@ -519,19 +519,19 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
+                .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment1 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "application/pdf; name=test2.pdf" }
+                .any { it == "application/pdf; name=test2.pdf" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment2 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "image/jpeg; name=test3.jpg" }
+                .any { it == "image/jpeg; name=test3.jpg" }
             ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment3 = true
@@ -583,7 +583,7 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+                .any { it == "text/plain; charset=us-ascii; name=test.txt" }
             ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)

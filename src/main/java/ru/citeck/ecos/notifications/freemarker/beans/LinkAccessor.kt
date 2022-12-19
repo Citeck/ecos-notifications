@@ -7,7 +7,7 @@ import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 private const val ID = "link"
 
 @Component
-class LinkAccessor(private val ecosWebAppProps: EcosWebAppProps): InjectedFreemarkerBean {
+class LinkAccessor(private val ecosWebAppProps: EcosWebAppProps) : InjectedFreemarkerBean {
 
     override fun getId(): String {
         return ID
