@@ -214,7 +214,8 @@ class HandleErrorNotificationTest : BaseMailTest() {
     @Test
     fun sendRecipientsNotFound() {
         var allRecipientsNotFound = notificationRepository.findAllByState(NotificationState.RECIPIENTS_NOT_FOUND)
-        var allSent = notificationRepository.findAllByState(NotificationState.SENT)
+        val allSent = notificationRepository.findAllByState(NotificationState.SENT)
+
         assertThat(allRecipientsNotFound.size).isEqualTo(0)
         assertThat(allSent.size).isEqualTo(0)
 
