@@ -1,13 +1,11 @@
 package ru.citeck.ecos.notifications.config
 
-import lombok.extern.slf4j.Slf4j
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 
-@Slf4j
 @Configuration
 class NotificationSenderConfig {
 
