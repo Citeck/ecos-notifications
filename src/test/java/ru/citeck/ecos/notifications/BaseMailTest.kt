@@ -26,7 +26,7 @@ open class BaseMailTest {
 
     @Before
     fun setupTestContext() {
-        greenMail = GreenMail(ServerSetupTest.SMTP)
+        greenMail = GreenMail(ServerSetupTest.SMTP.dynamicPort())
         greenMail.start()
 
         templateModel = mutableMapOf()
