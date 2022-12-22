@@ -561,7 +561,7 @@
         <dependency>
             <groupId>com.icegreen</groupId>
             <artifactId>greenmail</artifactId>
-            <version>1.6.11</version>
+            <version>1.5.14</version>
             <scope>test</scope>
         </dependency>
 
