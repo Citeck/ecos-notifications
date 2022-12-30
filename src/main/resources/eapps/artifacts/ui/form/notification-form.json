@@ -1,424 +1,413 @@
 {
-  "id": "notification-template",
-  "formKey": "notification-template",
+  "id": "notification-form",
+  "system": true,
+  "formKey": "notification-form",
   "title": {
-    "en": "Notification template"
+    "en": "Notification form"
   },
   "description": {},
   "customModule": null,
   "typeRef": "",
-  "width": "extra-lg",
-  "system": true,
+  "width": "default",
   "i18n": {},
   "definition": {
     "components": [
       {
-        "label": "Id",
-        "defaultValue": "",
-        "validate": {
-          "required": true,
-          "pattern": "^[a-zA-Z0-9-*]+$"
-        },
-        "key": "moduleId",
-        "type": "textfield",
-        "input": true
-      },
-      {
-        "label": "Name",
-        "defaultValue": "",
-        "validate": {
-          "required": true
-        },
-        "key": "name",
-        "type": "textfield",
-        "input": true
-      },
-      {
         "label": {
-          "ru": "Теги",
-          "en": "Tags"
+          "ru": "Panel"
         },
-        "key": "tags",
-        "multiple": true,
-        "defaultValue": "",
+        "key": "general-panel",
+        "title": "Общее",
         "refreshOn": [],
-        "type": "textfield",
-        "input": true,
-        "reorder": false
-      },
-      {
-        "label": "Notification Title",
-        "defaultValue": {
-          "ru": "",
-          "en": ""
-        },
-        "key": "notificationTitle",
-        "type": "mlText",
-        "input": true
-      },
-      {
-        "label": {
-          "ru": "Notification body"
-        },
-        "key": "bodyData",
-        "multiple": true,
-        "validate": {
-          "minLength": "",
-          "maxLength": ""
-        },
-        "disableAddingRemovingRows": false,
-        "addAnotherPosition": "bottom",
-        "removePlacement": "col",
-        "defaultOpen": false,
-        "layoutFixed": false,
-        "enableRowGroups": false,
-        "reorder": false,
-        "defaultValue": [
-          {
-            "textField": "",
-            "lang": "",
-            "textArea": "",
-            "body": "",
-            "submit": false,
-            "submit2": false
-          }
-        ],
-        "refreshOn": [],
-        "type": "datagrid",
-        "input": true,
+        "type": "panel",
+        "input": false,
         "components": [
+          {
+            "label": {
+              "ru": "Идентификатор",
+              "en": "Id"
+            },
+            "disabled": true,
+            "key": "moduleId",
+            "validate": {
+              "required": true
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Статус",
+              "en": "State"
+            },
+            "disabled": true,
+            "key": "state",
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Рекорд",
+              "en": "Record"
+            },
+            "disabled": true,
+            "key": "record",
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Шаблон",
+              "en": "Template"
+            },
+            "disabled": true,
+            "key": "template",
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Тип уведомления",
+              "en": "Notification type"
+            },
+            "disabled": true,
+            "key": "type",
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "textfield",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Отложенная отправка",
+              "en": "Delayed send"
+            },
+            "key": "delayedSend",
+            "disabled": true,
+            "datePicker": {
+              "minDate": "",
+              "maxDate": ""
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "datetime",
+            "input": true,
+            "suffix": true
+          },
+          {
+            "label": {
+              "ru": "Изменено",
+              "en": "Modified"
+            },
+            "disabled": true,
+            "key": "_modified",
+            "datePicker": {
+              "minDate": "",
+              "maxDate": ""
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "datetime",
+            "input": true,
+            "suffix": true
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "reexecute-panel",
+        "title": "Переотправка сообщения",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Количество попыток отправки",
+              "en": "Number of attempts to send"
+            },
+            "disabled": true,
+            "key": "tryingCount",
+            "validate": {
+              "integer": false
+            },
+            "isBigNumber": false,
+            "delimiterValue": " ",
+            "refreshOn": [],
+            "defaultValue": "",
+            "type": "number",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Время последней попытки",
+              "en": "Last try time"
+            },
+            "disabled": true,
+            "key": "lastTryingDate",
+            "datePicker": {
+              "minDate": "",
+              "maxDate": ""
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "type": "datetime",
+            "input": true,
+            "suffix": true
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Panel"
+        },
+        "key": "errors-panel",
+        "title": "Информация об ошибках",
+        "refreshOn": [],
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Сообщение ошибки",
+              "en": "Error message"
+            },
+            "disabled": true,
+            "key": "errorMessage",
+            "defaultValue": "",
+            "refreshOn": [],
+            "rows": 5,
+            "type": "textarea",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Трассировка стека ошибки",
+              "en": "Error stack trace"
+            },
+            "disabled": true,
+            "key": "errorStackTrace",
+            "editor": "ace",
+            "wysiwyg": {
+              "theme": "snow",
+              "placeholder": "",
+              "modules": {
+                "clipboard": {
+                  "matchVisual": false
+                },
+                "toolbar": [
+                  [
+                    {
+                      "size": [
+                        "small",
+                        false,
+                        "large",
+                        "huge"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "header": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        false
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "font": []
+                    }
+                  ],
+                  [
+                    "bold",
+                    "italic",
+                    "underline",
+                    "strike",
+                    {
+                      "script": "sub"
+                    },
+                    {
+                      "script": "super"
+                    },
+                    "clean"
+                  ],
+                  [
+                    {
+                      "color": []
+                    },
+                    {
+                      "background": []
+                    }
+                  ],
+                  [
+                    {
+                      "list": "ordered"
+                    },
+                    {
+                      "list": "bullet"
+                    },
+                    {
+                      "indent": "-1"
+                    },
+                    {
+                      "indent": "+1"
+                    },
+                    {
+                      "align": []
+                    }
+                  ],
+                  [
+                    "blockquote",
+                    "code-block"
+                  ],
+                  [
+                    "link",
+                    "image",
+                    "video",
+                    "formula",
+                    "source"
+                  ]
+                ]
+              }
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "rows": 10,
+            "type": "textarea",
+            "input": true,
+            "as": ""
+          },
           {
             "label": {
               "ru": "Panel"
             },
-            "key": "panel3",
+            "key": "payload-panel",
+            "title": "Данные уведомления",
             "refreshOn": [],
             "type": "panel",
             "input": false,
             "components": [
               {
                 "label": {
-                  "en": "Lang"
+                  "ru": "Data"
                 },
-                "key": "lang",
-                "validate": {
-                  "required": true
-                },
-                "defaultValue": "",
-                "refreshOn": [],
-                "optionalWhenDisabled": false,
-                "type": "textfield",
-                "input": true
-              },
-              {
-                "label": {
-                  "ru": "Body (шаблон Freemarker)",
-                  "en": "Body (Freemarker template)"
-                },
-                "key": "body",
-                "validate": {
-                  "required": true
-                },
+                "key": "notificationCommandPayload",
+                "hideLabel": true,
+                "disabled": true,
+                "disableInlineEdit": true,
                 "editor": "ace",
-                "wysiwyg": "",
+                "wysiwyg": {
+                  "theme": "snow",
+                  "placeholder": "",
+                  "modules": {
+                    "clipboard": {
+                      "matchVisual": false
+                    },
+                    "toolbar": [
+                      [
+                        {
+                          "size": [
+                            "small",
+                            false,
+                            "large",
+                            "huge"
+                          ]
+                        }
+                      ],
+                      [
+                        {
+                          "header": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            false
+                          ]
+                        }
+                      ],
+                      [
+                        {
+                          "font": []
+                        }
+                      ],
+                      [
+                        "bold",
+                        "italic",
+                        "underline",
+                        "strike",
+                        {
+                          "script": "sub"
+                        },
+                        {
+                          "script": "super"
+                        },
+                        "clean"
+                      ],
+                      [
+                        {
+                          "color": []
+                        },
+                        {
+                          "background": []
+                        }
+                      ],
+                      [
+                        {
+                          "list": "ordered"
+                        },
+                        {
+                          "list": "bullet"
+                        },
+                        {
+                          "indent": "-1"
+                        },
+                        {
+                          "indent": "+1"
+                        },
+                        {
+                          "align": []
+                        }
+                      ],
+                      [
+                        "blockquote",
+                        "code-block"
+                      ],
+                      [
+                        "link",
+                        "image",
+                        "video",
+                        "formula",
+                        "source"
+                      ]
+                    ]
+                  }
+                },
                 "defaultValue": "",
                 "refreshOn": [],
-                "optionalWhenDisabled": false,
-                "rows": 20,
+                "rows": 10,
                 "as": "",
                 "type": "textarea",
                 "input": true
-              },
-              {
-                "label": {
-                  "ru": "HTML"
-                },
-                "key": "html",
-                "tag": "div",
-                "className": "",
-                "content": {
-                  "ru": "<div class=\"alert alert-warning\" role=\"alert\">\n    <strong>Внимание!</strong>\n    <div>\n        Предыдущая разметка может быть изменена при сохранении\n    </div>\n</div>",
-                  "en": "<div class=\"alert alert-warning\" role=\"alert\">\n    <strong>Attention!</strong>\n    <div>\n        The previous markup can be modified on save\n    </div>\n</div>"
-                },
-                "refreshOnChange": false,
-                "refreshOn": [],
-                "optionalWhenDisabled": false,
-                "type": "htmlelement",
-                "input": false
-              },
-              {
-                "label": {
-                  "ru": "Редактировать как HTML",
-                  "en": "Edit as HTML"
-                },
-                "key": "submit2",
-                "action": "custom",
-                "state": "",
-                "showValidations": false,
-                "custom": "var body = row.body || \"\";\nvar lang = row.lang || \"\";\n\nvar formData = {\n    lang: lang,\n    body: body\n};\n\nlet formInstance = instance.root;\nformInstance.showErrors([]);\n\nvar incomeBodyData = formInstance.submission.data.bodyData\n\nconst applyBodyData = (newBody) => {\n\n    let unescapeFormattedBody = format(newBody.replace(/&lt;/g, '<').replace(/&gt;/g, '>'));\n    let updatedData = [];\n\n    incomeBodyData.forEach(bodyByLang => {\n        if (bodyByLang.lang === lang) {\n            let updated = {\n                ...bodyByLang,\n                body: unescapeFormattedBody\n            }\n            updatedData.push(updated)\n        } else {\n            updatedData.push(bodyByLang)\n        }\n    })\n\n    submission = {\n        ...submission,\n        data: {\n            ...submission.data,\n            bodyData: updatedData\n        }\n    }\n    formInstance.submission = submission;\n}\n\nCiteck.EcosFormUtils.getFormById('uiserv/form@notification-template-edit-as-html-form', {\n    definition: 'definition?json'\n}).then(function (formConfig) {\n\n    Citeck.Dialogs.showFormDialog({\n        title: 'Notification body HTML for: ' + lang,\n        showDefaultButtons: true,\n        modalClass: 'ecos-modal_width-full',\n        formDefinition: formConfig.definition,\n        formData: formData,\n        onSubmit: submission => {\n            let data = submission.data || {};\n            applyBodyData(data.body)\n        }\n    })\n\n});\n\nfunction format(html) {\n    var tab = '\\t';\n    var result = '';\n    var indent = '';\n\n    html.split(/>\\s*</).forEach(function (element) {\n        if (element.match(/^\\/\\w/)) {\n            indent = indent.substring(tab.length);\n        }\n\n        result += indent + '<' + element + '>\\r\\n';\n\n        if (element.match(/^<?\\w[^>]*[^\\/]$/) && !element.startsWith(\"input\")) {\n            indent += tab;\n        }\n    });\n\n    return result.substring(1, result.length - 3);\n}",
-                "refreshOn": [],
-                "type": "button",
-                "input": true
-              }
-            ],
-            "row": "0-0"
-          }
-        ]
-      },
-      {
-        "label": "Model",
-        "disableInlineEdit": true,
-        "keyLabel": "",
-        "key": "model",
-        "type": "datamap",
-        "input": true,
-        "valueComponent": {
-          "type": "textfield",
-          "key": "value",
-          "label": "Value",
-          "defaultValue": "Value",
-          "input": true,
-          "conditional": {
-            "show": null,
-            "when": null,
-            "eq": "",
-            "json": ""
-          }
-        }
-      },
-      {
-        "label": "Multi templates",
-        "disableAddingRemovingRows": false,
-        "addAnother": "",
-        "addAnotherPosition": "bottom",
-        "removePlacement": "col",
-        "defaultOpen": false,
-        "layoutFixed": false,
-        "enableRowGroups": false,
-        "multiple": true,
-        "reorder": false,
-        "defaultValue": [
-          {
-            "textField": "",
-            "templateRef": "",
-            "pattern": "",
-            "template": "",
-            "type": "",
-            "selectJournal": "",
-            "textArea": "",
-            "condition": ""
-          }
-        ],
-        "validate": {
-          "required": true,
-          "minLength": "",
-          "maxLength": ""
-        },
-        "key": "multiTemplateConfig",
-        "logic": [
-          {
-            "name": "updateRequirement",
-            "trigger": {
-              "type": "javascript",
-              "javascript": "const {templateContent} = data || {};\r\nresult = !!templateContent.length \r\n  || Object.keys(templateContent).length!==0;"
-            },
-            "actions": [
-              {
-                "name": "setRequired",
-                "type": "property",
-                "property": {
-                  "label": "Required",
-                  "value": "validate.required",
-                  "type": "boolean"
-                },
-                "state": "false"
               }
             ]
-          }
-        ],
-        "type": "datagrid",
-        "input": true,
-        "components": [
-          {
-            "key": "panel",
-            "type": "panel",
-            "input": false,
-            "components": [
-              {
-                "hideLabel": true,
-                "columns": [
-                  {
-                    "components": [
-                      {
-                        "label": "Template",
-                        "hideCreateButton": true,
-                        "hideEditRowButton": true,
-                        "hideDeleteRowButton": true,
-                        "journalId": "notification-templates",
-                        "key": "template",
-                        "type": "selectJournal",
-                        "input": true
-                      }
-                    ],
-                    "type": "column",
-                    "input": false,
-                    "key": "column",
-                    "label": "Column",
-                    "index": 0,
-                    "clearOnHide": true,
-                    "conditional": {
-                      "show": null,
-                      "when": null
-                    }
-                  },
-                  {
-                    "index": 1,
-                    "type": "column",
-                    "input": false,
-                    "key": "column",
-                    "label": "Column",
-                    "components": [
-                      {
-                        "label": "Type",
-                        "hideCreateButton": true,
-                        "hideEditRowButton": true,
-                        "hideDeleteRowButton": true,
-                        "journalId": "ecos-types",
-                        "key": "type",
-                        "type": "selectJournal",
-                        "input": true
-                      }
-                    ],
-                    "clearOnHide": true,
-                    "conditional": {
-                      "show": null,
-                      "when": null
-                    }
-                  },
-                  {
-                    "md": 12,
-                    "type": "column",
-                    "input": false,
-                    "key": "column",
-                    "index": 2,
-                    "components": [
-                      {
-                        "title": "Predicate ",
-                        "collapsible": true,
-                        "key": "panel2",
-                        "type": "panel",
-                        "input": false,
-                        "components": [
-                          {
-                            "label": "Predicate condition",
-                            "editor": "ace",
-                            "wysiwyg": {
-                              "theme": "snow",
-                              "placeholder": "",
-                              "modules": {
-                                "clipboard": {
-                                  "matchVisual": false
-                                },
-                                "toolbar": [
-                                  [
-                                    {
-                                      "size": [
-                                        "small",
-                                        false,
-                                        "large",
-                                        "huge"
-                                      ]
-                                    }
-                                  ],
-                                  [
-                                    {
-                                      "header": [
-                                        1,
-                                        2,
-                                        3,
-                                        4,
-                                        5,
-                                        6,
-                                        false
-                                      ]
-                                    }
-                                  ],
-                                  [
-                                    {
-                                      "font": []
-                                    }
-                                  ],
-                                  [
-                                    "bold",
-                                    "italic",
-                                    "underline",
-                                    "strike",
-                                    {
-                                      "script": "sub"
-                                    },
-                                    {
-                                      "script": "super"
-                                    },
-                                    "clean"
-                                  ],
-                                  [
-                                    {
-                                      "color": []
-                                    },
-                                    {
-                                      "background": []
-                                    }
-                                  ],
-                                  [
-                                    {
-                                      "list": "ordered"
-                                    },
-                                    {
-                                      "list": "bullet"
-                                    },
-                                    {
-                                      "indent": "-1"
-                                    },
-                                    {
-                                      "indent": "+1"
-                                    },
-                                    {
-                                      "align": []
-                                    }
-                                  ],
-                                  [
-                                    "blockquote",
-                                    "code-block"
-                                  ],
-                                  [
-                                    "link",
-                                    "image",
-                                    "video",
-                                    "formula",
-                                    "source"
-                                  ]
-                                ]
-                              }
-                            },
-                            "clearOnHide": false,
-                            "defaultValue": "",
-                            "key": "condition",
-                            "as": "",
-                            "type": "textarea",
-                            "input": true
-                          }
-                        ],
-                        "collapsed": true
-                      }
-                    ]
-                  }
-                ],
-                "key": "columns",
-                "type": "columns",
-                "input": false
-              }
-            ],
-            "row": "0-0"
           }
         ]
       },
@@ -427,14 +416,9 @@
         "key": "submit",
         "disableOnInvalid": true,
         "theme": "primary",
-        "input": true,
-        "conditional": {
-          "show": null,
-          "when": null
-        }
+        "input": true
       }
-    ],
-    "formId": "notification-template"
+    ]
   },
   "attributes": {}
 }

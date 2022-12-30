@@ -46,7 +46,9 @@ class BulkMailStatusSynchronizer(
                     setBulkMailStatus(bulkMail, BulkMailStatus.WAIT_FOR_DISPATCH)
                 }
 
-                notificationsSummary.containsKey(NotificationState.SENT) -> {
+                notificationsSummary.containsKey(NotificationState.SENT) ||
+                    notificationsSummary.containsKey(NotificationState.RECIPIENTS_NOT_FOUND) ||
+                    notificationsSummary.containsKey(NotificationState.BLOCKED) -> {
                     setBulkMailStatus(bulkMail, BulkMailStatus.SENT)
                 }
             }

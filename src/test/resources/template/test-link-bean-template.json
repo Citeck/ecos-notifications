@@ -1,0 +1,13 @@
+{
+  "id": "test-link-bean-template",
+  "name": "Test Link bean template",
+  "notificationTitle": {
+    "ru": "Hello"
+  },
+  "templateData": {
+    "en": {
+      "name": "test-link-bean-template.html_en.ftl",
+      "data": "TGluayBleHBsaWNpdDogJHtsaW5rLmdldFJlY29yZExpbmsoInN0b3JlQGRvYzEiKX0sIExpbmsgZnJvbSBtb2RlbDogJHtsaW5rLmdldFJlY29yZExpbmsoZG9jKX0="
+    }
+  }
+}
