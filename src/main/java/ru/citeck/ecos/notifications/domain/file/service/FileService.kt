@@ -45,7 +45,7 @@ class FileService(
     }
 
     fun getCount(predicate: Predicate): Long {
-        val spec: Specification<FileEntity> = predicate.toDefaultEntitySpec() ?: return 0
+        val spec: Specification<FileEntity> = predicate.toDefaultEntitySpec() ?: return getCount()
         return (fileRepository.count(spec).toInt()).toLong()
     }
 
