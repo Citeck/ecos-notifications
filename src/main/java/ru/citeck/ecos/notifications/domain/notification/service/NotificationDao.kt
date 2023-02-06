@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import ru.citeck.ecos.notifications.domain.SpecificationUtils
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toDto
 import ru.citeck.ecos.notifications.domain.notification.converter.toEntity
@@ -72,8 +73,8 @@ class NotificationDao(
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<NotificationDto> {
         val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
         val page = PageRequest.of(skip / max, max, sorting)
-
-        return notificationRepository.findAll(toSpec(predicate), page)
+        val specification = toSpecification<NotificationEntity>(predicate)
+        return notificationRepository.findAll(specification, page)
             .map {
                 it.toDto()
             }.toList()
@@ -98,12 +99,18 @@ class NotificationDao(
 
     @Transactional(readOnly = true)
     fun getCount(predicate: Predicate): Long {
-        val spec = toSpec<NotificationEntity>(predicate)
-        return if (spec != null) (notificationRepository.count(toSpec(predicate)).toInt()).toLong() else getCount()
+        val specification = toSpecification<NotificationEntity>(predicate)
+        return if (specification != null)
+            (notificationRepository.count(specification).toInt()).toLong()
+        else getCount()
     }
 
     private fun getCount(): Long {
         return notificationRepository.count()
+    }
+
+    private fun <T> toSpecification(predicate: Predicate): Specification<T>? {
+        return SpecificationUtils.getSpecificationFromPredicate(NotificationEntity::class.java, predicate)
     }
 
     private fun <T> toSpec(pred: Predicate): Specification<T>? {
