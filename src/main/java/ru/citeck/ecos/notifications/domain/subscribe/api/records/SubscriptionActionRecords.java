@@ -20,6 +20,7 @@ import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
 import ru.citeck.ecos.records2.request.error.ErrorUtils;
+import ru.citeck.ecos.records2.request.error.RecordsError;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
 import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
 import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
@@ -185,7 +186,9 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
                 actionService.deleteById(Long.valueOf(ref.getId()));
                 result.addRecord(new RecordMeta(ref));
             } catch (EmptyResultDataAccessException e) {
-                result.addError(ErrorUtils.convertException(e));
+                //TODO: fix convert exception
+                result.addError(new RecordsError(e.getMessage()));
+                //result.addError(ErrorUtils.convertException(e));
             }
 
         });
