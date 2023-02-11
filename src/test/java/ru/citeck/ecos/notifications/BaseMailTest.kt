@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -20,6 +21,9 @@ open class BaseMailTest {
     protected lateinit var notificationsSenderService: NotificationsSenderService
 
     @Autowired
+    private lateinit var notificationRepository: NotificationRepository
+
+    @Autowired
     private lateinit var localAppService: LocalAppService
 
     protected lateinit var greenMail: GreenMail
@@ -30,6 +34,8 @@ open class BaseMailTest {
     @BeforeEach
     fun setupTestContext() {
         localAppService.deployLocalArtifacts()
+
+        notificationRepository.deleteAll()
 
         greenMail = GreenMail(ServerSetupTest.SMTP)
         greenMail.reset()
