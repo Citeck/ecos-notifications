@@ -13,9 +13,7 @@ import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commands.annotation.CommandType
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.*
-import ru.citeck.ecos.notifications.domain.notification.FitNotification
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
-import ru.citeck.ecos.notifications.domain.notification.RawNotification
+import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.sender.command.AttachmentData
 import ru.citeck.ecos.notifications.domain.sender.command.CmdFitNotification
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
@@ -87,7 +85,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
     }
 
     @Test
-    fun sendEmailThroughCommandSender() {
+    fun `send email through command sender`() {
         notificationSenderService.sendNotification(rawNotification)
         val emails = greenMail.receivedMessages
 
@@ -97,15 +95,15 @@ class CommandNotificationSenderTest : BaseMailTest() {
     }
 
     @Test
-    fun sendEmailWithAttachmentThroughCommandSender() {
+    fun `send email with attachment based on preview info model through command sender`() {
         val model = templateModel
 
-        model[NotificationConstants.ATTACHMENTS] = mapOf(
-            NotificationConstants.BYTES to ATTACHMENT_CONTENT,
-            NotificationConstants.PREVIEW_INFO to mapOf(
-                NotificationConstants.ORIGINAL_NAME to TestUtils.TEXT_TXT_FILENAME,
-                NotificationConstants.ORIGINAL_EXT to TestUtils.TEXT_TXT_EXT,
-                NotificationConstants.MIMETYPE to MimeTypeUtils.TEXT_PLAIN.toString()
+        model[NOTIFICATION_ATTACHMENTS] = mapOf(
+            NOTIFICATION_ATTACHMENT_BYTES to ATTACHMENT_CONTENT,
+            NOTIFICATION_ATTACHMENTS_PREVIEW_INFO to mapOf(
+                NOTIFICATION_ATTACHMENT_ORIGINAL_NAME to TestUtils.TEXT_TXT_FILENAME,
+                NOTIFICATION_ATTACHMENT_ORIGINAL_EXT to TestUtils.TEXT_TXT_EXT,
+                NOTIFICATION_ATTACHMENT_MIMETYPE to MimeTypeUtils.TEXT_PLAIN.toString()
             )
         )
         val notification = RawNotification(
@@ -141,7 +139,51 @@ class CommandNotificationSenderTest : BaseMailTest() {
     }
 
     @Test
-    fun blockEmailByCommandSender() {
+    fun `send email with attachment based on meta model through command sender`() {
+        val model = templateModel
+
+        model[NOTIFICATION_ATTACHMENTS] = mapOf(
+            NOTIFICATION_ATTACHMENT_BYTES to ATTACHMENT_CONTENT,
+            NOTIFICATION_ATTACHMENT_META to mapOf(
+                NOTIFICATION_ATTACHMENT_NAME to TestUtils.TEXT_TXT_FILENAME,
+                NOTIFICATION_ATTACHMENT_EXT to TestUtils.TEXT_TXT_EXT,
+                NOTIFICATION_ATTACHMENT_MIMETYPE to MimeTypeUtils.TEXT_PLAIN.toString()
+            )
+        )
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = Locale.ENGLISH,
+            recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
+            template = notificationTemplate,
+            model = model,
+            from = "test@mail.ru"
+        )
+        notificationSenderService.sendNotification(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertEquals(1, emails.size)
+        assertEquals(TEST_SUBJECT, emails[0].subject)
+        assertEquals(RECIPIENT_EMAIL, emails[0].allRecipients[0].toString())
+
+        val content = emails[0].content
+
+        assertTrue(content is MimeMultipart)
+        assertEquals(2, (content as MimeMultipart).count)
+
+        val isHaveAttachment = hasAttachment(
+            content,
+            MimeTypeUtils.TEXT_PLAIN.toString(),
+            TestUtils.TEXT_TXT_FILENAME,
+            "us-ascii",
+            DECODED_ATTACHMENT_CONTENT
+        )
+        assertTrue(isHaveAttachment)
+    }
+
+    @Test
+    fun `block email by command sender`() {
         val notification = RawNotification(
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,

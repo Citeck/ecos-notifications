@@ -1,15 +1,28 @@
 package ru.citeck.ecos.notifications.domain.notification
 
-class NotificationConstants {
+const val NOTIFICATION_DATA = "_data"
+const val NOTIFICATION_ATTACHMENTS = "_attachments"
+const val NOTIFICATION_MODEL = "model"
 
-    companion object {
-        const val DATA: String = "_data"
-        const val ATTACHMENTS: String = "_attachments"
-        const val BYTES: String = "bytes"
-        const val PREVIEW_INFO: String = "previewInfo"
-        const val ORIGINAL_NAME: String = "originalName"
-        const val ORIGINAL_EXT: String = "originalExt"
-        const val MIMETYPE: String = "mimetype"
-        const val MODEL: String = "model"
-    }
-}
+const val NOTIFICATION_ATTACHMENT_META = "meta"
+const val NOTIFICATION_ATTACHMENTS_PREVIEW_INFO = "previewInfo"
+const val NOTIFICATION_ATTACHMENT_BYTES = "bytes"
+
+const val NOTIFICATION_ATTACHMENT_ORIGINAL_NAME = "originalName"
+const val NOTIFICATION_ATTACHMENT_NAME = "name"
+
+const val NOTIFICATION_ATTACHMENT_ORIGINAL_EXT = "originalExt"
+const val NOTIFICATION_ATTACHMENT_EXT = "ext"
+
+const val NOTIFICATION_ATTACHMENT_MIMETYPE = "mimetype"
+
+val NOTIFICATION_ATTACHMENT_NAME_ATTS = listOf(
+    NOTIFICATION_ATTACHMENT_NAME,
+    NOTIFICATION_ATTACHMENT_ORIGINAL_NAME
+)
+
+val NOTIFICATION_ATTACHMENT_EXT_ATTS = listOf(
+    NOTIFICATION_ATTACHMENT_EXT,
+    NOTIFICATION_ATTACHMENT_ORIGINAL_EXT
+)
+
