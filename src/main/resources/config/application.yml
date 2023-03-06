@@ -3,9 +3,9 @@ ecos:
   webapp:
     dataSources:
       main:
-        url: jdbc:postgresql://localhost:5439/notifications
+        url: jdbc:postgresql://localhost:14523/ecos_notifications
         username: notifications
-        password:
+        password: notificationspassword
 
 spring:
   mail:
