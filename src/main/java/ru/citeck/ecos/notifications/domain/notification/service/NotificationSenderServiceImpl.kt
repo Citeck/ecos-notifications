@@ -9,10 +9,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
-import ru.citeck.ecos.notifications.domain.notification.FitNotification
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
-import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
+import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -194,49 +191,66 @@ class NotificationSenderServiceImpl(
     @Suppress("UNCHECKED_CAST")
     private fun prepareData(model: Map<String, Any>): Map<String, Any> {
         val result = mutableMapOf<String, Any>()
-        result[NotificationConstants.MODEL] = model.toMap()
-        if (model[NotificationConstants.DATA] == null) {
+        result[NOTIFICATION_MODEL] = model.toMap()
+        if (model[NOTIFICATION_DATA] == null) {
             return result
         }
-        result.putAll(model[NotificationConstants.DATA] as Map<String, Any>)
+        result.putAll(model[NOTIFICATION_DATA] as Map<String, Any>)
         return result
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun prepareAttachments(model: Map<String, Any>): Map<String, DataSource> {
 
-        val attachments = model[NotificationConstants.ATTACHMENTS] as? List<Map<String, Any>>
-            ?: (model[NotificationConstants.ATTACHMENTS] as? Map<String, Any>)?.let { attach ->
-                if (attach.isEmpty()) listOf()
-                else listOf(attach)
+        val attachments = model[NOTIFICATION_ATTACHMENTS] as? List<Map<String, Any>>
+            ?: (model[NOTIFICATION_ATTACHMENTS] as? Map<String, Any>)?.let { attach ->
+                if (attach.isEmpty()) {
+                    emptyList()
+                } else {
+                    listOf(attach)
+                }
             }
             ?: listOf()
 
         val result = mutableMapOf<String, DataSource>()
 
-        attachments.forEach {
-            val contentStr = it[NotificationConstants.BYTES] as? String
-            if (contentStr.isNullOrBlank()) throw NotificationException("Attachment doesn't have content: $it")
+        attachments.forEach { attachment ->
+            val contentStr = attachment[NOTIFICATION_ATTACHMENT_BYTES] as? String
+            if (contentStr.isNullOrBlank()) {
+                throw NotificationException("Attachment doesn't have content: $attachment")
+            }
 
             val fileBytes: ByteArray = Base64.getMimeDecoder().decode(contentStr)
 
-            val fileInfoMap: Map<String, String> = it[NotificationConstants.PREVIEW_INFO] as Map<String, String>
-            log.debug { "Attachment preview info:\n $fileInfoMap" }
-            val fileName: String = getAttachmentName(fileInfoMap)
-            log.debug { "Set attachment file name $fileName" }
-            var fileMimeType = it[NotificationConstants.MIMETYPE] as? String
-            log.debug { "Map attachment mimetype $fileMimeType" }
-            if (fileMimeType.isNullOrBlank()) {
-                val originalExt = fileInfoMap[NotificationConstants.ORIGINAL_EXT]
-                log.debug { "Attachment original extension $originalExt" }
-                fileMimeType = MimeMappings.DEFAULT.get(originalExt)
-                log.debug { "Calculated attachment mimetype $fileMimeType" }
-                if (fileMimeType.isNullOrBlank()) {
-                    fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
+            val fileMeta: Map<String, String> = let {
+                if (attachment.containsKey(NOTIFICATION_ATTACHMENT_META)) {
+                    attachment[NOTIFICATION_ATTACHMENT_META] as Map<String, String>
+                } else {
+                    attachment[NOTIFICATION_ATTACHMENTS_PREVIEW_INFO] as Map<String, String>
                 }
             }
+            log.debug { "Attachment meta:\n $fileMeta" }
+
+            val fileName: String = getAttachmentName(fileMeta)
+            log.debug { "Set attachment file name $fileName" }
+
+            val fileMimeType = let {
+                val mimeType = attachment[NOTIFICATION_ATTACHMENT_MIMETYPE] as? String
+                log.debug { "Map attachment mimetype $mimeType" }
+
+                if (mimeType.isNullOrBlank()) {
+                    val originalExt = fileMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_EXT_ATTS)
+                    log.debug { "Attachment extension $originalExt" }
+                    MimeMappings.DEFAULT.get(originalExt) ?: mimeType
+                } else {
+                    mimeType
+                }
+            }
+
             log.debug { "Result attachment mimetype $fileMimeType" }
-            if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
+            if (fileMimeType.isNullOrBlank()) {
+                throw NotificationException("Attachment doesn't have mimetype: $attachment")
+            }
 
             result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
         }
@@ -245,18 +259,35 @@ class NotificationSenderServiceImpl(
     }
 
     private fun getAttachmentName(infoAttachment: Map<String, String>): String {
-        val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
-        log.debug { "Attachment original name '$fileName'" }
-        if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
-        val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
-        log.debug { "Attachment original ext '$fileExt'" }
-        if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
+        val fileName = infoAttachment.getAnyNotBlank(NOTIFICATION_ATTACHMENT_NAME_ATTS)
+        log.debug { "Attachment name '$fileName'" }
+
+        if (fileName.isNullOrBlank()) {
+            throw NotificationException("Attachment doesn't have name: $infoAttachment")
+        }
+
+        val fileExt = infoAttachment.getAnyNotBlank(NOTIFICATION_ATTACHMENT_EXT_ATTS)
+        log.debug { "Attachment ext '$fileExt'" }
+
+        if (fileExt.isNullOrBlank()) {
+            throw NotificationException("Attachment doesn't have ext: $infoAttachment")
+        }
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {
             fileName
         } else {
             fileName.plus(".").plus(fileExt)
         }
+    }
+
+    private fun Map<String, String>.getAnyNotBlank(keys: List<String>): String? {
+        for (key in keys) {
+            val value = this[key]
+            if (value is String && value.isNotBlank()) {
+                return value
+            }
+        }
+        return null
     }
 
     private fun resolveAnyAvailableTitle(titleMl: MLText, locale: Locale): String? {
