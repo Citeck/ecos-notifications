@@ -1,14 +1,14 @@
 {
   "id": "notification-form",
-  "system": true,
   "formKey": "notification-form",
   "title": {
     "en": "Notification form"
   },
   "description": {},
-  "customModule": null,
+  "customModule": "",
   "typeRef": "",
-  "width": "default",
+  "width": "",
+  "system": true,
   "i18n": {},
   "definition": {
     "components": [
@@ -17,8 +17,12 @@
           "ru": "Panel"
         },
         "key": "general-panel",
-        "title": "Общее",
+        "title": {
+          "en": "General",
+          "ru": "Общее"
+        },
         "refreshOn": [],
+        "optionalWhenDisabled": false,
         "type": "panel",
         "input": false,
         "components": [
@@ -126,8 +130,12 @@
           "ru": "Panel"
         },
         "key": "reexecute-panel",
-        "title": "Переотправка сообщения",
+        "title": {
+          "en": "Resending a message",
+          "ru": "Переотправка сообщения"
+        },
         "refreshOn": [],
+        "optionalWhenDisabled": false,
         "type": "panel",
         "input": false,
         "components": [
@@ -172,8 +180,12 @@
           "ru": "Panel"
         },
         "key": "errors-panel",
-        "title": "Информация об ошибках",
+        "title": {
+          "en": "Error information",
+          "ru": "Информация об ошибках"
+        },
         "refreshOn": [],
+        "optionalWhenDisabled": false,
         "type": "panel",
         "input": false,
         "components": [
@@ -298,8 +310,12 @@
               "ru": "Panel"
             },
             "key": "payload-panel",
-            "title": "Данные уведомления",
+            "title": {
+              "en": "Notification data",
+              "ru": "Данные уведомления"
+            },
             "refreshOn": [],
+            "optionalWhenDisabled": false,
             "type": "panel",
             "input": false,
             "components": [
@@ -418,7 +434,9 @@
         "theme": "primary",
         "input": true
       }
-    ]
+    ],
+    "formId": "notification-form"
   },
-  "attributes": {}
+  "attributes": {},
+  "notExists": false
 }
