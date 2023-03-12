@@ -235,7 +235,7 @@ class NotificationSenderServiceImpl(
             log.debug { "Set attachment file name $fileName" }
 
             val fileMimeType = let {
-                val mimeType = fileMeta[NOTIFICATION_ATTACHMENT_MIMETYPE] as? String
+                val mimeType = fileMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_MIMETYPE_ATTS)
                 log.debug { "Map attachment mimetype $mimeType" }
 
                 if (mimeType.isNullOrBlank()) {
