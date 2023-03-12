@@ -235,7 +235,7 @@ class NotificationSenderServiceImpl(
             log.debug { "Set attachment file name $fileName" }
 
             val fileMimeType = let {
-                val mimeType = attachment[NOTIFICATION_ATTACHMENT_MIMETYPE] as? String
+                val mimeType = fileMeta[NOTIFICATION_ATTACHMENT_MIMETYPE] as? String
                 log.debug { "Map attachment mimetype $mimeType" }
 
                 if (mimeType.isNullOrBlank()) {
@@ -258,19 +258,19 @@ class NotificationSenderServiceImpl(
         return result
     }
 
-    private fun getAttachmentName(infoAttachment: Map<String, String>): String {
-        val fileName = infoAttachment.getAnyNotBlank(NOTIFICATION_ATTACHMENT_NAME_ATTS)
+    private fun getAttachmentName(attachmentMeta: Map<String, String>): String {
+        val fileName = attachmentMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_NAME_ATTS)
         log.debug { "Attachment name '$fileName'" }
 
         if (fileName.isNullOrBlank()) {
-            throw NotificationException("Attachment doesn't have name: $infoAttachment")
+            throw NotificationException("Attachment doesn't have name: $attachmentMeta")
         }
 
-        val fileExt = infoAttachment.getAnyNotBlank(NOTIFICATION_ATTACHMENT_EXT_ATTS)
+        val fileExt = attachmentMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_EXT_ATTS)
         log.debug { "Attachment ext '$fileExt'" }
 
         if (fileExt.isNullOrBlank()) {
-            throw NotificationException("Attachment doesn't have ext: $infoAttachment")
+            throw NotificationException("Attachment doesn't have ext: $attachmentMeta")
         }
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {
