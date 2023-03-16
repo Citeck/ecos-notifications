@@ -18,7 +18,9 @@ class EmailNotificationProvider(
     properties: ApplicationProperties
 ) : NotificationProvider, NotificationSender<Unit> {
 
-    private val log = KotlinLogging.logger {}
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     private val emailProps = initEmailProps(properties)
 
@@ -70,17 +72,32 @@ class EmailNotificationProvider(
     }
 
     private fun setFrom(msgHelper: MimeMessageHelper, notification: FitNotification) {
-
         if (emailProps.from.fixed.isNotBlank()) {
             msgHelper.setFrom(emailProps.from.fixed)
-        } else {
-            if (notification.from.isBlank() && emailProps.from.default.isNotBlank()) {
-                msgHelper.setFrom(emailProps.from.default)
-            } else {
-                val mappedValue = emailProps.from.mapping.getOrDefault(notification.from, notification.from)
-                msgHelper.setFrom(mappedValue)
-            }
+            return
         }
+
+        val normalizedEmail = notification.from.normalizeEmail()
+        if (normalizedEmail.isBlank() && emailProps.from.default.isNotBlank()) {
+            msgHelper.setFrom(emailProps.from.default)
+        } else {
+            val mappedValue = emailProps.from.mapping.getOrDefault(normalizedEmail, normalizedEmail)
+            msgHelper.setFrom(mappedValue)
+        }
+    }
+
+    private fun String.normalizeEmail(): String {
+        var normEmail = this.trim()
+        // remove quotes
+        if (normEmail.length >= 2 && normEmail.startsWith('"') && normEmail.endsWith('"')) {
+            normEmail = normEmail.substring(1, normEmail.length - 1)
+        }
+
+        if (normEmail.isBlank() || normEmail == "null" || normEmail == "undefined") {
+            return ""
+        }
+
+        return normEmail
     }
 
     private fun initEmailProps(appProps: ApplicationProperties): ApplicationProperties.Email {

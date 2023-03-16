@@ -16,4 +16,3 @@ ecos-notifications:
 notifications:
   default:
     locale: en
-    from: ecos.notifications@citeck.ru
