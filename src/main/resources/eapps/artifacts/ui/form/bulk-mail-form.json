@@ -63,6 +63,27 @@
             "key": "template",
             "journalId": "notification-templates",
             "refreshOn": [],
+            "logic": [
+              {
+                "name": "updateRequirement",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "result = !data.body;"
+                },
+                "actions": [
+                  {
+                    "name": "setRequired",
+                    "type": "property",
+                    "property": {
+                      "label": "Required",
+                      "value": "validate.required",
+                      "type": "boolean"
+                    },
+                    "state": "true"
+                  }
+                ]
+              }
+            ],
             "type": "selectJournal",
             "input": true,
             "queryData": ""
@@ -158,6 +179,25 @@
                     "property": {
                       "label": "Hidden",
                       "value": "hidden",
+                      "type": "boolean"
+                    },
+                    "state": "true"
+                  }
+                ]
+              },
+              {
+                "name": "updateRequirement",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "result = !data.template;"
+                },
+                "actions": [
+                  {
+                    "name": "setRequired",
+                    "type": "property",
+                    "property": {
+                      "label": "Required",
+                      "value": "validate.required",
                       "type": "boolean"
                     },
                     "state": "true"
