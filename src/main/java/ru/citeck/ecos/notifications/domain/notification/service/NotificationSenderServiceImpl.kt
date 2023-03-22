@@ -152,17 +152,26 @@ class NotificationSenderServiceImpl(
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
-        // TODO: Revert this.
-        // 99.9% that this is not a fix for the problem and will be reproduced in the future.
-        // Decided to merge and watch.
-        var body: String? = null
-        if (rawNotification.isExplicitMsgPayload()) {
-            body = rawNotification.body
+
+        val augmentedModel = rawNotification.model.toMutableMap()
+        val systemNotificationMeta = mapOf(
+            NOTIFICATION_SYS_META_TITLE_ATT to title,
+            NOTIFICATION_SYS_META_FROM_ATT to rawNotification.from,
+            NOTIFICATION_SYS_META_TO_ATT to rawNotification.recipients,
+            NOTIFICATION_SYS_META_CC_ATT to rawNotification.cc,
+            NOTIFICATION_SYS_META_BCC_ATT to rawNotification.bcc
+        )
+        augmentedModel[NOTIFICATION_SYS_META_ATT] = systemNotificationMeta
+
+        val body = if (rawNotification.isExplicitMsgPayload()) {
+            rawNotification.body
         } else {
-            body = prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
+            prepareBody(rawNotification.template!!, rawNotification.locale,augmentedModel)
         }
-        val attachments = prepareAttachments(rawNotification.model)
-        val data = prepareData(rawNotification.model)
+
+        val attachments = prepareAttachments(augmentedModel)
+        val data = prepareData(augmentedModel)
+
         return FitNotification(
             title = title,
             body = body,

@@ -4,6 +4,13 @@ const val NOTIFICATION_DATA = "_data"
 const val NOTIFICATION_ATTACHMENTS = "_attachments"
 const val NOTIFICATION_MODEL = "model"
 
+const val NOTIFICATION_SYS_META_ATT = "_notification"
+const val NOTIFICATION_SYS_META_TITLE_ATT = "title"
+const val NOTIFICATION_SYS_META_FROM_ATT = "from"
+const val NOTIFICATION_SYS_META_TO_ATT = "to"
+const val NOTIFICATION_SYS_META_CC_ATT = "cc"
+const val NOTIFICATION_SYS_META_BCC_ATT = "bcc"
+
 const val NOTIFICATION_ATTACHMENT_META = "meta"
 const val NOTIFICATION_ATTACHMENTS_PREVIEW_INFO = "previewInfo"
 const val NOTIFICATION_ATTACHMENT_BYTES = "bytes"
