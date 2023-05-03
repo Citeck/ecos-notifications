@@ -9,10 +9,6 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
-import ru.citeck.ecos.notifications.domain.notification.FitNotification
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
-import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -29,6 +25,8 @@ import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
 import javax.activation.DataSource
 import org.springframework.mail.javamail.MimeMessageHelper
+import ru.citeck.ecos.notifications.domain.notification.*
+import ru.citeck.ecos.records2.RecordRef
 
 @Component
 class NotificationSenderServiceImpl(
@@ -150,7 +148,7 @@ class NotificationSenderServiceImpl(
     }
 
     private fun convertRawNotificationToFit(rawNotification: RawNotification): FitNotification {
-        val title = if (rawNotification.isExplicitMsgPayload()) {
+        val title = if (rawNotification.isExplicitMsgTitle()) {
             rawNotification.title
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
@@ -174,7 +172,10 @@ class NotificationSenderServiceImpl(
             cc = rawNotification.cc,
             bcc = rawNotification.bcc,
             attachments = attachments,
-            data = data
+            data = data,
+            templateRef = rawNotification.template?.let {
+                RecordRef.Companion.valueOf("notifications/template@" + rawNotification.template.id)
+            }
         )
     }
 
