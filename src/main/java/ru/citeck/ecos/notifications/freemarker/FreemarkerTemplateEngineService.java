@@ -68,7 +68,7 @@ public class FreemarkerTemplateEngineService {
 
         String removedDoubleQuotes = removeDoubleQuotes(processedStr);
 
-        log.debug("Processed template {}" +
+        log.trace("Processed template {}" +
             "\nmodel: {}" +
             "\n-------> from" +
             "\n{}" +

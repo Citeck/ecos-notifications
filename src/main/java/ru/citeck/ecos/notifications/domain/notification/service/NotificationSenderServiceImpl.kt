@@ -222,21 +222,21 @@ class NotificationSenderServiceImpl(
             val fileBytes: ByteArray = Base64.getMimeDecoder().decode(contentStr)
 
             val fileInfoMap: Map<String, String> = it[NotificationConstants.PREVIEW_INFO] as Map<String, String>
-            log.debug { "Attachment preview info:\n $fileInfoMap" }
+            log.trace { "Attachment preview info:\n $fileInfoMap" }
             val fileName: String = getAttachmentName(fileInfoMap)
-            log.debug { "Set attachment file name $fileName" }
+            log.trace { "Set attachment file name $fileName" }
             var fileMimeType = it[NotificationConstants.MIMETYPE] as? String
-            log.debug { "Map attachment mimetype $fileMimeType" }
+            log.trace { "Map attachment mimetype $fileMimeType" }
             if (fileMimeType.isNullOrBlank()) {
                 val originalExt = fileInfoMap[NotificationConstants.ORIGINAL_EXT]
-                log.debug { "Attachment original extension $originalExt" }
+                log.trace { "Attachment original extension $originalExt" }
                 fileMimeType = MimeMappings.DEFAULT.get(originalExt)
-                log.debug { "Calculated attachment mimetype $fileMimeType" }
+                log.trace { "Calculated attachment mimetype $fileMimeType" }
                 if (fileMimeType.isNullOrBlank()) {
                     fileMimeType = fileInfoMap[NotificationConstants.MIMETYPE]
                 }
             }
-            log.debug { "Result attachment mimetype $fileMimeType" }
+            log.trace { "Result attachment mimetype $fileMimeType" }
             if (fileMimeType.isNullOrBlank()) throw NotificationException("Attachment doesn't have mimetype: $it")
 
             result[fileName] = ByteArrayDataSource(fileBytes, fileMimeType)
@@ -247,10 +247,10 @@ class NotificationSenderServiceImpl(
 
     private fun getAttachmentName(infoAttachment: Map<String, String>): String {
         val fileName = infoAttachment[NotificationConstants.ORIGINAL_NAME]
-        log.debug { "Attachment original name '${fileName}'" }
+        log.trace { "Attachment original name '${fileName}'" }
         if (fileName.isNullOrBlank()) throw NotificationException("Attachment doesn't have name: $infoAttachment")
         val fileExt = infoAttachment[NotificationConstants.ORIGINAL_EXT]
-        log.debug { "Attachment original ext '${fileExt}'" }
+        log.trace { "Attachment original ext '${fileExt}'" }
         if (fileExt.isNullOrBlank()) throw NotificationException("Attachment doesn't have ext: $infoAttachment")
 
         return if (fileExt == fileName.takeLast(fileExt.length)) {
