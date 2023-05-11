@@ -238,25 +238,25 @@ class NotificationSenderServiceImpl(
                     attachment[NOTIFICATION_ATTACHMENTS_PREVIEW_INFO] as Map<String, String>
                 }
             }
-            log.debug { "Attachment meta:\n $fileMeta" }
+            log.trace { "Attachment meta:\n $fileMeta" }
 
             val fileName: String = getAttachmentName(fileMeta)
-            log.debug { "Set attachment file name $fileName" }
+            log.trace { "Set attachment file name $fileName" }
 
             val fileMimeType = let {
                 val mimeType = fileMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_MIMETYPE_ATTS)
-                log.debug { "Map attachment mimetype $mimeType" }
+                log.trace { "Map attachment mimetype $mimeType" }
 
                 if (mimeType.isNullOrBlank()) {
                     val originalExt = fileMeta.getAnyNotBlank(NOTIFICATION_ATTACHMENT_EXT_ATTS)
-                    log.debug { "Attachment extension $originalExt" }
+                    log.trace { "Attachment extension $originalExt" }
                     MimeMappings.DEFAULT.get(originalExt) ?: mimeType
                 } else {
                     mimeType
                 }
             }
 
-            log.debug { "Result attachment mimetype $fileMimeType" }
+            log.trace { "Result attachment mimetype $fileMimeType" }
             if (fileMimeType.isNullOrBlank()) {
                 throw NotificationException("Attachment doesn't have mimetype: $attachment")
             }

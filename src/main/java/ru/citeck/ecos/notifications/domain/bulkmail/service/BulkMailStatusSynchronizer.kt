@@ -26,12 +26,13 @@ class BulkMailStatusSynchronizer(
     fun sync() {
         val bulkMails = bulkMailDao.findAllByStatuses(statusesToFind)
 
-        log.debug { "Found bulk mails: $bulkMails" }
+        log.debug { "Found bulk mails size: ${bulkMails.size}" }
+        log.trace { "Found bulk mails: $bulkMails" }
 
         bulkMails.forEach { bulkMail ->
             val notificationsSummary = notificationDao.getBulkMailStateSummary(bulkMail.recordRef.toString())
 
-            log.debug { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
+            log.trace { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
 
             when {
                 notificationsSummary.containsKey(NotificationState.ERROR) -> {
@@ -56,7 +57,7 @@ class BulkMailStatusSynchronizer(
     }
 
     private fun setBulkMailStatus(bulkMail: BulkMailDto, status: BulkMailStatus) {
-        log.debug { "Set new status: $status for ${bulkMail.recordRef}" }
+        log.trace { "Set new status: $status for ${bulkMail.recordRef}" }
 
         bulkMailDao.setStatus(bulkMail.extId!!, status)
     }
