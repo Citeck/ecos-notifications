@@ -148,7 +148,7 @@ class NotificationSenderServiceImpl(
     }
 
     private fun convertRawNotificationToFit(rawNotification: RawNotification): FitNotification {
-        val title = if (rawNotification.isExplicitMsgTitle()) {
+        val title = if (rawNotification.isExplicitMsgPayload()) {
             rawNotification.title
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
