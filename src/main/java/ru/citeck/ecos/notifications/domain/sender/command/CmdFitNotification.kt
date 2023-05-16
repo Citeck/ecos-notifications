@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.sender.command
 
 import com.sun.istack.internal.ByteArrayDataSource
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.records2.RecordRef
 import javax.activation.DataSource
 
 class CmdFitNotification(
@@ -12,7 +13,8 @@ class CmdFitNotification(
     var cc: Set<String> = emptySet(),
     var bcc: Set<String> = emptySet(),
     var attachments: Map<String, AttachmentData> = emptyMap(),
-    var data: Map<String, Any> = emptyMap()
+    var data: Map<String, Any> = emptyMap(),
+    var templateRef: RecordRef? = null
 ) {
     constructor(fitNotification: FitNotification) : this(
         fitNotification.body,
@@ -22,7 +24,8 @@ class CmdFitNotification(
         fitNotification.cc,
         fitNotification.bcc,
         emptyMap(),
-        fitNotification.data
+        fitNotification.data,
+        fitNotification.templateRef
     ) {
         attachments = fitNotification.attachments.let { attachments ->
             attachments.mapValues {
