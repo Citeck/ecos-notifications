@@ -11,5 +11,6 @@ class NotificationConstants {
         const val ORIGINAL_EXT: String = "originalExt"
         const val MIMETYPE: String = "mimetype"
         const val MODEL: String = "model"
+        const val IGNORE_TEMPLATE = "ignoreTemplate"
     }
 }

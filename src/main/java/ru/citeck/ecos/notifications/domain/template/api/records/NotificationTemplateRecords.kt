@@ -51,7 +51,7 @@ private val TEMPLATE_INFO_MAP = mapOf(
     "multiTemplateConfig" to "multiTemplateConfig[]?json"
 )
 
-const val ID = "template"
+const val NOTIFICATION_TEMPLATE_RECORD_ID = "template"
 
 @Component
 class NotificationTemplateRecords(val templateService: NotificationTemplateService) : LocalRecordsDao(),
@@ -63,7 +63,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     private lateinit var sendersService: NotificationSenderService
 
     init {
-        id = ID
+        id = NOTIFICATION_TEMPLATE_RECORD_ID
     }
 
     override fun delete(deletion: RecordsDeletion): RecordsDelResult {
