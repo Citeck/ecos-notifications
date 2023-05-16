@@ -16,6 +16,7 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
+import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
@@ -56,7 +57,7 @@ class NotificationSenderServiceImpl(
     }
 
     override fun sendNotification(notification: RawNotification): NotificationSenderSendStatus {
-        log.debug("Send notification raw $notification")
+        log.debug { "Send notification raw $notification" }
 
         val senders = notificationsSenderService.getEnabled(
             Predicates.eq(NotificationsSenderEntity.PROP_NOTIFICATION_TYPE, notification.type), null
@@ -174,7 +175,7 @@ class NotificationSenderServiceImpl(
             attachments = attachments,
             data = data,
             templateRef = rawNotification.template?.let {
-                RecordRef.Companion.valueOf("notifications/template@" + rawNotification.template.id)
+                RecordRef.create("notifications", NOTIFICATION_TEMPLATE_RECORD_ID, rawNotification.template.id)
             }
         )
     }
