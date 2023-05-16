@@ -13,8 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.testng.Assert
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.notification.ADDITIONAL_DATA
-import ru.citeck.ecos.notifications.domain.notification.IGNORE_TEMPLATE
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.DATA
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.IGNORE_TEMPLATE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
@@ -54,32 +54,52 @@ class EmailNotificationTest : BaseMailTest() {
     fun setup() {
         templateModel["process-definition"] = "flowable\$confirm"
 
-        notificationHtmlTemplate = Json.mapper.convert(stringJsonFromResource("template/test-template-html.json"),
-            NotificationTemplateWithMeta::class.java)!!
-        notificationWrongLocaleTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-template-wrong-locale-test.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationHtmlTemplate = Json.mapper.convert(
+            stringJsonFromResource("template/test-template-html.json"),
+            NotificationTemplateWithMeta::class.java
+        )!!
+        notificationWrongLocaleTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-template-wrong-locale-test.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationHtmlTemplate)
         notificationTemplateService.save(notificationWrongLocaleTemplate)
 
-        notificationLibMacroTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/lib-macro-template.json"), NotificationTemplateWithMeta::class.java)!!
-        notificationTestImportTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-import-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationLibMacroTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/lib-macro-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
+        notificationTestImportTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-import-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationLibMacroTemplate)
         notificationTemplateService.save(notificationTestImportTemplate)
 
-        notificationLibIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/lib-include-template.json"), NotificationTemplateWithMeta::class.java)!!
-        notificationTestIncludeTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-include-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationLibIncludeTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/lib-include-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
+        notificationTestIncludeTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-include-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationLibIncludeTemplate)
         notificationTemplateService.save(notificationTestIncludeTemplate)
 
-        notificationTestBeansTemplate = Json.mapper.convert(stringJsonFromResource(
-            "template/test-beans-template.json"), NotificationTemplateWithMeta::class.java)!!
+        notificationTestBeansTemplate = Json.mapper.convert(
+            stringJsonFromResource(
+                "template/test-beans-template.json"
+            ), NotificationTemplateWithMeta::class.java
+        )!!
 
         notificationTemplateService.save(notificationTestBeansTemplate)
 
@@ -105,16 +125,18 @@ class EmailNotificationTest : BaseMailTest() {
         assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
-        assertThat(body).isEqualToIgnoringNewLines("user@example.com<br>\n" +
-            "\n" +
-            "LibDefault: Copyright (C) 1999-2002 Someone. All rights reserved.\n" +
-            "<br>\n" +
-            "LibEn: Copyright (C) 2000-2002 Someone. All rights reserved.\n" +
-            "<br>\n" +
-            "LibRu: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
-            "<br>\n" +
-            "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
-            "<br>")
+        assertThat(body).isEqualToIgnoringNewLines(
+            "user@example.com<br>\n" +
+                "\n" +
+                "LibDefault: Copyright (C) 1999-2002 Someone. All rights reserved.\n" +
+                "<br>\n" +
+                "LibEn: Copyright (C) 2000-2002 Someone. All rights reserved.\n" +
+                "<br>\n" +
+                "LibRu: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+                "<br>\n" +
+                "libRuShort: Copyright (C) 1900-2020 Рога и копыта. Все права защищены.\n" +
+                "<br>"
+        )
     }
 
     @Test
@@ -137,13 +159,15 @@ class EmailNotificationTest : BaseMailTest() {
         assertThat(emails[0].allRecipients[0].toString()).isEqualTo(RECIPIENT_EMAIL)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
-        assertThat(body).isEqualToIgnoringNewLines("Шаблон с вложенным шаблоном<br>\n" +
-            "По умолчанию - This text should be included. Value from model - Ivan<br>\n" +
-            "Английский - This text should be included. Value from model - Ivan<br>\n" +
-            "Русский - Этот текст должен быть включен. Значение из модели - Ivan<br>\n" +
-            "По умолчанию короткий id - This text should be included. Value from model - Ivan<br>\n" +
-            "Английский короткий id - This text should be included. Value from model - Ivan<br>\n" +
-            "Русский короткий id- Этот текст должен быть включен. Значение из модели - Ivan")
+        assertThat(body).isEqualToIgnoringNewLines(
+            "Шаблон с вложенным шаблоном<br>\n" +
+                "По умолчанию - This text should be included. Value from model - Ivan<br>\n" +
+                "Английский - This text should be included. Value from model - Ivan<br>\n" +
+                "Русский - Этот текст должен быть включен. Значение из модели - Ivan<br>\n" +
+                "По умолчанию короткий id - This text should be included. Value from model - Ivan<br>\n" +
+                "Английский короткий id - This text should be included. Value from model - Ivan<br>\n" +
+                "Русский короткий id- Этот текст должен быть включен. Значение из модели - Ivan"
+        )
     }
 
     @Test
@@ -487,17 +511,20 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }) {
+                    .any { it == "text/plain; charset=us-ascii; name=test1.txt" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment1 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "application/pdf; name=test2.pdf" }) {
+                    .any { it == "application/pdf; name=test2.pdf" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment2 = true
             }
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "image/jpeg; name=test3.jpg" }) {
+                    .any { it == "image/jpeg; name=test3.jpg" }
+            ) {
                 assertThat(content.getBodyPart(i).content).isNotNull
                 isHaveAttachment3 = true
             }
@@ -548,7 +575,8 @@ class EmailNotificationTest : BaseMailTest() {
 
         for (i in 0 until content.count) {
             if (content.getBodyPart(i).getHeader("Content-Type")
-                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }) {
+                    .any { it == "text/plain; charset=us-ascii; name=test.txt" }
+            ) {
                 isHaveAttachment = true
                 assertThat(content.getBodyPart(i).content).isEqualTo(unencodedFileContent)
             }
@@ -834,7 +862,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_condition.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         notificationSender.sendNotification(rawNotification)
@@ -848,7 +877,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_template.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         notificationSender.sendNotification(rawNotification)
@@ -862,7 +892,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_template.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         val notification = RawNotification(
@@ -884,7 +915,8 @@ class EmailNotificationTest : BaseMailTest() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
             stringJsonFromResource("sender/default_email_sender_with_condition.json"),
-            NotificationsSenderDto::class.java)!!
+            NotificationsSenderDto::class.java
+        )!!
 
         notificationsSenderService.save(defaultSenderDto)
         val notification = RawNotification(
@@ -905,7 +937,7 @@ class EmailNotificationTest : BaseMailTest() {
         val titleValue = "Test Ignore Template Title"
         val bodyValue = "<p>Test Ignore Template Body"
         val localModel = templateModel.toMutableMap()
-        localModel[ADDITIONAL_DATA] = mapOf(IGNORE_TEMPLATE to true)
+        localModel[DATA] = mapOf(IGNORE_TEMPLATE to true)
         val notification = RawNotification(
             record = RecordRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,

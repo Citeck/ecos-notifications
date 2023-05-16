@@ -9,6 +9,9 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
+import ru.citeck.ecos.notifications.domain.notification.*
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.DATA
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.IGNORE_TEMPLATE
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -24,9 +27,6 @@ import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
 import javax.activation.DataSource
-import org.springframework.mail.javamail.MimeMessageHelper
-import ru.citeck.ecos.commons.data.DataValue
-import ru.citeck.ecos.notifications.domain.notification.*
 
 @Component
 class NotificationSenderServiceImpl(
@@ -148,28 +148,18 @@ class NotificationSenderServiceImpl(
     }
 
     private fun convertRawNotificationToFit(rawNotification: RawNotification): FitNotification {
-
-        var ignoreTemplate = false
-        val additionalData = rawNotification.model[ADDITIONAL_DATA]
-        additionalData?.let {
-            val dataMap: Map<String, Any> =
-                DataValue.create(additionalData).asMap(String::class.java, Any::class.java)
-            dataMap[IGNORE_TEMPLATE]?.let { ignoreTemplate = dataMap[IGNORE_TEMPLATE].toString().toBoolean() }
-        }
+        val ignoreTemplate = parseIgnoreTemplateFlag(rawNotification)
 
         val title = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.title
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
-        //TODO: Revert this.
-        // 99.9% that this is not a fix for the problem and will be reproduced in the future.
-        // Decided to merge and watch.
-        var body: String? = null
-        if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
-            body = rawNotification.body
+
+        val body = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
+            rawNotification.body
         } else {
-            body = prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
+            prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)
         }
         val attachments = prepareAttachments(rawNotification.model)
         val data = prepareData(rawNotification.model)
@@ -183,6 +173,20 @@ class NotificationSenderServiceImpl(
             attachments = attachments,
             data = data
         )
+    }
+
+    private fun parseIgnoreTemplateFlag(rawNotification: RawNotification): Boolean {
+        var ignoreTemplate = false
+
+        rawNotification.model[DATA]?.let { data ->
+            @Suppress("UNCHECKED_CAST")
+            val dataMap: Map<String, Any> = data as Map<String, Any>
+            dataMap[IGNORE_TEMPLATE]?.let {
+                ignoreTemplate = dataMap[IGNORE_TEMPLATE].toString().toBoolean()
+            }
+        }
+
+        return ignoreTemplate
     }
 
     private fun prepareBody(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
@@ -202,10 +206,10 @@ class NotificationSenderServiceImpl(
     private fun prepareData(model: Map<String, Any>): Map<String, Any> {
         val result = mutableMapOf<String, Any>()
         result[NotificationConstants.MODEL] = model.toMap()
-        if (model[NotificationConstants.DATA] == null) {
+        if (model[DATA] == null) {
             return result
         }
-        result.putAll(model[NotificationConstants.DATA] as Map<String, Any>)
+        result.putAll(model[DATA] as Map<String, Any>)
         return result
     }
 
