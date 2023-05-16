@@ -9,10 +9,6 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
-import ru.citeck.ecos.notifications.domain.notification.FitNotification
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants
-import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -29,6 +25,8 @@ import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import java.util.*
 import javax.activation.DataSource
 import org.springframework.mail.javamail.MimeMessageHelper
+import ru.citeck.ecos.commons.data.DataValue
+import ru.citeck.ecos.notifications.domain.notification.*
 
 @Component
 class NotificationSenderServiceImpl(
@@ -150,7 +148,16 @@ class NotificationSenderServiceImpl(
     }
 
     private fun convertRawNotificationToFit(rawNotification: RawNotification): FitNotification {
-        val title = if (rawNotification.isExplicitMsgPayload()) {
+
+        var ignoreTemplate = false
+        val additionalData = rawNotification.model[ADDITIONAL_DATA]
+        additionalData?.let {
+            val dataMap: Map<String, Any> =
+                DataValue.create(additionalData).asMap(String::class.java, Any::class.java)
+            dataMap[IGNORE_TEMPLATE]?.let { ignoreTemplate = dataMap[IGNORE_TEMPLATE].toString().toBoolean() }
+        }
+
+        val title = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.title
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
@@ -159,7 +166,7 @@ class NotificationSenderServiceImpl(
         // 99.9% that this is not a fix for the problem and will be reproduced in the future.
         // Decided to merge and watch.
         var body: String? = null
-        if (rawNotification.isExplicitMsgPayload()) {
+        if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             body = rawNotification.body
         } else {
             body = prepareBody(rawNotification.template!!, rawNotification.locale, rawNotification.model)

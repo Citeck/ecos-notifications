@@ -5,6 +5,8 @@ import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
+const val ADDITIONAL_DATA = "_data"
+const val IGNORE_TEMPLATE = "ignoreTemplate"
 val DEFAULT_LOCALE: Locale = Locale.ENGLISH
 
 data class RawNotification(
