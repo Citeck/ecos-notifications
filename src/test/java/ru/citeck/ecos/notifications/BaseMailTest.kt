@@ -5,7 +5,6 @@ import com.icegreen.greenmail.util.ServerSetupTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService

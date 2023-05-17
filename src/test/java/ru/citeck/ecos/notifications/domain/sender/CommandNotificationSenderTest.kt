@@ -218,9 +218,9 @@ class CommandNotificationSenderTest : BaseMailTest() {
                         command.cc,
                         command.bcc,
                         CmdFitNotification.convertAttachments(command.attachments),
-                        command.data
-                    ),
-                    Unit
+                        command.data,
+                        command.templateRef
+                    ), Unit
                 )
             }
         }
@@ -239,6 +239,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         var cc: Set<String> = emptySet(),
         var bcc: Set<String> = emptySet(),
         var attachments: Map<String, AttachmentData> = emptyMap(),
-        var data: Map<String, Any> = emptyMap()
+        var data: Map<String, Any> = emptyMap(),
+        var templateRef: RecordRef?
     )
 }

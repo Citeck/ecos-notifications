@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.DATA
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.IGNORE_TEMPLATE
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
@@ -938,6 +940,34 @@ class EmailNotificationTest : BaseMailTest() {
         assertThrows<NotificationException> {
             notificationSender.sendNotification(notification)
         }
+    }
+
+    @Test
+    fun sendEmailIgnoreTemplateTest() {
+        val titleValue = "Test Ignore Template Title"
+        val bodyValue = "<p>Test Ignore Template Body"
+        val localModel = templateModel.toMutableMap()
+        localModel[DATA] = mapOf(IGNORE_TEMPLATE to true)
+        val notification = RawNotification(
+            record = RecordRef.EMPTY,
+            type = NotificationType.EMAIL_NOTIFICATION,
+            locale = LocaleUtils.toLocale("ru"),
+            recipients = setOf(RECIPIENT_EMAIL),
+            title = titleValue,
+            body = bodyValue,
+            template = notificationTemplate,
+            model = localModel,
+            from = "test@mail.ru"
+        )
+        notificationSender.sendNotification(notification)
+
+        val emails = greenMail.receivedMessages
+
+        assertThat(emails.size).isEqualTo(1)
+        assertThat(emails[0].subject).isEqualTo(titleValue)
+
+        val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
+        assertThat(body).isEqualTo(bodyValue)
     }
 
     private fun String.saveTemplate(): NotificationTemplateWithMeta {

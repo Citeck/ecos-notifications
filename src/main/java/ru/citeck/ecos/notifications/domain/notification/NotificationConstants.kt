@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification
 const val NOTIFICATION_DATA = "_data"
 const val NOTIFICATION_ATTACHMENTS = "_attachments"
 const val NOTIFICATION_MODEL = "model"
+const val NOTIFICATIONS_IGNORE_TEMPLATE = "ignoreTemplate"
 
 const val NOTIFICATION_SYS_META_ATT = "_notification"
 const val NOTIFICATION_SYS_META_TITLE_ATT = "title"

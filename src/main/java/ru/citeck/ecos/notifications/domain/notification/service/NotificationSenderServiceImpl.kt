@@ -10,14 +10,19 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.*
+import ru.citeck.ecos.notifications.domain.notification.*
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.DATA
+import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.IGNORE_TEMPLATE
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
+import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
+import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
@@ -53,7 +58,7 @@ class NotificationSenderServiceImpl(
     }
 
     override fun sendNotification(notification: RawNotification): NotificationSenderSendStatus {
-        log.debug("Send notification raw $notification")
+        log.debug { "Send notification raw $notification" }
 
         val senders = notificationsSenderService.getEnabled(
             Predicates.eq(NotificationsSenderEntity.PROP_NOTIFICATION_TYPE, notification.type),
@@ -147,7 +152,9 @@ class NotificationSenderServiceImpl(
     }
 
     private fun convertRawNotificationToFit(rawNotification: RawNotification): FitNotification {
-        val title = if (rawNotification.isExplicitMsgPayload()) {
+        val ignoreTemplate = parseIgnoreTemplateFlag(rawNotification)
+
+        val title = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.title
         } else {
             prepareTitle(rawNotification.template!!, rawNotification.locale, rawNotification.model)
@@ -163,7 +170,7 @@ class NotificationSenderServiceImpl(
         )
         augmentedModel[NOTIFICATION_SYS_META_ATT] = systemNotificationMeta
 
-        val body = if (rawNotification.isExplicitMsgPayload()) {
+        val body = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.body
         } else {
             prepareBody(rawNotification.template!!, rawNotification.locale,augmentedModel)
@@ -180,8 +187,25 @@ class NotificationSenderServiceImpl(
             cc = rawNotification.cc,
             bcc = rawNotification.bcc,
             attachments = attachments,
-            data = data
+            data = data,
+            templateRef = rawNotification.template?.let {
+                RecordRef.create("notifications", NOTIFICATION_TEMPLATE_RECORD_ID, rawNotification.template.id)
+            }
         )
+    }
+
+    private fun parseIgnoreTemplateFlag(rawNotification: RawNotification): Boolean {
+        var ignoreTemplate = false
+
+        rawNotification.model[DATA]?.let { data ->
+            @Suppress("UNCHECKED_CAST")
+            val dataMap: Map<String, Any> = data as Map<String, Any>
+            dataMap[NOTIFICATION_IGNORE_TEMPLATE]?.let {
+                ignoreTemplate = dataMap[NOTIFICATION_IGNORE_TEMPLATE].toString().toBoolean()
+            }
+        }
+
+        return ignoreTemplate
     }
 
     private fun prepareBody(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {

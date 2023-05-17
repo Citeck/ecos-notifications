@@ -10,3 +10,7 @@ fun SendNotificationCommand.isExplicitMsgPayload(): Boolean {
 fun RawNotification.isExplicitMsgPayload(): Boolean {
     return template == null
 }
+
+fun RawNotification.isExplicitMsgTitle(): Boolean {
+    return template == null || !title.isNullOrEmpty()
+}
