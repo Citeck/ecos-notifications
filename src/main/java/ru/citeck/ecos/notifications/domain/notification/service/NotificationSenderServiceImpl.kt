@@ -10,9 +10,6 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.*
-import ru.citeck.ecos.notifications.domain.notification.*
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.DATA
-import ru.citeck.ecos.notifications.domain.notification.NotificationConstants.Companion.IGNORE_TEMPLATE
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -173,7 +170,7 @@ class NotificationSenderServiceImpl(
         val body = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.body
         } else {
-            prepareBody(rawNotification.template!!, rawNotification.locale,augmentedModel)
+            prepareBody(rawNotification.template!!, rawNotification.locale, augmentedModel)
         }
 
         val attachments = prepareAttachments(augmentedModel)
@@ -197,7 +194,7 @@ class NotificationSenderServiceImpl(
     private fun parseIgnoreTemplateFlag(rawNotification: RawNotification): Boolean {
         var ignoreTemplate = false
 
-        rawNotification.model[DATA]?.let { data ->
+        rawNotification.model[NOTIFICATION_DATA]?.let { data ->
             @Suppress("UNCHECKED_CAST")
             val dataMap: Map<String, Any> = data as Map<String, Any>
             dataMap[NOTIFICATION_IGNORE_TEMPLATE]?.let {

@@ -13,10 +13,10 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository
 import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
@@ -51,18 +51,18 @@ class NotificationTemplateService(
             .ifPresent { entity: NotificationTemplateEntity -> templateRepository.delete(entity) }
     }
 
-    fun findTemplateRefsForTypes(typeRefs: List<RecordRef>): List<RecordRef> {
+    fun findTemplateRefsForTypes(typeRefs: List<EntityRef>): List<EntityRef> {
         if (typeRefs.isEmpty()) {
             return emptyList()
         }
 
-        val templates: MutableList<RecordRef> = ArrayList()
+        val templates: MutableList<EntityRef> = ArrayList()
 
         templateRepository.findAllMultiTemplates().forEach { notificationTemplateEntity ->
             templateConverter.entityToDto(notificationTemplateEntity).multiTemplateConfig?.let { multiTemplates ->
                 for ((template, type) in multiTemplates) {
-                    if (RecordRef.isNotEmpty(type) &&
-                        RecordRef.isNotEmpty(template) &&
+                    if (EntityRef.isNotEmpty(type) &&
+                        EntityRef.isNotEmpty(template) &&
                         typeRefs.contains(type)
                     ) {
                         template?.let { templates.add(it) }
@@ -90,7 +90,7 @@ class NotificationTemplateService(
             val notEmptyMultiTemplateConfigs: MutableList<MultiTemplateElementDto> = ArrayList()
             for (template in dto.multiTemplateConfig!!) {
                 if (template.condition != null && template.condition !is VoidPredicate ||
-                    RecordRef.isNotEmpty(template.template) || RecordRef.isNotEmpty(template.type)
+                    EntityRef.isNotEmpty(template.template) || EntityRef.isNotEmpty(template.type)
                 ) {
                     notEmptyMultiTemplateConfigs.add(template)
                 }

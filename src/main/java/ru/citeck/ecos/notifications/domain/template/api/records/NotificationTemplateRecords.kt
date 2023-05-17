@@ -206,8 +206,8 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 }
 
                 element.template?.let {
-                    if (it.id.isNotEmpty()) {
-                        val data = recordsService.getAttributes(it, TEMPLATE_INFO_MAP)
+                    if (it.getLocalId().isNotEmpty()) {
+                        val data = recordsService.getAttributes(RecordRef.valueOf(it), TEMPLATE_INFO_MAP)
 
                         data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
                             attributes.add(attr)

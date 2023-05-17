@@ -131,7 +131,11 @@ class UnsafeSendNotificationCommandExecutor(
                     val template = it.template ?: throw NotificationException(
                         "Multi template ref is null. Base template ref: $baseTemplate"
                     )
-                    return resolveMultiTemplate(getTemplateMetaById(template.id), recordEcosTypeId, attributes)
+                    return resolveMultiTemplate(
+                        getTemplateMetaById(template.getLocalId()),
+                        recordEcosTypeId,
+                        attributes
+                    )
                 }
             }
         }

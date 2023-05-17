@@ -12,7 +12,6 @@ class EcosConfigAccessor(
     private val ecosConfigService: EcosConfigService
 ) : InjectedFreemarkerBean {
 
-
     override fun getId(): String {
         return ID
     }
@@ -36,5 +35,4 @@ class EcosConfigAccessor(
         }
         return result
     }
-
 }

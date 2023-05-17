@@ -220,7 +220,8 @@ class CommandNotificationSenderTest : BaseMailTest() {
                         CmdFitNotification.convertAttachments(command.attachments),
                         command.data,
                         command.templateRef
-                    ), Unit
+                    ),
+                    Unit
                 )
             }
         }
