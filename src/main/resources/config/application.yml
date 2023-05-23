@@ -7,6 +7,11 @@ ecos:
         username: notifications
         password: notificationspassword
 
+management:
+  health:
+    mail:
+      enabled: false
+
 spring:
   mail:
     host: localhost
