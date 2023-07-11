@@ -135,7 +135,9 @@ class NotificationRecords(
         val data = dto.data?.decodeToString() ?: error("Can't unmarshall notification data")
         val notificationCommand = mapper.read(data, SendNotificationCommand::class.java)
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
-        val newNotificationCommand = notificationCommand.copy(id = UUID.randomUUID().toString())
+        val newNotificationCommand = notificationCommand.copy(
+            id = UUID.randomUUID().toString(),
+            createdFrom = notificationCommand.id)
         commandsService.executeSync(newNotificationCommand)
     }
 
@@ -152,6 +154,7 @@ class NotificationRecords(
         val tryingCount: Int,
         val lastTryingDate: Instant?,
         val delayedSend: Instant?,
+        val createdFrom: String?,
         val state: NotificationState,
         val creator: String?,
         val created: Instant?,
@@ -171,6 +174,7 @@ class NotificationRecords(
             dto.tryingCount,
             dto.lastTryingDate,
             dto.delayedSend,
+            dto.createdFrom,
             dto.state,
             dto.createdBy,
             dto.createdDate,
