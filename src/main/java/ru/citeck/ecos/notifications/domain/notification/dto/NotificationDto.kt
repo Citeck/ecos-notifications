@@ -31,7 +31,7 @@ data class NotificationDto(
 
     val lastTryingDate: Instant? = null,
 
-    val createdFrom: String? = null,
+    val createdFrom: RecordRef = RecordRef.EMPTY,
 
     val state: NotificationState,
 

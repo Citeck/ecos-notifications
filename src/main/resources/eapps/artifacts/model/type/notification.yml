@@ -11,4 +11,7 @@ sourceId: notifications/notification
 journalRef: uiserv/journal@notification
 formRef: uiserv/form@notification-form
 
+actions:
+  - uiserv/action@resend-notification-action
+
 defaultCreateVariant: false

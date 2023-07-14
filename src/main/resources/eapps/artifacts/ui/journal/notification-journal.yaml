@@ -5,6 +5,7 @@ editable: false
 
 actions:
   - uiserv/action@view-dashboard
+  - uiserv/action@resend-notification-action
 
 columns:
 

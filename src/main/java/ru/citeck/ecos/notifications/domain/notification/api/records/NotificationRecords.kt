@@ -34,6 +34,7 @@ class NotificationRecords(
 
     companion object {
         const val ID = "notification"
+        private const val APP_NAME = "notifications"
     }
 
     override fun getId(): String {
@@ -137,7 +138,7 @@ class NotificationRecords(
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
         val newNotificationCommand = notificationCommand.copy(
             id = UUID.randomUUID().toString(),
-            createdFrom = notificationCommand.id)
+            createdFrom = RecordRef.create(APP_NAME, ID, notificationCommand.id))
         commandsService.executeSync(newNotificationCommand)
     }
 
@@ -154,7 +155,7 @@ class NotificationRecords(
         val tryingCount: Int,
         val lastTryingDate: Instant?,
         val delayedSend: Instant?,
-        val createdFrom: String?,
+        val createdFrom: RecordRef = RecordRef.EMPTY,
         val state: NotificationState,
         val creator: String?,
         val created: Instant?,

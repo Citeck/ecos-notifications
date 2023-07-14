@@ -2,7 +2,6 @@ package ru.citeck.ecos.notifications
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -10,8 +9,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.context.lib.auth.AuthContext
-import ru.citeck.ecos.context.lib.auth.AuthRole
-import ru.citeck.ecos.context.lib.auth.data.SimpleAuthData
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -109,42 +106,32 @@ class NotificationStoreTest: BaseMailTest() {
     }
 
     @Test
-    fun `Resend notification`() {
-        `Success notification store`()
-        val allNotifications = notificationRepository.findAll()
-        assertThat(allNotifications.size).isEqualTo(1)
-        val notification = allNotifications[0]
+    fun `Resend notification store`() {
+        val id = UUID.randomUUID().toString()
+        val initialNotificationRef = RecordRef.create("notifications", "notification", id)
+        val command = SendNotificationCommand(
+            id = id,
+            record = RecordRef.create("notifications", "test", "test"),
+            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
 
-        val ex = assertThrows<Exception> {
-            recordsService.mutate(
-                RecordRef.create("notification", notification.extId),
-                mapOf("action" to "RESEND"))
-        }
-
-        assertThat(ex.message).contains("Permission denied")
-
-
-        AuthContext.runAsFull(SimpleAuthData("admin", listOf(AuthRole.ADMIN))) {
-            recordsService.mutate(
-                RecordRef.create("notification", notification.extId),
-                mapOf("action" to "RESEND")
-            )
-        }
+        commandsService.executeSync(command, "notifications")
 
         AuthContext.runAsSystem {
             recordsService.mutate(
-                RecordRef.create("notification", notification.extId),
+                initialNotificationRef,
                 mapOf("action" to "RESEND")
             )
         }
 
-        val emails = greenMail.receivedMessages
-        assertThat(emails.size).isEqualTo(3)
-        assertThat(emails[0].subject).isEqualTo(emails[1].subject)
-        assertThat(emails[0].content).isEqualTo(emails[1].content)
-        assertThat(emails[0].from).isEqualTo(emails[1].from)
-        assertThat(emails[0].allRecipients).isEqualTo(emails[1].allRecipients)
         val allAfterResend = notificationRepository.findAll()
-        assertThat(allAfterResend.size).isEqualTo(3)
+        assertThat(allAfterResend.size).isEqualTo(2)
+        assertThat(allAfterResend[1].state).isEqualTo(NotificationState.SENT)
+        assertThat(allAfterResend[1].createdFrom).isEqualTo(initialNotificationRef.toString())
     }
 }

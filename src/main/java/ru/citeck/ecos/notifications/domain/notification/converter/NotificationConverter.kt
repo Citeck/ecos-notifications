@@ -48,7 +48,7 @@ fun NotificationEntity.toDto(): NotificationDto {
         errorStackTrace = errorStackTrace ?: "",
         tryingCount = tryingCount ?: 0,
         lastTryingDate = lastTryingDate,
-        createdFrom = createdFrom ?: "",
+        createdFrom = RecordRef.valueOf(createdFrom),
         state = state!!,
         bulkMailRef = RecordRef.valueOf(bulkMailRef),
         delayedSend = delayedSend,
@@ -74,7 +74,7 @@ fun NotificationDto.toEntity(): NotificationEntity {
         errorStackTrace = dto.errorStackTrace
         tryingCount = dto.tryingCount
         lastTryingDate = dto.lastTryingDate
-        createdFrom = dto.createdFrom
+        createdFrom = dto.createdFrom.toString()
         state = dto.state
         bulkMailRef = dto.bulkMailRef.toString()
         delayedSend = dto.delayedSend
