@@ -872,6 +872,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
+                        <argLine>-Xmx1024m</argLine>
                         <!-- Force alphabetical order to have a reproducible build -->
                         <runOrder>alphabetical</runOrder>
                         <!-- Fixes a bug which will be solved in next version after 2.22.1 then this can be removed -->
