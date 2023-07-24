@@ -44,6 +44,9 @@ class NotificationEntity @JvmOverloads constructor(
 
     var lastTryingDate: Instant? = null,
 
+    @Column(name = "created_from", columnDefinition = "VARCHAR(255)")
+    var createdFrom: String? = null,
+
     @get: NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

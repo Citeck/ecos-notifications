@@ -7,7 +7,6 @@ import org.junit.Before
 import org.springframework.beans.factory.annotation.Autowired
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
