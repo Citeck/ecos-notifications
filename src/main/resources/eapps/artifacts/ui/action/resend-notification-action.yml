@@ -1,0 +1,30 @@
+---
+id: resend-notification-action
+name:
+  ru: Отправить повторно
+  en: Resend
+icon: icon-redo
+confirm:
+  title:
+    ru: Подтвердите действие
+    en: Confirm the action
+  message:
+    ru: Отправить повторно
+    en: Resend
+type: mutate
+config:
+  record:
+    attributes:
+      action: RESEND
+evaluator:
+  id: null
+  type: predicate
+  inverse: false
+  config:
+    predicate:
+      t: and
+      val:
+        - t: empty
+          att: bulkMailRef
+        - t: empty
+          att: delayedSend

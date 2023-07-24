@@ -37,6 +37,8 @@
              relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220518000000_add_notifications_sender_changelog.xml"
              relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230711051515_add_created_from_to_notification.xml"
+             relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
