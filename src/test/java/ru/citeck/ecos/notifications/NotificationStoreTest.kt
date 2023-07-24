@@ -13,8 +13,8 @@ import ru.citeck.ecos.notifications.domain.notification.repo.NotificationReposit
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
 @ExtendWith(EcosSpringExtension::class)

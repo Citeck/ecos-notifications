@@ -138,7 +138,8 @@ class NotificationRecords(
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
         val newNotificationCommand = notificationCommand.copy(
             id = UUID.randomUUID().toString(),
-            createdFrom = RecordRef.create(APP_NAME, ID, notificationCommand.id))
+            createdFrom = RecordRef.create(APP_NAME, ID, notificationCommand.id)
+        )
         commandsService.executeSync(newNotificationCommand)
     }
 

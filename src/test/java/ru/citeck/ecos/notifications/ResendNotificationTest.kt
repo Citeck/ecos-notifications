@@ -1,16 +1,16 @@
 package ru.citeck.ecos.notifications
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthRole
+import ru.citeck.ecos.context.lib.auth.data.EmptyAuth
 import ru.citeck.ecos.context.lib.auth.data.SimpleAuthData
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
@@ -19,9 +19,10 @@ import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
-@RunWith(SpringRunner::class)
+@ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
 class ResendNotificationTest : BaseMailTest() {
 
@@ -36,7 +37,7 @@ class ResendNotificationTest : BaseMailTest() {
 
     private lateinit var initialNotificationRef: RecordRef
 
-    @Before
+    @BeforeEach
     fun setUp() {
         notificationRepository.deleteAll()
 
@@ -62,10 +63,12 @@ class ResendNotificationTest : BaseMailTest() {
     @Test
     fun `Resend permissions test`() {
         val ex = assertThrows<Exception> {
-            recordsService.mutate(
-                initialNotificationRef,
-                mapOf("action" to "RESEND")
-            )
+            AuthContext.runAs(EmptyAuth) {
+                recordsService.mutate(
+                    initialNotificationRef,
+                    mapOf("action" to "RESEND")
+                )
+            }
         }
         assertThat(ex.message).contains("Permission denied")
 
