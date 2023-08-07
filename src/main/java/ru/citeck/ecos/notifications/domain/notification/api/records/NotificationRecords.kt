@@ -59,8 +59,10 @@ class NotificationRecords(
                         var attribute = sortBy.attribute
                         attribute = if (RecordConstants.ATT_MODIFIED == attribute) {
                             "lastModifiedDate"
+                        } else if (RecordConstants.ATT_CREATED == attribute) {
+                            "createdDate"
                         } else {
-                            ""
+                            attribute
                         }
                         if (attribute.isNotBlank()) {
                             if (sortBy.ascending) {
