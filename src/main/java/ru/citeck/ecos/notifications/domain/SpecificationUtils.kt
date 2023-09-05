@@ -140,6 +140,9 @@ class SpecificationUtils {
             if (RecordConstants.ATT_MODIFIER.equals(attributeName)) {
                 return "lastModifiedBy"
             }
+            if (RecordConstants.ATT_CREATED.equals(attributeName)) {
+                return "createdDate"
+            }
             if ("moduleId".equals(attributeName)) {
                 return "extId"
             }
