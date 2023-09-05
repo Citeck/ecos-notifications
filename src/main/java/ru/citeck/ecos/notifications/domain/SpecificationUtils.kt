@@ -15,14 +15,15 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.function.Consumer
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
-import java.util.function.Consumer
 
 class SpecificationUtils {
     companion object {
         private val log = KotlinLogging.logger {}
+        const val TODAY = "\$TODAY"
 
         fun canSearchAsString(searchAtClass: Class<*>, attributeName: String, attributeValue: String): Boolean {
             var searchField = getField(searchAtClass, attributeName)
@@ -82,6 +83,9 @@ class SpecificationUtils {
                         }
 
                         java.util.Date::class.java -> {
+                            if (attributeValue == TODAY) {
+                                return Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS))
+                            }
                             //saved values has no milliseconds part cause of dateFormat
                             try {
                                 val calendar = Calendar.getInstance()
@@ -104,6 +108,14 @@ class SpecificationUtils {
                         }
 
                         Instant::class.java -> {
+                            if (attributeValue == TODAY) {
+                                return Instant.now().truncatedTo(ChronoUnit.DAYS)
+                            }
+                            val zoneSuffix = "+"
+                            if (attributeValue.contains(zoneSuffix)) {
+                                val valueString = attributeValue.substring(0, attributeValue.indexOf(zoneSuffix)) + "Z"
+                                return Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(valueString))
+                            }
                             return Json.mapper.convert(attributeValue.toLong(), Instant::class.java)
                         }
 
@@ -168,7 +180,18 @@ class SpecificationUtils {
             }
 
             var specification: Specification<T>? = null
-            if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()
+            if (ValuePredicate.Type.EQ == valuePredicate.getType() && valuePredicate.getValue().asText() == TODAY){
+                val todayValue =
+                    getObjectValue(searchAtEntityClass, attributeName, valuePredicate.getValue().asText())
+                specification = Specification { root: Root<T>,
+                                                _: CriteriaQuery<*>?,
+                                                builder: CriteriaBuilder ->
+                    builder.greaterThanOrEqualTo<Comparable<*>>(
+                        root.get<Comparable<Comparable<*>>>(attributeName),
+                        todayValue
+                    )
+                }
+            } else if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()
                 || ValuePredicate.Type.LIKE == valuePredicate.getType()
             ) {
                 if (canSearchAsString(searchAtEntityClass, attributeName, valuePredicate.getValue().asText())) {
