@@ -7,6 +7,7 @@ import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.converter.NotificationTemplateConverter
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.lib.NotificationType
@@ -29,7 +30,8 @@ import java.util.*
 @Component
 class NotificationRecords(
     private val notificationDao: NotificationDao,
-    private val commandsService: CommandsService
+    private val commandsService: CommandsService,
+    private val notificationTemplateConverter: NotificationTemplateConverter
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDao {
 
     companion object {
@@ -87,6 +89,7 @@ class NotificationRecords(
                 result.setRecords(types.map { NotificationRecord(it) })
                 result.setTotalCount(notificationDao.getCount(predicate))
             }
+
             else -> {
                 val max: Int = recsQuery.page.maxItems
                 val types = if (max < 0) {
@@ -211,6 +214,10 @@ class NotificationRecords(
 
                 return ""
             }
+
+        @get:AttName("sentNotification")
+        val sentNotification: String
+            get() = id?.let { notificationTemplateConverter.convertToReadableNotification(it, template) } ?: ""
 
         @get:AttName(".type")
         val ecosType: RecordRef
