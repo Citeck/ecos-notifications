@@ -436,6 +436,39 @@
                 "input": true
               }
             ]
+          },
+          {
+            "label": {
+              "ru": "Panel"
+            },
+            "key": "payload-panel2",
+            "title": {
+              "ru": "Отправленное сообщение",
+              "en": "Sent message"
+            },
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "panel",
+            "input": false,
+            "components": [
+              {
+                "label": "",
+                "key": "sentNotification",
+                "disabled": true,
+                "editor": "ckeditor",
+                "wysiwyg": {
+                  "toolbar": false,
+                  "rows": 10,
+                  "base64Upload": true
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "rows": 10,
+                "type": "textarea",
+                "input": true
+              }
+            ]
           }
         ]
       },
