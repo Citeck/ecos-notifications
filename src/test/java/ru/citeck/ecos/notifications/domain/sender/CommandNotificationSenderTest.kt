@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.sender
 
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -44,6 +45,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         private const val COMMAND_TYPE = "send-email-handler"
         private const val TEST_SUBJECT = "Test command sender"
         private const val RECIPIENT_EMAIL = TestUtils.RECIPIENT_EMAIL
+        private const val CONDITIONAL_EMAIL_SENDER = "command-email-sender-with-condition"
 
         private const val ATTACHMENT_CONTENT =
             "XHUwNDIyXHUwNDM1XHUwNDQxXHUwNDQyXHUwNDNlXHUwNDMyXHUwNDNlXHUwNDM1XHUwMDIwXHUw" +
@@ -82,6 +84,11 @@ class CommandNotificationSenderTest : BaseMailTest() {
         )
 
         commandsService.addExecutor(SendEmailExecutor())
+    }
+
+    @AfterEach
+    fun tearDown() {
+        notificationsSenderService.delete(CONDITIONAL_EMAIL_SENDER)
     }
 
     @Test

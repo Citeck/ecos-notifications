@@ -76,6 +76,7 @@ class NotificationCommandResultHolder(
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,
+                createdFrom = command.createdFrom,
                 state = state,
                 errorMessage = "",
                 errorStackTrace = "",

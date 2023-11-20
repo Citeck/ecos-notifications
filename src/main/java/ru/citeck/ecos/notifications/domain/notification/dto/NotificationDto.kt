@@ -31,6 +31,8 @@ data class NotificationDto(
 
     val lastTryingDate: Instant? = null,
 
+    val createdFrom: RecordRef = RecordRef.EMPTY,
+
     val state: NotificationState,
 
     val createdBy: String? = null,
@@ -60,7 +62,7 @@ data class NotificationDto(
     override fun toString(): String {
         return "NotificationDto(id=$id, extId='$extId', record=$record, template=$template, type=$type, " +
             "errorMessage='$errorMessage', errorStackTrace='$errorStackTrace', bulkMailRef=$bulkMailRef, " +
-            "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state, " +
+            "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, createdFrom=$createdFrom, state=$state, " +
             "createdBy=$createdBy, createdDate=$createdDate, lastModifiedBy=$lastModifiedBy, " +
             "lastModifiedDate=$lastModifiedDate)"
     }

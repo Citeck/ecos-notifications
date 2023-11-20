@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import ru.citeck.ecos.commands.CommandsService
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -25,6 +27,9 @@ class NotificationStoreTest : BaseMailTest() {
 
     @Autowired
     private lateinit var notificationRepository: NotificationRepository
+
+    @Autowired
+    private lateinit var recordsService: RecordsService
 
     @Test
     fun `Success notification store`() {
@@ -98,5 +103,35 @@ class NotificationStoreTest : BaseMailTest() {
 
         assertThat(notification.record).isEqualTo("notifications/test@test")
         assertThat(notification.state).isEqualTo(NotificationState.ERROR)
+    }
+
+    @Test
+    fun `Resend notification store`() {
+        val id = UUID.randomUUID().toString()
+        val initialNotificationRef = RecordRef.create("notifications", "notification", id)
+        val command = SendNotificationCommand(
+            id = id,
+            record = RecordRef.create("notifications", "test", "test"),
+            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            type = NotificationType.EMAIL_NOTIFICATION,
+            lang = "en",
+            recipients = setOf("someUser@gmail.com"),
+            model = templateModel,
+            from = "testFrom@mail.ru"
+        )
+
+        commandsService.executeSync(command, "notifications")
+
+        AuthContext.runAsSystem {
+            recordsService.mutate(
+                initialNotificationRef,
+                mapOf("action" to "RESEND")
+            )
+        }
+
+        val allAfterResend = notificationRepository.findAll()
+        assertThat(allAfterResend.size).isEqualTo(2)
+        assertThat(allAfterResend[1].state).isEqualTo(NotificationState.SENT)
+        assertThat(allAfterResend[1].createdFrom).isEqualTo(initialNotificationRef.toString())
     }
 }
