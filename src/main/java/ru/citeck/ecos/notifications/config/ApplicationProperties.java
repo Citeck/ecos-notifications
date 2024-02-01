@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import ru.citeck.ecos.commons.data.DataValue;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
-    private final FailureNotification failureNotification = new FailureNotification();
+    private final ErrorNotification errorNotification = new ErrorNotification();
 
     private final Event event = new Event();
 
@@ -30,8 +29,8 @@ public class ApplicationProperties {
 
     private final Email email = new Email();
 
-    public FailureNotification getFailureNotification() {
-        return this.failureNotification;
+    public ErrorNotification getErrorNotification() {
+        return this.errorNotification;
     }
 
     public Event getEvent() {
@@ -50,13 +49,31 @@ public class ApplicationProperties {
         return email;
     }
 
-    public static class FailureNotification {
+    public static class ErrorNotification {
 
-        private int ttl = NotificationsDefault.FailureNotification.TTL;
+        /**
+         * Time to live (milliseconds) of error notifications. <br>
+         * The exact countdown is the time the notification was created. <br>
+         * After the time has elapsed, the notification is transferred to the expired status
+         * {@link ru.citeck.ecos.notifications.domain.notification.FailureNotificationState#EXPIRED},
+         * no more sending attempts.
+         * For infinity ttl use -1
+         */
+        private int ttl = NotificationsDefault.ErrorNotification.TTL;
 
-        private int delay = NotificationsDefault.FailureNotification.DELAY;
+        /**
+         * Frequency (milliseconds) of the job on resending notification with an error status -
+         * {@link ru.citeck.ecos.notifications.domain.notification.FailureNotificationState#ERROR}
+         */
+        private int delay = NotificationsDefault.ErrorNotification.DELAY;
 
-        private int minTryCount = NotificationsDefault.FailureNotification.MIN_TRY_COUNT;
+        /**
+         * Minimum trying count of attempts to resend notification. <br>
+         * Times of specified attempts will be made to send a message, regardless of the ttl.
+         */
+        private int minTryCount = NotificationsDefault.ErrorNotification.MIN_TRY_COUNT;
+
+        private int queryLimit = NotificationsDefault.ErrorNotification.QUERY_LIMIT;
 
         public int getTtl() {
             return this.ttl;
@@ -80,6 +97,14 @@ public class ApplicationProperties {
 
         public void setMinTryCount(int minTryCount) {
             this.minTryCount = minTryCount;
+        }
+
+        public int getQueryLimit() {
+            return queryLimit;
+        }
+
+        public void setQueryLimit(int queryLimit) {
+            this.queryLimit = queryLimit;
         }
     }
 

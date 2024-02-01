@@ -112,7 +112,7 @@ jhipster:
 
 # application:
 ecos-notifications:
-  failure-notification:
+  error-notification:
     ttl: 30000
     delay: 5000
     min-try-count: 1

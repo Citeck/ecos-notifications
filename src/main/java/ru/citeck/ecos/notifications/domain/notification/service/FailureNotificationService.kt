@@ -2,12 +2,12 @@ package ru.citeck.ecos.notifications.domain.notification.service
 
 import mu.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FailureNotificationState
-import ru.citeck.ecos.notifications.domain.notification.api.commands.SendNotificationCommandExecutor
 import ru.citeck.ecos.notifications.domain.notification.api.commands.UnsafeSendNotificationCommandExecutor
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationEntity
 import ru.citeck.ecos.notifications.domain.notification.repo.FailureNotificationRepository
@@ -40,45 +40,60 @@ class FailureNotificationService(
         failureNotificationRepository.save(entity)
     }
 
-    @Scheduled(fixedDelayString = "\${ecos-notifications.failure-notification.delay}")
+    @Scheduled(fixedDelayString = "\${ecos-notifications.error-notification.delay}")
     fun handleErrors() {
-        val activeFailures = failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        val activeFailures = if (props.errorNotification.queryLimit > 0) {
+            val pageable = PageRequest.of(0, props.errorNotification.queryLimit)
+            failureNotificationRepository.findByStateOrderByCreatedDateDesc(FailureNotificationState.ERROR, pageable)
+        } else {
+            failureNotificationRepository.findAllByState(FailureNotificationState.ERROR)
+        }
 
         if (activeFailures.isNotEmpty()) {
             log.info { "Found notification error. Count: ${activeFailures.size}" }
         }
 
-        activeFailures.forEach { failure -> reexecuteCommand(failure) }
+        activeFailures.forEach { failure -> reExecuteCommand(failure) }
     }
 
-    private fun reexecuteCommand(failure: FailureNotificationEntity) {
-        log.debug { "Reexecute failure with id ${failure.id}. Current trying count: ${failure.tryingCount}" }
+    private fun reExecuteCommand(failure: FailureNotificationEntity) {
+        log.debug {"Execute notification error with id ${failure.id}. Current trying count: ${failure.tryingCount}"}
 
         try {
             val currentTryCount = failure.tryingCount ?: 0
 
-            if (currentTryCount > props.failureNotification.minTryCount
-                && props.failureNotification.ttl >= INFINITY_TTL) {
+            val now = Instant.now()
+            if (currentTryCount > props.errorNotification.minTryCount
+                && props.errorNotification.ttl > INFINITY_TTL) {
                 val created = failure.createdDate
                     ?: throw IllegalStateException("Created date cannot be null. $failure")
-                val now = Instant.now()
                 val diff = now.toEpochMilli() - created.toEpochMilli()
 
-                if (diff > props.failureNotification.ttl) {
+                if (diff > props.errorNotification.ttl) {
                     failure.state = FailureNotificationState.EXPIRED
                     failure.tryingCount = if (failure.tryingCount != null) failure.tryingCount!!.plus(1) else 1
                     failure.lastTryingDate = Instant.now()
 
                     failureNotificationRepository.save(failure)
 
-                    log.warn { "Mark failure ${failure.id} as expired" }
+                    log.warn { "Mark notification error ${failure.id} as expired" }
 
                     return
                 }
             }
 
+            if (props.errorNotification.queryLimit > 0) {
+                val lastTryingDate = failure.lastTryingDate ?: now
+                val diff = now.toEpochMilli() - lastTryingDate.toEpochMilli()
+
+                if (diff < (props.errorNotification.delay * currentTryCount * currentTryCount)) {
+                    log.debug { "Notification error with id ${failure.id}: skip" }
+                    return
+                }
+            }
+
             val command = Json.mapper.read(failure.data, SendNotificationCommand::class.java)
-                ?: throw IllegalStateException("Failed convert failure data to command. Failure: $failure")
+                ?: throw IllegalStateException("Failed convert failure data to command. Notification: $failure")
 
             unsafeSendNotificationCommandExecutor.execute(command)
 
@@ -88,9 +103,9 @@ class FailureNotificationService(
 
             failureNotificationRepository.save(failure)
 
-            log.info { "Successful re executing notification command. Failure id: ${failure.id}" }
+            log.info { "Successful executing notification command. Notification id: ${failure.id}" }
         } catch (e: Exception) {
-            log.error("Failed reexecute notification command. Failure id: ${failure.id}", e)
+            log.error("Failed execute notification command. Notification id: ${failure.id}", e)
 
             failure.tryingCount = if (failure.tryingCount != null) failure.tryingCount!!.plus(1) else 1
             failure.lastTryingDate = Instant.now()
