@@ -151,7 +151,7 @@ ecos-notifications:
     credential-class-path: work-rest-firebase-adminsdk-bm5dp-e1ae19b218.json
     data-base-url: https://work-rest.firebaseio.com
   error-notification:
-    ttl: 86400000
+    ttl: 180000
     delay: 60000
     min-try-count: 1
     query-limit: 2
