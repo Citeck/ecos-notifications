@@ -106,7 +106,7 @@ class BulkMailRecipientRecordsControllerTest {
             .andExpect(
                 jsonPath(
                     "$.id",
-                    Matchers.`is`("bulk-mail-recipient@${saved.extId}")
+                    Matchers.`is`("notifications/bulk-mail-recipient@${saved.extId}")
                 )
             )
             .andExpect(jsonPath("$.attributes.address", Matchers.`is`(saved.address)))

@@ -302,7 +302,7 @@ class BulkMailRecordsControllerTest {
                 )
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(jsonPath("$.id", `is`("bulk-mail@${saved.extId}")))
+            .andExpect(jsonPath("$.id", `is`("notifications/bulk-mail@${saved.extId}")))
             .andExpect(jsonPath("$.attributes.title", `is`(saved.title)))
             .andExpect(jsonPath("$.attributes.body", `is`(saved.body)))
             .andExpect(jsonPath("$.attributes.status", `is`(saved.status)))
@@ -352,7 +352,7 @@ class BulkMailRecordsControllerTest {
             .andExpect(
                 jsonPath(
                     "$.attributes.config.delayedSend",
-                    `is`(toSave.config.delayedSend!!.toEpochMilli())
+                    `is`(toSave.config.delayedSend!!.toString())
                 )
             )
             .andExpect(jsonPath("$.attributes.config.allTo", `is`(saved.config.allTo)))
@@ -405,7 +405,7 @@ class BulkMailRecordsControllerTest {
                 )
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(jsonPath("$.id", `is`("bulk-mail@${saved.extId}")))
+            .andExpect(jsonPath("$.id", `is`("notifications/bulk-mail@${saved.extId}")))
             .andExpect(jsonPath("$.attributes.title", `is`(saved.title)))
             .andExpect(jsonPath("$.attributes.body", `is`(saved.body)))
             .andExpect(jsonPath("$.attributes.status", `is`(saved.status)))
