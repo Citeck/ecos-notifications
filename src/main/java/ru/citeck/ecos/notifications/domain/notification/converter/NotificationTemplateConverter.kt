@@ -9,7 +9,7 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 @Component
 class NotificationTemplateConverter(
@@ -20,8 +20,8 @@ class NotificationTemplateConverter(
 
     private val log = KotlinLogging.logger {}
 
-    fun convertToReadableNotification(notificationDbId: Long, templateRef: RecordRef): String {
-        val template = notificationTemplateService.findById(templateRef.id)
+    fun convertToReadableNotification(notificationDbId: Long, templateRef: EntityRef): String {
+        val template = notificationTemplateService.findById(templateRef.getLocalId())
         val notification = notificationDao.getById(notificationDbId)
         if (notification == null || !template.isPresent || notification.state != NotificationState.SENT) {
             return ""
@@ -40,9 +40,9 @@ class NotificationTemplateConverter(
 
         val finalModelMap = replaceValues(templateModelMap, notificationModelMap)
         return try {
-            freemarkerService.process(templateRef.id, locale, finalModelMap)
+            freemarkerService.process(templateRef.getLocalId(), locale, finalModelMap)
         } catch (e: RuntimeException) {
-            log.debug(e) { "Failed to process notification template \"${templateRef.id}\": " + e.message }
+            log.debug(e) { "Failed to process notification template \"${templateRef.getLocalId()}\": " + e.message }
             ""
         }
     }

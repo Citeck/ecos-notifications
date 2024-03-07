@@ -128,7 +128,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -187,7 +187,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -246,7 +246,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -305,7 +305,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -372,7 +372,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -429,7 +429,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -495,7 +495,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -553,7 +553,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -620,7 +620,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -687,7 +687,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(
@@ -828,7 +828,7 @@ class FirebaseNotificationProcessorTest {
             )
         )
 
-        val actionEntity = actionService.findById(actionRef.id.toLong()).get()
+        val actionEntity = actionService.findById(actionRef.getLocalId().toLong()).get()
 
         val eventDto = EventDto()
         eventDto.data = objectMapper.readValue(

@@ -26,6 +26,7 @@ import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
 import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
+import ru.citeck.ecos.webapp.api.entity.EntityRef;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +67,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
 
     @NotNull
     @Override
-    public List<ActionDto> getValuesToMutate(@NotNull List<RecordRef> list) {
+    public List<ActionDto> getValuesToMutate(@NotNull List<EntityRef> list) {
         return getLocalRecordsMeta(list, null);
     }
 
@@ -76,7 +77,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
         RecordsMutResult result = new RecordsMutResult();
 
         for (RecordMeta meta : mutation.getRecords()) {
-            final String id = meta.getId().getId();
+            final String id = meta.getId().getLocalId();
             ActionEntity resultAction;
 
             String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG).isNotNull()
@@ -183,7 +184,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
 
         recordsDeletion.getRecords().forEach(ref -> {
             try {
-                actionService.deleteById(Long.valueOf(ref.getId()));
+                actionService.deleteById(Long.valueOf(ref.getLocalId()));
                 result.addRecord(new RecordMeta(ref));
             } catch (EmptyResultDataAccessException e) {
                 //TODO: fix convert exception
@@ -197,13 +198,13 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
     }
 
     @Override
-    public List<ActionDto> getLocalRecordsMeta(@NotNull List<RecordRef> list, MetaField metaField) {
+    public List<ActionDto> getLocalRecordsMeta(@NotNull List<EntityRef> list, MetaField metaField) {
         return getValues(list);
     }
 
-    private List<ActionDto> getValues(List<RecordRef> list) {
+    private List<ActionDto> getValues(List<EntityRef> list) {
         return list.stream()
-            .map(RecordRef::getId)
+            .map(EntityRef::getLocalId)
             .map(id ->
                 Optional.of(id)
                     .filter(str -> !str.isEmpty())

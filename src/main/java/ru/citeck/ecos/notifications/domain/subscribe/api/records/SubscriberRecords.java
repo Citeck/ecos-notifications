@@ -15,6 +15,7 @@ import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
 import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
+import ru.citeck.ecos.webapp.api.entity.EntityRef;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMe
 
     @NotNull
     @Override
-    public List<SubscriberDto> getValuesToMutate(@NotNull List<RecordRef> list) {
+    public List<SubscriberDto> getValuesToMutate(@NotNull List<EntityRef> list) {
         return getLocalRecordsMeta(list, null);
     }
 
@@ -57,7 +58,7 @@ public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMe
         RecordsDelResult result = new RecordsDelResult();
 
         recordsDeletion.getRecords().forEach(ref -> {
-            subscriberService.deleteSubscriber(subscriberService.transformId(ref.getId()));
+            subscriberService.deleteSubscriber(subscriberService.transformId(ref.getLocalId()));
             result.addRecord(new RecordMeta(ref));
         });
 
@@ -65,13 +66,13 @@ public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMe
     }
 
     @Override
-    public List<SubscriberDto> getLocalRecordsMeta(@NotNull List<RecordRef> list, MetaField metaField) {
+    public List<SubscriberDto> getLocalRecordsMeta(@NotNull List<EntityRef> list, MetaField metaField) {
         return getValues(list);
     }
 
-    private List<SubscriberDto> getValues(List<RecordRef> records) {
+    private List<SubscriberDto> getValues(List<EntityRef> records) {
         return records.stream()
-            .map(RecordRef::getId)
+            .map(EntityRef::getLocalId)
             .map(id ->
                 Optional.of(id)
                     .filter(str -> !str.isEmpty())

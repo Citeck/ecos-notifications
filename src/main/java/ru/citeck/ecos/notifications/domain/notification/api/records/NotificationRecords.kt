@@ -24,6 +24,7 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.*
 
@@ -149,9 +150,9 @@ class NotificationRecords(
     open inner class NotificationRecord(
         var id: Long? = null,
         var extId: String,
-        val record: RecordRef,
-        val template: RecordRef,
-        val bulkMailRef: RecordRef = RecordRef.EMPTY,
+        val record: EntityRef,
+        val template: EntityRef,
+        val bulkMailRef: EntityRef = EntityRef.EMPTY,
         val type: NotificationType? = null,
         val data: ByteArray?,
         val errorMessage: String,
@@ -159,7 +160,7 @@ class NotificationRecords(
         val tryingCount: Int,
         val lastTryingDate: Instant?,
         val delayedSend: Instant?,
-        val createdFrom: RecordRef = RecordRef.EMPTY,
+        val createdFrom: EntityRef = EntityRef.EMPTY,
         val state: NotificationState,
         val creator: String?,
         val created: Instant?,

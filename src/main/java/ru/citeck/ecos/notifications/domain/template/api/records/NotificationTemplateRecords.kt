@@ -41,6 +41,7 @@ import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.stream.Collectors
 
@@ -70,13 +71,13 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
     override fun delete(deletion: RecordsDeletion): RecordsDelResult {
         val result = RecordsDelResult()
         for (record in deletion.records) {
-            templateService.deleteById(record.id)
+            templateService.deleteById(record.getLocalId())
             result.addRecord(RecordMeta(record))
         }
         return result
     }
 
-    override fun getValuesToMutate(records: List<RecordRef>): List<NotTemplateRecord> {
+    override fun getValuesToMutate(records: List<EntityRef>): List<NotTemplateRecord> {
         return getLocalRecordsMeta(records, EmptyMetaField.INSTANCE)
     }
 
@@ -91,9 +92,9 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
         return result
     }
 
-    override fun getLocalRecordsMeta(records: List<RecordRef>, metaField: MetaField): List<NotTemplateRecord> {
+    override fun getLocalRecordsMeta(records: List<EntityRef>, metaField: MetaField): List<NotTemplateRecord> {
         return records.stream()
-            .map { obj: RecordRef -> obj.id }
+            .map { obj: EntityRef -> obj.getLocalId() }
             .map { id: String ->
                 templateService.findById(id)
                     .orElseGet { NotificationTemplateWithMeta(id) }

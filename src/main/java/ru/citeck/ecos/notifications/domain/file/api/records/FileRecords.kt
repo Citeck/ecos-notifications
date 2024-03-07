@@ -26,6 +26,7 @@ import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.*
 import java.util.stream.Collectors
@@ -91,9 +92,9 @@ class FileRecords(val fileService: FileService) :
         return RecordsQueryResult()
     }
 
-    override fun getLocalRecordsMeta(records: MutableList<RecordRef>, p1: MetaField): MutableList<FileRecord> {
+    override fun getLocalRecordsMeta(records: MutableList<EntityRef>, p1: MetaField): MutableList<FileRecord> {
         return records.stream()
-            .map { obj: RecordRef -> obj.id }
+            .map { obj: EntityRef -> obj.getLocalId() }
             .map { id: String? ->
                 fileService.findById(id!!)
                     .orElseGet { FileWithMeta(id) }
@@ -105,13 +106,13 @@ class FileRecords(val fileService: FileService) :
     override fun delete(deletion: RecordsDeletion): RecordsDelResult {
         val result = RecordsDelResult()
         for (record in deletion.records) {
-            fileService.deleteById(record.id)
+            fileService.deleteById(record.getLocalId())
             result.addRecord(RecordMeta(record))
         }
         return result
     }
 
-    override fun getValuesToMutate(records: MutableList<RecordRef>): MutableList<FileRecord> {
+    override fun getValuesToMutate(records: MutableList<EntityRef>): MutableList<FileRecord> {
         return getLocalRecordsMeta(records, EmptyMetaField.INSTANCE)
     }
 

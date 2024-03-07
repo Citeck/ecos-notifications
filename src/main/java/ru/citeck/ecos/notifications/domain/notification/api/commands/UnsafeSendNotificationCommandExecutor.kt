@@ -78,7 +78,7 @@ class UnsafeSendNotificationCommandExecutor(
             return TemplateModelData()
         }
 
-        val baseTemplate = getTemplateMetaById(command.templateRef.id)
+        val baseTemplate = getTemplateMetaById(command.templateRef.getLocalId())
 
         val template = resolveMultiTemplate(
             baseTemplate = baseTemplate,

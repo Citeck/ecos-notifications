@@ -2,7 +2,7 @@ package ru.citeck.ecos.notifications.domain.notification.dto
 
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 data class NotificationDto(
@@ -11,9 +11,9 @@ data class NotificationDto(
 
     val extId: String,
 
-    val record: RecordRef,
+    val record: EntityRef,
 
-    val template: RecordRef,
+    val template: EntityRef,
 
     val type: NotificationType? = null,
 
@@ -23,7 +23,7 @@ data class NotificationDto(
 
     val errorStackTrace: String,
 
-    val bulkMailRef: RecordRef = RecordRef.EMPTY,
+    val bulkMailRef: EntityRef = EntityRef.EMPTY,
 
     val delayedSend: Instant? = null,
 
@@ -31,7 +31,7 @@ data class NotificationDto(
 
     val lastTryingDate: Instant? = null,
 
-    val createdFrom: RecordRef = RecordRef.EMPTY,
+    val createdFrom: EntityRef = EntityRef.EMPTY,
 
     val state: NotificationState,
 
