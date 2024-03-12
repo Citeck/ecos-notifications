@@ -13,318 +13,19 @@
   "definition": {
     "components": [
       {
-        "label": {
-          "ru": "Panel"
-        },
-        "key": "general-panel",
-        "title": {
-          "en": "General",
-          "ru": "Общее"
-        },
-        "refreshOn": [],
-        "optionalWhenDisabled": false,
+        "scrollableContent": true,
+        "key": "panel2",
         "type": "panel",
         "input": false,
         "components": [
-          {
-            "label": {
-              "ru": "Идентификатор",
-              "en": "Id"
-            },
-            "disabled": true,
-            "key": "moduleId",
-            "validate": {
-              "required": true
-            },
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Статус",
-              "en": "State"
-            },
-            "disabled": true,
-            "key": "state",
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Рекорд",
-              "en": "Record"
-            },
-            "disabled": true,
-            "key": "record",
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Шаблон",
-              "en": "Template"
-            },
-            "disabled": true,
-            "key": "template",
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Тип уведомления",
-              "en": "Notification type"
-            },
-            "disabled": true,
-            "key": "type",
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Отложенная отправка",
-              "en": "Delayed send"
-            },
-            "key": "delayedSend",
-            "disabled": true,
-            "datePicker": {
-              "minDate": "",
-              "maxDate": ""
-            },
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "datetime",
-            "input": true,
-            "suffix": true
-          },
-          {
-            "label": {
-              "ru": "Изменено",
-              "en": "Modified"
-            },
-            "disabled": true,
-            "key": "_modified",
-            "datePicker": {
-              "minDate": "",
-              "maxDate": ""
-            },
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "datetime",
-            "input": true,
-            "suffix": true
-          },
-          {
-            "label": {
-              "ru": "Создано из",
-              "en": "Created from"
-            },
-            "disabled": true,
-            "key": "createdFrom",
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "textfield",
-            "input": true
-          }
-        ]
-      },
-      {
-        "label": {
-          "ru": "Panel"
-        },
-        "key": "reexecute-panel",
-        "title": {
-          "en": "Resending a message",
-          "ru": "Переотправка сообщения"
-        },
-        "refreshOn": [],
-        "optionalWhenDisabled": false,
-        "type": "panel",
-        "input": false,
-        "components": [
-          {
-            "label": {
-              "ru": "Количество попыток отправки",
-              "en": "Number of attempts to send"
-            },
-            "disabled": true,
-            "key": "tryingCount",
-            "validate": {
-              "integer": false
-            },
-            "isBigNumber": false,
-            "delimiterValue": " ",
-            "refreshOn": [],
-            "defaultValue": "",
-            "type": "number",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Время последней попытки",
-              "en": "Last try time"
-            },
-            "disabled": true,
-            "key": "lastTryingDate",
-            "datePicker": {
-              "minDate": "",
-              "maxDate": ""
-            },
-            "defaultValue": "",
-            "refreshOn": [],
-            "type": "datetime",
-            "input": true,
-            "suffix": true
-          }
-        ]
-      },
-      {
-        "label": {
-          "ru": "Panel"
-        },
-        "key": "errors-panel",
-        "title": {
-          "en": "Error information",
-          "ru": "Информация об ошибках"
-        },
-        "refreshOn": [],
-        "optionalWhenDisabled": false,
-        "type": "panel",
-        "input": false,
-        "components": [
-          {
-            "label": {
-              "ru": "Сообщение ошибки",
-              "en": "Error message"
-            },
-            "disabled": true,
-            "key": "errorMessage",
-            "defaultValue": "",
-            "refreshOn": [],
-            "rows": 5,
-            "type": "textarea",
-            "input": true
-          },
-          {
-            "label": {
-              "ru": "Трассировка стека ошибки",
-              "en": "Error stack trace"
-            },
-            "disabled": true,
-            "key": "errorStackTrace",
-            "editor": "ace",
-            "wysiwyg": {
-              "theme": "snow",
-              "placeholder": "",
-              "modules": {
-                "clipboard": {
-                  "matchVisual": false
-                },
-                "toolbar": [
-                  [
-                    {
-                      "size": [
-                        "small",
-                        false,
-                        "large",
-                        "huge"
-                      ]
-                    }
-                  ],
-                  [
-                    {
-                      "header": [
-                        1,
-                        2,
-                        3,
-                        4,
-                        5,
-                        6,
-                        false
-                      ]
-                    }
-                  ],
-                  [
-                    {
-                      "font": []
-                    }
-                  ],
-                  [
-                    "bold",
-                    "italic",
-                    "underline",
-                    "strike",
-                    {
-                      "script": "sub"
-                    },
-                    {
-                      "script": "super"
-                    },
-                    "clean"
-                  ],
-                  [
-                    {
-                      "color": []
-                    },
-                    {
-                      "background": []
-                    }
-                  ],
-                  [
-                    {
-                      "list": "ordered"
-                    },
-                    {
-                      "list": "bullet"
-                    },
-                    {
-                      "indent": "-1"
-                    },
-                    {
-                      "indent": "+1"
-                    },
-                    {
-                      "align": []
-                    }
-                  ],
-                  [
-                    "blockquote",
-                    "code-block"
-                  ],
-                  [
-                    "link",
-                    "image",
-                    "video",
-                    "formula",
-                    "source"
-                  ]
-                ]
-              }
-            },
-            "defaultValue": "",
-            "refreshOn": [],
-            "rows": 10,
-            "type": "textarea",
-            "input": true,
-            "as": ""
-          },
           {
             "label": {
               "ru": "Panel"
             },
-            "key": "payload-panel",
+            "key": "general-panel",
             "title": {
-              "en": "Notification data",
-              "ru": "Данные уведомления"
+              "en": "General",
+              "ru": "Общее"
             },
             "refreshOn": [],
             "optionalWhenDisabled": false,
@@ -333,12 +34,199 @@
             "components": [
               {
                 "label": {
-                  "ru": "Data"
+                  "ru": "Идентификатор",
+                  "en": "Id"
                 },
-                "key": "notificationCommandPayload",
-                "hideLabel": true,
                 "disabled": true,
-                "disableInlineEdit": true,
+                "key": "moduleId",
+                "validate": {
+                  "required": true
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Статус",
+                  "en": "State"
+                },
+                "disabled": true,
+                "key": "state",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Рекорд",
+                  "en": "Record"
+                },
+                "disabled": true,
+                "key": "record",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Шаблон",
+                  "en": "Template"
+                },
+                "disabled": true,
+                "key": "template",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Тип уведомления",
+                  "en": "Notification type"
+                },
+                "disabled": true,
+                "key": "type",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Отложенная отправка",
+                  "en": "Delayed send"
+                },
+                "key": "delayedSend",
+                "disabled": true,
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
+              },
+              {
+                "label": {
+                  "ru": "Изменено",
+                  "en": "Modified"
+                },
+                "disabled": true,
+                "key": "_modified",
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
+              },
+              {
+                "label": {
+                  "ru": "Создано из",
+                  "en": "Created from"
+                },
+                "disabled": true,
+                "key": "createdFrom",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              }
+            ]
+          },
+          {
+            "label": {
+              "ru": "Panel"
+            },
+            "key": "reexecute-panel",
+            "title": {
+              "en": "Resending a message",
+              "ru": "Переотправка сообщения"
+            },
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "panel",
+            "input": false,
+            "components": [
+              {
+                "label": {
+                  "ru": "Количество попыток отправки",
+                  "en": "Number of attempts to send"
+                },
+                "disabled": true,
+                "key": "tryingCount",
+                "validate": {
+                  "integer": false
+                },
+                "isBigNumber": false,
+                "delimiterValue": " ",
+                "refreshOn": [],
+                "defaultValue": "",
+                "type": "number",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Время последней попытки",
+                  "en": "Last try time"
+                },
+                "disabled": true,
+                "key": "lastTryingDate",
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
+              }
+            ]
+          },
+          {
+            "label": {
+              "ru": "Panel"
+            },
+            "key": "errors-panel",
+            "title": {
+              "en": "Error information",
+              "ru": "Информация об ошибках"
+            },
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "panel",
+            "input": false,
+            "components": [
+              {
+                "label": {
+                  "ru": "Сообщение ошибки",
+                  "en": "Error message"
+                },
+                "disabled": true,
+                "key": "errorMessage",
+                "defaultValue": "",
+                "refreshOn": [],
+                "rows": 5,
+                "type": "textarea",
+                "input": true
+              },
+              {
+                "label": {
+                  "ru": "Трассировка стека ошибки",
+                  "en": "Error stack trace"
+                },
+                "disabled": true,
+                "key": "errorStackTrace",
                 "editor": "ace",
                 "wysiwyg": {
                   "theme": "snow",
@@ -431,53 +319,248 @@
                 "defaultValue": "",
                 "refreshOn": [],
                 "rows": 10,
-                "as": "",
                 "type": "textarea",
-                "input": true
-              }
-            ]
-          },
-          {
-            "label": {
-              "ru": "Panel"
-            },
-            "key": "payload-panel2",
-            "title": {
-              "ru": "Отправленное сообщение",
-              "en": "Sent message"
-            },
-            "refreshOn": [],
-            "optionalWhenDisabled": false,
-            "type": "panel",
-            "input": false,
-            "components": [
+                "input": true,
+                "as": ""
+              },
               {
-                "label": "",
-                "key": "sentNotification",
-                "disabled": true,
-                "editor": "ckeditor",
-                "wysiwyg": {
-                  "toolbar": false,
-                  "rows": 10,
-                  "base64Upload": true
+                "label": {
+                  "ru": "Panel"
                 },
-                "defaultValue": "",
+                "key": "payload-panel",
+                "title": {
+                  "en": "Notification data",
+                  "ru": "Данные уведомления"
+                },
                 "refreshOn": [],
                 "optionalWhenDisabled": false,
-                "rows": 10,
-                "type": "textarea",
-                "input": true
+                "type": "panel",
+                "input": false,
+                "components": [
+                  {
+                    "label": {
+                      "ru": "Data"
+                    },
+                    "key": "notificationCommandPayload",
+                    "hideLabel": true,
+                    "disabled": true,
+                    "editor": "ace",
+                    "wysiwyg": {
+                      "theme": "snow",
+                      "placeholder": "",
+                      "modules": {
+                        "clipboard": {
+                          "matchVisual": false
+                        },
+                        "toolbar": [
+                          [
+                            {
+                              "size": [
+                                "small",
+                                false,
+                                "large",
+                                "huge"
+                              ]
+                            }
+                          ],
+                          [
+                            {
+                              "header": [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                                6,
+                                false
+                              ]
+                            }
+                          ],
+                          [
+                            {
+                              "font": []
+                            }
+                          ],
+                          [
+                            "bold",
+                            "italic",
+                            "underline",
+                            "strike",
+                            {
+                              "script": "sub"
+                            },
+                            {
+                              "script": "super"
+                            },
+                            "clean"
+                          ],
+                          [
+                            {
+                              "color": []
+                            },
+                            {
+                              "background": []
+                            }
+                          ],
+                          [
+                            {
+                              "list": "ordered"
+                            },
+                            {
+                              "list": "bullet"
+                            },
+                            {
+                              "indent": "-1"
+                            },
+                            {
+                              "indent": "+1"
+                            },
+                            {
+                              "align": []
+                            }
+                          ],
+                          [
+                            "blockquote",
+                            "code-block"
+                          ],
+                          [
+                            "link",
+                            "image",
+                            "video",
+                            "formula",
+                            "source"
+                          ]
+                        ]
+                      },
+                      "wrap": true
+                    },
+                    "disableInlineEdit": true,
+                    "defaultValue": "",
+                    "refreshOn": [],
+                    "optionalWhenDisabled": false,
+                    "rows": 10,
+                    "as": "",
+                    "type": "textarea",
+                    "input": true
+                  }
+                ]
+              },
+              {
+                "label": {
+                  "ru": "Panel"
+                },
+                "key": "payload-panel2",
+                "title": {
+                  "ru": "Отправленное сообщение",
+                  "en": "Sent message"
+                },
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "panel",
+                "input": false,
+                "components": [
+                  {
+                    "label": "",
+                    "key": "sentNotification",
+                    "disabled": true,
+                    "editor": "ckeditor",
+                    "wysiwyg": {
+                      "toolbar": false,
+                      "rows": 10,
+                      "base64Upload": true
+                    },
+                    "defaultValue": "",
+                    "refreshOn": [],
+                    "optionalWhenDisabled": false,
+                    "rows": 10,
+                    "type": "textarea",
+                    "input": true
+                  }
+                ]
               }
             ]
           }
         ]
       },
       {
-        "type": "button",
-        "key": "submit",
-        "disableOnInvalid": true,
-        "theme": "primary",
-        "input": true
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "columns2",
+        "columns": [
+          {
+            "components": [],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "md": 3,
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 0
+          },
+          {
+            "components": [],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 1,
+            "md": 3
+          },
+          {
+            "md": 3,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "components": [],
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 2
+          },
+          {
+            "md": 3,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 3,
+            "components": [
+              {
+                "label": {
+                  "en": "Submit",
+                  "ru": "Submit"
+                },
+                "key": "submit",
+                "state": "",
+                "theme": "primary",
+                "block": true,
+                "disableOnInvalid": true,
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "button",
+                "input": true,
+                "headers": [
+                  {}
+                ]
+              }
+            ]
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
       }
     ],
     "formId": "notification-form"
