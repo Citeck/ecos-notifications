@@ -3,7 +3,6 @@ package ru.citeck.ecos.notifications.domain.bulkmail.service
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
@@ -12,12 +11,11 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientRepository
-import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
-import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Root
+import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
+import javax.annotation.PostConstruct
 
 /**
  * @author Roman Makarskiy
@@ -26,8 +24,16 @@ import javax.persistence.criteria.Root
 @Transactional
 class BulkMailRecipientDao(
     private val bulkMailRecipientRepository: BulkMailRecipientRepository,
-    @Lazy private val bulkMailDao: BulkMailDao
+    @Lazy private val bulkMailDao: BulkMailDao,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory
 ) {
+
+    private lateinit var searchConv: JpaSearchConverter<BulkMailRecipientEntity>
+
+    @PostConstruct
+    fun init() {
+        searchConv = jpaSearchConverterFactory.createConverter(BulkMailRecipientEntity::class.java).build()
+    }
 
     fun removeAllByExtId(extIds: List<String>) {
         bulkMailRecipientRepository.deleteAllByExtIdIn(extIds)
@@ -52,14 +58,10 @@ class BulkMailRecipientDao(
     }
 
     @Transactional(readOnly = true)
-    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<BulkMailRecipientDto> {
-        val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
-        val page = PageRequest.of(skip / max, max, sorting)
-
-        return bulkMailRecipientRepository.findAll(toSpec(predicate), page)
-            .map {
-                it.toDto()
-            }.toList()
+    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: List<SortBy>): List<BulkMailRecipientDto> {
+        return searchConv.findAll(bulkMailRecipientRepository, predicate, max, skip, sort).map {
+            it.toDto()
+        }.toList()
     }
 
     @Transactional(readOnly = true)
@@ -81,8 +83,7 @@ class BulkMailRecipientDao(
 
     @Transactional(readOnly = true)
     fun getCount(predicate: Predicate): Long {
-        val spec = toSpec<BulkMailRecipientEntity>(predicate)
-        return if (spec != null) (bulkMailRecipientRepository.count(toSpec(predicate)).toInt()).toLong() else getCount()
+        return searchConv.getCount(bulkMailRecipientRepository, predicate)
     }
 
     private fun getCount(): Long {
@@ -105,41 +106,4 @@ class BulkMailRecipientDao(
     private fun deleteAllForBulkMail(bulkMail: BulkMailDto) {
         bulkMailRecipientRepository.deleteAllByBulkMail(bulkMail.toEntity())
     }
-
-    private fun <T> toSpec(pred: Predicate): Specification<T>? {
-        pred.toValueModifiedSpec<T>()?.let { return it }
-
-        var spec: Specification<T>? = null
-
-        fun toLikeSpec(value: String, attName: String) {
-            if (value.isNotBlank()) {
-                val likeSpec = Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get(attName)),
-                        "%" + value.lowercase() + "%"
-                    )
-                }
-
-                spec = spec?.and(likeSpec) ?: likeSpec
-            }
-        }
-
-        val predicateDto = PredicateUtils.convertToDto(pred, BulkMailRecipientPredicateDto::class.java)
-
-        toLikeSpec(predicateDto.record, "record")
-        toLikeSpec(predicateDto.moduleId, "extId")
-        toLikeSpec(predicateDto.bulkMailRef, "bulkMailRef")
-        toLikeSpec(predicateDto.name, "name")
-        toLikeSpec(predicateDto.address, "address")
-
-        return spec
-    }
-
-    data class BulkMailRecipientPredicateDto(
-        var record: String = "",
-        var moduleId: String = "",
-        var bulkMailRef: String = "",
-        var name: String = "",
-        var address: String = ""
-    )
 }

@@ -6,6 +6,7 @@ import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records2.predicate.model.VoidPredicate
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
 import ru.citeck.ecos.records3.record.dao.delete.DelStatus
@@ -59,7 +60,7 @@ class NotificationsSenderRecordsDao(
 
     override fun queryRecords(recsQuery: RecordsQuery): RecsQueryRes<NotificationsSenderRecord> {
         val result = RecsQueryRes<NotificationsSenderRecord>()
-        val sort = Utils.getSort(recsQuery)
+        val sort = recsQuery.sortBy
         val (maxItems, skipCount) = recsQuery.page
         val maxItemsCount = if (maxItems <= 0) 10000 else maxItems
 
@@ -78,7 +79,7 @@ class NotificationsSenderRecordsDao(
                 val types = if (maxItems < 0) {
                     notificationsSenderService.getAll()
                 } else {
-                    notificationsSenderService.getAll(maxItems, skipCount, null, null)
+                    notificationsSenderService.getAll(maxItems, skipCount, VoidPredicate.INSTANCE, emptyList())
                 }
                 result.setRecords(types.map { NotificationsSenderRecord(it) }.toList())
                 result.setTotalCount(notificationsSenderService.getCount())
