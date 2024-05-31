@@ -16,14 +16,19 @@ import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.*
+import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.lang.reflect.Field
-import java.util.*
 import java.util.function.BiConsumer
 import java.util.function.Consumer
+import javax.annotation.PostConstruct
 
 @Service
-class NotificationsSenderServiceImpl(val repository: NotificationsSenderRepository) :
-    NotificationsSenderService {
+class NotificationsSenderServiceImpl(
+    val repository: NotificationsSenderRepository,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory
+) : NotificationsSenderService {
 
     companion object {
         private val log = KotlinLogging.logger {}
@@ -39,8 +44,15 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
             }
     }
 
+    private lateinit var searchConv: JpaSearchConverter<NotificationsSenderEntity>
+
     private val changeListeners: MutableList<BiConsumer<NotificationsSenderDto?, NotificationsSenderDto?>> =
         arrayListOf()
+
+    @PostConstruct
+    fun init() {
+        searchConv = jpaSearchConverterFactory.createConverter(NotificationsSenderEntity::class.java).build()
+    }
 
     override fun getSenderById(id: String): NotificationsSenderDtoWithMeta? {
         if (id.isBlank()) {
@@ -85,8 +97,8 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
         return repository.count()
     }
 
-    override fun getCount(predicate: Predicate?): Long {
-        return repository.count(toSpecification(predicate))
+    override fun getCount(predicate: Predicate): Long {
+        return searchConv.getCount(repository, predicate)
     }
 
     override fun getAll(): List<NotificationsSenderDtoWithMeta> {
@@ -114,17 +126,9 @@ class NotificationsSenderServiceImpl(val repository: NotificationsSenderReposito
             .toList()
     }
 
-    override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
+    override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>):
         List<NotificationsSenderDtoWithMeta> {
-        if (maxItems == 0) {
-            return emptyList()
-        }
-        val page = PageRequest.of(
-            skipCount / maxItems,
-            maxItems,
-            sort ?: Sort.by(Sort.Direction.DESC, NotificationsSenderEntity.PROP_ID)
-        )
-        return repository.findAll(toSpecification(predicate), page)
+        return searchConv.findAll(repository, predicate, maxItems, skipCount, sort)
             .map { it.toDtoWithMeta() }
             .toList()
     }

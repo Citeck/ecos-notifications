@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils
 import org.apache.commons.lang.StringUtils
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.util.Assert
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter
@@ -12,29 +11,36 @@ import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository
-import ru.citeck.ecos.notifications.predicate.toValueModifiedSpec
-import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate
+import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Root
+import javax.annotation.PostConstruct
 
 // TODO: https://citeck.atlassian.net/browse/ECOSCOM-4811
 @Service("domainNotificationTemplateService")
 class NotificationTemplateService(
     private val templateRepository: NotificationTemplateRepository,
-    private val templateConverter: TemplateConverter
+    private val templateConverter: TemplateConverter,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory
 ) {
+
+    private lateinit var searchConv: JpaSearchConverter<NotificationTemplateEntity>
 
     private var listener: Consumer<NotificationTemplateWithMeta>? = null
 
     val count: Long
         get() = templateRepository.count()
+
+    @PostConstruct
+    fun init() {
+        searchConv = jpaSearchConverterFactory.createConverter(NotificationTemplateEntity::class.java).build()
+    }
 
     fun update(dto: NotificationTemplateWithMeta) {
         val template = templateRepository.save(
@@ -121,12 +127,8 @@ class NotificationTemplateService(
         return resultDto
     }
 
-    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<NotificationTemplateWithMeta> {
-        val sorting = sort ?: Sort.by(Sort.Direction.DESC, "id")
-
-        val page = PageRequest.of(skip / max, max, sorting)
-
-        return templateRepository.findAll(toSpec(predicate), page)
+    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: List<SortBy>): List<NotificationTemplateWithMeta> {
+        return searchConv.findAll(templateRepository, predicate, max, skip, sort)
             .map { entity: NotificationTemplateEntity ->
                 templateConverter.entityToDto(
                     entity
@@ -136,8 +138,7 @@ class NotificationTemplateService(
     }
 
     fun getCount(predicate: Predicate): Long {
-        val spec = toSpec<NotificationTemplateEntity>(predicate)
-        return if (spec != null) templateRepository.count(spec) else count
+        return searchConv.getCount(templateRepository, predicate)
     }
 
     fun getAll(max: Int, skip: Int): List<NotificationTemplateWithMeta> {
@@ -156,37 +157,4 @@ class NotificationTemplateService(
     fun addListener(listener: Consumer<NotificationTemplateWithMeta>) {
         this.listener = listener
     }
-
-    private fun <T> toSpec(pred: Predicate): Specification<T>? {
-        pred.toValueModifiedSpec<T>()?.let { return it }
-
-        var spec: Specification<T>? = null
-
-        fun toLikeSpec(value: String, attName: String) {
-            if (value.isNotBlank()) {
-                val likeSpec = Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
-                    builder.like(
-                        builder.lower(root.get(attName)),
-                        "%" + value.lowercase() + "%"
-                    )
-                }
-
-                spec = spec?.and(likeSpec) ?: likeSpec
-            }
-        }
-
-        val predicateDto = PredicateUtils.convertToDto(pred, NotificationTemplatePredicateDto::class.java)
-
-        toLikeSpec(predicateDto.record, "record")
-        toLikeSpec(predicateDto.moduleId, "extId")
-        toLikeSpec(predicateDto.tags, "tags")
-
-        return spec
-    }
-
-    data class NotificationTemplatePredicateDto(
-        var record: String = "",
-        var moduleId: String = "",
-        var tags: String = ""
-    )
 }

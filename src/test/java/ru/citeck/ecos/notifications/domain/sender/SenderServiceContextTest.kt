@@ -69,16 +69,18 @@ class SenderServiceContextTest {
 
     @Test
     fun queryTest() {
+        repository.deleteAll()
+
         val testDto = SenderTestData.getTestSender()
         repository.save(testDto.toEntity())
         var result = service.getAll(
             50,
             0,
             Predicates.eq(
-                SenderTestData.PROP_NAME,
+                "${SenderTestData.PROP_NAME}?str",
                 SenderTestData.getTestSender().name
             ),
-            null
+            emptyList()
         )
         assertEquals(result.size, 1)
 
@@ -92,14 +94,14 @@ class SenderServiceContextTest {
                 Predicates.eq(SenderTestData.PROP_ENABLED, true),
                 Predicates.gt(SenderTestData.PROP_ORDER, 0)
             ),
-            null
+            emptyList()
         )
         assertEquals(result.size, itemsCount)
 
         result = service.getAll()
         assertEquals(result.size, itemsCount + 1)
 
-        result = service.getAll(50, 0, Predicates.eq("invalidPropName", true), null)
+        result = service.getAll(50, 0, Predicates.eq("invalidPropName", true), emptyList())
         assertEquals(result.size, itemsCount + 1)
     }
 
