@@ -4,6 +4,7 @@ import org.springframework.data.domain.Sort
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
 import java.util.function.BiConsumer
 
 interface NotificationsSenderService {
@@ -16,12 +17,12 @@ interface NotificationsSenderService {
 
     fun getCount(): Long
 
-    fun getCount(predicate: Predicate?): Long
+    fun getCount(predicate: Predicate): Long
 
     /**
      * Default sort is by ID
      */
-    fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate?, sort: Sort?):
+    fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>):
         List<NotificationsSenderDtoWithMeta>
 
     fun getAll(): List<NotificationsSenderDtoWithMeta>

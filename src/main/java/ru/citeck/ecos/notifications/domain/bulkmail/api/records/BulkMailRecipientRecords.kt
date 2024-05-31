@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailRecipientDao
@@ -46,34 +45,12 @@ class BulkMailRecipientRecords(
                 if (max <= 0) {
                     max = 100_000
                 }
-                val order: List<Sort.Order> = recsQuery.sortBy
-                    .mapNotNull { sortBy ->
-                        var attribute = sortBy.attribute
-                        attribute = if (RecordConstants.ATT_MODIFIED == attribute) {
-                            "lastModifiedDate"
-                        } else {
-                            ""
-                        }
-                        if (attribute.isNotBlank()) {
-                            if (sortBy.ascending) {
-                                Sort.Order.asc(attribute)
-                            } else {
-                                Sort.Order.desc(attribute)
-                            }
-                        } else {
-                            null
-                        }
-                    }
 
                 val types = bulkMailRecipientDao.getAll(
                     max,
                     recsQuery.page.skipCount,
                     predicate,
-                    if (order.isNotEmpty()) {
-                        Sort.by(order)
-                    } else {
-                        null
-                    }
+                    recsQuery.sortBy
                 )
 
                 result.setRecords(types.map { BulkMailRecipientRecord(it) })

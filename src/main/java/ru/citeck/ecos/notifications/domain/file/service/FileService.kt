@@ -3,22 +3,32 @@ package ru.citeck.ecos.notifications.domain.file.service
 import org.apache.commons.lang3.StringUtils
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.notifications.domain.file.converter.FileConverter
 import ru.citeck.ecos.notifications.domain.file.dto.FileWithMeta
 import ru.citeck.ecos.notifications.domain.file.repo.FileEntity
 import ru.citeck.ecos.notifications.domain.file.repo.FileRepository
-import ru.citeck.ecos.notifications.predicate.toDefaultEntitySpec
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.util.*
 import java.util.stream.Collectors
+import javax.annotation.PostConstruct
 
 @Service
 class FileService(
     val fileRepository: FileRepository,
-    val fileConverter: FileConverter
+    val fileConverter: FileConverter,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory
 ) {
+
+    private lateinit var searchConv: JpaSearchConverter<FileEntity>
+
+    @PostConstruct
+    fun init() {
+        searchConv = jpaSearchConverterFactory.createConverter(FileEntity::class.java).build()
+    }
 
     fun deleteById(id: String) {
         if (StringUtils.isBlank(id)) {
@@ -45,8 +55,7 @@ class FileService(
     }
 
     fun getCount(predicate: Predicate): Long {
-        val spec: Specification<FileEntity> = predicate.toDefaultEntitySpec() ?: return getCount()
-        return (fileRepository.count(spec).toInt()).toLong()
+        return searchConv.getCount(fileRepository, predicate)
     }
 
     fun getCount(): Long {
@@ -62,10 +71,8 @@ class FileService(
             .collect(Collectors.toList())
     }
 
-    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: Sort?): List<FileWithMeta> {
-        val sortLocal = sort ?: Sort.by(Sort.Direction.DESC, "id")
-        val page = PageRequest.of(skip / max, max, sortLocal)
-        return fileRepository.findAll(predicate.toDefaultEntitySpec(), page)
+    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: List<SortBy>): List<FileWithMeta> {
+        return searchConv.findAll(fileRepository, predicate, max, skip, sort)
             .stream()
             .map { entity: FileEntity -> fileConverter.entityToDto(entity) }
             .collect(Collectors.toList())

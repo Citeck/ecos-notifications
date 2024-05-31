@@ -2,12 +2,12 @@ package ru.citeck.ecos.notifications.domain.file.api.records
 
 import ecos.com.fasterxml.jackson210.annotation.JsonProperty
 import org.apache.commons.collections.CollectionUtils
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.file.dto.FileWithMeta
 import ru.citeck.ecos.notifications.domain.file.service.FileService
 import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
+import ru.citeck.ecos.notifications.utils.LegacyRecordsUtils
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordMeta
 import ru.citeck.ecos.records2.RecordRef
@@ -21,14 +21,12 @@ import ru.citeck.ecos.records2.request.delete.RecordsDeletion
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult
 import ru.citeck.ecos.records2.request.query.RecordsQuery
 import ru.citeck.ecos.records2.request.query.RecordsQueryResult
-import ru.citeck.ecos.records2.request.query.SortBy
 import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
-import java.util.*
 import java.util.stream.Collectors
 
 const val ID = "file"
@@ -57,22 +55,11 @@ class FileRecords(val fileService: FileService) :
         val skip = recordsQuery.skipCount
         if (PredicateService.LANGUAGE_PREDICATE == recordsQuery.language) {
             val predicate = recordsQuery.getQuery(Predicate::class.java)
-            val order = recordsQuery.sortBy
-                .stream()
-                .filter { s: SortBy -> RecordConstants.ATT_MODIFIED == s.attribute }
-                .map { s: SortBy ->
-                    var attribute = s.attribute
-                    if (RecordConstants.ATT_MODIFIED == attribute) {
-                        attribute = "lastModifiedDate"
-                    }
-                    if (s.isAscending) Sort.Order.asc(attribute) else Sort.Order.desc(attribute)
-                }
-                .collect(Collectors.toList())
             val types: Collection<FileRecord> = fileService.getAll(
                 max,
                 recordsQuery.skipCount,
                 predicate,
-                if (order.isNotEmpty()) Sort.by(order) else null
+                LegacyRecordsUtils.mapLegacySortBy(recordsQuery.sortBy)
             )
                 .stream()
                 .map { dto: FileWithMeta -> FileRecord(dto) }
