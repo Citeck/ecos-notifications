@@ -17,14 +17,16 @@ import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderSer
 import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
+import ru.citeck.ecos.notifications.freemarker.beans.MetaAccessor
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
+import ru.citeck.ecos.webapp.api.constants.AppName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import javax.activation.DataSource
 
@@ -163,14 +165,15 @@ class NotificationSenderServiceImpl(
             NOTIFICATION_SYS_META_FROM_ATT to rawNotification.from,
             NOTIFICATION_SYS_META_TO_ATT to rawNotification.recipients,
             NOTIFICATION_SYS_META_CC_ATT to rawNotification.cc,
-            NOTIFICATION_SYS_META_BCC_ATT to rawNotification.bcc
+            NOTIFICATION_SYS_META_BCC_ATT to rawNotification.bcc,
+            NOTIFICATION_SYS_META_WEB_URL_ATT to rawNotification.webUrl
         )
         augmentedModel[NOTIFICATION_SYS_META_ATT] = systemNotificationMeta
 
         val body = if (rawNotification.isExplicitMsgPayload() || ignoreTemplate) {
             rawNotification.body
         } else {
-            prepareBody(rawNotification.template!!, rawNotification.locale, augmentedModel)
+            prepareBody(rawNotification.template!!, rawNotification.locale, augmentedModel, rawNotification.webUrl)
         }
 
         val attachments = prepareAttachments(augmentedModel)
@@ -183,10 +186,11 @@ class NotificationSenderServiceImpl(
             from = rawNotification.from,
             cc = rawNotification.cc,
             bcc = rawNotification.bcc,
+            webUrl = rawNotification.webUrl,
             attachments = attachments,
             data = data,
             templateRef = rawNotification.template?.let {
-                RecordRef.create("notifications", NOTIFICATION_TEMPLATE_RECORD_ID, rawNotification.template.id)
+                EntityRef.create(AppName.NOTIFICATIONS, NOTIFICATION_TEMPLATE_RECORD_ID, rawNotification.template.id)
             }
         )
     }
@@ -205,8 +209,15 @@ class NotificationSenderServiceImpl(
         return ignoreTemplate
     }
 
-    private fun prepareBody(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
-        return freemarkerService.process(template.id, locale, model)
+    private fun prepareBody(
+        template: NotificationTemplateWithMeta,
+        locale: Locale,
+        model: Map<String, Any>,
+        webUrl: String
+    ): String {
+        return MetaAccessor.doWithCustomWebUrl(webUrl) {
+            freemarkerService.process(template.id, locale, model)
+        }
     }
 
     private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {

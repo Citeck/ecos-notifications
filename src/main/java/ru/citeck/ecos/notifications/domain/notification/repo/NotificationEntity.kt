@@ -25,6 +25,8 @@ class NotificationEntity @JvmOverloads constructor(
 
     var template: String? = null,
 
+    var webUrl: String? = null,
+
     @Column(columnDefinition = "VARCHAR(255)")
     var bulkMailRef: String? = null,
 

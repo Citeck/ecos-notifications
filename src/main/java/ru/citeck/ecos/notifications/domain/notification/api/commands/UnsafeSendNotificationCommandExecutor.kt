@@ -60,6 +60,7 @@ class UnsafeSendNotificationCommandExecutor(
             title = command.title,
             body = command.body,
             template = templateModelData.templateMeta,
+            webUrl = command.webUrl,
             type = command.type,
             locale = locale,
             recipients = command.recipients,

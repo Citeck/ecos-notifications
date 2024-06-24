@@ -57,6 +57,13 @@ columns:
     sortable: false
     searchableByText: false
 
+  - id: webUrl
+    sortable: false
+    visible: false
+    name:
+      ru: URL для формирования ссылок на документ
+      en: URL for document links
+
   - id: bulkMailRef
     name:
       ru: Рассылка

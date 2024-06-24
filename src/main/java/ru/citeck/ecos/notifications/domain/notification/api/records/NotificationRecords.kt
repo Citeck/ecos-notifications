@@ -119,7 +119,7 @@ class NotificationRecords(
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
         val newNotificationCommand = notificationCommand.copy(
             id = UUID.randomUUID().toString(),
-            createdFrom = RecordRef.create(APP_NAME, ID, notificationCommand.id)
+            createdFrom = EntityRef.create(APP_NAME, ID, notificationCommand.id)
         )
         commandsService.executeSync(newNotificationCommand)
     }
@@ -129,6 +129,7 @@ class NotificationRecords(
         var extId: String,
         val record: EntityRef,
         val template: EntityRef,
+        val webUrl: String,
         val bulkMailRef: EntityRef = EntityRef.EMPTY,
         val type: NotificationType? = null,
         val data: ByteArray?,
@@ -149,6 +150,7 @@ class NotificationRecords(
             dto.extId,
             dto.record,
             dto.template,
+            dto.webUrl,
             dto.bulkMailRef,
             dto.type,
             dto.data,

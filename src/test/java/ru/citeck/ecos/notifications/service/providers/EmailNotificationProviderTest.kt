@@ -137,6 +137,7 @@ class EmailNotificationProviderTest {
             "from@email.ru",
             setOf("copy-to-0@email.ru", "copy-to-1@email.ru"),
             setOf("bcc-copy-to-0@email.ru", "bcc-copy-to-1@email.ru"),
+            "",
             mapOf("fileName.pdf" to dataSource)
         )
         notificationProvider.send(notification)
