@@ -76,7 +76,11 @@ class SendNotificationCommandExecutor(
 
     private fun splitCommand(command: SendNotificationCommand): List<SendNotificationCommand> {
 
-        if (command.webUrl.isNotBlank() || command.cc.isNotEmpty() || command.bcc.isNotEmpty()) {
+        if (command.webUrl.isNotBlank() ||
+            command.recipients.isEmpty() ||
+            command.cc.isNotEmpty() ||
+            command.bcc.isNotEmpty()
+        ) {
             // We can't universally split emails when cc and bcc is not empty
             // but in future we can add this logic based on strategy from configuration
             return listOf(command)

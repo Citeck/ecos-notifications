@@ -2,7 +2,6 @@ package ru.citeck.ecos.notifications.freemarker.beans
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.freemarker.InjectedFreemarkerBean
-import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 
 private const val ID = "link"
 
