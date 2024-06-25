@@ -26,6 +26,7 @@ columns:
 
   - id: _modified
     name: { ru: Изменен, en: Modified }
+    type: DATETIME
     searchableByText: false
 
   - id: _modifier
