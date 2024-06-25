@@ -15,3 +15,14 @@ actions:
   - uiserv/action@resend-notification-action
 
 defaultCreateVariant: false
+
+model:
+  attributes:
+    - id: template
+      name:
+        ru: Шаблон
+        en: Template
+      type: ASSOC
+      config:
+        typeRef: emodel/type@notification-template
+

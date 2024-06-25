@@ -34,6 +34,7 @@ columns:
 
   - id: template
     name: { ru: Шаблон, en: Template }
+    type: ASSOC
     sortable: false
 
   - id: type
@@ -42,6 +43,7 @@ columns:
 
   - id: _modified
     name: { ru: Изменено, en: Modified }
+    type: DATETIME
     searchableByText: false
 
   - id: _modifier

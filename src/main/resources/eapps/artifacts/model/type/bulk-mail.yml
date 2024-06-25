@@ -38,3 +38,11 @@ model:
       name:
         en: Error
         ru: Ошибка
+  attributes:
+    - id: template
+      name:
+        ru: Шаблон
+        en: Template
+      type: ASSOC
+      config:
+        typeRef: emodel/type@notification-template
