@@ -16,6 +16,7 @@ columns:
 
   - id: _modified
     name: { ru: Изменен, en: Modified }
+    type: DATETIME
 
   - id: _modifier
     name: { ru: Кем изменен, en: Modified by }
