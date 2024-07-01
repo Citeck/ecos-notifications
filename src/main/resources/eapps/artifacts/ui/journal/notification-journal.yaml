@@ -34,6 +34,8 @@ columns:
   - id: record
     name: { ru: Рекорд, en: Record }
     sortable: false
+    searchable: false
+    searchableByText: false
 
   - id: template
     name: { ru: Шаблон, en: Template }
@@ -52,13 +54,11 @@ columns:
     name: { ru: Отложенная отправка, en: Delayed send }
     type: DATETIME
     sortable: false
-    searchableByText: false
 
   - id: lastTryingDate
     name: { ru: Время последней попытки, en: Last try time }
     type: DATETIME
     sortable: false
-    searchableByText: false
 
   - id: webUrl
     sortable: false
@@ -72,9 +72,6 @@ columns:
       ru: Рассылка
       en: Bulk mail
     type: ASSOC
-    formatter:
-      type: assoc
-    searchableByText: false
     sortable: false
     groupable: false
     editable: false

@@ -25,4 +25,11 @@ model:
       type: ASSOC
       config:
         typeRef: emodel/type@notification-template
+    - id: bulkMailRef
+      name:
+        ru: Рассылка
+        en: Bulk mail
+      type: ASSOC
+      config:
+        typeRef: emodel/type@bulk-mail
 
