@@ -1,6 +1,5 @@
 package ru.citeck.ecos.notifications.domain.notification.api.records
 
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.json.Json.mapper
@@ -57,34 +56,12 @@ class NotificationRecords(
                 if (max <= 0) {
                     max = 100_000
                 }
-                val order: List<Sort.Order> = recsQuery.sortBy
-                    .mapNotNull { sortBy ->
-                        var attribute = sortBy.attribute
-                        attribute = if (RecordConstants.ATT_MODIFIED == attribute) {
-                            "lastModifiedDate"
-                        } else {
-                            ""
-                        }
-                        if (attribute.isNotBlank()) {
-                            if (sortBy.ascending) {
-                                Sort.Order.asc(attribute)
-                            } else {
-                                Sort.Order.desc(attribute)
-                            }
-                        } else {
-                            null
-                        }
-                    }
 
                 val types = notificationDao.getAll(
                     max,
                     recsQuery.page.skipCount,
                     predicate,
-                    if (order.isNotEmpty()) {
-                        Sort.by(order)
-                    } else {
-                        null
-                    }
+                    recsQuery.sortBy
                 )
 
                 result.setRecords(types.map { NotificationRecord(it) })
@@ -142,7 +119,7 @@ class NotificationRecords(
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
         val newNotificationCommand = notificationCommand.copy(
             id = UUID.randomUUID().toString(),
-            createdFrom = RecordRef.create(APP_NAME, ID, notificationCommand.id)
+            createdFrom = EntityRef.create(APP_NAME, ID, notificationCommand.id)
         )
         commandsService.executeSync(newNotificationCommand)
     }
@@ -152,6 +129,7 @@ class NotificationRecords(
         var extId: String,
         val record: EntityRef,
         val template: EntityRef,
+        val webUrl: String,
         val bulkMailRef: EntityRef = EntityRef.EMPTY,
         val type: NotificationType? = null,
         val data: ByteArray?,
@@ -172,6 +150,7 @@ class NotificationRecords(
             dto.extId,
             dto.record,
             dto.template,
+            dto.webUrl,
             dto.bulkMailRef,
             dto.type,
             dto.data,

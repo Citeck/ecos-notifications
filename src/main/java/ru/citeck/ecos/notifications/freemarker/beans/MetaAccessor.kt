@@ -9,11 +9,29 @@ private const val ID = "meta"
 @Component
 class MetaAccessor(private val ecosWebAppProps: EcosWebAppProps) : InjectedFreemarkerBean {
 
+    companion object {
+        private val customWebUrl = ThreadLocal.withInitial { "" }
+
+        fun <T> doWithCustomWebUrl(url: String, action: () -> T): T {
+            val prev = customWebUrl.get()
+            customWebUrl.set(url)
+            try {
+                return action.invoke()
+            } finally {
+                customWebUrl.set(prev)
+            }
+        }
+    }
+
     override fun getId(): String {
         return ID
     }
 
     fun getWebUrl(): String {
-        return ecosWebAppProps.webUrl
+        var url = customWebUrl.get().ifBlank { ecosWebAppProps.webUrl }
+        if (!url.endsWith("/")) {
+            url += "/"
+        }
+        return url
     }
 }

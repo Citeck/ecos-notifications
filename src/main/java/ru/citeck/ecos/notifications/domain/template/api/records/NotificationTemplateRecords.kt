@@ -4,7 +4,6 @@ import ecos.com.fasterxml.jackson210.annotation.JsonProperty
 import org.apache.commons.lang.LocaleUtils
 import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
@@ -22,6 +21,7 @@ import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64Obj
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.hasLangKey
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
+import ru.citeck.ecos.notifications.utils.LegacyRecordsUtils
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordMeta
 import ru.citeck.ecos.records2.RecordRef
@@ -35,7 +35,6 @@ import ru.citeck.ecos.records2.request.delete.RecordsDeletion
 import ru.citeck.ecos.records2.request.mutation.RecordsMutResult
 import ru.citeck.ecos.records2.request.query.RecordsQuery
 import ru.citeck.ecos.records2.request.query.RecordsQueryResult
-import ru.citeck.ecos.records2.request.query.SortBy
 import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
 import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
 import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
@@ -116,22 +115,11 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
         val skip = recordsQuery.skipCount
         if (PredicateService.LANGUAGE_PREDICATE == recordsQuery.language) {
             val predicate = recordsQuery.getQuery(Predicate::class.java)
-            val order = recordsQuery.sortBy
-                .stream()
-                .filter { s: SortBy -> RecordConstants.ATT_MODIFIED == s.attribute }
-                .map { s: SortBy ->
-                    var attribute = s.attribute
-                    if (RecordConstants.ATT_MODIFIED == attribute) {
-                        attribute = "lastModifiedDate"
-                    }
-                    if (s.isAscending) Sort.Order.asc(attribute) else Sort.Order.desc(attribute)
-                }
-                .collect(Collectors.toList())
             val types: Collection<NotTemplateRecord> = templateService.getAll(
                 max,
                 recordsQuery.skipCount,
                 predicate,
-                if (order.isNotEmpty()) Sort.by(order) else null
+                LegacyRecordsUtils.mapLegacySortBy(recordsQuery.sortBy)
             )
                 .stream()
                 .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }

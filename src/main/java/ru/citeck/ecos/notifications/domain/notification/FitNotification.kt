@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification
 
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import javax.activation.DataSource
 
 data class FitNotification(
@@ -10,14 +10,15 @@ data class FitNotification(
     val from: String,
     var cc: Set<String> = emptySet(),
     var bcc: Set<String> = emptySet(),
+    var webUrl: String = "",
     var attachments: Map<String, DataSource> = emptyMap(),
     var data: Map<String, Any> = emptyMap(),
-    var templateRef: RecordRef? = null
+    var templateRef: EntityRef? = null
 ) {
     override fun toString(): String {
         val attachmentStr = attachments
             .map { it.key }.joinToString(",", "{", "}")
         return "FitNotification(body='$body', title=$title, recipients=$recipients, from='$from', " +
-            "cc=$cc, bcc=$bcc, attachments=$attachmentStr,  data=$data, templateRef=$templateRef)"
+            "cc=$cc, bcc=$bcc, webUrl=$webUrl, attachments=$attachmentStr,  data=$data, templateRef=$templateRef)"
     }
 }

@@ -385,7 +385,7 @@ class EmailNotificationTest : BaseMailTest() {
         assertThat(emails.size).isEqualTo(1)
 
         val body = MimeMessageParser(emails[0]).parse().htmlContent.trim()
-        assertThat(body).isEqualTo("WebUrl: http://localhost")
+        assertThat(body).isEqualTo("WebUrl: http://localhost/")
     }
 
     @Test

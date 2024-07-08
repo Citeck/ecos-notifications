@@ -55,6 +55,7 @@ class NotificationTemplateConverterTest {
             "",
             RecordRef.EMPTY,
             RecordRef.EMPTY,
+            "",
             null,
             Json.mapper.toBytes(testNotificationModel),
             "",

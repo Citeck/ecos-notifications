@@ -224,6 +224,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
                         command.from,
                         command.cc,
                         command.bcc,
+                        command.webUrl,
                         CmdFitNotification.convertAttachments(command.attachments),
                         command.data,
                         command.templateRef
@@ -246,6 +247,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         val from: String,
         var cc: Set<String> = emptySet(),
         var bcc: Set<String> = emptySet(),
+        var webUrl: String = "",
         var attachments: Map<String, AttachmentData> = emptyMap(),
         var data: Map<String, Any> = emptyMap(),
         var templateRef: RecordRef?

@@ -41,6 +41,7 @@ fun NotificationEntity.toDto(): NotificationDto {
         extId = extId ?: "",
         record = RecordRef.valueOf(record),
         template = RecordRef.valueOf(template),
+        webUrl = webUrl ?: "",
         type = type,
         data = data,
         errorMessage = errorMessage ?: "",
@@ -67,6 +68,7 @@ fun NotificationDto.toEntity(): NotificationEntity {
         extId = explicitExtId
         record = dto.record.toString()
         template = dto.template.toString()
+        webUrl = dto.webUrl
         type = dto.type
         data = dto.data
         errorMessage = dto.errorMessage
