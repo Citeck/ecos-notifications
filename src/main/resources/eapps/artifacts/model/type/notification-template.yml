@@ -5,6 +5,8 @@ name:
   en: Notification template
   ru: Шаблон уведомления
 
+parentRef: emodel/type@ecos-vcs-object
+
 system: true
 sourceId: notifications/template
 

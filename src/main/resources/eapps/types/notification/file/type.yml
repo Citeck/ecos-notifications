@@ -1,8 +1,5 @@
+---
 modelVersion: "1.0"
-
-name:
-  ru: Шаблон уведомления
-  en: Notification template
 
 sourceId: "file"
 
