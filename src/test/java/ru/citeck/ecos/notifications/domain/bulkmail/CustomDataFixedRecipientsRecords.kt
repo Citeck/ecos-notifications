@@ -2,11 +2,11 @@ package ru.citeck.ecos.notifications.domain.bulkmail
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 @Component
 class CustomDataFixedRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
@@ -31,7 +31,7 @@ class CustomDataFixedRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
                 RecipientInfo(
                     address = "recipient_1@mail.ru",
                     disp = "Recipient 1",
-                    record = RecordRef.valueOf("rec@1")
+                    record = EntityRef.valueOf("rec@1")
                 ),
                 RecipientInfo(
                     address = "recipient_2@mail.ru"

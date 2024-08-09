@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.domain.notification.converter
 
-import mu.KotlinLogging
-import org.apache.commons.lang.LocaleUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.apache.commons.lang3.LocaleUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE

@@ -17,8 +17,8 @@ import ru.citeck.ecos.notifications.domain.notification.repo.NotificationReposit
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -35,7 +35,7 @@ class ResendNotificationTest : BaseMailTest() {
     @Autowired
     private lateinit var recordsService: RecordsService
 
-    private lateinit var initialNotificationRef: RecordRef
+    private lateinit var initialNotificationRef: EntityRef
 
     @BeforeEach
     fun setUp() {
@@ -45,8 +45,8 @@ class ResendNotificationTest : BaseMailTest() {
             val id = UUID.randomUUID().toString()
             val command = SendNotificationCommand(
                 id = id,
-                record = RecordRef.create("notifications", "test", "test"),
-                templateRef = RecordRef.create("notifications", "template", "test-template"),
+                record = EntityRef.create("notifications", "test", "test"),
+                templateRef = EntityRef.create("notifications", "template", "test-template"),
                 type = NotificationType.EMAIL_NOTIFICATION,
                 lang = "en",
                 recipients = setOf("someUser@gmail.com"),
@@ -56,7 +56,7 @@ class ResendNotificationTest : BaseMailTest() {
             val result = commandsService.executeSync(command, "notifications")
                 .getResultAs(SendNotificationResult::class.java)
             assertThat(result!!.status).isEqualTo(NotificationResultStatus.OK.value)
-            RecordRef.create("notification", id)
+            EntityRef.create("notification", id)
         }
     }
 

@@ -1,6 +1,11 @@
 package ru.citeck.ecos.notifications.service.providers
 
-import com.sun.istack.internal.ByteArrayDataSource
+import jakarta.mail.Message
+import jakarta.mail.Session
+import jakarta.mail.internet.InternetAddress
+import jakarta.mail.internet.MimeMessage
+import jakarta.mail.internet.MimeMultipart
+import jakarta.mail.util.ByteArrayDataSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -12,11 +17,6 @@ import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
-import javax.mail.Message
-import javax.mail.Session
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMessage
-import javax.mail.internet.MimeMultipart
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])

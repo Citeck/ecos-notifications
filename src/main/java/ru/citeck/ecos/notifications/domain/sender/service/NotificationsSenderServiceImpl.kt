@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.sender.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -14,9 +14,9 @@ import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.*
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.lang.reflect.Field
@@ -126,8 +126,7 @@ class NotificationsSenderServiceImpl(
             .toList()
     }
 
-    override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>):
-        List<NotificationsSenderDtoWithMeta> {
+    override fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>): List<NotificationsSenderDtoWithMeta> {
         return searchConv.findAll(repository, predicate, maxItems, skipCount, sort)
             .map { it.toDtoWithMeta() }
             .toList()
@@ -160,7 +159,9 @@ class NotificationsSenderServiceImpl(
                         for (idx in 1 until specifications.size) {
                             result = if (predicate is AndPredicate) {
                                 result!!.and(specifications[idx])
-                            } else result!!.or(specifications[idx])
+                            } else {
+                                result!!.or(specifications[idx])
+                            }
                         }
                     }
                 }
@@ -189,11 +190,11 @@ class NotificationsSenderServiceImpl(
         if (ValuePredicate.Type.CONTAINS == valuePredicate.getType() ||
             ValuePredicate.Type.LIKE == valuePredicate.getType()
         ) {
-            val recordRef = RecordRef.valueOf(valuePredicate.getValue().asText())
-            val tmpValue = if (RecordRef.isEmpty(recordRef)) {
+            val recordRef = EntityRef.valueOf(valuePredicate.getValue().asText())
+            val tmpValue = if (EntityRef.isEmpty(recordRef)) {
                 valuePredicate.getValue().asText()
             } else {
-                recordRef.id
+                recordRef.getLocalId()
             }
             val attributeValue = if (ValuePredicate.Type.CONTAINS == valuePredicate.getType()) {
                 "%" + tmpValue.lowercase() + "%"

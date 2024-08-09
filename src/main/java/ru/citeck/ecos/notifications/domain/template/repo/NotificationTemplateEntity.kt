@@ -1,16 +1,16 @@
 package ru.citeck.ecos.notifications.domain.template.repo
 
+import jakarta.persistence.*
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import java.io.Serializable
 import java.time.Instant
-import javax.persistence.*
 
 @Entity
 @Table(name = "notification_template")
 class NotificationTemplateEntity @JvmOverloads constructor(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
 

@@ -1,10 +1,9 @@
 package ru.citeck.ecos.notifications.domain.firebase
 
+import com.google.firebase.ErrorCode
 import com.google.firebase.messaging.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
-
-private const val ERROR_CODE_TOKEN_NOT_REGISTERED = "registration-token-not-registered"
 
 @Service
 class EcosFirebaseService {
@@ -12,7 +11,7 @@ class EcosFirebaseService {
     private val log = KotlinLogging.logger {}
 
     fun sendMessage(firebaseMessage: FirebaseMessage): FirebaseMessageResult {
-        log.debug("Send firebase message: $firebaseMessage")
+        log.debug { "Send firebase message: $firebaseMessage" }
 
         val response: String
 
@@ -21,11 +20,11 @@ class EcosFirebaseService {
 
             response = FirebaseMessaging.getInstance().send(fireBaseMessage)
         } catch (e: Exception) {
-            log.error("Failed to send firebase message", e)
+            log.error(e) { "Failed to send firebase message" }
 
             return when (e) {
                 is FirebaseMessagingException -> {
-                    if (ERROR_CODE_TOKEN_NOT_REGISTERED == e.errorCode) {
+                    if (ErrorCode.UNAUTHENTICATED == e.errorCode) {
                         FirebaseMessageResult(
                             FirebaseMessageResultCode.TOKEN_NOT_REGISTERED,
                             "Token <${firebaseMessage.token}> is no longer registered",
@@ -67,10 +66,10 @@ class EcosFirebaseService {
     private fun buildAndroidMessage(firebaseMessage: FirebaseMessage): Message {
         return Message.builder()
             .setNotification(
-                Notification(
-                    firebaseMessage.title,
-                    firebaseMessage.body
-                )
+                Notification.builder()
+                    .setTitle(firebaseMessage.title)
+                    .setBody(firebaseMessage.body)
+                    .build()
             )
             .setAndroidConfig(
                 AndroidConfig.builder()
@@ -100,10 +99,10 @@ class EcosFirebaseService {
     private fun buildIosMessage(firebaseMessage: FirebaseMessage): Message {
         return Message.builder()
             .setNotification(
-                Notification(
-                    firebaseMessage.title,
-                    firebaseMessage.body
-                )
+                Notification.builder()
+                    .setTitle(firebaseMessage.title)
+                    .setBody(firebaseMessage.body)
+                    .build()
             )
             .setApnsConfig(
                 ApnsConfig.builder()
@@ -129,7 +128,8 @@ data class FirebaseMessage(
 )
 
 enum class DeviceType(val value: String) {
-    ANDROID("android"), IOS("ios");
+    ANDROID("android"),
+    IOS("ios");
 
     companion object {
         fun from(value: String): DeviceType = values().find { it.value == value }
@@ -140,9 +140,11 @@ enum class DeviceType(val value: String) {
 data class FirebaseMessageResult(
     val resultCode: FirebaseMessageResultCode,
     val message: String = "",
-    val firebaseErrorCode: String = ""
+    val firebaseErrorCode: ErrorCode = ErrorCode.UNKNOWN
 )
 
 enum class FirebaseMessageResultCode {
-    OK, ERROR, TOKEN_NOT_REGISTERED
+    OK,
+    ERROR,
+    TOKEN_NOT_REGISTERED
 }

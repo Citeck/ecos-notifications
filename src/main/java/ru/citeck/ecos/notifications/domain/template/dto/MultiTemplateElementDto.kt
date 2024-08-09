@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 

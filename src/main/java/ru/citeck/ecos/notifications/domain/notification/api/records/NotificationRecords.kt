@@ -12,7 +12,6 @@ import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.dto.LocalRecordAtts
@@ -200,8 +199,8 @@ class NotificationRecords(
             get() = id?.let { notificationTemplateConverter.convertToReadableNotification(it, template) } ?: ""
 
         @get:AttName(".type")
-        val ecosType: RecordRef
-            get() = RecordRef.create("emodel", "type", "notification")
+        val ecosType: EntityRef
+            get() = EntityRef.create("emodel", "type", "notification")
 
         @get:AttName(RecordConstants.ATT_MODIFIED)
         val recordModified: Instant?

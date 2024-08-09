@@ -2,7 +2,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberEntity;

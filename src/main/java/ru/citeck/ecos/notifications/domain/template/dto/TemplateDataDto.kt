@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class TemplateDataDto(

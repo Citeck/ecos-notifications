@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.domain.notification
 
+import jakarta.activation.DataSource
 import ru.citeck.ecos.webapp.api.entity.EntityRef
-import javax.activation.DataSource
 
 data class FitNotification(
     val body: String,

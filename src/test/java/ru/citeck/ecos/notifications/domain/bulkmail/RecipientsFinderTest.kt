@@ -17,10 +17,10 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDt
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientsFinder
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 /**
@@ -43,10 +43,10 @@ class RecipientsFinderTest {
     private lateinit var inMemConfigService: InMemConfigProvider
 
     companion object {
-        private val harryRef = RecordRef.valueOf("alfresco/people@harry")
-        private val severusRef = RecordRef.valueOf("alfresco/people@severus")
-        private val dobbyRef = RecordRef.valueOf("alfresco/people@dobby")
-        private val hogwartsRef = RecordRef.valueOf("alfresco/authority@GROUP_hogwarts")
+        private val harryRef = EntityRef.valueOf("alfresco/people@harry")
+        private val severusRef = EntityRef.valueOf("alfresco/people@severus")
+        private val dobbyRef = EntityRef.valueOf("alfresco/people@dobby")
+        private val hogwartsRef = EntityRef.valueOf("alfresco/authority@GROUP_hogwarts")
 
         private val harryRecord = PotterRecord()
         private val severusRecord = SnapeRecord()
@@ -61,15 +61,15 @@ class RecipientsFinderTest {
         recordsService.register(
             RecordsDaoBuilder.create("alfresco/people")
                 .addRecord(
-                    harryRef.id,
+                    harryRef.getLocalId(),
                     harryRecord
                 )
                 .addRecord(
-                    severusRef.id,
+                    severusRef.getLocalId(),
                     severusRecord
                 )
                 .addRecord(
-                    dobbyRef.id,
+                    dobbyRef.getLocalId(),
                     dobbyRecord
                 )
                 .build()
@@ -78,7 +78,7 @@ class RecipientsFinderTest {
         recordsService.register(
             RecordsDaoBuilder.create("alfresco/authority")
                 .addRecord(
-                    hogwartsRef.id,
+                    hogwartsRef.getLocalId(),
                     hogwartsRecord
                 )
                 .build()
@@ -157,7 +157,7 @@ class RecipientsFinderTest {
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("GROUP_hogwarts")
+                    EntityRef.valueOf("GROUP_hogwarts")
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -193,8 +193,8 @@ class RecipientsFinderTest {
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("harry"),
-                    RecordRef.valueOf("severus")
+                    EntityRef.valueOf("harry"),
+                    EntityRef.valueOf("severus")
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -230,9 +230,9 @@ class RecipientsFinderTest {
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("harry"),
-                    RecordRef.valueOf("severus"),
-                    RecordRef.valueOf("GROUP_hogwarts")
+                    EntityRef.valueOf("harry"),
+                    EntityRef.valueOf("severus"),
+                    EntityRef.valueOf("GROUP_hogwarts")
                 )
             ),
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -384,7 +384,7 @@ class RecipientsFinderTest {
                     BulkMailRecipientDto(
                         address = "recipient_1@mail.ru",
                         name = "Recipient 1",
-                        record = RecordRef.valueOf("rec@1"),
+                        record = EntityRef.valueOf("rec@1"),
                         bulkMailRef = bulkMail.recordRef
                     )
                 ),
@@ -412,7 +412,7 @@ class RecipientsFinderTest {
         val name: String = "Harry Potter",
 
         @AttName(".id")
-        val id: RecordRef = harryRef
+        val id: EntityRef = harryRef
 
     )
 
@@ -425,7 +425,7 @@ class RecipientsFinderTest {
         val name: String = "Severus Snape",
 
         @AttName(".id")
-        val id: RecordRef = severusRef
+        val id: EntityRef = severusRef
     )
 
     class DobbyRecord(
@@ -440,13 +440,13 @@ class RecipientsFinderTest {
         val name: String = "Elf Dobby",
 
         @AttName(".id")
-        val id: RecordRef = dobbyRef
+        val id: EntityRef = dobbyRef
     )
 
     class HogwartsRecord(
 
         @AttName("containedUsers")
-        val users: List<RecordRef> = listOf(harryRef, severusRef)
+        val users: List<EntityRef> = listOf(harryRef, severusRef)
 
     )
 

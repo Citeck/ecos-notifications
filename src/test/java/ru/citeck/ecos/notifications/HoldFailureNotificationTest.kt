@@ -14,7 +14,7 @@ import ru.citeck.ecos.notifications.domain.notification.repo.NotificationReposit
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -38,8 +38,8 @@ class HoldFailureNotificationTest : BaseMailTest() {
     fun sendNotificationWithPotentialErrorShouldSaveFailureNotification() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "some_fail",
             recipients = setOf("someUser@gmail.com"),
@@ -63,8 +63,8 @@ class HoldFailureNotificationTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),

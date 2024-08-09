@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.service.providers
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.mail.internet.MimeUtility
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
@@ -10,7 +11,6 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
-import javax.mail.internet.MimeUtility
 
 @Component
 class EmailNotificationProvider(
@@ -46,7 +46,7 @@ class EmailNotificationProvider(
     }
 
     override fun send(fitNotification: FitNotification) {
-        log.debug("Send email notification: $fitNotification")
+        log.debug { "Send email notification: $fitNotification" }
 
         val msg = emailSender.createMimeMessage()
 

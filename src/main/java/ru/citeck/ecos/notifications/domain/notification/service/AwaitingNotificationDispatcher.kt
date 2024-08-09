@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json

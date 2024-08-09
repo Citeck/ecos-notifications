@@ -7,7 +7,7 @@ import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 /**
@@ -35,7 +35,7 @@ class BulkMailJsonMapperConverterTest {
     @Test
     fun `bulk mail recipients data json converter test`() {
         val recipients = BulkMailRecipientsDataDto(
-            refs = listOf(RecordRef.valueOf("test@1"), RecordRef.valueOf("test@2")),
+            refs = listOf(EntityRef.valueOf("test@1"), EntityRef.valueOf("test@2")),
             fromUserInput = "galina@mail.ru,vasya@mail.ru",
             custom = ObjectData.create(
                 """

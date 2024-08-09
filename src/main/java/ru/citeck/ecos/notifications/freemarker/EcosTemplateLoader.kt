@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.io.Reader
@@ -51,8 +51,8 @@ class EcosTemplateLoader(
             cleanedName = StringUtils.substringBeforeLast(name, "$LANG_SPECIFY_SEPARATOR$langKey")
         }
 
-        val ref = RecordRef.valueOf(cleanedName)
-        val id = ref.id
+        val ref = EntityRef.valueOf(cleanedName)
+        val id = ref.getLocalId()
 
         val found = templateService.findById(id)
         if (!found.isPresent) {

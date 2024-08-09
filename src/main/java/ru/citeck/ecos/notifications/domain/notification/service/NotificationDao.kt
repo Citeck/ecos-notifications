@@ -54,7 +54,9 @@ class NotificationDao(
 
         return if (found.isPresent) {
             found.get().toDto()
-        } else null
+        } else {
+            null
+        }
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +65,9 @@ class NotificationDao(
 
         return if (found.isPresent) {
             found.get().toDto()
-        } else null
+        } else {
+            null
+        }
     }
 
     @Transactional(readOnly = true)

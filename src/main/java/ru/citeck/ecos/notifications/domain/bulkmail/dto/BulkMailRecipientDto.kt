@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.dto
 
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 data class BulkMailRecipientDto(
@@ -9,9 +9,9 @@ data class BulkMailRecipientDto(
 
     val extId: String? = null,
 
-    val bulkMailRef: RecordRef = RecordRef.EMPTY,
+    val bulkMailRef: EntityRef = EntityRef.EMPTY,
 
-    val record: RecordRef = RecordRef.EMPTY,
+    val record: EntityRef = EntityRef.EMPTY,
 
     val address: String,
 

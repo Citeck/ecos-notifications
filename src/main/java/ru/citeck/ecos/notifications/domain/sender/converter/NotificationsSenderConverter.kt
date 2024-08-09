@@ -9,8 +9,8 @@ import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -33,7 +33,7 @@ fun NotificationsSenderEntity.toDto(): NotificationsSenderDto {
         notificationType = notificationType,
         order = order,
         senderType = senderType,
-        templates = mapper.readList(templates, RecordRef::class.java),
+        templates = mapper.readList(templates, EntityRef::class.java),
         senderConfig = ObjectData.create(senderConfig),
 
         createdBy = createdBy,

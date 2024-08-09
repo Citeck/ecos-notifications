@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.file.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.Instant
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)

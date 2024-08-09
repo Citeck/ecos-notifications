@@ -42,8 +42,10 @@ class FileService(
     fun findById(id: String): Optional<FileWithMeta> {
         return if (StringUtils.isBlank(id)) {
             Optional.empty()
-        } else fileRepository.findOneByExtId(id)
-            .map { entity: FileEntity -> fileConverter.entityToDto(entity) }
+        } else {
+            fileRepository.findOneByExtId(id)
+                .map { entity: FileEntity -> fileConverter.entityToDto(entity) }
+        }
     }
 
     fun save(dto: FileWithMeta): FileWithMeta {

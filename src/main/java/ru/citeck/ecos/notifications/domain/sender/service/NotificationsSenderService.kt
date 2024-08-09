@@ -22,8 +22,7 @@ interface NotificationsSenderService {
     /**
      * Default sort is by ID
      */
-    fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>):
-        List<NotificationsSenderDtoWithMeta>
+    fun getAll(maxItems: Int, skipCount: Int, predicate: Predicate, sort: List<SortBy>): List<NotificationsSenderDtoWithMeta>
 
     fun getAll(): List<NotificationsSenderDtoWithMeta>
 

@@ -11,7 +11,6 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -23,6 +22,7 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 @Component
@@ -133,8 +133,8 @@ class BulkMailRecords(
         var name: String? = null,
         var extId: String? = null,
         val recipientsData: BulkMailRecipientsDataDto? = BulkMailRecipientsDataDto(),
-        var record: RecordRef? = RecordRef.EMPTY,
-        var template: RecordRef? = RecordRef.EMPTY,
+        var record: EntityRef? = EntityRef.EMPTY,
+        var template: EntityRef? = EntityRef.EMPTY,
         val type: NotificationType? = null,
         val title: String? = null,
         val body: String? = null,
@@ -194,8 +194,8 @@ class BulkMailRecords(
             }
 
         @get:AttName(".type")
-        val ecosType: RecordRef
-            get() = RecordRef.create("emodel", "type", "bulk-mail")
+        val ecosType: EntityRef
+            get() = EntityRef.create("emodel", "type", "bulk-mail")
 
         @get:AttName(RecordConstants.ATT_MODIFIED)
         val recordModified: Instant?
@@ -215,6 +215,8 @@ class BulkMailRecords(
     }
 
     enum class BulkMailAction {
-        NONE, CALCULATE_RECIPIENTS, DISPATCH
+        NONE,
+        CALCULATE_RECIPIENTS,
+        DISPATCH
     }
 }

@@ -1,11 +1,11 @@
 package ru.citeck.ecos.notifications
 
+import jakarta.mail.internet.MimeMultipart
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.core.io.ClassPathResource
 import org.springframework.util.StreamUtils
 import java.nio.charset.Charset
-import javax.mail.internet.MimeMultipart
 
 fun stringJsonFromResource(path: String): String {
     val createTypeResource = ClassPathResource(path)
@@ -22,7 +22,7 @@ fun hasAttachment(
     val contentHeader = "$mimeType;${charset?.let{" charset=$charset;"} ?: ""} name=$attachmentName"
     for (i in 0 until content.count) {
         if (content.getBodyPart(i).getHeader("Content-Type")
-            .any { it == contentHeader }
+                .any { it == contentHeader }
         ) {
             assertNotNull(content.getBodyPart(i).content)
             valueToCompare?.let {

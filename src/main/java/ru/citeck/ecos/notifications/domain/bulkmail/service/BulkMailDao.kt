@@ -77,7 +77,9 @@ class BulkMailDao(
 
         return if (found.isPresent) {
             found.get().toDto()
-        } else null
+        } else {
+            null
+        }
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +88,9 @@ class BulkMailDao(
 
         return if (found.isPresent) {
             found.get().toDto()
-        } else null
+        } else {
+            null
+        }
     }
 
     @Transactional(readOnly = true)

@@ -1,18 +1,18 @@
 package ru.citeck.ecos.notifications.domain.sender.api.records
 
-import ecos.com.fasterxml.jackson210.annotation.JsonValue
+import com.fasterxml.jackson.annotation.JsonValue
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.json.YamlUtils.toNonDefaultString
+import ru.citeck.ecos.context.lib.i18n.I18nContext
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
-import ru.citeck.ecos.records3.record.request.RequestContext
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.*
@@ -29,7 +29,7 @@ class NotificationsSenderRecord(
     var notificationType: NotificationType? = null,
     var order: Float? = null,
     var senderType: String? = null,
-    var templates: List<RecordRef> = emptyList(),
+    var templates: List<EntityRef> = emptyList(),
     var senderConfig: ObjectData = ObjectData.create(),
 
     var creator: String? = null,
@@ -55,7 +55,6 @@ class NotificationsSenderRecord(
     )
 
     @JsonValue
-    @com.fasterxml.jackson.annotation.JsonValue
     fun toNonDefaultJson(): Any {
         return mapper.toNonDefaultJson(this.toDto())
     }
@@ -76,11 +75,11 @@ class NotificationsSenderRecord(
         get() = moduleId
 
     @get:AttName(".type")
-    val ecosType: RecordRef
-        get() = RecordRef.create("emodel", "type", "notifications-sender")
+    val ecosType: EntityRef
+        get() = EntityRef.create("emodel", "type", "notifications-sender")
 
-    fun getRef(): RecordRef {
-        return RecordRef.create("notifications", NotificationsSenderRecordsDao.ID, id)
+    fun getRef(): EntityRef {
+        return EntityRef.create("notifications", NotificationsSenderRecordsDao.ID, id)
     }
 
     @get:AttName(RecordConstants.ATT_MODIFIED)
@@ -105,10 +104,10 @@ class NotificationsSenderRecord(
             val dispName = MLText(
                 Pair(Locale.ENGLISH, "Sender $id $senderType"),
                 Pair(
-                    Locale("ru"),
+                    Locale.of("ru"),
                     "\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u0435\u043b\u044c $id $senderType"
                 )
             )
-            return dispName.get(RequestContext.getLocale())
+            return dispName.get(I18nContext.getLocale())
         }
 }

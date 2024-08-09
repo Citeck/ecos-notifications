@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template
 
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.StringUtils
 import ru.citeck.ecos.commons.data.ObjectData
 import java.util.*
 import java.util.regex.Pattern
@@ -14,7 +14,9 @@ fun getLangKeyFromFileName(fileName: String): String {
     val matcher = TEMPLATE_LANG_KEY_PATTERN.matcher(fileName)
     return if (matcher.find()) {
         matcher.group(1)
-    } else Locale.ENGLISH.toString()
+    } else {
+        Locale.ENGLISH.toString()
+    }
 }
 
 fun hasLangKey(fileName: String): Boolean {

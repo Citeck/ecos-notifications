@@ -1,24 +1,24 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.repo
 
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
-import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "bulk_mail")
 class BulkMailEntity @JvmOverloads constructor(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ecos_bulk_mail_id_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "ecos_bulk_mail_id_gen")
     var id: Long? = null,
 
     var name: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(columnDefinition = "VARCHAR(255)", unique = true, nullable = false)
     var extId: String? = null,
 
@@ -26,7 +26,7 @@ class BulkMailEntity @JvmOverloads constructor(
 
     var template: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var type: NotificationType? = null,
@@ -35,15 +35,15 @@ class BulkMailEntity @JvmOverloads constructor(
 
     var body: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var recipientsData: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(columnDefinition = "VARCHAR(50)", nullable = false)
     var status: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var personalizedMails: Boolean = false,
 
@@ -52,15 +52,15 @@ class BulkMailEntity @JvmOverloads constructor(
 
     var delayedSend: Instant? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var allTo: Boolean = false,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var allCc: Boolean = false,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var allBcc: Boolean = false,
 

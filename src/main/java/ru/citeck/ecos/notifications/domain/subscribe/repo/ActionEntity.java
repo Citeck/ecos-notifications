@@ -1,11 +1,10 @@
 package ru.citeck.ecos.notifications.domain.subscribe.repo;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.citeck.ecos.notifications.domain.BaseEntity;
 import ru.citeck.ecos.notifications.lib.NotificationType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 

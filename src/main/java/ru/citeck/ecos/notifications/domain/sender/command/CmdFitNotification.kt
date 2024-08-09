@@ -1,9 +1,9 @@
 package ru.citeck.ecos.notifications.domain.sender.command
 
-import com.sun.istack.internal.ByteArrayDataSource
+import jakarta.activation.DataSource
+import jakarta.mail.util.ByteArrayDataSource
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.webapp.api.entity.EntityRef
-import javax.activation.DataSource
 
 class CmdFitNotification(
     val body: String,

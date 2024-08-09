@@ -16,10 +16,10 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.service.NotificationService
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 @ExtendWith(EcosSpringExtension::class)
@@ -27,9 +27,9 @@ import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 class FirebaseNotificationTest {
 
     companion object {
-        private val taskRef = RecordRef.valueOf("task@test-task")
-        private val docRef = RecordRef.valueOf("doc@test-document")
-        private val templateRef = RecordRef.valueOf("notifications/template@test-firebase-message-template")
+        private val taskRef = EntityRef.valueOf("task@test-task")
+        private val docRef = EntityRef.valueOf("doc@test-document")
+        private val templateRef = EntityRef.valueOf("notifications/template@test-firebase-message-template")
     }
 
     @MockBean
@@ -73,14 +73,14 @@ class FirebaseNotificationTest {
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create(taskRef.sourceId)
-                .addRecord(taskRef.id, TaskDto())
+            RecordsDaoBuilder.create(taskRef.getSourceId())
+                .addRecord(taskRef.getLocalId(), TaskDto())
                 .build()
         )
 
         recordsService.register(
-            RecordsDaoBuilder.create(docRef.sourceId)
-                .addRecord(docRef.id, DocDto())
+            RecordsDaoBuilder.create(docRef.getSourceId())
+                .addRecord(docRef.getLocalId(), DocDto())
                 .build()
         )
 

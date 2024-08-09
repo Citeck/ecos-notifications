@@ -1,5 +1,8 @@
 package ru.citeck.ecos.notifications.predicate
 
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Root
 import org.apache.commons.lang3.StringUtils
 import org.springframework.data.jpa.domain.Specification
 import ru.citeck.ecos.commons.json.Json
@@ -8,9 +11,6 @@ import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.predicate.model.ValuePredicate
 import java.time.Instant
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Root
 
 fun <T> Predicate.toDefaultEntitySpec(): Specification<T>? {
     toValueModifiedSpec<T>()?.let { return it }
@@ -47,7 +47,7 @@ fun <T> Predicate.toValueModifiedSpec(): Specification<T>? {
         if (RecordConstants.ATT_MODIFIED == getAttribute() && ValuePredicate.Type.GT == getType()) {
             val instant = Json.mapper.convert(getValue(), Instant::class.java)
             if (instant != null) {
-                return Specification { root: Root<T>, _: CriteriaQuery<*>, builder: CriteriaBuilder ->
+                return Specification { root: Root<T>, _: CriteriaQuery<*>?, builder: CriteriaBuilder ->
                     builder.greaterThan(
                         root.get<Any>("lastModifiedDate").`as`(
                             Instant::class.java

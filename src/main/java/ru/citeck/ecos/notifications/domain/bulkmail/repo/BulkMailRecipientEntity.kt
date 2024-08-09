@@ -1,32 +1,32 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.repo
 
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import java.io.Serializable
 import java.time.Instant
-import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "bulk_mail_recipient")
 class BulkMailRecipientEntity @JvmOverloads constructor(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ecos_bulk_mail_recipient_id_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "ecos_bulk_mail_recipient_id_gen")
     var id: Long? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(columnDefinition = "VARCHAR(255)", unique = true, nullable = false)
     var extId: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     var bulkMailRef: String? = null,
 
     @Column(columnDefinition = "VARCHAR(255)")
     var record: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Column(nullable = false)
     var address: String? = null,
 

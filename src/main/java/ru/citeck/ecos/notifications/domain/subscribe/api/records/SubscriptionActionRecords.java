@@ -1,8 +1,12 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Sets;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.commons.data.DataValue;
@@ -14,30 +18,25 @@ import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService;
 import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
 import ru.citeck.ecos.notifications.lib.NotificationType;
-import ru.citeck.ecos.records2.RecordMeta;
-import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
-import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
-import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
-import ru.citeck.ecos.records2.request.error.ErrorUtils;
-import ru.citeck.ecos.records2.request.error.RecordsError;
-import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
-import ru.citeck.ecos.records2.request.mutation.RecordsMutation;
-import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
-import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
-import ru.citeck.ecos.webapp.api.entity.EntityRef;
+import ru.citeck.ecos.records3.record.atts.dto.LocalRecordAtts;
+import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao;
+import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao;
+import ru.citeck.ecos.records3.record.dao.delete.DelStatus;
+import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao;
+import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author Roman Makarskiy
  */
+@Slf4j
 @Component
-public class SubscriptionActionRecords extends LocalRecordsDao implements LocalRecordsMetaDao<ActionDto>,
-    MutableRecordsLocalDao<ActionDto> {
+public class SubscriptionActionRecords extends AbstractRecordsDao implements RecordAttsDao,
+    RecordMutateDao,
+    RecordsDeleteDao {
 
     private static final String ID = "subscription-action";
 
@@ -54,10 +53,6 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
     private final SubscriberDtoFactory factory;
     private final ActionService actionService;
 
-    {
-        setId(ID);
-    }
-
     public SubscriptionActionRecords(SubscriberService subscriberService, SubscriberDtoFactory factory,
                                      ActionService actionService) {
         this.subscriberService = subscriberService;
@@ -67,35 +62,21 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
 
     @NotNull
     @Override
-    public List<ActionDto> getValuesToMutate(@NotNull List<EntityRef> list) {
-        return getLocalRecordsMeta(list, null);
-    }
+    public String mutate(@NotNull LocalRecordAtts recordAtts) throws Exception {
 
-    @NotNull
-    @Override
-    protected RecordsMutResult mutateImpl(@NotNull RecordsMutation mutation) {
-        RecordsMutResult result = new RecordsMutResult();
+        final String id = recordAtts.getId();
+        ActionEntity resultAction;
 
-        for (RecordMeta meta : mutation.getRecords()) {
-            final String id = meta.getId().getLocalId();
-            ActionEntity resultAction;
+        String updateConfig = recordAtts.getAtt(PARAM_ACTION_UPDATE_CONFIG).isNotNull()
+            ? recordAtts.getAtt(PARAM_ACTION_UPDATE_CONFIG).toString() : "";
 
-            String updateConfig = meta.get(PARAM_ACTION_UPDATE_CONFIG).isNotNull()
-                ? meta.get(PARAM_ACTION_UPDATE_CONFIG).toString() : "";
-
-            if (StringUtils.isNotBlank(updateConfig)) {
-                resultAction = processUpdateActionConfig(id, updateConfig);
-            } else {
-                resultAction = processMutate(id, meta);
-            }
-
-            RecordRef recordRef = RecordRef.create(meta.getId().getAppName(), meta.getId().getSourceId(),
-                resultAction.getId().toString());
-
-            result.addRecord(new RecordMeta(recordRef));
+        if (StringUtils.isNotBlank(updateConfig)) {
+            resultAction = processUpdateActionConfig(id, updateConfig);
+        } else {
+            resultAction = processMutate(id, recordAtts);
         }
 
-        return result;
+        return resultAction.getId().toString();
     }
 
     private ActionEntity processUpdateActionConfig(String id, String updateConfig) {
@@ -106,20 +87,20 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
         return actionService.save(action);
     }
 
-    private ActionEntity processMutate(String id, RecordMeta meta) {
+    private ActionEntity processMutate(String id, LocalRecordAtts meta) {
         ActionEntity resultAction;
 
-        String subscriberId = meta.get(PARAM_SUBSCRIBER_ID).asText();
+        String subscriberId = meta.getAtt(PARAM_SUBSCRIBER_ID).asText();
         if (StringUtils.isBlank(subscriberId)) {
             throwParamIsMandatory(PARAM_SUBSCRIBER_ID);
         }
 
-        String eventType = meta.get(PARAM_EVENT_TYPE).asText();
+        String eventType = meta.getAtt(PARAM_EVENT_TYPE).asText();
         if (StringUtils.isBlank(eventType)) {
             throwParamIsMandatory(PARAM_EVENT_TYPE);
         }
 
-        DataValue actionNode = meta.get(PARAM_ACTION);
+        DataValue actionNode = meta.getAtt(PARAM_ACTION);
         if (actionNode.isNull()) {
             throwParamIsMandatory(PARAM_ACTION);
         }
@@ -139,7 +120,7 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
         DataValue customDataNode = actionNode.get(PARAM_CUSTOM_DATA);
 
         if (customDataNode.isNotNull()) {
-            customData = Json.getMapper().convert(customDataNode, CustomDataEntity[].class);
+            customData = Json.getMapper().convertNotNull(customDataNode, CustomDataEntity[].class);
         }
 
         if (StringUtils.isBlank(id)) {
@@ -173,46 +154,43 @@ public class SubscriptionActionRecords extends LocalRecordsDao implements LocalR
         throw new IllegalArgumentException(String.format("Param <%s> is mandatory", param));
     }
 
+    @NotNull
     @Override
-    public RecordsMutResult save(@NotNull List<ActionDto> list) {
-        return null;
-    }
-
-    @Override
-    public RecordsDelResult delete(@NotNull RecordsDeletion recordsDeletion) {
-        RecordsDelResult result = new RecordsDelResult();
-
-        recordsDeletion.getRecords().forEach(ref -> {
+    public List<DelStatus> delete(@NotNull List<String> recordIds) throws Exception {
+        List<DelStatus> result = new ArrayList<>();
+        for (String recordId : recordIds) {
             try {
-                actionService.deleteById(Long.valueOf(ref.getLocalId()));
-                result.addRecord(new RecordMeta(ref));
+                actionService.deleteById(Long.valueOf(recordId));
+                result.add(DelStatus.OK);
             } catch (EmptyResultDataAccessException e) {
-                //TODO: fix convert exception
-                result.addError(new RecordsError(e.getMessage()));
-                //result.addError(ErrorUtils.convertException(e));
+                log.error(String.format("Subscription deletion error. Id: '%s'", recordId), e);
+                result.add(DelStatus.ERROR);
             }
-
-        });
-
+        }
         return result;
     }
 
+    @Nullable
     @Override
-    public List<ActionDto> getLocalRecordsMeta(@NotNull List<EntityRef> list, MetaField metaField) {
-        return getValues(list);
+    public Object getRecordAtts(@NotNull String recordId) {
+        return getValue(recordId);
     }
 
-    private List<ActionDto> getValues(List<EntityRef> list) {
-        return list.stream()
-            .map(EntityRef::getLocalId)
-            .map(id ->
-                Optional.of(id)
-                    .filter(str -> !str.isEmpty())
-                    .map(x -> actionService.findById(Long.valueOf(x))
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            String.format("Subscriber with id <%s> not found!", id))))
-                    .orElseGet(ActionEntity::new))
-            .map(factory::fromAction)
-            .collect(Collectors.toList());
+    private ActionDto getValue(String recordId) {
+
+        ActionEntity entity = Optional.of(recordId)
+            .filter(str -> !str.isEmpty())
+            .map(x -> actionService.findById(Long.valueOf(x))
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format("Subscriber with id <%s> not found!", recordId))))
+            .orElseGet(ActionEntity::new);
+
+        return factory.fromAction(entity);
+    }
+
+    @NotNull
+    @Override
+    public String getId() {
+        return ID;
     }
 }

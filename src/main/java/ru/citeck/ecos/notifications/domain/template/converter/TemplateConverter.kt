@@ -50,8 +50,12 @@ class TemplateConverter {
             id = entity.extId!!,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
-            tags = if (entity.tags.isNullOrBlank()) emptyList() else entity.tags!!.split(TAGS_SEPARATOR)
-                .map { it.trim() },
+            tags = if (entity.tags.isNullOrBlank()) {
+                emptyList()
+            } else {
+                entity.tags!!.split(TAGS_SEPARATOR)
+                    .map { it.trim() }
+            },
             model = mapper.readMap(entity.model, String::class.java, String::class.java),
             multiTemplateConfig = mapper.readList(entity.multiTemplateConfig, MultiTemplateElementDto::class.java),
             creator = entity.createdBy,

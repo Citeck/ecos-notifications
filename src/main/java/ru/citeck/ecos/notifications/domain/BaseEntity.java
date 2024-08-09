@@ -1,8 +1,6 @@
 package ru.citeck.ecos.notifications.domain;
 
-import lombok.Getter;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Objects;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Objects;
 public abstract class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "sequenceGenerator")
     protected Long id;
 

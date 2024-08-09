@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.domain.template.service
 
-import org.apache.commons.collections.CollectionUtils
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.collections4.CollectionUtils
+import org.apache.commons.lang3.StringUtils
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -83,12 +83,14 @@ class NotificationTemplateService(
     fun findById(id: String): Optional<NotificationTemplateWithMeta> {
         return if (StringUtils.isBlank(id)) {
             Optional.empty()
-        } else templateRepository.findOneByExtId(id)
-            .map { entity: NotificationTemplateEntity ->
-                templateConverter.entityToDto(
-                    entity
-                )
-            }
+        } else {
+            templateRepository.findOneByExtId(id)
+                .map { entity: NotificationTemplateEntity ->
+                    templateConverter.entityToDto(
+                        entity
+                    )
+                }
+        }
     }
 
     fun save(dto: NotificationTemplateWithMeta): NotificationTemplateWithMeta {

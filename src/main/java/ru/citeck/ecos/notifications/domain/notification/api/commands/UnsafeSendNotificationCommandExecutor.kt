@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.api.commands
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
@@ -16,9 +16,9 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 
 private const val ECOS_TYPE_ID_KEY = "_etype?id"
@@ -50,8 +50,11 @@ class UnsafeSendNotificationCommandExecutor(
 
         val templateModelData = resolveTemplateModelData(command)
 
-        val locale = if (command.lang.isEmpty()) DEFAULT_LOCALE else LocaleUtils
-            .toLocale(command.lang)
+        val locale = if (command.lang.isEmpty()) {
+            DEFAULT_LOCALE
+        } else {
+            LocaleUtils.toLocale(command.lang)
+        }
 
         val record = NotificationCommandUtils.resolveNotificationRecord(command.record)
 
@@ -127,7 +130,7 @@ class UnsafeSendNotificationCommandExecutor(
 
         baseTemplate.multiTemplateConfig?.forEach { it ->
             it.type?.let { typeRef ->
-                val checkType = RecordRef.valueOf(recordEcosTypeId) == typeRef
+                val checkType = EntityRef.valueOf(recordEcosTypeId) == typeRef
                 if (checkType && checkPredicate(it.condition, attributes)) {
                     val template = it.template ?: throw NotificationException(
                         "Multi template ref is null. Base template ref: $baseTemplate"

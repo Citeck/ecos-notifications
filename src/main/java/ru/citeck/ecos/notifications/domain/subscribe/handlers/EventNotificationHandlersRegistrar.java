@@ -2,7 +2,7 @@ package ru.citeck.ecos.notifications.domain.subscribe.handlers;
 
 import com.rabbitmq.client.Delivery;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -79,11 +79,11 @@ public class EventNotificationHandlersRegistrar extends AbstractEventHandlersReg
                             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
                             TaskEventDto dto = EventDtoFactory.fromEventDtoMsg(msg);
 
-                            log.debug("Receive taskEventDto: \n" + dto);
+                            log.debug("Receive taskEventDto: \n{}", dto);
 
                             Set<String> userSubscribers = getSubscribersUsers(dto);
 
-                            log.debug("Found user subscribers:\n" + userSubscribers);
+                            log.debug("Found user subscribers:\n{}", userSubscribers);
 
                             if (userSubscribers.isEmpty()) {
                                 return;

@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.file.eapps
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.apps.app.domain.handler.EcosArtifactHandler
 import ru.citeck.ecos.apps.artifact.controller.type.file.FileArtifact

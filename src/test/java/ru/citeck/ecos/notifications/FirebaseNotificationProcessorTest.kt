@@ -23,10 +23,10 @@ import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.service.processors.FirebaseNotificationProcessor
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
 @ExtendWith(EcosSpringExtension::class)
@@ -36,11 +36,11 @@ class FirebaseNotificationProcessorTest {
     companion object {
         private val objectMapper = ObjectMapper()
 
-        private val alfDocRef = RecordRef.valueOf("alfresco/@workspace://SpacesStore/123-aaa")
-        private val procDocRef = RecordRef.valueOf("proc/doc@1234")
-        private val alfTaskRef = RecordRef.valueOf("alfresco/wftask@test-task")
+        private val alfDocRef = EntityRef.valueOf("alfresco/@workspace://SpacesStore/123-aaa")
+        private val procDocRef = EntityRef.valueOf("proc/doc@1234")
+        private val alfTaskRef = EntityRef.valueOf("alfresco/wftask@test-task")
 
-        private val templateRef = RecordRef.valueOf("notifications/template@test-firebase-message-template")
+        private val templateRef = EntityRef.valueOf("notifications/template@test-firebase-message-template")
     }
 
     @MockBean
@@ -73,20 +73,20 @@ class FirebaseNotificationProcessorTest {
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/" + alfDocRef.sourceId)
-                .addRecord(alfDocRef.id, AlfDocRefAlfrescoDto())
+            RecordsDaoBuilder.create("alfresco/" + alfDocRef.getSourceId())
+                .addRecord(alfDocRef.getLocalId(), AlfDocRefAlfrescoDto())
                 .build()
         )
 
         recordsService.register(
-            RecordsDaoBuilder.create("proc/" + procDocRef.sourceId)
-                .addRecord(procDocRef.id, ProcDocRefDto())
+            RecordsDaoBuilder.create("proc/" + procDocRef.getSourceId())
+                .addRecord(procDocRef.getLocalId(), ProcDocRefDto())
                 .build()
         )
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/" + alfTaskRef.sourceId)
-                .addRecord(alfTaskRef.id, AlfTaskDto())
+            RecordsDaoBuilder.create("alfresco/" + alfTaskRef.getSourceId())
+                .addRecord(alfTaskRef.getLocalId(), AlfTaskDto())
                 .build()
         )
 
@@ -99,7 +99,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification without config device type should not send notification and remove action`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -136,8 +136,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -157,7 +157,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with not exists template ref should not send notification and remove action`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -195,8 +195,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -216,7 +216,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification without config registration token should not send notification and remove action`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -254,8 +254,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -275,7 +275,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with document recordRef from another app`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -342,7 +342,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with explicit true condition`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -380,8 +380,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -409,7 +409,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification without document`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -437,7 +437,7 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -454,7 +454,7 @@ class FirebaseNotificationProcessorTest {
             deviceType = DeviceType.ANDROID,
             messageData = mapOf(
                 FIREBASE_MESSAGE_DATA_TASK_ID to alfTaskRef.toString(),
-                FIREBASE_MESSAGE_DATA_DOCUMENT to RecordRef.EMPTY.toString()
+                FIREBASE_MESSAGE_DATA_DOCUMENT to EntityRef.EMPTY.toString()
             )
         )
 
@@ -465,7 +465,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with explicit false condition`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -503,8 +503,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -532,7 +532,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification without custom data`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -561,8 +561,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -590,7 +590,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with explicit ru template id`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -628,8 +628,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -657,7 +657,7 @@ class FirebaseNotificationProcessorTest {
     fun `firebase notification with explicit en template id`() {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -695,8 +695,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "task.assign",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java
@@ -799,7 +799,7 @@ class FirebaseNotificationProcessorTest {
     private fun sendFirebaseNotificationWithDefaultTemplateWithType(eventType: String) {
 
         val actionRef = recordsService.mutate(
-            RecordRef.create("notifications", "subscription-action", ""),
+            EntityRef.create("notifications", "subscription-action", ""),
             ObjectData.create(
                 """
                 {
@@ -836,8 +836,8 @@ class FirebaseNotificationProcessorTest {
             {
               "type": "$eventType",
               "id": "event-id-1",
-              "document": "${alfDocRef.id}",
-              "taskInstanceId": "${alfTaskRef.id}"
+              "document": "${alfDocRef.getLocalId()}",
+              "taskInstanceId": "${alfTaskRef.getLocalId()}"
             }
             """.trimIndent(),
             JsonNode::class.java

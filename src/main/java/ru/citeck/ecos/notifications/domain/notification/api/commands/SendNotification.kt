@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.api.commands
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commands.CommandExecutor

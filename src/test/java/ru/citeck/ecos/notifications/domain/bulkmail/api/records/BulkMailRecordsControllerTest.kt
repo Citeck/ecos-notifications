@@ -1,22 +1,12 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matchers
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.MvcResult
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailBatchConfigDto
@@ -28,15 +18,14 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.stringJsonFromResource
-import ru.citeck.ecos.notifications.web.rest.TestUtil
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
-import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
-import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 /**
@@ -47,22 +36,17 @@ import java.util.*
 class BulkMailRecordsControllerTest {
 
     companion object {
-        private val testTemplateRef = RecordRef.create("notifications", "template", "test-template")
-        private val docRef = RecordRef.valueOf("doc@test-document")
+        private val testTemplateRef = EntityRef.create("notifications", "template", "test-template")
+        private val docRef = EntityRef.valueOf("doc@test-document")
 
-        private val harryRef = RecordRef.valueOf("alfresco/people@harry")
-        private val severusRef = RecordRef.valueOf("alfresco/people@severus")
+        private val harryRef = EntityRef.valueOf("alfresco/people@harry")
+        private val severusRef = EntityRef.valueOf("alfresco/people@severus")
 
-        private val departmentGroupRef = RecordRef.valueOf("alfresco/authority@GROUP_department")
-
-        private val mapper: ObjectMapper = ObjectMapper()
+        private val departmentGroupRef = EntityRef.valueOf("alfresco/authority@GROUP_department")
     }
 
     @Autowired
     private lateinit var bulkMailDao: BulkMailDao
-
-    @Autowired
-    private lateinit var factoryConfig: RecordsServiceFactoryConfiguration
 
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
@@ -70,14 +54,8 @@ class BulkMailRecordsControllerTest {
     @Autowired
     private lateinit var recordsService: RecordsService
 
-    private lateinit var mockRecordsApi: MockMvc
-
     @BeforeEach
     fun setUp() {
-        val recordsApi = RecordsRestApi(factoryConfig)
-        this.mockRecordsApi = MockMvcBuilders
-            .standaloneSetup(recordsApi)
-            .build()
 
         val notificationTemplate = Json.mapper.convert(
             stringJsonFromResource("template/test-template.json"),
@@ -87,8 +65,8 @@ class BulkMailRecordsControllerTest {
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create(docRef.sourceId)
-                .addRecord(docRef.id, DocDto())
+            RecordsDaoBuilder.create(docRef.getSourceId())
+                .addRecord(docRef.getLocalId(), DocDto())
                 .build()
         )
     }
@@ -96,13 +74,10 @@ class BulkMailRecordsControllerTest {
     @Test
     fun `create new bulk mail via mutate`() {
 
-        val now = Instant.now()
+        val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
 
-        val result = mockRecordsApi.perform(
-            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(
-                    """
+        val records = DataValue.of(
+            """
                         {
                           "records": [
                             {
@@ -139,9 +114,10 @@ class BulkMailRecordsControllerTest {
                             }
                           ]
                         }
-                    """.trimIndent()
-                )
-        ).andReturn()
+            """.trimIndent()
+        )["records"].asList(RecordAtts::class.java)
+
+        val result = recordsService.mutate(records)
 
         val bulkMail = getBulkMailFromResponse(result)
 
@@ -156,7 +132,7 @@ class BulkMailRecordsControllerTest {
         assertThat(bulkMail.recipientsData).isEqualTo(
             BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("alfresco/ray@bradbury"),
+                    EntityRef.valueOf("alfresco/ray@bradbury"),
                     harryRef,
                     departmentGroupRef
                 ),
@@ -186,11 +162,8 @@ class BulkMailRecordsControllerTest {
     @Test
     fun `create new bulk mail with defaults via mutate`() {
 
-        val result = mockRecordsApi.perform(
-            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(
-                    """
+        val records = DataValue.of(
+            """
                         {
                           "records": [
                             {
@@ -212,9 +185,10 @@ class BulkMailRecordsControllerTest {
                             }
                           ]
                         }
-                    """.trimIndent()
-                )
-        ).andReturn()
+            """.trimIndent()
+        )["records"].asList(RecordAtts::class.java)
+
+        val result = recordsService.mutate(records)
 
         val bulkMail = getBulkMailFromResponse(result)
 
@@ -228,7 +202,7 @@ class BulkMailRecordsControllerTest {
         assertThat(bulkMail.recipientsData).isEqualTo(
             BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("alfresco/ray@bradbury"),
+                    EntityRef.valueOf("alfresco/ray@bradbury"),
                     harryRef
                 )
             )
@@ -245,8 +219,8 @@ class BulkMailRecordsControllerTest {
             name = "Bulk mail №123",
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("test@1"),
-                    RecordRef.valueOf("alfresco/test@2")
+                    EntityRef.valueOf("test@1"),
+                    EntityRef.valueOf("alfresco/test@2")
                 ),
                 fromUserInput = "galina@mail.ru,vasya@mail.ru",
                 custom = ObjectData.create(
@@ -279,85 +253,41 @@ class BulkMailRecordsControllerTest {
             toSave
         )
 
-        mockRecordsApi.perform(
-            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_QUERY)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(
-                    """
-                    {
-                      "record": "notifications/bulk-mail@${saved.extId}",
-                      "attributes": {
-                        "title": "title",
-                        "body": "body",
-                        "name": "name",
-                        "status": "status",
-                        "record": "record",
-                        "type": "type",
-                        "template": "template",
-                        "recipientsData": "recipientsData?json",
-                        "config": "config?json"
-                      }
-                    }
-                    """.trimIndent()
-                )
+        val getAttsRes = recordsService.getAtts(
+            "notifications/bulk-mail@${saved.extId}",
+            mapOf(
+                "title" to "title",
+                "body" to "body",
+                "name" to "name",
+                "status" to "status",
+                "record" to "record",
+                "type" to "type",
+                "template" to "template",
+                "recipientsData" to "recipientsData?json",
+                "config" to "config?json"
+            )
         )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(jsonPath("$.id", `is`("notifications/bulk-mail@${saved.extId}")))
-            .andExpect(jsonPath("$.attributes.title", `is`(saved.title)))
-            .andExpect(jsonPath("$.attributes.body", `is`(saved.body)))
-            .andExpect(jsonPath("$.attributes.status", `is`(saved.status)))
-            .andExpect(jsonPath("$.attributes.name", `is`(saved.name)))
-            .andExpect(jsonPath("$.attributes.type", `is`(saved.type.name)))
-            .andExpect(jsonPath("$.attributes.record", `is`("Документ №123")))
-            .andExpect(jsonPath("$.attributes.template", `is`("Test template")))
-            .andExpect(jsonPath("$.attributes.recipientsData.refs[*]", Matchers.hasSize<Any>(2)))
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.refs[0]",
-                    `is`(saved.recipientsData.refs[0].toString())
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.refs[1]",
-                    `is`(saved.recipientsData.refs[1].toString())
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.fromUserInput",
-                    `is`(saved.recipientsData.fromUserInput)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.custom.someCustom[*]",
-                    Matchers.hasSize<Any>(2)
-                )
-            )
-            .andExpect(jsonPath("$.attributes.recipientsData.custom.someCustom[0]", `is`("foo")))
-            .andExpect(jsonPath("$.attributes.recipientsData.custom.someCustom[1]", `is`("bar")))
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.batchConfig.size",
-                    `is`(saved.config.batchConfig.size)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.batchConfig.personalizedMails",
-                    `is`(saved.config.batchConfig.personalizedMails)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.delayedSend",
-                    `is`(toSave.config.delayedSend!!.toString())
-                )
-            )
-            .andExpect(jsonPath("$.attributes.config.allTo", `is`(saved.config.allTo)))
-            .andExpect(jsonPath("$.attributes.config.allCc", `is`(saved.config.allCc)))
-            .andExpect(jsonPath("$.attributes.config.allBcc", `is`(saved.config.allBcc)))
+        assertThat(getAttsRes.getId().toString()).isEqualTo("notifications/bulk-mail@${saved.extId}")
+        assertThat(getAttsRes["title"].asText()).isEqualTo(saved.title)
+        assertThat(getAttsRes["body"].asText()).isEqualTo(saved.body)
+        assertThat(getAttsRes["status"].asText()).isEqualTo(saved.status)
+        assertThat(getAttsRes["name"].asText()).isEqualTo(saved.name)
+        assertThat(getAttsRes["type"].asText()).isEqualTo(saved.type.name)
+        assertThat(getAttsRes["record"].asText()).isEqualTo("Документ №123")
+        assertThat(getAttsRes["template"].asText()).isEqualTo("Test template")
+        assertThat(getAttsRes["$.recipientsData.refs[*]"].asStrList()).hasSize(2)
+        assertThat(getAttsRes["$.recipientsData.refs[0]"].asText()).isEqualTo(saved.recipientsData.refs[0].toString())
+        assertThat(getAttsRes["$.recipientsData.refs[1]"].asText()).isEqualTo(saved.recipientsData.refs[1].toString())
+        assertThat(getAttsRes["$.recipientsData.fromUserInput"].asText()).isEqualTo(saved.recipientsData.fromUserInput)
+        assertThat(getAttsRes["$.recipientsData.custom.someCustom[*]"].asStrList()).hasSize(2)
+        assertThat(getAttsRes["$.recipientsData.custom.someCustom[0]"].asText()).isEqualTo("foo")
+        assertThat(getAttsRes["$.recipientsData.custom.someCustom[1]"].asText()).isEqualTo("bar")
+        assertThat(getAttsRes["$.config.batchConfig.size"].asInt()).isEqualTo(saved.config.batchConfig.size)
+        assertThat(getAttsRes["$.config.batchConfig.personalizedMails"].asBoolean()).isEqualTo(saved.config.batchConfig.personalizedMails)
+        assertThat(getAttsRes["$.config.delayedSend"].getAsInstant()).isEqualTo(toSave.config.delayedSend!!.toString())
+        assertThat(getAttsRes["$.config.allTo"].asBoolean()).isEqualTo(saved.config.allTo)
+        assertThat(getAttsRes["$.config.allCc"].asBoolean()).isEqualTo(saved.config.allCc)
+        assertThat(getAttsRes["$.config.allBcc"].asBoolean()).isEqualTo(saved.config.allBcc)
     }
 
     @Test
@@ -366,8 +296,8 @@ class BulkMailRecordsControllerTest {
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("test@1"),
-                    RecordRef.valueOf("alfresco/test@2")
+                    EntityRef.valueOf("test@1"),
+                    EntityRef.valueOf("alfresco/test@2")
                 )
             ),
             record = docRef,
@@ -383,81 +313,38 @@ class BulkMailRecordsControllerTest {
             toSave
         )
 
-        mockRecordsApi.perform(
-            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_QUERY)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(
-                    """
-                    {
-                      "record": "notifications/bulk-mail@${saved.extId}",
-                      "attributes": {
-                        "title": "title",
-                        "body": "body",
-                        "status": "status",
-                        "record": "record",
-                        "type": "type",
-                        "template": "template",
-                        "recipientsData": "recipientsData?json",
-                        "config": "config?json"
-                      }
-                    }
-                    """.trimIndent()
-                )
+        val getAttsRes = recordsService.getAtts(
+            "notifications/bulk-mail@${saved.extId}",
+            mapOf(
+                "title" to "title",
+                "body" to "body",
+                "status" to "status",
+                "record" to "record",
+                "type" to "type",
+                "template" to "template",
+                "recipientsData" to "recipientsData?json",
+                "config" to "config?json"
+            )
         )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(jsonPath("$.id", `is`("notifications/bulk-mail@${saved.extId}")))
-            .andExpect(jsonPath("$.attributes.title", `is`(saved.title)))
-            .andExpect(jsonPath("$.attributes.body", `is`(saved.body)))
-            .andExpect(jsonPath("$.attributes.status", `is`(saved.status)))
-            .andExpect(jsonPath("$.attributes.type", `is`(saved.type.name)))
-            .andExpect(jsonPath("$.attributes.record", `is`("Документ №123")))
-            .andExpect(jsonPath("$.attributes.template", `is`("Test template")))
-            .andExpect(jsonPath("$.attributes.recipientsData.refs[*]", Matchers.hasSize<Any>(2)))
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.refs[0]",
-                    `is`(saved.recipientsData.refs[0].toString())
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.refs[1]",
-                    `is`(saved.recipientsData.refs[1].toString())
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.fromUserInput",
-                    `is`(saved.recipientsData.fromUserInput)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.recipientsData.custom[*]",
-                    Matchers.hasSize<Any>(0)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.batchConfig.size",
-                    `is`(saved.config.batchConfig.size)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.batchConfig.personalizedMails",
-                    `is`(saved.config.batchConfig.personalizedMails)
-                )
-            )
-            .andExpect(
-                jsonPath(
-                    "$.attributes.config.delayedSend",
-                    `is`(nullValue())
-                )
-            )
-            .andExpect(jsonPath("$.attributes.config.allTo", `is`(saved.config.allTo)))
-            .andExpect(jsonPath("$.attributes.config.allCc", `is`(saved.config.allCc)))
-            .andExpect(jsonPath("$.attributes.config.allBcc", `is`(saved.config.allBcc)))
+
+        assertThat(getAttsRes.getId().toString()).isEqualTo("notifications/bulk-mail@${saved.extId}")
+        assertThat(getAttsRes["title"].asText()).isEqualTo(saved.title)
+        assertThat(getAttsRes["body"].asText()).isEqualTo(saved.body)
+        assertThat(getAttsRes["status"].asText()).isEqualTo(saved.status)
+        assertThat(getAttsRes["type"].asText()).isEqualTo(saved.type.name)
+        assertThat(getAttsRes["record"].asText()).isEqualTo("Документ №123")
+        assertThat(getAttsRes["template"].asText()).isEqualTo("Test template")
+        assertThat(getAttsRes["$.recipientsData.refs[*]"].asStrList()).hasSize(2)
+        assertThat(getAttsRes["$.recipientsData.refs[0]"].asText()).isEqualTo(saved.recipientsData.refs[0].toString())
+        assertThat(getAttsRes["$.recipientsData.refs[1]"].asText()).isEqualTo(saved.recipientsData.refs[1].toString())
+        assertThat(getAttsRes["$.recipientsData.fromUserInput"].asText()).isEqualTo(saved.recipientsData.fromUserInput)
+        assertThat(getAttsRes["$.recipientsData.custom[*]"].asStrList()).isEmpty()
+        assertThat(getAttsRes["$.config.batchConfig.size"].asInt()).isEqualTo(saved.config.batchConfig.size)
+        assertThat(getAttsRes["$.config.batchConfig.personalizedMails"].asBoolean()).isEqualTo(saved.config.batchConfig.personalizedMails)
+        assertThat(getAttsRes["$.config.delayedSend"].getAsInstant()).isNull()
+        assertThat(getAttsRes["$.config.allTo"].asBoolean()).isEqualTo(saved.config.allTo)
+        assertThat(getAttsRes["$.config.allCc"].asBoolean()).isEqualTo(saved.config.allCc)
+        assertThat(getAttsRes["$.config.allBcc"].asBoolean()).isEqualTo(saved.config.allBcc)
     }
 
     @Test
@@ -467,8 +354,8 @@ class BulkMailRecordsControllerTest {
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
                     refs = listOf(
-                        RecordRef.valueOf("test@1"),
-                        RecordRef.valueOf("alfresco/test@2")
+                        EntityRef.valueOf("test@1"),
+                        EntityRef.valueOf("alfresco/test@2")
                     )
                 ),
                 record = docRef,
@@ -481,13 +368,10 @@ class BulkMailRecordsControllerTest {
             )
         ).extId
 
-        val now = Instant.now()
+        val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
 
-        val mutateResult = mockRecordsApi.perform(
-            MockMvcRequestBuilders.post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(
-                    """
+        val records = DataValue.of(
+            """
                         {
                           "records": [
                             {
@@ -523,11 +407,12 @@ class BulkMailRecordsControllerTest {
                             }
                           ]
                         }
-                    """.trimIndent()
-                )
-        ).andReturn()
+            """.trimIndent()
+        )["records"].asList(RecordAtts::class.java)
 
-        val updatedBulkMail = getBulkMailFromResponse(mutateResult)
+        val result = recordsService.mutate(records)
+
+        val updatedBulkMail = getBulkMailFromResponse(result)
 
         assertThat(updatedBulkMail.extId).isEqualTo(savedExtId)
         assertThat(updatedBulkMail.title).isEqualTo("Foo_2")
@@ -566,21 +451,8 @@ class BulkMailRecordsControllerTest {
         )
     }
 
-    private fun getBulkMailFromResponse(result: MvcResult): BulkMailDto {
-        val contentAsString = result.response.contentAsString
-
-        val responseNode: JsonNode = mapper.readValue(
-            contentAsString,
-            JsonNode::class.java
-        )
-
-        val id = responseNode.get("records")[0].get("id").asText()
-
-        val ref = RecordRef.valueOf(id)
-
-        val bulkMail = bulkMailDao.findByExtId(ref.id)
-
-        return bulkMail!!
+    private fun getBulkMailFromResponse(result: List<EntityRef>): BulkMailDto {
+        return bulkMailDao.findByExtId(result.first().getLocalId())!!
     }
 
     class DocDto(

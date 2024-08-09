@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications
 
-import org.apache.commons.mail.util.MimeMessageParser
+import org.apache.commons.mail2.jakarta.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,7 +14,7 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -62,8 +62,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
     fun sendMultiTemplateNotificationWithoutEcosTypeShouldUseBaseTemplate() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -94,8 +94,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -127,8 +127,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
             recipients = setOf("someUser@gmail.com"),
@@ -160,8 +160,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -193,8 +193,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "ru",
             recipients = setOf("someUser@gmail.com"),
@@ -222,8 +222,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -250,8 +250,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
     fun sendEmailNotificationCommandWithoutRecipientsStatusCheck() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = emptySet(),
@@ -274,8 +274,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -307,8 +307,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -340,8 +340,8 @@ class EmailNotificationCommandTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-multi-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-multi-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),

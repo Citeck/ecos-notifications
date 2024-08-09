@@ -8,17 +8,17 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.citeck.ecos.context.lib.auth.AuthContext;
 import ru.citeck.ecos.events.data.dto.EventDto;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.CustomDataEntity;
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService;
-import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.rest.RemoteRecordsUtils;
 import ru.citeck.ecos.records3.RecordsService;
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts;
+import ru.citeck.ecos.webapp.api.entity.EntityRef;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -81,9 +81,9 @@ public abstract class ActionProcessor {
         CustomDataEntity[] customData = getTemplatedData(action.getCustomData(), dtoData);
 
         for (CustomDataEntity data : customData) {
-            RecordRef recordRef = resolveRecordRef(data.getRecord());
+            EntityRef recordRef = resolveRecordRef(data.getRecord());
 
-            RecordAtts attributes = RemoteRecordsUtils.runAsSystem(() ->
+            RecordAtts attributes = AuthContext.runAsSystem(() ->
                 recordsService.getAtts(recordRef, data.getAttributes())
             );
             result.put(data.getVariable(), attributes);
@@ -92,14 +92,14 @@ public abstract class ActionProcessor {
         return result;
     }
 
-    private RecordRef resolveRecordRef(String id) {
+    private EntityRef resolveRecordRef(String id) {
         if (StringUtils.isBlank(id)) {
-            return RecordRef.EMPTY;
+            return EntityRef.EMPTY;
         }
 
-        RecordRef ref = RecordRef.valueOf(id);
+        EntityRef ref = EntityRef.valueOf(id);
         if (StringUtils.isBlank(ref.getAppName()) && id.startsWith(WORKSPACE_SPACES_STORE)) {
-            return RecordRef.create("alfresco", "", id);
+            return EntityRef.create("alfresco", "", id);
         }
 
         return ref;

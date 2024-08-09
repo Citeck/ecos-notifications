@@ -4,23 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
-import org.hamcrest.Matchers.stringContainsInOrder
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.MvcResult
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
-import ru.citeck.ecos.notifications.web.rest.TestUtil
-import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
+import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 
@@ -37,7 +30,8 @@ class SubscriptionActionRecordControllerTest {
     @Autowired
     private lateinit var factoryConfig: RecordsServiceFactoryConfiguration
 
-    private lateinit var mockRecordsApi: MockMvc
+    @Autowired
+    private lateinit var recordsService: RecordsService
 
     private val mapper: ObjectMapper = ObjectMapper()
 
@@ -76,34 +70,20 @@ class SubscriptionActionRecordControllerTest {
             }
     """.trimIndent()
 
-    @BeforeEach
-    fun setUp() {
-        val recordsApi = RecordsRestApi(factoryConfig)
-        this.mockRecordsApi = MockMvcBuilders
-            .standaloneSetup(recordsApi)
-            .build()
-    }
-
     @Test
     fun `successful save subscription action`() {
-        mockRecordsApi.perform(
-            post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(mutatePayload)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.records[0].id", stringContainsInOrder(listOf("subscription-action@"))))
+        val records = DataValue.of(mutatePayload)["records"].asList(RecordAtts::class.java)
+        val res = recordsService.mutate(records).first()
+        assertThat(res.toString()).contains("subscription-action@")
     }
 
     @Test
     fun `save subscription action and check action payload config`() {
-        val result = mockRecordsApi.perform(
-            post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(mutatePayload)
-        ).andReturn()
 
-        val action = getActionFromResponse(result)
+        val records = DataValue.of(mutatePayload)["records"].asList(RecordAtts::class.java)
+        val res = recordsService.mutate(records).first()
+        val action = getActionFromRef(res)
+
         val configNode: JsonNode = mapper.readValue(
             action.configJSON,
             JsonNode::class.java
@@ -116,13 +96,10 @@ class SubscriptionActionRecordControllerTest {
 
     @Test
     fun `update subscription action config`() {
-        val result = mockRecordsApi.perform(
-            post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(mutatePayload)
-        ).andReturn()
 
-        val action = getActionFromResponse(result)
+        val records = DataValue.of(mutatePayload)["records"].asList(RecordAtts::class.java)
+        val res = recordsService.mutate(records).first()
+        val action = getActionFromRef(res)
 
         val updateConfigPayload = """
             {
@@ -142,11 +119,8 @@ class SubscriptionActionRecordControllerTest {
             }
         """.trimIndent()
 
-        mockRecordsApi.perform(
-            post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(updateConfigPayload)
-        )
+        val updateAtts = DataValue.of(updateConfigPayload)["records"].asList(RecordAtts::class.java)
+        recordsService.mutate(updateAtts)
 
         val updatedAction = actionService.findById(action.id).get()
 
@@ -163,13 +137,10 @@ class SubscriptionActionRecordControllerTest {
 
     @Test
     fun `check action payload with custom data`() {
-        val result = mockRecordsApi.perform(
-            post(TestUtil.URL_RECORDS_MUTATE)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(mutatePayload)
-        ).andReturn()
 
-        val customData = getActionFromResponse(result).customData
+        val records = DataValue.of(mutatePayload)["records"].asList(RecordAtts::class.java)
+        val res = recordsService.mutate(records).first()
+        val customData = getActionFromRef(res).customData
 
         assertThat(customData.size).isEqualTo(1)
 
@@ -185,20 +156,7 @@ class SubscriptionActionRecordControllerTest {
         )
     }
 
-    private fun getActionFromResponse(result: MvcResult): ActionEntity {
-        val contentAsString = result.response.contentAsString
-
-        val responseNode: JsonNode = mapper.readValue(
-            contentAsString,
-            JsonNode::class.java
-        )
-
-        val id = responseNode.get("records")[0].get("id").asText()
-
-        val actionRef = RecordRef.valueOf(id)
-
-        val action = actionService.findById(actionRef.id.toLong())
-
-        return action.get()
+    private fun getActionFromRef(result: EntityRef): ActionEntity {
+        return actionService.findById(result.getLocalId().toLong()).get()
     }
 }

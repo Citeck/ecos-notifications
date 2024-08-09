@@ -1,7 +1,8 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
-import com.sun.istack.internal.ByteArrayDataSource
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.activation.DataSource
+import jakarta.mail.util.ByteArrayDataSource
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.web.server.MimeMappings
 import org.springframework.stereotype.Component
@@ -28,7 +29,6 @@ import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
-import javax.activation.DataSource
 
 @Component
 class NotificationSenderServiceImpl(
@@ -77,7 +77,7 @@ class NotificationSenderServiceImpl(
             if (sender.templates.isNotEmpty() && notification.template != null) {
                 var acceptable = false
                 for (recordRef in sender.templates) {
-                    if (recordRef.id == notification.template.id) {
+                    if (recordRef.getLocalId() == notification.template.id) {
                         acceptable = true
                         break
                     }

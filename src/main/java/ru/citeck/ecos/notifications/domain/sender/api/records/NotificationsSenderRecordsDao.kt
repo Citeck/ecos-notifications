@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.sender.api.records
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService

@@ -1,7 +1,7 @@
 package ru.citeck.ecos.notifications.service.processors
 
 import com.rabbitmq.client.Delivery
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
@@ -18,7 +18,7 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.service.NotificationService
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.io.IOException
 
 /**
@@ -72,7 +72,7 @@ class FirebaseNotificationProcessor(
         val notificationTransformer = NotificationTransformer(dto, config, action)
 
         val templateRef = notificationTransformer.template()
-        val templateWithMeta = notificationTemplateService.findById(templateRef.id)
+        val templateWithMeta = notificationTemplateService.findById(templateRef.getLocalId())
         if (!templateWithMeta.isPresent) {
             log.error(
                 "Firebase notification not send, because template with id " +
@@ -128,37 +128,37 @@ class FirebaseNotificationProcessor(
             taskEventDto = EventDtoFactory.fromEventDto(eventDto)
         }
 
-        val record = fun(): RecordRef {
+        val record = fun(): EntityRef {
             if (taskEventDto.document.isNullOrBlank()) {
-                return RecordRef.EMPTY
+                return EntityRef.EMPTY
             }
 
-            val ref = RecordRef.valueOf(taskEventDto.document)
-            if (ref.appName.isBlank() && ref.id.startsWith(WORKSPACE_SPACES_STORE)) {
-                return RecordRef.create(ALFRESCO_APP, "", ref.id)
+            val ref = EntityRef.valueOf(taskEventDto.document)
+            if (ref.getAppName().isBlank() && ref.getLocalId().startsWith(WORKSPACE_SPACES_STORE)) {
+                return EntityRef.create(ALFRESCO_APP, "", ref.getLocalId())
             }
 
             return ref
         }
 
-        val task = fun(): RecordRef {
+        val task = fun(): EntityRef {
             if (taskEventDto.taskInstanceId.isNullOrBlank()) {
-                return RecordRef.EMPTY
+                return EntityRef.EMPTY
             }
 
-            val ref = RecordRef.valueOf(taskEventDto.taskInstanceId)
-            val appName = ref.appName.ifBlank { ALFRESCO_APP }
-            val sourceId = ref.sourceId.ifBlank { WF_TASK_SOURCE_ID }
+            val ref = EntityRef.valueOf(taskEventDto.taskInstanceId)
+            val appName = ref.getAppName().ifBlank { ALFRESCO_APP }
+            val sourceId = ref.getSourceId().ifBlank { WF_TASK_SOURCE_ID }
 
-            return RecordRef.create(appName, sourceId, ref.id)
+            return EntityRef.create(appName, sourceId, ref.getLocalId())
         }
 
-        val template = fun(): RecordRef {
+        val template = fun(): EntityRef {
             config.get(FIREBASE_CONFIG_TEMPLATE_ID).asText().let { templateId ->
                 return if (templateId.isBlank()) {
                     getDefaultTemplate(eventDto.resolveType())
                 } else {
-                    RecordRef.valueOf(templateId)
+                    EntityRef.valueOf(templateId)
                 }
             }
         }
@@ -197,12 +197,12 @@ class FirebaseNotificationProcessor(
             )
         }
 
-        private fun getDefaultTemplate(eventType: String): RecordRef {
+        private fun getDefaultTemplate(eventType: String): EntityRef {
             return when (TaskEventType.resolve(eventType)) {
-                TaskEventType.ASSIGN -> RecordRef.valueOf(appProps.firebase.template.defaultTaskAssignTemplate)
-                TaskEventType.CREATE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskCreateTemplate)
-                TaskEventType.COMPLETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskCompleteTemplate)
-                TaskEventType.DELETE -> RecordRef.valueOf(appProps.firebase.template.defaultTaskDeleteTemplate)
+                TaskEventType.ASSIGN -> EntityRef.valueOf(appProps.firebase.template.defaultTaskAssignTemplate)
+                TaskEventType.CREATE -> EntityRef.valueOf(appProps.firebase.template.defaultTaskCreateTemplate)
+                TaskEventType.COMPLETE -> EntityRef.valueOf(appProps.firebase.template.defaultTaskCompleteTemplate)
+                TaskEventType.DELETE -> EntityRef.valueOf(appProps.firebase.template.defaultTaskDeleteTemplate)
                 else -> {
                     throw EcosFirebaseNotificationException("Event type <$eventType> not supported")
                 }

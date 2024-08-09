@@ -3,8 +3,8 @@ package ru.citeck.ecos.notifications.domain.sender.dto
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 data class NotificationsSenderDto(
@@ -15,7 +15,7 @@ data class NotificationsSenderDto(
     var notificationType: NotificationType? = null,
     var order: Float? = null,
     var senderType: String? = null,
-    var templates: List<RecordRef> = emptyList(),
+    var templates: List<EntityRef> = emptyList(),
     var senderConfig: ObjectData = ObjectData.create(),
 
     var createdBy: String? = null,
@@ -37,7 +37,7 @@ data class NotificationsSenderDto(
         return id?.hashCode() ?: 0
     }
 
-    fun getRef(): RecordRef {
-        return RecordRef.create("notifications", NotificationsSenderRecordsDao.ID, id)
+    fun getRef(): EntityRef {
+        return EntityRef.create("notifications", NotificationsSenderRecordsDao.ID, id)
     }
 }

@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.sender
 
+import jakarta.mail.internet.MimeMultipart
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -21,10 +22,9 @@ import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.service.providers.EmailNotificationProvider
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
-import javax.mail.internet.MimeMultipart
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
@@ -73,7 +73,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         notificationsSenderService.save(commandSenderDto)
 
         rawNotification = RawNotification(
-            record = RecordRef.EMPTY,
+            record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf(RECIPIENT_EMAIL),
@@ -114,7 +114,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             )
         )
         val notification = RawNotification(
-            record = RecordRef.EMPTY,
+            record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
@@ -158,7 +158,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             )
         )
         val notification = RawNotification(
-            record = RecordRef.EMPTY,
+            record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
@@ -192,7 +192,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
     @Test
     fun `block email by command sender`() {
         val notification = RawNotification(
-            record = RecordRef.EMPTY,
+            record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
             recipients = setOf(RECIPIENT_EMAIL),
@@ -250,6 +250,6 @@ class CommandNotificationSenderTest : BaseMailTest() {
         var webUrl: String = "",
         var attachments: Map<String, AttachmentData> = emptyMap(),
         var data: Map<String, Any> = emptyMap(),
-        var templateRef: RecordRef?
+        var templateRef: EntityRef?
     )
 }

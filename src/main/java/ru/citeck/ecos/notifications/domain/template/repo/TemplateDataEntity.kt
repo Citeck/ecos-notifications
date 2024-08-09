@@ -1,23 +1,25 @@
 package ru.citeck.ecos.notifications.domain.template.repo
 
+import jakarta.persistence.*
+import jakarta.validation.constraints.Size
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import java.io.Serializable
 import java.time.Instant
-import javax.persistence.*
-import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "template_data")
 class TemplateDataEntity @JvmOverloads constructor(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
 
     var name: String? = null,
 
-    var lang: @Size(min = 2) String? = null,
+    var lang:
+    @Size(min = 2)
+    String? = null,
 
     @ManyToOne
     @JoinColumn(name = "template_id")

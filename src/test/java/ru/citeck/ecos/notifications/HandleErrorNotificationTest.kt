@@ -17,7 +17,7 @@ import ru.citeck.ecos.notifications.domain.notification.service.ErrorNotificatio
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Duration
 import java.util.*
@@ -102,8 +102,8 @@ class HandleErrorNotificationTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -140,8 +140,8 @@ class HandleErrorNotificationTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -182,8 +182,8 @@ class HandleErrorNotificationTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -221,8 +221,8 @@ class HandleErrorNotificationTest : BaseMailTest() {
 
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf(),

@@ -12,8 +12,8 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.repo.NotificationRepository
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -35,8 +35,8 @@ class NotificationStoreTest : BaseMailTest() {
     fun `Success notification store`() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.create("notifications", "test", "test"),
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.create("notifications", "test", "test"),
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -59,8 +59,8 @@ class NotificationStoreTest : BaseMailTest() {
     fun `Success notification store with empty ref`() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -83,8 +83,8 @@ class NotificationStoreTest : BaseMailTest() {
     fun `Error notification store`() {
         val command = SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.create("notifications", "test", "test"),
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.create("notifications", "test", "test"),
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),
@@ -108,11 +108,11 @@ class NotificationStoreTest : BaseMailTest() {
     @Test
     fun `Resend notification store`() {
         val id = UUID.randomUUID().toString()
-        val initialNotificationRef = RecordRef.create("notifications", "notification", id)
+        val initialNotificationRef = EntityRef.create("notifications", "notification", id)
         val command = SendNotificationCommand(
             id = id,
-            record = RecordRef.create("notifications", "test", "test"),
-            templateRef = RecordRef.create("notifications", "template", "test-template"),
+            record = EntityRef.create("notifications", "test", "test"),
+            templateRef = EntityRef.create("notifications", "template", "test-template"),
             type = NotificationType.EMAIL_NOTIFICATION,
             lang = "en",
             recipients = setOf("someUser@gmail.com"),

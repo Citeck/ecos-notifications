@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.service.providers
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
@@ -39,7 +39,7 @@ class FirebaseNotificationProvider(
     }
 
     override fun send(fitNotification: FitNotification) {
-        log.debug("Send firebase message notification: $fitNotification")
+        log.debug { "Send firebase message notification: $fitNotification" }
 
         val registrationToken = resolveRegistrationToken(fitNotification)
 
@@ -111,7 +111,7 @@ class FirebaseNotificationProvider(
                 }
             }
         } catch (e: Exception) {
-            log.error("Failed to delete subscription action by id. Data:\n" + fitNotification.data, e)
+            log.error(e) { "Failed to delete subscription action by id. Data:\n" + fitNotification.data }
         }
     }
 }

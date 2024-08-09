@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.time.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.*;
 import java.util.Objects;
@@ -12,7 +12,7 @@ public class DateTimeWrapper implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 

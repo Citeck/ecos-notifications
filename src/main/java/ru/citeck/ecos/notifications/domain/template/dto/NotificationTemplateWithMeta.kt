@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude
 import ru.citeck.ecos.commons.data.MLText
 import java.time.Instant
 

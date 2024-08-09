@@ -12,8 +12,8 @@ import ru.citeck.ecos.notifications.domain.notification.repo.NotificationReposit
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.*
 import javax.annotation.PostConstruct
@@ -39,8 +39,8 @@ fun NotificationEntity.toDto(): NotificationDto {
     return NotificationDto(
         id = id!!,
         extId = extId ?: "",
-        record = RecordRef.valueOf(record),
-        template = RecordRef.valueOf(template),
+        record = EntityRef.valueOf(record),
+        template = EntityRef.valueOf(template),
         webUrl = webUrl ?: "",
         type = type,
         data = data,
@@ -48,9 +48,9 @@ fun NotificationEntity.toDto(): NotificationDto {
         errorStackTrace = errorStackTrace ?: "",
         tryingCount = tryingCount ?: 0,
         lastTryingDate = lastTryingDate,
-        createdFrom = RecordRef.valueOf(createdFrom),
+        createdFrom = EntityRef.valueOf(createdFrom),
         state = state!!,
-        bulkMailRef = RecordRef.valueOf(bulkMailRef),
+        bulkMailRef = EntityRef.valueOf(bulkMailRef),
         delayedSend = delayedSend,
         createdBy = createdBy,
         createdDate = createdDate,
@@ -84,16 +84,16 @@ fun NotificationDto.toEntity(): NotificationEntity {
 
 fun Notification.toDtoWithState(
     state: NotificationState,
-    bulkMailRef: RecordRef = RecordRef.EMPTY,
+    bulkMailRef: EntityRef = EntityRef.EMPTY,
     delayedSend: Instant? = null
 ): NotificationDto {
     return NotificationDto(
         extId = id,
         type = type,
-        record = if (record is RecordRef) {
-            record as RecordRef
+        record = if (record is EntityRef) {
+            record as EntityRef
         } else {
-            RecordRef.valueOf(converter.recordsService.getAtt(record, "?id").asText())
+            EntityRef.valueOf(converter.recordsService.getAtt(record, "?id").asText())
         },
         template = templateRef,
         state = state,
@@ -106,8 +106,8 @@ fun Notification.toDtoWithState(
     )
 }
 
-val BulkMailDto.recordRef: RecordRef
-    get() = RecordRef.create("notifications", BulkMailRecords.ID, extId)
+val BulkMailDto.recordRef: EntityRef
+    get() = EntityRef.create("notifications", BulkMailRecords.ID, extId)
 
 fun SendNotificationResult.toNotificationState(): NotificationState {
     if (this.result.isEmpty()) {

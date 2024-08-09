@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.citeck.ecos.notifications.domain.BaseEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 

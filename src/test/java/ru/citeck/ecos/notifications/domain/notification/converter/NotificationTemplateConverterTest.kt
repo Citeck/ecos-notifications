@@ -17,7 +17,7 @@ import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.stringJsonFromResource
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 
@@ -53,18 +53,18 @@ class NotificationTemplateConverterTest {
         val notification = NotificationDto(
             null,
             "",
-            RecordRef.EMPTY,
-            RecordRef.EMPTY,
+            EntityRef.EMPTY,
+            EntityRef.EMPTY,
             "",
             null,
             Json.mapper.toBytes(testNotificationModel),
             "",
             "",
-            RecordRef.EMPTY,
+            EntityRef.EMPTY,
             null,
             0,
             null,
-            RecordRef.EMPTY,
+            EntityRef.EMPTY,
             NotificationState.SENT,
             null,
             Instant.now(),
@@ -76,7 +76,7 @@ class NotificationTemplateConverterTest {
 
         val result = notificationTemplateConverter.convertToReadableNotification(
             100,
-            RecordRef.valueOf("notifications/template@converter-test-template")
+            EntityRef.valueOf("notifications/template@converter-test-template")
         )
         assertEquals(readableNotification, result.trim())
     }

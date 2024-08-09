@@ -1,38 +1,30 @@
 package ru.citeck.ecos.notifications.domain.subscribe.api.records;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDto;
 import ru.citeck.ecos.notifications.domain.subscribe.dto.SubscriberDtoFactory;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberEntity;
 import ru.citeck.ecos.notifications.domain.subscribe.service.SubscriberService;
-import ru.citeck.ecos.records2.RecordMeta;
-import ru.citeck.ecos.records2.RecordRef;
-import ru.citeck.ecos.records2.graphql.meta.value.MetaField;
-import ru.citeck.ecos.records2.request.delete.RecordsDelResult;
-import ru.citeck.ecos.records2.request.delete.RecordsDeletion;
-import ru.citeck.ecos.records2.request.mutation.RecordsMutResult;
-import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao;
-import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao;
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao;
-import ru.citeck.ecos.webapp.api.entity.EntityRef;
+import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao;
+import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao;
+import ru.citeck.ecos.records3.record.dao.delete.DelStatus;
+import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao;
+import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author Roman Makarskiy
  */
 @Component
-public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMetaDao<SubscriberDto>,
-    MutableRecordsLocalDao<SubscriberDto> {
+public class SubscriberRecords extends AbstractRecordsDao implements RecordAttsDao,
+    RecordMutateDtoDao<SubscriberDto>, RecordsDeleteDao {
 
     private static final String ID = "subscribers";
-
-    {
-        setId(ID);
-    }
 
     private final SubscriberService subscriberService;
     private final SubscriberDtoFactory factory;
@@ -42,45 +34,49 @@ public class SubscriberRecords extends LocalRecordsDao implements LocalRecordsMe
         this.factory = factory;
     }
 
+    @Override
+    public SubscriberDto getRecToMutate(@NotNull String recordId) {
+        return getRecordAtts(recordId);
+    }
+
     @NotNull
     @Override
-    public List<SubscriberDto> getValuesToMutate(@NotNull List<EntityRef> list) {
-        return getLocalRecordsMeta(list, null);
+    public String saveMutatedRec(SubscriberDto subscriberDto) {
+        return subscriberDto.getId();
     }
 
+    @NotNull
     @Override
-    public RecordsMutResult save(@NotNull List<SubscriberDto> list) {
-        return null;
-    }
-
-    @Override
-    public RecordsDelResult delete(@NotNull RecordsDeletion recordsDeletion) {
-        RecordsDelResult result = new RecordsDelResult();
-
-        recordsDeletion.getRecords().forEach(ref -> {
-            subscriberService.deleteSubscriber(subscriberService.transformId(ref.getLocalId()));
-            result.addRecord(new RecordMeta(ref));
-        });
-
+    public List<DelStatus> delete(@NotNull List<String> recordIds) {
+        List<DelStatus> result = new ArrayList<>();
+        for (String recordId : recordIds) {
+            subscriberService.deleteSubscriber(subscriberService.transformId(recordId));
+            result.add(DelStatus.OK);
+        }
         return result;
     }
 
+    @Nullable
     @Override
-    public List<SubscriberDto> getLocalRecordsMeta(@NotNull List<EntityRef> list, MetaField metaField) {
-        return getValues(list);
+    public SubscriberDto getRecordAtts(@NotNull String recordId) {
+        return getValue(recordId);
     }
 
-    private List<SubscriberDto> getValues(List<EntityRef> records) {
-        return records.stream()
-            .map(EntityRef::getLocalId)
-            .map(id ->
-                Optional.of(id)
+    private SubscriberDto getValue(String recordId) {
+
+        SubscriberEntity entity = Optional.of(recordId)
                     .filter(str -> !str.isEmpty())
                     .map(x -> subscriberService.getById(x)
                         .orElseThrow(() -> new IllegalArgumentException(
-                            String.format("Subscriber with id <%s> not found!", id))))
-                    .orElseGet(SubscriberEntity::new))
-            .map(factory::fromSubscriber)
-            .collect(Collectors.toList());
+                            String.format("Subscriber with id <%s> not found!", recordId))))
+                    .orElseGet(SubscriberEntity::new);
+
+        return factory.fromSubscriber(entity);
+    }
+
+    @NotNull
+    @Override
+    public String getId() {
+        return ID;
     }
 }

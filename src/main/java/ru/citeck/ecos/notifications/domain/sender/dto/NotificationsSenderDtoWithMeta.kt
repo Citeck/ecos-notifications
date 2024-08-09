@@ -5,9 +5,9 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 @Data
@@ -19,7 +19,7 @@ data class NotificationsSenderDtoWithMeta(
     var notificationType: NotificationType? = null,
     var order: Float? = null,
     var senderType: String? = null,
-    var templates: List<RecordRef> = emptyList(),
+    var templates: List<EntityRef> = emptyList(),
     var senderConfig: ObjectData = ObjectData.create(),
 
     val creator: String? = null,
@@ -57,8 +57,8 @@ data class NotificationsSenderDtoWithMeta(
         get() = moduleId
 
     @get:AttName(".type")
-    val ecosType: RecordRef
-        get() = RecordRef.create("emodel", "type", "notifications-sender")
+    val ecosType: EntityRef
+        get() = EntityRef.create("emodel", "type", "notifications-sender")
 
     @get:AttName(RecordConstants.ATT_MODIFIED)
     val recordModified: Instant?
@@ -76,7 +76,7 @@ data class NotificationsSenderDtoWithMeta(
     val recordCreator: String?
         get() = creator
 
-    fun getRef(): RecordRef {
-        return RecordRef.create("notifications", NotificationsSenderRecordsDao.ID, moduleId)
+    fun getRef(): EntityRef {
+        return EntityRef.create("notifications", NotificationsSenderRecordsDao.ID, moduleId)
     }
 }

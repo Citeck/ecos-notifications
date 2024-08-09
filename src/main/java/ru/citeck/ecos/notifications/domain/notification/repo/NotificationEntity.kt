@@ -1,19 +1,19 @@
 package ru.citeck.ecos.notifications.domain.notification.repo
 
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
 import java.time.Instant
-import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "notification")
 class NotificationEntity @JvmOverloads constructor(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
 
@@ -49,7 +49,7 @@ class NotificationEntity @JvmOverloads constructor(
     @Column(name = "created_from", columnDefinition = "VARCHAR(255)")
     var createdFrom: String? = null,
 
-    @get: NotNull
+    @get:NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var state: NotificationState? = null,

@@ -1,8 +1,8 @@
 package ru.citeck.ecos.notifications.domain.template.api.records
 
-import ecos.com.fasterxml.jackson210.annotation.JsonProperty
-import org.apache.commons.lang.LocaleUtils
-import org.apache.commons.lang.StringUtils
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.apache.commons.lang3.LocaleUtils
+import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
@@ -21,25 +21,19 @@ import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64Obj
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.hasLangKey
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import ru.citeck.ecos.notifications.utils.LegacyRecordsUtils
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordMeta
-import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.value.MetaField
-import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
-import ru.citeck.ecos.records2.request.delete.RecordsDelResult
-import ru.citeck.ecos.records2.request.delete.RecordsDeletion
-import ru.citeck.ecos.records2.request.mutation.RecordsMutResult
-import ru.citeck.ecos.records2.request.query.RecordsQuery
-import ru.citeck.ecos.records2.request.query.RecordsQueryResult
-import ru.citeck.ecos.records2.source.dao.local.LocalRecordsDao
-import ru.citeck.ecos.records2.source.dao.local.MutableRecordsLocalDao
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsMetaDao
-import ru.citeck.ecos.records2.source.dao.local.v2.LocalRecordsQueryWithMetaDao
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
+import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
+import ru.citeck.ecos.records3.record.dao.delete.DelStatus
+import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao
+import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
+import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
+import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
+import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.stream.Collectors
@@ -55,88 +49,78 @@ const val NOTIFICATION_TEMPLATE_RECORD_ID = "template"
 
 @Component
 class NotificationTemplateRecords(val templateService: NotificationTemplateService) :
-    LocalRecordsDao(),
-    LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
-    LocalRecordsMetaDao<NotTemplateRecord>,
-    MutableRecordsLocalDao<NotTemplateRecord> {
+    AbstractRecordsDao(),
+    RecordsQueryDao,
+    RecordAttsDao,
+    RecordsDeleteDao,
+    RecordMutateDtoDao<NotTemplateRecord> {
 
     @Autowired
     private lateinit var sendersService: NotificationSenderService
 
-    init {
-        id = NOTIFICATION_TEMPLATE_RECORD_ID
-    }
-
-    override fun delete(deletion: RecordsDeletion): RecordsDelResult {
-        val result = RecordsDelResult()
-        for (record in deletion.records) {
-            templateService.deleteById(record.getLocalId())
-            result.addRecord(RecordMeta(record))
+    override fun delete(recordIds: List<String>): List<DelStatus> {
+        val result = ArrayList<DelStatus>()
+        for (recordId in recordIds) {
+            templateService.deleteById(recordId)
+            result.add(DelStatus.OK)
         }
         return result
     }
 
-    override fun getValuesToMutate(records: List<EntityRef>): List<NotTemplateRecord> {
-        return getLocalRecordsMeta(records, EmptyMetaField.INSTANCE)
+    override fun getRecToMutate(recordId: String): NotTemplateRecord {
+        return getRecordAtts(recordId)
     }
 
-    override fun save(values: List<NotTemplateRecord>): RecordsMutResult {
-        val result = RecordsMutResult()
-        val savedList = values.stream()
-            .map { dto: NotTemplateRecord -> templateService.save(dto) }
-            .map(NotificationTemplateWithMeta::id)
-            .map { id: String? -> RecordMeta(id) }
-            .collect(Collectors.toList())
-        result.records = savedList
-        return result
+    override fun saveMutatedRec(record: NotTemplateRecord): String {
+        return templateService.save(record).id
     }
 
-    override fun getLocalRecordsMeta(records: List<EntityRef>, metaField: MetaField): List<NotTemplateRecord> {
-        return records.stream()
-            .map { obj: EntityRef -> obj.getLocalId() }
-            .map { id: String ->
-                templateService.findById(id)
-                    .orElseGet { NotificationTemplateWithMeta(id) }
-            }
-            .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
-            .collect(Collectors.toList())
+    override fun getRecordAtts(recordId: String): NotTemplateRecord {
+        return NotTemplateRecord(
+            templateService.findById(recordId)
+                .orElseGet { NotificationTemplateWithMeta(recordId) }
+        )
     }
 
-    override fun queryLocalRecords(
-        recordsQuery: RecordsQuery,
-        metaField: MetaField
-    ): RecordsQueryResult<NotTemplateRecord> {
-        val records = RecordsQueryResult<NotTemplateRecord>()
-        var max = recordsQuery.maxItems
+    override fun queryRecords(recsQuery: RecordsQuery): Any? {
+
+        val records = RecsQueryRes<NotTemplateRecord>()
+        var max = recsQuery.page.maxItems
         if (max <= 0) {
             max = 10000
         }
 
-        val skip = recordsQuery.skipCount
-        if (PredicateService.LANGUAGE_PREDICATE == recordsQuery.language) {
-            val predicate = recordsQuery.getQuery(Predicate::class.java)
+        val skip = recsQuery.page.skipCount
+        if (PredicateService.LANGUAGE_PREDICATE == recsQuery.language) {
+            val predicate = recsQuery.getQuery(Predicate::class.java)
             val types: Collection<NotTemplateRecord> = templateService.getAll(
                 max,
-                recordsQuery.skipCount,
+                recsQuery.page.skipCount,
                 predicate,
-                LegacyRecordsUtils.mapLegacySortBy(recordsQuery.sortBy)
+                recsQuery.sortBy
             )
                 .stream()
                 .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
                 .collect(Collectors.toList())
-            records.records = ArrayList(types)
-            records.totalCount = templateService.getCount(predicate)
+            records.setRecords(ArrayList(types))
+            records.setTotalCount(templateService.getCount(predicate))
             return records
         }
-        if ("criteria" == recordsQuery.language) {
-            records.records = templateService.getAll(max, skip)
-                .stream()
-                .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
-                .collect(Collectors.toList())
-            records.totalCount = templateService.count
+        if ("criteria" == recsQuery.language) {
+            records.setRecords(
+                templateService.getAll(max, skip)
+                    .stream()
+                    .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
+                    .collect(Collectors.toList())
+            )
+            records.setTotalCount(templateService.count)
             return records
         }
-        return RecordsQueryResult()
+        return RecsQueryRes<Any>()
+    }
+
+    override fun getId(): String {
+        return NOTIFICATION_TEMPLATE_RECORD_ID
     }
 
     open inner class NotTemplateRecord(val dto: NotificationTemplateWithMeta) : NotificationTemplateWithMeta(dto) {
@@ -147,8 +131,8 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
             }
 
         @get:AttName(".type")
-        val ecosType: RecordRef
-            get() = RecordRef.create("emodel", "type", "notification-template")
+        val ecosType: EntityRef
+            get() = EntityRef.create("emodel", "type", "notification-template")
 
         @get:AttName(".disp")
         val displayName: String?
@@ -196,13 +180,13 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
                 element.template?.let {
                     if (it.getLocalId().isNotEmpty()) {
-                        val data = recordsService.getAttributes(RecordRef.valueOf(it), TEMPLATE_INFO_MAP)
+                        val data = recordsService.getAtts(EntityRef.valueOf(it), TEMPLATE_INFO_MAP)
 
-                        data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
+                        data["model"].asMap(String::class.java, String::class.java).forEach { (_, attr) ->
                             attributes.add(attr)
                         }
 
-                        val newMultiTemplateConfig = data.get("multiTemplateConfig")
+                        val newMultiTemplateConfig = data["multiTemplateConfig"]
                             .asList(MultiTemplateElementDto::class.java)
                         addAttributesRecursive(newMultiTemplateConfig, attributes)
                     }
@@ -271,8 +255,11 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
                 }
 
                 mapper.toBytes(prettyString)?.let {
-                    val name = if (hasLangKeyInTemplateData) "$id.html.$META_FILE_EXTENSION"
-                    else "$id.html.ftl.$META_FILE_EXTENSION"
+                    val name = if (hasLangKeyInTemplateData) {
+                        "$id.html.$META_FILE_EXTENSION"
+                    } else {
+                        "$id.html.ftl.$META_FILE_EXTENSION"
+                    }
 
                     memDir.createFile(name, it)
                 }

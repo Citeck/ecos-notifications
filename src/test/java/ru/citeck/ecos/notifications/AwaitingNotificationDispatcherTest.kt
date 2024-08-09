@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications
 
-import org.apache.commons.mail.util.MimeMessageParser
+import org.apache.commons.mail2.jakarta.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,10 +15,10 @@ import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -44,8 +44,8 @@ class AwaitingNotificationDispatcherTest : BaseMailTest() {
 
     companion object {
 
-        private val alfPersonRef = RecordRef.valueOf("alfresco/@workspace://SpacesStore/123-aaa")
-        private val templateRef = RecordRef.valueOf(
+        private val alfPersonRef = EntityRef.valueOf("alfresco/@workspace://SpacesStore/123-aaa")
+        private val templateRef = EntityRef.valueOf(
             "notifications/template@test-awaiting-notification-template"
         )
     }
@@ -59,9 +59,9 @@ class AwaitingNotificationDispatcherTest : BaseMailTest() {
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/" + alfPersonRef.sourceId)
+            RecordsDaoBuilder.create("alfresco/" + alfPersonRef.getSourceId())
                 .addRecord(
-                    alfPersonRef.id,
+                    alfPersonRef.getLocalId(),
                     AlfPersonDocRef()
                 )
                 .build()

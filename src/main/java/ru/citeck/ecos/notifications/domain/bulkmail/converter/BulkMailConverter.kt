@@ -14,7 +14,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
 import ru.citeck.ecos.notifications.domain.bulkmail.service.RecipientInfo
 import ru.citeck.ecos.notifications.domain.bulkmail.service.UserInfo
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -42,8 +42,8 @@ fun BulkMailEntity.toDto(): BulkMailDto {
         id = id!!,
         name = name,
         extId = extId ?: "",
-        record = RecordRef.valueOf(record),
-        template = RecordRef.valueOf(template),
+        record = EntityRef.valueOf(record),
+        template = EntityRef.valueOf(template),
         type = type!!,
         title = title ?: "",
         body = body ?: "",
@@ -97,8 +97,8 @@ fun BulkMailRecords.BulkMailRecord.toDto(): BulkMailDto {
         id = id,
         name = name,
         extId = extId ?: UUID.randomUUID().toString(),
-        record = RecordRef.valueOf(record),
-        template = RecordRef.valueOf(template),
+        record = EntityRef.valueOf(record),
+        template = EntityRef.valueOf(template),
         type = type!!,
         title = title ?: "",
         body = body ?: "",
@@ -136,8 +136,8 @@ fun BulkMailRecipientEntity.toDto(): BulkMailRecipientDto {
     return BulkMailRecipientDto(
         id = id,
         extId = extId!!,
-        bulkMailRef = RecordRef.valueOf(bulkMailRef),
-        record = RecordRef.valueOf(record),
+        bulkMailRef = EntityRef.valueOf(bulkMailRef),
+        record = EntityRef.valueOf(record),
         address = address!!,
         name = name ?: "",
         createdBy = createdBy,
@@ -157,7 +157,7 @@ fun BulkMailRecipientsDataDto.Companion.from(data: ObjectData): BulkMailRecipien
 
 fun BulkMailRecipientDto.Companion.from(
     address: String,
-    bulkMailRef: RecordRef
+    bulkMailRef: EntityRef
 ): BulkMailRecipientDto {
     if (address.isBlank()) throw IllegalArgumentException("Address cannot be blank")
 
@@ -170,23 +170,23 @@ fun BulkMailRecipientDto.Companion.from(
 
 fun BulkMailRecipientDto.Companion.from(
     userInfo: UserInfo,
-    bulkMailRef: RecordRef
+    bulkMailRef: EntityRef
 ): BulkMailRecipientDto {
     if (userInfo.email.isNullOrBlank()) throw IllegalArgumentException("Address email cannot be blank")
-    if (userInfo.record == RecordRef.EMPTY) throw IllegalArgumentException("User record id cannot be empty")
+    if (userInfo.record == EntityRef.EMPTY) throw IllegalArgumentException("User record id cannot be empty")
 
     return BulkMailRecipientDto(
         extId = UUID.randomUUID().toString(),
         address = userInfo.email!!,
         name = userInfo.disp ?: "",
-        record = userInfo.record ?: RecordRef.EMPTY,
+        record = userInfo.record ?: EntityRef.EMPTY,
         bulkMailRef = bulkMailRef
     )
 }
 
 fun BulkMailRecipientDto.Companion.from(
     recipientInfo: RecipientInfo,
-    bulkMailRef: RecordRef
+    bulkMailRef: EntityRef
 ): BulkMailRecipientDto {
     if (recipientInfo.address.isNullOrBlank()) throw IllegalArgumentException("Address email cannot be blank")
 
@@ -194,7 +194,7 @@ fun BulkMailRecipientDto.Companion.from(
         extId = UUID.randomUUID().toString(),
         address = recipientInfo.address!!,
         name = recipientInfo.disp ?: "",
-        record = recipientInfo.record ?: RecordRef.EMPTY,
+        record = recipientInfo.record ?: EntityRef.EMPTY,
         bulkMailRef = bulkMailRef
     )
 }
@@ -208,6 +208,6 @@ fun BulkMailConfigDto.Companion.from(data: ObjectData): BulkMailConfigDto {
     return from(data.toString())
 }
 
-fun RecordRef.isAuthorityGroupRef(): Boolean {
-    return id.startsWith(AUTHORITY_GROUP_PREFIX)
+fun EntityRef.isAuthorityGroupRef(): Boolean {
+    return getLocalId().startsWith(AUTHORITY_GROUP_PREFIX)
 }
