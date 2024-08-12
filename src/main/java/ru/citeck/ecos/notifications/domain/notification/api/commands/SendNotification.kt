@@ -61,7 +61,7 @@ class SendNotificationCommandExecutor(
                 notificationCommandResultHolder.holdSuccess(command, result)
             } catch (e: Exception) {
 
-                log.error("Failed execute notification command", e)
+                log.error(e) { "Failed execute notification command" }
 
                 notificationCommandResultHolder.holdError(command, e)
 
