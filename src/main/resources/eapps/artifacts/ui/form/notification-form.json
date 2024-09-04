@@ -477,6 +477,35 @@
                     "input": true
                   }
                 ]
+              },
+              {
+                "label": {
+                  "ru": "Модель",
+                  "en": "Model"
+                },
+                "key": "model",
+                "clearOnHide": false,
+                "keyLabel": "",
+                "disableAddingRemovingRows": true,
+                "persistent": false,
+                "refreshOn": [],
+                "type": "datamap",
+                "input": true,
+                "valueComponent": {
+                  "label": {
+                    "ru": "Value"
+                  },
+                  "disabled": true,
+                  "key": "value",
+                  "defaultValue": "Value",
+                  "refreshOn": [],
+                  "optionalWhenDisabled": false,
+                  "type": "textfield",
+                  "input": true,
+                  "inputMasks": [
+                    {}
+                  ]
+                }
               }
             ]
           }
