@@ -486,7 +486,6 @@
                 "key": "model",
                 "clearOnHide": false,
                 "keyLabel": "",
-                "disableAddingRemovingRows": true,
                 "persistent": false,
                 "refreshOn": [],
                 "type": "datamap",
