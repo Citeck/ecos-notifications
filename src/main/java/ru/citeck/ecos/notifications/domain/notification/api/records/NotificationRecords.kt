@@ -9,6 +9,8 @@ import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.NotificationTemplateConverter
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
+import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.records2.RecordConstants
@@ -31,6 +33,7 @@ import java.util.*
 class NotificationRecords(
     private val notificationDao: NotificationDao,
     private val commandsService: CommandsService,
+    private val notificationTemplateService: NotificationTemplateService,
     private val notificationTemplateConverter: NotificationTemplateConverter
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDao {
 
@@ -216,5 +219,33 @@ class NotificationRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+
+        @get:AttName("filledModel")
+        val filledModel: Map<String, Any>
+            get() = let {
+
+                val baseTemplate = notificationTemplateService.findById(template.getLocalId()).orElseThrow {
+                    NotificationException("Template with id: <$id> not found}")
+                }
+                val notificationCommand = mapper.read(data, SendNotificationCommand::class.java)
+                    ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
+
+                val baseModel = baseTemplate.model
+                val notificationCommandModel = notificationCommand.model
+
+                if (baseModel.isNullOrEmpty() || notificationCommandModel.isNullOrEmpty()) {
+                    return emptyMap()
+                }
+
+                val filledModel = mutableMapOf<String, Any>()
+
+                baseModel.forEach { (attrKey, attrValue) ->
+                    notificationCommandModel[attrValue]?.let {
+                        filledModel[attrKey] = it
+                    }
+                }
+
+                return filledModel
+            }
     }
 }
