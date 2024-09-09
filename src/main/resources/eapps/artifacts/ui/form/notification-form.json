@@ -483,7 +483,7 @@
                   "ru": "Модель",
                   "en": "Model"
                 },
-                "key": "model",
+                "key": "filledModel",
                 "clearOnHide": false,
                 "keyLabel": "",
                 "persistent": false,
