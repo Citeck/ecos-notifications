@@ -220,8 +220,8 @@ class NotificationRecords(
         val recordCreator: String?
             get() = creator
 
-        @get:AttName("model")
-        val model: Map<String, Any>
+        @get:AttName("filledModel")
+        val filledModel: Map<String, Any>
             get() = let {
 
                 val baseTemplate = notificationTemplateService.findById(template.getLocalId()).orElseThrow {
