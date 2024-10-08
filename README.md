@@ -26,7 +26,18 @@ To run this application the following applications from ECOS deployment are need
 
 ## Development
 
-To start your application in the dev profile, simply run:
+To start notification-app for development with connection to local smtp server (like mailhog, 1025 port), run app with profiles:
+
+- dev
+- dev_local
+
+if run on macOS, add the profile:
+
+- dev_local_macos
+
+for run with real smtp server see example in [application-dev_smtp_gmail.yml](src/main/resources/config/application-dev_smtp_gmail.yml)
+
+run:
 
 ```
 ./mvnw spring-boot:run
