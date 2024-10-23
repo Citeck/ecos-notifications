@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.template.api.webapi
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateAttsCalculator
 import ru.citeck.ecos.notifications.lib.api.NotificationsAppWebApi

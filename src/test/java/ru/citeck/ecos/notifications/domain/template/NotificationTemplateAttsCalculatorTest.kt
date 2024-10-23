@@ -166,21 +166,23 @@ class NotificationTemplateAttsCalculatorTest {
 
         templateService = Mockito.mock(NotificationTemplateService::class.java)
         Mockito.`when`(templateService.findById(Mockito.anyString())).then { invocation ->
-            Optional.ofNullable(templates[invocation.getArgument(0)]?.let { dto ->
-                NotificationTemplateWithMeta(
-                    dto.id,
-                    dto.name,
-                    dto.notificationTitle,
-                    dto.tags,
-                    dto.model,
-                    dto.multiTemplateConfig,
-                    emptyMap(),
-                    "",
-                    Instant.EPOCH,
-                    "",
-                    Instant.EPOCH
-                )
-            })
+            Optional.ofNullable(
+                templates[invocation.getArgument(0)]?.let { dto ->
+                    NotificationTemplateWithMeta(
+                        dto.id,
+                        dto.name,
+                        dto.notificationTitle,
+                        dto.tags,
+                        dto.model,
+                        dto.multiTemplateConfig,
+                        emptyMap(),
+                        "",
+                        Instant.EPOCH,
+                        "",
+                        Instant.EPOCH
+                    )
+                }
+            )
         }
         val notificationSendersService = Mockito.mock(NotificationSenderService::class.java)
         Mockito.`when`(notificationSendersService.getModel()).then {
@@ -193,7 +195,7 @@ class NotificationTemplateAttsCalculatorTest {
                 return webAppApi
             }
         }
-        recordsService = recordsServices.recordsServiceV1
+        recordsService = recordsServices.recordsService
 
         calculator = NotificationTemplateAttsCalculator(
             templateService,
