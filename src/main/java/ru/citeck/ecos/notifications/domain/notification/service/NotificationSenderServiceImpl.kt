@@ -212,7 +212,7 @@ class NotificationSenderServiceImpl(
     private fun prepareBody(
         template: NotificationTemplateWithMeta,
         locale: Locale,
-        model: Map<String, Any>,
+        model: Map<String, Any?>,
         webUrl: String
     ): String {
         return MetaAccessor.doWithCustomWebUrl(webUrl) {
@@ -220,7 +220,7 @@ class NotificationSenderServiceImpl(
         }
     }
 
-    private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any>): String {
+    private fun prepareTitle(template: NotificationTemplateWithMeta, locale: Locale, model: Map<String, Any?>): String {
         val title = template.notificationTitle ?: return ""
 
         val titleTemplate = resolveAnyAvailableTitle(title, locale)
@@ -230,18 +230,18 @@ class NotificationSenderServiceImpl(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun prepareData(model: Map<String, Any>): Map<String, Any> {
-        val result = mutableMapOf<String, Any>()
+    private fun prepareData(model: Map<String, Any?>): Map<String, Any?> {
+        val result = mutableMapOf<String, Any?>()
         result[NOTIFICATION_MODEL] = model.toMap()
         if (model[NOTIFICATION_DATA] == null) {
             return result
         }
-        result.putAll(model[NOTIFICATION_DATA] as Map<String, Any>)
+        result.putAll(model[NOTIFICATION_DATA] as Map<String, Any?>)
         return result
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun prepareAttachments(model: Map<String, Any>): Map<String, DataSource> {
+    private fun prepareAttachments(model: Map<String, Any?>): Map<String, DataSource> {
 
         val attachments = model[NOTIFICATION_ATTACHMENTS] as? List<Map<String, Any>>
             ?: (model[NOTIFICATION_ATTACHMENTS] as? Map<String, Any>)?.let { attach ->

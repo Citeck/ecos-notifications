@@ -1,9 +1,8 @@
 package ru.citeck.ecos.notifications.domain.template.api.records
 
 import ecos.com.fasterxml.jackson210.annotation.JsonProperty
-import org.apache.commons.lang.LocaleUtils
-import org.apache.commons.lang.StringUtils
-import org.springframework.beans.factory.annotation.Autowired
+import org.apache.commons.lang3.LocaleUtils
+import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
@@ -11,15 +10,14 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.utils.ZipUtils
-import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords.NotTemplateRecord
-import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.hasLangKey
+import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateAttsCalculator
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.utils.LegacyRecordsUtils
 import ru.citeck.ecos.records2.RecordConstants
@@ -28,7 +26,6 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.graphql.meta.value.MetaField
 import ru.citeck.ecos.records2.graphql.meta.value.field.EmptyMetaField
 import ru.citeck.ecos.records2.predicate.PredicateService
-import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.request.delete.RecordsDelResult
 import ru.citeck.ecos.records2.request.delete.RecordsDeletion
@@ -46,22 +43,17 @@ import java.util.stream.Collectors
 
 private const val META_FILE_EXTENSION = "meta.yml"
 
-private val TEMPLATE_INFO_MAP = mapOf(
-    "model" to "model?json",
-    "multiTemplateConfig" to "multiTemplateConfig[]?json"
-)
-
 const val NOTIFICATION_TEMPLATE_RECORD_ID = "template"
 
 @Component
-class NotificationTemplateRecords(val templateService: NotificationTemplateService) :
+class NotificationTemplateRecords(
+    val templateService: NotificationTemplateService,
+    val notificationTemplateAttsCalculator: NotificationTemplateAttsCalculator
+) :
     LocalRecordsDao(),
     LocalRecordsQueryWithMetaDao<NotTemplateRecord>,
     LocalRecordsMetaDao<NotTemplateRecord>,
     MutableRecordsLocalDao<NotTemplateRecord> {
-
-    @Autowired
-    private lateinit var sendersService: NotificationSenderService
 
     init {
         id = NOTIFICATION_TEMPLATE_RECORD_ID
@@ -172,43 +164,7 @@ class NotificationTemplateRecords(val templateService: NotificationTemplateServi
 
         @get:AttName("multiModelAttributes")
         val multiModel: Set<String>
-            get() = let {
-                val attributes = mutableSetOf<String>()
-
-                this.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
-
-                addAttributesRecursive(this.multiTemplateConfig, attributes)
-
-                attributes.addAll(sendersService.getModel())
-
-                return attributes
-            }
-
-        private fun addAttributesRecursive(
-            multiTemplateConfig: List<MultiTemplateElementDto>?,
-            attributes: MutableSet<String>
-        ) {
-            multiTemplateConfig?.forEach { element ->
-                element.condition?.let {
-                    val allPredicateAttributes = PredicateUtils.getAllPredicateAttributes(it)
-                    attributes.addAll(allPredicateAttributes)
-                }
-
-                element.template?.let {
-                    if (it.getLocalId().isNotEmpty()) {
-                        val data = recordsService.getAttributes(RecordRef.valueOf(it), TEMPLATE_INFO_MAP)
-
-                        data.get("model").asMap(String::class.java, String::class.java).forEach { (_, attr) ->
-                            attributes.add(attr)
-                        }
-
-                        val newMultiTemplateConfig = data.get("multiTemplateConfig")
-                            .asList(MultiTemplateElementDto::class.java)
-                        addAttributesRecursive(newMultiTemplateConfig, attributes)
-                    }
-                }
-            }
-        }
+            get() = notificationTemplateAttsCalculator.getAllRequiredAtts(this)
 
         @get:AttName("title")
         val title: MLText

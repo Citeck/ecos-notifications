@@ -14,7 +14,7 @@ class CmdFitNotification(
     var bcc: Set<String> = emptySet(),
     var webUrl: String = "",
     var attachments: Map<String, AttachmentData> = emptyMap(),
-    var data: Map<String, Any> = emptyMap(),
+    var data: Map<String, Any?> = emptyMap(),
     var templateRef: EntityRef? = null
 ) {
     constructor(fitNotification: FitNotification) : this(

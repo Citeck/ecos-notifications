@@ -3,4 +3,5 @@
 
 <configuration>
     <include resource="ecos/logback-base.xml" />
+    <logger name="ru.citeck.ecos.notifications.domain.template.api.webapi" level="DEBUG" />
 </configuration>

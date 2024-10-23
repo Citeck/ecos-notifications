@@ -16,7 +16,7 @@ data class RawNotification(
     val title: String = "",
     val body: String = "",
     val template: NotificationTemplateWithMeta? = null,
-    val model: Map<String, Any>,
+    val model: Map<String, Any?>,
     val from: String,
     var cc: Set<String> = emptySet(),
     var bcc: Set<String> = emptySet()

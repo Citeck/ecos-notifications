@@ -8,7 +8,7 @@ data class NotificationEventDto(
     var rec: EntityRef = EntityRef.EMPTY,
     var notificationType: NotificationType,
     var notification: FitNotification,
-    var model: Map<String, Any>,
+    var model: Map<String, Any?>,
 
     var error: ErrorInfo? = null
 )

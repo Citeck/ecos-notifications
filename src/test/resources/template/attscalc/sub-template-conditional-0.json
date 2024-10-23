@@ -1,0 +1,6 @@
+{
+  "id": "sub-template-conditional-0",
+  "model": {
+    "subcond1": "text|presuf('','-sub-cond-template-0')"
+  }
+}
