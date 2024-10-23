@@ -12,7 +12,7 @@ data class FitNotification(
     var bcc: Set<String> = emptySet(),
     var webUrl: String = "",
     var attachments: Map<String, DataSource> = emptyMap(),
-    var data: Map<String, Any> = emptyMap(),
+    var data: Map<String, Any?> = emptyMap(),
     var templateRef: EntityRef? = null
 ) {
     override fun toString(): String {

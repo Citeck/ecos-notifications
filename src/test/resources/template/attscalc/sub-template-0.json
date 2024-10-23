@@ -1,0 +1,6 @@
+{
+  "id": "sub-template-0",
+  "model": {
+    "sub0": "text|presuf('','-sub-template-0')"
+  }
+}

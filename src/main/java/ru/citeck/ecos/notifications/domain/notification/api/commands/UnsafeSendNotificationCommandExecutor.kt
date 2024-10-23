@@ -21,8 +21,6 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 
-private const val ECOS_TYPE_ID_KEY = "_etype?id"
-
 @Service
 class UnsafeSendNotificationCommandExecutor(
     val notificationService: NotificationSenderService,
@@ -31,6 +29,10 @@ class UnsafeSendNotificationCommandExecutor(
 ) {
 
     companion object {
+
+        private const val ECOS_LEGACY_TYPE_ID_KEY = "_etype?id"
+        private const val ECOS_NEW_TYPE_ID_KEY = "_type?id"
+
         private val log = KotlinLogging.logger {}
     }
 
@@ -84,14 +86,21 @@ class UnsafeSendNotificationCommandExecutor(
 
         val baseTemplate = getTemplateMetaById(command.templateRef.getLocalId())
 
-        val template = resolveMultiTemplate(
-            baseTemplate = baseTemplate,
-            recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model),
-            attributes = MapElement(command.model)
-        )
+        val template = if (command.isTemplateRefFinal) {
+            baseTemplate
+        } else {
+            resolveMultiTemplate(
+                baseTemplate = baseTemplate,
+                recordEcosTypeId = getRecordEcosTypeByIncomeModel(command.model),
+                attributes = MapElement(command.model)
+            )
+        }
 
         val requiredModel = mutableMapOf<String, String>()
 
+        command.templatesPath.forEach { ref ->
+            getTemplateMetaById(ref.getLocalId()).model?.let { requiredModel.putAll(it) }
+        }
         baseTemplate.model?.let { requiredModel.putAll(it) }
         if (!Objects.equals(baseTemplate.id, template.id)) {
             template.model?.let { requiredModel.putAll(it) }
@@ -154,16 +163,16 @@ class UnsafeSendNotificationCommandExecutor(
         return true
     }
 
-    private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any>): String {
-        val value = incomeFilledModel[ECOS_TYPE_ID_KEY] ?: return ""
+    private fun getRecordEcosTypeByIncomeModel(incomeFilledModel: Map<String, Any?>): String {
+        val value = incomeFilledModel[ECOS_NEW_TYPE_ID_KEY] ?: incomeFilledModel[ECOS_LEGACY_TYPE_ID_KEY] ?: return ""
         return value.toString()
     }
 
     private fun resolveCompletedModel(
         requiredModel: Map<String, String>,
-        incomeFilledModel: Map<String, Any>
-    ): Map<String, Any> {
-        val filledModel = mutableMapOf<String, Any>()
+        incomeFilledModel: Map<String, Any?>
+    ): Map<String, Any?> {
+        val filledModel = mutableMapOf<String, Any?>()
         val prefilledModel = incomeFilledModel.toMutableMap()
 
         requiredModel.forEach { (attrKey, attrValue) ->
@@ -183,6 +192,6 @@ class UnsafeSendNotificationCommandExecutor(
     data class TemplateModelData(
         val baseTemplateMeta: NotificationTemplateWithMeta? = null,
         val templateMeta: NotificationTemplateWithMeta? = null,
-        val filledModel: Map<String, Any> = emptyMap()
+        val filledModel: Map<String, Any?> = emptyMap()
     )
 }

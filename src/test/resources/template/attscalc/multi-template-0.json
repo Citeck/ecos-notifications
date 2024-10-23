@@ -1,0 +1,27 @@
+{
+  "id": "multi-template-0",
+  "model": {
+    "multi": "text|presuf('','-multi-att')"
+  },
+  "multiTemplateConfig": [
+    {
+      "template": "notifications/template@sub-template-0",
+      "type": "emodel/type@type-0",
+      "condition": {}
+    },
+    {
+      "template": "notifications/template@sub-template-conditional-0",
+      "type": "emodel/type@type-1",
+      "condition": {
+        "t": "eq",
+        "a": "text",
+        "v": "conditional-0"
+      }
+    },
+    {
+      "template": "notifications/template@sub-template-1",
+      "type": "emodel/type@type-1",
+      "condition": {}
+    }
+  ]
+}
