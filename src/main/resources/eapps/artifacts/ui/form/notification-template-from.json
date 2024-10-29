@@ -196,7 +196,7 @@
         "layoutFixed": false,
         "enableRowGroups": false,
         "multiple": true,
-        "reorder": false,
+        "reorder": true,
         "defaultValue": [
           {
             "textField": "",
@@ -423,15 +423,88 @@
         ]
       },
       {
-        "type": "button",
-        "key": "submit",
-        "disableOnInvalid": true,
-        "theme": "primary",
-        "input": true,
-        "conditional": {
-          "show": null,
-          "when": null
-        }
+        "columns": [
+          {
+            "type": "column",
+            "md": 3,
+            "index": 0,
+            "components": [
+              {
+                "label": {
+                  "ru": "Отменить",
+                  "en": "Cancel"
+                },
+                "key": "submit3",
+                "action": "event",
+                "state": "",
+                "showValidations": false,
+                "event": "cancel",
+                "block": true,
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "button",
+                "input": true
+              }
+            ],
+            "key": "column",
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "input": false
+          },
+          {
+            "type": "column",
+            "index": 1,
+            "components": [],
+            "key": "column",
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "input": false,
+            "md": 3
+          },
+          {
+            "components": [],
+            "type": "column",
+            "md": 3,
+            "key": "column",
+            "index": 2,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "input": false
+          },
+          {
+            "md": 3,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 3,
+            "components": [
+              {
+                "label": {
+                  "ru": "Сохранить",
+                  "en": "Submit"
+                },
+                "key": "submit",
+                "state": "",
+                "theme": "primary",
+                "block": true,
+                "disableOnInvalid": true,
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "button",
+                "input": true
+              }
+            ]
+          }
+        ],
+        "key": "columns2",
+        "type": "columns",
+        "input": false
       }
     ],
     "formId": "notification-template"
