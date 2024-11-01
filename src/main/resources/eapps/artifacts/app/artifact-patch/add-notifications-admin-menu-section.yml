@@ -60,8 +60,8 @@ config:
               recordRef: uiserv/journal@notification-files
           - id: notifications-notifications-sender
             label:
-              en: Sender
-              ru: Отправитель
+              en: Senders
+              ru: Отправители
             icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
