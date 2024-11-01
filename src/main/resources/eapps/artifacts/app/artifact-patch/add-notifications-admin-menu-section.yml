@@ -1,0 +1,69 @@
+---
+id: add-notifications-admin-menu-section
+name:
+  ru: Добавить раздел администратора notifications
+  en: Add notifications admin section
+
+target: 'ui/menu$admin-workspace-menu'
+system: true
+order: 400
+
+type: json
+config:
+  operations:
+    - op: add
+      path: '$.subMenu.left.items'
+      value:
+        id: notifications-section
+        label:
+          en: Configuring notifications
+          ru: Конфигурация уведомлений
+        hidden: false
+        type: SECTION
+        config: { }
+        items:
+          - id: notifications-notification
+            label:
+              en: Notifications
+              ru: Уведомления
+            icon: ui/icon@i-leftmenu-tools
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@notification
+          - id: notifications-bulk-mail
+            label:
+              ru: Массовая рассылка
+              en: Bulk mail
+            icon: ui/icon@i-leftmenu-tools
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@bulk-mail
+          - id: notifications-notification-templates
+            label:
+              ru: Шаблоны уведомлений
+              en: Notification templates
+            icon: ui/icon@i-leftmenu-tools
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@notification-templates
+          - id: notifications-notification-files
+            label:
+              ru: Файлы уведомлений
+              en: Notification files
+            icon: ui/icon@i-leftmenu-tools
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@notification-files
+          - id: notifications-notifications-sender
+            label:
+              en: Sender
+              ru: Отправитель
+            icon: ui/icon@i-leftmenu-tools
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@notifications-sender
