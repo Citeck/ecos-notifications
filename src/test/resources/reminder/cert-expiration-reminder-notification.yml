@@ -1,0 +1,15 @@
+---
+id: cert-expiration-reminder-notification
+name:
+  ru: Тест напоминания о сроке действия сертификата
+  en: Test certificate expiration reminder
+enabled: true
+reminderType: CERTIFICATE_EXPIRATION
+certificates:
+    - emodel/secret@cert-reminder-notification-test
+notificationTemplate: notifications/template@default-certificate-expiration-template
+reminderThresholdDurations:
+    - "1d"
+recipients:
+  - emodel/person@ivan.petrov
+

@@ -1,19 +1,20 @@
-package ru.citeck.ecos.notifications.service.providers
+package ru.citeck.ecos.notifications.service.senders
 
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.domain.subscribe.service.ActionService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 
 @Component
-class FirebaseNotificationProvider(
+class FirebaseNotificationSender(
     private val ecosFirebaseService: EcosFirebaseService,
     private val actionService: ActionService
-) : NotificationProvider, NotificationSender<Unit> {
+) : NotificationSender<Unit> {
 
     private val log = KotlinLogging.logger {}
 
@@ -22,24 +23,20 @@ class FirebaseNotificationProvider(
     }
 
     override fun getSenderType(): String {
-        return "default"
+        return NotificationSenderType.DEFAULT.type
     }
 
     override fun getNotificationType(): NotificationType {
         return NotificationType.FIREBASE_NOTIFICATION
     }
 
-    override fun sendNotification(notification: FitNotification, config: Unit): NotificationSenderSendStatus {
+    override fun sendNotification(notification: FitNotification, config: Unit): NotificationSenderResult {
         send(notification)
-        return NotificationSenderSendStatus.SENT
+        return NotificationSenderResult(NotificationSenderSendStatus.SENT, emptyMap())
     }
 
-    override fun getType(): NotificationType {
-        return NotificationType.FIREBASE_NOTIFICATION
-    }
-
-    override fun send(fitNotification: FitNotification) {
-        log.debug("Send firebase message notification: $fitNotification")
+    private fun send(fitNotification: FitNotification) {
+        log.debug { "Send firebase message notification: $fitNotification" }
 
         val registrationToken = resolveRegistrationToken(fitNotification)
 
@@ -60,11 +57,13 @@ class FirebaseNotificationProvider(
                     response.message + ". firebaseCode: ${response.firebaseErrorCode}"
                 )
             }
+
             FirebaseMessageResultCode.ERROR -> {
                 throw EcosFirebaseNotificationException(
                     response.message + ". firebaseCode: ${response.firebaseErrorCode}"
                 )
             }
+
             else -> log.debug("Success sending firebase message: ${response.message}")
         }
     }
@@ -111,7 +110,7 @@ class FirebaseNotificationProvider(
                 }
             }
         } catch (e: Exception) {
-            log.error("Failed to delete subscription action by id. Data:\n" + fitNotification.data, e)
+            log.error(e) { "Failed to delete subscription action by id. Data:\n" + fitNotification.data }
         }
     }
 }

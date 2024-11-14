@@ -10,15 +10,15 @@ import ru.citeck.ecos.notifications.domain.bulkmail.converter.isAuthorityGroupRe
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
+import ru.citeck.ecos.webapp.api.authority.EcosAuthoritiesApi
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.regex.Pattern
 
-private const val ALFRESCO_APP = "alfresco"
-private const val AUTHORITY_SRC_ID = "authority"
-private const val PEOPLE_SRC_ID = "people"
+private const val AUTHORITY_GROUP_SRC_ID = "authority-group"
+private const val PERSON_SRC_ID = "person"
 private const val WORKSPACE_PREFIX = "workspace://"
 
 /**
@@ -26,7 +26,8 @@ private const val WORKSPACE_PREFIX = "workspace://"
  */
 @Component
 class RecipientsFinder(
-    private val recordsService: RecordsService
+    private val recordsService: RecordsService,
+    private val ecosAuthoritiesApi: EcosAuthoritiesApi
 ) {
 
     private val emailPattern = Pattern.compile("^.+@.+\\..+$")
@@ -53,12 +54,12 @@ class RecipientsFinder(
     }
 
     private fun getRecipientsFromRefs(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
-        val convertedRefs = convertRecipientsToFullFilledRefs(bulkMail.recipientsData.refs)
+        val authorityRefs = convertRecipientsToFullFilledRefs(bulkMail)
 
-        val allUsers = mutableSetOf<RecordRef>()
-        val groups = mutableListOf<RecordRef>()
+        val allUsers = mutableSetOf<EntityRef>()
+        val groups = mutableListOf<EntityRef>()
 
-        convertedRefs.forEach {
+        authorityRefs.forEach {
             if (it.isAuthorityGroupRef()) groups.add(it) else allUsers.add(it)
         }
 
@@ -71,33 +72,15 @@ class RecipientsFinder(
             .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
     }
 
-    /**
-     * Select orgstruct component send to backend userName or groupName. We need convert it to full recordRef format.
-     * TODO: migrate to model (microservice) people/groups after completion of development.
-     */
-    private fun convertRecipientsToFullFilledRefs(recipients: List<RecordRef>): List<RecordRef> {
-        return recipients.map {
-            if (it.id.startsWith(WORKSPACE_PREFIX)) {
-                throw IllegalArgumentException("NodeRef format does not support. Recipient: $it")
-            }
+    private fun convertRecipientsToFullFilledRefs(bulkMail: BulkMailDto): List<EntityRef> {
+        val authorityIds = bulkMail.recipientsData.refs
+            .filter { it.getLocalId().startsWith(WORKSPACE_PREFIX).not() }
 
-            var fullFilledRef = it
-
-            if (fullFilledRef.appName.isBlank()) {
-                fullFilledRef = fullFilledRef.addAppName(ALFRESCO_APP)
-            }
-
-            if (fullFilledRef.sourceId.isBlank()) {
-                val sourceId = if (fullFilledRef.isAuthorityGroupRef()) AUTHORITY_SRC_ID else PEOPLE_SRC_ID
-                fullFilledRef = fullFilledRef.withSourceId(sourceId)
-            }
-
-            fullFilledRef
-        }
+        return ecosAuthoritiesApi.getAuthorityRefs(authorityIds)
     }
 
     private fun getRecipientsFromUserInput(bulkMail: BulkMailDto): List<BulkMailRecipientDto> {
-        val userRefs = mutableListOf<RecordRef>()
+        val userRefs = mutableListOf<EntityRef>()
         val emails = mutableListOf<String>()
 
         Splitter.on(CharMatcher.anyOf(",;\n "))
@@ -110,7 +93,7 @@ class RecipientsFinder(
                 if (isEmail) {
                     emails.add(it)
                 } else {
-                    userRefs.add(RecordRef.create("alfresco", "people", it))
+                    userRefs.add(ecosAuthoritiesApi.getAuthorityRef(it))
                 }
             }
 
@@ -150,7 +133,7 @@ class RecipientsFinder(
                 .build()
 
             val found = recordsService.queryOne(query, recipientsAttribute).asList(RecipientInfo::class.java)
-                .filter { it.address?.isNotBlank() ?: false }
+                .filter { it.address?.isNotBlank() == true }
                 .map { BulkMailRecipientDto.from(it, bulkMail.recordRef) }
 
             result.addAll(found)
@@ -171,12 +154,12 @@ data class UserInfo(
     var disp: String? = "",
 
     @AttName(".id")
-    var record: RecordRef? = RecordRef.EMPTY
+    var record: EntityRef? = EntityRef.EMPTY
 )
 
 data class GroupInfo(
     @AttName("containedUsers")
-    val containedUsers: List<RecordRef> = emptyList()
+    val containedUsers: List<EntityRef> = emptyList()
 )
 
 data class RecipientInfo(
@@ -187,6 +170,6 @@ data class RecipientInfo(
     var disp: String? = "",
 
     @AttName("record")
-    var record: RecordRef? = RecordRef.EMPTY
+    var record: EntityRef? = EntityRef.EMPTY
 
 )

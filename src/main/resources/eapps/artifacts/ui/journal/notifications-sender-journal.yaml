@@ -9,7 +9,7 @@ actions:
   - uiserv/action@view-dashboard
   - uiserv/action@view-dashboard-in-background
   - uiserv/action@ecos-module-download
-  - uiserv/action@edit-json
+  - uiserv/action@edit
   - uiserv/action@delete
 
 columns:

@@ -6,7 +6,10 @@ spring:
     password: asdF1!333
     properties:
       mail:
+        protocol: smtp
+        tls: true
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true

@@ -11,6 +11,9 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientRepository
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
@@ -23,7 +26,8 @@ import javax.annotation.PostConstruct
 class BulkMailDao(
     private val bulkMailRepository: BulkMailRepository,
     private val bulkMailRecipientRepository: BulkMailRecipientRepository,
-    private val jpaSearchConverterFactory: JpaSearchConverterFactory
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory,
+    private val notificationDao: NotificationDao
 ) {
 
     private lateinit var searchConv: JpaSearchConverter<BulkMailEntity>
@@ -37,7 +41,21 @@ class BulkMailDao(
         val entity = dto.toEntity()
 
         bulkMailRecipientRepository.deleteAllByBulkMail(entity)
+        cancelReferredNotifications(dto)
         bulkMailRepository.delete(entity)
+    }
+
+    private fun cancelReferredNotifications(bulkMail: BulkMailDto) {
+        val waitToDispatchNotifications = notificationDao.findNotificationForBulkMail(
+            bulkMail.recordRef.toString(),
+            NotificationState.WAIT_FOR_DISPATCH
+        )
+
+        val cancelledNotifications = waitToDispatchNotifications.map { dto ->
+            dto.copy(state = NotificationState.CANCELLED)
+        }
+
+        notificationDao.saveAll(cancelledNotifications)
     }
 
     fun save(dto: BulkMailDto): BulkMailDto {
@@ -87,6 +105,11 @@ class BulkMailDao(
         return if (found.isPresent) {
             found.get().toDto()
         } else null
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllByExtIds(extIds: List<String>): List<BulkMailDto> {
+        return bulkMailRepository.findAllByExtIdIsIn(extIds).map { it.toDto() }
     }
 
     @Transactional(readOnly = true)

@@ -11,6 +11,10 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import java.nio.charset.Charset
 import javax.mail.internet.MimeMultipart
 
+const val RECIPIENT_EMAIL = "some-recipient@gmail.com"
+const val TEXT_TXT_FILENAME = "test.txt"
+const val TEXT_TXT_EXT = "txt"
+
 fun loadAllTemplates(location: String): List<NotificationTemplateDto> {
     val root = ResourceUtils.getFile("${ResourceUtils.CLASSPATH_URL_PREFIX}$location")
     val result = ArrayList<NotificationTemplateDto>()
@@ -21,7 +25,7 @@ fun loadAllTemplates(location: String): List<NotificationTemplateDto> {
     return result
 }
 
-fun stringJsonFromResource(path: String): String {
+fun stringFromResource(path: String): String {
     val createTypeResource = ClassPathResource(path)
     return StreamUtils.copyToString(createTypeResource.inputStream, Charset.defaultCharset())
 }
@@ -46,12 +50,4 @@ fun hasAttachment(
         }
     }
     return false
-}
-
-class TestUtils {
-    companion object {
-        const val RECIPIENT_EMAIL = "some-recipient@gmail.com"
-        const val TEXT_TXT_FILENAME = "test.txt"
-        const val TEXT_TXT_EXT = "txt"
-    }
 }

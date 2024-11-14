@@ -10,5 +10,7 @@ interface BulkMailRepository :
 
     fun findOneByExtId(extId: String): Optional<BulkMailEntity>
 
+    fun findAllByExtIdIsIn(extIds: List<String>): List<BulkMailEntity>
+
     fun findAllByStatusIn(statuses: List<String>): List<BulkMailEntity>
 }

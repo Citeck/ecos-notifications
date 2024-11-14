@@ -66,7 +66,7 @@ class FirebaseNotificationProcessorTest {
         localAppService.deployLocalArtifacts()
 
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/firebase/test-firebase-message-template.json"),
+            stringFromResource("template/firebase/test-firebase-message-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 

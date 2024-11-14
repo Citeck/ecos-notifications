@@ -20,8 +20,8 @@ import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
-import ru.citeck.ecos.notifications.stringJsonFromResource
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.notifications.stringFromResource
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -41,8 +41,8 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
     private val commandWithTitle = fun(title: String): SendNotificationCommand {
         return SendNotificationCommand(
             id = UUID.randomUUID().toString(),
-            record = RecordRef.EMPTY,
-            templateRef = RecordRef.EMPTY,
+            record = EntityRef.EMPTY,
+            templateRef = EntityRef.EMPTY,
             title = title,
             body = "its body",
             type = NotificationType.EMAIL_NOTIFICATION,
@@ -56,7 +56,7 @@ class BlockedNotificationsSendersTest : BaseMailTest() {
     @BeforeEach
     fun setUp() {
         val sender = Json.mapper.convert(
-            stringJsonFromResource("sender/block_emails_sender.json"),
+            stringFromResource("sender/block_emails_sender.json"),
             NotificationsSenderDto::class.java
         )!!
         notificationsSenderService.save(sender)

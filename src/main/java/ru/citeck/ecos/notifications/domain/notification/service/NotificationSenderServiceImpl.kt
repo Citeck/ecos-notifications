@@ -24,6 +24,7 @@ import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records2.predicate.model.Predicates
+import ru.citeck.ecos.records2.predicate.model.VoidPredicate
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -88,7 +89,7 @@ class NotificationSenderServiceImpl(
                 }
             }
 
-            if (sender.condition != null) {
+            if (sender.condition != null && sender.condition != VoidPredicate.INSTANCE) {
                 if (notification.model.isEmpty()) {
                     log.debug {
                         "Sender '${sender.id}' does not fit for notification " +
@@ -121,7 +122,8 @@ class NotificationSenderServiceImpl(
                 rec = notification.record,
                 notificationType = notification.type,
                 notification = fitNotification,
-                model = notification.model
+                model = notification.model,
+                sendingMeta = emptyMap()
             )
 
             for (senderBean in senderBeanList) {
@@ -137,13 +139,14 @@ class NotificationSenderServiceImpl(
                 )
 
                 val result = senderBean.sendNotification(fitNotification, config)
+                val eventDtoWithResultMeta = notificationEventDto.copy(sendingMeta = result.meta)
 
-                when (result) {
-                    SENT -> notificationEventService.emitSendSuccess(notificationEventDto)
-                    BLOCKED -> notificationEventService.emitSendBlocked(notificationEventDto)
+                when (result.status) {
+                    SENT -> notificationEventService.emitSendSuccess(eventDtoWithResultMeta)
+                    BLOCKED -> notificationEventService.emitSendBlocked(eventDtoWithResultMeta)
                     SKIPPED -> continue
                 }
-                return result
+                return result.status
             }
         }
 

@@ -1,0 +1,18 @@
+{
+  "id": "default_email_sender_with_cert_sign",
+  "notificationType": "EMAIL_NOTIFICATION",
+  "condition": {
+    "t": "eq",
+    "a": "certSign",
+    "v": "true"
+  },
+  "enabled": true,
+  "order": 1.0,
+  "senderType": "default",
+  "senderConfig": {
+    "certSignConfig": {
+      "enabled": true,
+      "certificate": "email-sign-cert"
+    }
+  }
+}

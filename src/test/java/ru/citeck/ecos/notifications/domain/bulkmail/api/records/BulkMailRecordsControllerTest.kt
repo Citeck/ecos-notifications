@@ -27,6 +27,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.notifications.stringJsonFromResource
 import ru.citeck.ecos.notifications.web.rest.TestUtil
 import ru.citeck.ecos.records2.RecordRef
@@ -47,13 +48,13 @@ import java.util.*
 class BulkMailRecordsControllerTest {
 
     companion object {
-        private val testTemplateRef = RecordRef.create("notifications", "template", "test-template")
-        private val docRef = RecordRef.valueOf("doc@test-document")
+        private val testTemplateRef = EntityRef.create("notifications", "template", "test-template")
+        private val docRef = EntityRef.valueOf("doc@test-document")
 
-        private val harryRef = RecordRef.valueOf("alfresco/people@harry")
-        private val severusRef = RecordRef.valueOf("alfresco/people@severus")
+        private val harryRef = EntityRef.valueOf("alfresco/people@harry")
+        private val severusRef = EntityRef.valueOf("alfresco/people@severus")
 
-        private val departmentGroupRef = RecordRef.valueOf("alfresco/authority@GROUP_department")
+        private val departmentGroupRef = EntityRef.valueOf("alfresco/authority@GROUP_department")
 
         private val mapper: ObjectMapper = ObjectMapper()
     }
@@ -80,15 +81,15 @@ class BulkMailRecordsControllerTest {
             .build()
 
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
+            stringFromResource("template/test-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create(docRef.sourceId)
-                .addRecord(docRef.id, DocDto())
+            RecordsDaoBuilder.create(docRef.getSourceId())
+                .addRecord(docRef.getLocalId(), DocDto())
                 .build()
         )
     }
@@ -156,7 +157,7 @@ class BulkMailRecordsControllerTest {
         assertThat(bulkMail.recipientsData).isEqualTo(
             BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("alfresco/ray@bradbury"),
+                    EntityRef.valueOf("alfresco/ray@bradbury"),
                     harryRef,
                     departmentGroupRef
                 ),
@@ -228,7 +229,7 @@ class BulkMailRecordsControllerTest {
         assertThat(bulkMail.recipientsData).isEqualTo(
             BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("alfresco/ray@bradbury"),
+                    EntityRef.valueOf("alfresco/ray@bradbury"),
                     harryRef
                 )
             )
@@ -245,8 +246,8 @@ class BulkMailRecordsControllerTest {
             name = "Bulk mail №123",
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("test@1"),
-                    RecordRef.valueOf("alfresco/test@2")
+                    EntityRef.valueOf("test@1"),
+                    EntityRef.valueOf("alfresco/test@2")
                 ),
                 fromUserInput = "galina@mail.ru,vasya@mail.ru",
                 custom = ObjectData.create(
@@ -366,8 +367,8 @@ class BulkMailRecordsControllerTest {
             id = null,
             recipientsData = BulkMailRecipientsDataDto(
                 refs = listOf(
-                    RecordRef.valueOf("test@1"),
-                    RecordRef.valueOf("alfresco/test@2")
+                    EntityRef.valueOf("test@1"),
+                    EntityRef.valueOf("alfresco/test@2")
                 )
             ),
             record = docRef,
@@ -467,8 +468,8 @@ class BulkMailRecordsControllerTest {
                 id = null,
                 recipientsData = BulkMailRecipientsDataDto(
                     refs = listOf(
-                        RecordRef.valueOf("test@1"),
-                        RecordRef.valueOf("alfresco/test@2")
+                        EntityRef.valueOf("test@1"),
+                        EntityRef.valueOf("alfresco/test@2")
                     )
                 ),
                 record = docRef,

@@ -35,6 +35,12 @@
       "config": {
         "journalId": "notifications-sender"
       }
+    },
+    {
+      "type": "JOURNAL",
+      "config": {
+        "journalId": "reminders"
+      }
     }
   ]
 }

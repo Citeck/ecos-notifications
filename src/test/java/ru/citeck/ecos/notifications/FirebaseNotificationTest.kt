@@ -66,7 +66,7 @@ class FirebaseNotificationTest {
     @BeforeEach
     fun setUp() {
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/firebase/test-firebase-message-template.json"),
+            stringFromResource("template/firebase/test-firebase-message-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 

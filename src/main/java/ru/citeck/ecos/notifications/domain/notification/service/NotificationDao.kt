@@ -73,6 +73,21 @@ class NotificationDao(
     }
 
     @Transactional(readOnly = true)
+    fun findByRecord(recordRef: String): List<NotificationDto> {
+        return notificationRepository.findAllByRecord(recordRef).map { it.toDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun findNotificationForBulkMail(bulkMailRef: String): List<NotificationDto> {
+        return notificationRepository.findAllByBulkMailRef(bulkMailRef).map { it.toDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun findNotificationForBulkMail(bulkMailRef: String, state: NotificationState): List<NotificationDto> {
+        return notificationRepository.findByBulkMailRefAndStateIs(bulkMailRef, state).map { it.toDto() }
+    }
+
+    @Transactional(readOnly = true)
     fun getAll(max: Int, skip: Int, predicate: Predicate, sort: List<SortBy>): List<NotificationDto> {
         return searchConv.findAll(notificationRepository, predicate, max, skip, sort).map {
             it.toDto()

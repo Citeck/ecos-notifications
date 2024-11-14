@@ -53,7 +53,7 @@ class AwaitingNotificationDispatcherTest : BaseMailTest() {
     @BeforeEach
     fun setUp() {
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/awaiting/test-awaiting-notification-template.json"),
+            stringFromResource("template/awaiting/test-awaiting-notification-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
         notificationTemplateService.save(notificationTemplate)

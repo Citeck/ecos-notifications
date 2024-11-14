@@ -1,0 +1,95 @@
+---
+id: reminder
+name:
+  en: Reminder
+  ru: Напоминание
+
+system: true
+storageType: DEFAULT
+sourceId: notifications/reminder
+
+parentRef: emodel/type@ecos-vcs-object
+journalRef: uiserv/journal@reminders
+formRef: uiserv/form@reminder-form
+
+defaultCreateVariant: false
+
+createVariants:
+  - id: create-new-reminder
+    name: { ru: Создать напоминание, en: Create reminder}
+  - id: upload-sender
+    name: { ru: Загрузить напоминание, en: Upload reminder }
+    formRef: uiserv/form@ecos-module-upload
+
+actions:
+  - uiserv/action@edit
+  - uiserv/action@delete
+  - uiserv/action@view-dashboard
+  - uiserv/action@download-text-yml
+
+model:
+  attributes:
+    - id: name
+      name:
+        ru: Имя
+        en: Name
+      type: MLTEXT
+    - id: enabled
+      name:
+        ru: Включено
+        en: Enabled
+      type: BOOLEAN
+    - id: reminderType
+      name:
+        ru: Тип напоминания
+        en: Reminder type
+      mandatory: true
+      type: OPTIONS
+      config:
+        source: values
+        values:
+          - value: CERTIFICATE_EXPIRATION
+            label:
+              ru: Истечение срока действия сертификата
+              en: Certificate expiration
+#          - value: CERTIFICATE_REVOCATION
+#            label:
+#              ru: Отзыв сертификата
+#              en: Certificate revocation
+    - id: certificates
+      name:
+        ru: Сертификаты
+        en: Certificates
+      type: ASSOC
+      multiple: true
+      config:
+        typeRef: emodel/type@secret
+    - id: notificationTemplate
+      name:
+        ru: Шаблон уведомления
+        en: Notification
+      type: ASSOC
+      config:
+        typeRef: emodel/type@notification-template
+    - id: recipients
+      name:
+        ru: Получатели
+        en: Recipients
+      type: ASSOC
+      multiple: true
+      config:
+        typeRef: emodel/type@authority
+    - id: reminderThresholdDurations
+      name:
+        ru: Пороговые значения напоминания
+        en: Reminder threshold durations
+      type: TEXT
+      multiple: true
+    - id: deferredBulkMails
+      name:
+        ru: Отложенные рассылки
+        en: Deferred bulk mails
+      type: ASSOC
+      multiple: true
+      config:
+        typeRef: emodel/type@bulk-mail

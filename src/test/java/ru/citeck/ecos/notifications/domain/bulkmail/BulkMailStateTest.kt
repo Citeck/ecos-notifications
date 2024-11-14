@@ -19,11 +19,11 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailStatusSynchr
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.stringJsonFromResource
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Duration
 import java.time.Instant
@@ -53,10 +53,10 @@ class BulkMailStateTest : BaseMailTest() {
 
     companion object {
 
-        private val harryRef = RecordRef.valueOf("alfresco/user@harry")
-        private val severusRef = RecordRef.valueOf("alfresco/user@severus")
-        private val nimbusRef = RecordRef.valueOf("broom@nimbus")
-        private val templateRef = RecordRef.valueOf(
+        private val harryRef = EntityRef.valueOf("emodel/person@harry")
+        private val severusRef = EntityRef.valueOf("emodel/person@severus")
+        private val nimbusRef = EntityRef.valueOf("broom@nimbus")
+        private val templateRef = EntityRef.valueOf(
             "notifications/template@bulk-notification-template"
         )
 
@@ -67,29 +67,29 @@ class BulkMailStateTest : BaseMailTest() {
     fun setUp() {
 
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/bulk/bulk-notification-template.json"),
+            stringFromResource("template/bulk/bulk-notification-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/user")
+            RecordsDaoBuilder.create("emodel/person")
                 .addRecord(
-                    harryRef.id,
+                    harryRef.getLocalId(),
                     PotterRecord()
                 )
                 .addRecord(
-                    severusRef.id,
+                    severusRef.getLocalId(),
                     SnapeRecord()
                 )
                 .build()
         )
 
         recordsService.register(
-            RecordsDaoBuilder.create(nimbusRef.sourceId)
+            RecordsDaoBuilder.create(nimbusRef.getSourceId())
                 .addRecord(
-                    nimbusRef.id,
+                    nimbusRef.getLocalId(),
                     nimbusRecord
                 )
                 .build()

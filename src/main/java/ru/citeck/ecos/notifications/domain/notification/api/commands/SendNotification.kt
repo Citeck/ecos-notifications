@@ -21,8 +21,6 @@ import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.LinkedHashSet
 
 @Service
 class SendNotificationCommandExecutor(
@@ -139,7 +137,8 @@ class SendNotificationCommandExecutor(
             notificationType = command.type,
             notification = lyingFitNotification,
             model = command.model,
-            error = errorInfo
+            error = errorInfo,
+            sendingMeta = emptyMap()
         )
     }
 

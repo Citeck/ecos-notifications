@@ -1,14 +1,14 @@
 {
   "id": "notifications-sender-form",
-  "system": true,
   "formKey": "notifications-sender-form",
   "title": {
     "en": "Notifications sender"
   },
   "description": {},
-  "customModule": null,
+  "customModule": "",
   "typeRef": "emodel/type@notifications-sender",
   "width": "m",
+  "system": true,
   "i18n": {},
   "definition": {
     "components": [
@@ -185,12 +185,15 @@
           "ru": "condition"
         },
         "key": "condition",
+        "editor": "ace",
+        "wysiwyg": "",
         "defaultValue": "",
         "refreshOn": [],
         "optionalWhenDisabled": false,
         "properties": {
-          "attribute": "condition"
+          "dataType": "json"
         },
+        "as": "json",
         "type": "textarea",
         "input": true
       },
@@ -199,13 +202,16 @@
           "ru": "senderConfig"
         },
         "key": "senderConfig",
+        "editor": "ace",
+        "wysiwyg": "",
         "defaultValue": "",
         "refreshOn": [],
         "optionalWhenDisabled": false,
         "properties": {
-          "attribute": "senderConfig"
+          "dataType": "json"
         },
         "rows": 5,
+        "as": "json",
         "type": "textarea",
         "input": true
       },
@@ -235,5 +241,6 @@
       }
     ]
   },
-  "attributes": {}
+  "attributes": {},
+  "notExists": false
 }

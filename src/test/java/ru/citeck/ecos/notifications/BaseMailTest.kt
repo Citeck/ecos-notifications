@@ -46,7 +46,7 @@ open class BaseMailTest {
         templateModel["age"] = "25"
 
         notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
+            stringFromResource("template/test-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 

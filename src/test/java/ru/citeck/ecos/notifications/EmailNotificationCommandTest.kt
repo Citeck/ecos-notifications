@@ -28,25 +28,25 @@ class EmailNotificationCommandTest : BaseMailTest() {
     @BeforeEach
     fun setup() {
         val multiTemplate = Json.mapper.convert(
-            stringJsonFromResource(
+            stringFromResource(
                 "template/multi-template/test-multi-template.json"
             ),
             NotificationTemplateWithMeta::class.java
         )!!
         val multiType1Template = Json.mapper.convert(
-            stringJsonFromResource(
+            stringFromResource(
                 "template/multi-template/test-type-1-template.json"
             ),
             NotificationTemplateWithMeta::class.java
         )!!
         val multiType2Template = Json.mapper.convert(
-            stringJsonFromResource(
+            stringFromResource(
                 "template/multi-template/test-type-2-template.json"
             ),
             NotificationTemplateWithMeta::class.java
         )!!
         val multiType3Template = Json.mapper.convert(
-            stringJsonFromResource(
+            stringFromResource(
                 "template/multi-template/test-multi-template-with-condition.json"
             ),
             NotificationTemplateWithMeta::class.java
