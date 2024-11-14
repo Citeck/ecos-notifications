@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.notification.api.records
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commands.CommandsService
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthRole
@@ -188,14 +189,8 @@ class NotificationRecords(
             get() = moduleId
 
         @get:AttName("notificationCommandPayload")
-        val payload: String
-            get() = let {
-                data?.let { bytes ->
-                    return mapper.toPrettyString(String(bytes)) ?: ""
-                }
-
-                return ""
-            }
+        val payload: ObjectData
+            get() = ObjectData.create(data)
 
         @get:AttName("sentNotification")
         val sentNotification: String
@@ -225,6 +220,10 @@ class NotificationRecords(
         val filledModel: Map<String, Any>
             get() = let {
 
+                if (template.isEmpty()) {
+                    return@let emptyMap()
+                }
+
                 val baseTemplate = notificationTemplateService.findById(template.getLocalId()).orElseThrow {
                     NotificationException("Template with id: <$id> not found}")
                 }
@@ -234,7 +233,7 @@ class NotificationRecords(
                 val baseModel = baseTemplate.model
                 val notificationCommandModel = notificationCommand.model
 
-                if (baseModel.isNullOrEmpty() || notificationCommandModel.isNullOrEmpty()) {
+                if (baseModel.isNullOrEmpty() || notificationCommandModel.isEmpty()) {
                     return emptyMap()
                 }
 

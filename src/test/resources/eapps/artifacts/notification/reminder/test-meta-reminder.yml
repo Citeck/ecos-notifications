@@ -1,0 +1,17 @@
+---
+id: test-meta-reminder
+name:
+  ru: Тестовое напоминание мета
+  en: Test reminder meta
+enabled: false
+reminderType: CERTIFICATE_EXPIRATION
+certificates:
+    - emodel/secret@certificate-test-expiration-meta
+    - emodel/secret@certificate-test-expiration-meta-2
+notificationTemplate: notifications/template@cert-expiration-test-meta
+reminderThresholdDurations:
+  - "15d"
+  - "5d"
+recipients:
+  - emodel/person@user1
+  - emodel/person@user2

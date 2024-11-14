@@ -16,7 +16,7 @@ import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import ru.citeck.ecos.notifications.stringJsonFromResource
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
@@ -37,7 +37,7 @@ class NotificationTemplateConverterTest {
     @BeforeEach
     fun setUp() {
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/converter/converter-test-template.json"),
+            stringFromResource("template/converter/converter-test-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 

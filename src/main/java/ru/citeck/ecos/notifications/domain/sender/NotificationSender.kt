@@ -8,7 +8,7 @@ import ru.citeck.ecos.notifications.lib.NotificationType
  * @param T sender configuration
  */
 interface NotificationSender<T> {
-    fun sendNotification(notification: FitNotification, config: T): NotificationSenderSendStatus
+    fun sendNotification(notification: FitNotification, config: T): NotificationSenderResult
 
     fun getNotificationType(): NotificationType
 
@@ -19,3 +19,8 @@ interface NotificationSender<T> {
 
     fun getConfigClass(): Class<T>
 }
+
+data class NotificationSenderResult(
+    val status: NotificationSenderSendStatus,
+    val meta: Map<String, Any> = emptyMap()
+)

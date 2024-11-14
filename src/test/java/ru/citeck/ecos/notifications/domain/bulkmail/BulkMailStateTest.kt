@@ -19,7 +19,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailStatusSynchr
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.stringJsonFromResource
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -53,8 +53,8 @@ class BulkMailStateTest : BaseMailTest() {
 
     companion object {
 
-        private val harryRef = EntityRef.valueOf("alfresco/user@harry")
-        private val severusRef = EntityRef.valueOf("alfresco/user@severus")
+        private val harryRef = EntityRef.valueOf("emodel/person@harry")
+        private val severusRef = EntityRef.valueOf("emodel/person@severus")
         private val nimbusRef = EntityRef.valueOf("broom@nimbus")
         private val templateRef = EntityRef.valueOf(
             "notifications/template@bulk-notification-template"
@@ -67,14 +67,14 @@ class BulkMailStateTest : BaseMailTest() {
     fun setUp() {
 
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/bulk/bulk-notification-template.json"),
+            stringFromResource("template/bulk/bulk-notification-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/user")
+            RecordsDaoBuilder.create("emodel/person")
                 .addRecord(
                     harryRef.getLocalId(),
                     PotterRecord()

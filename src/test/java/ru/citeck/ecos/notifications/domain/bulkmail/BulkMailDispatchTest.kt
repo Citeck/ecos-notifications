@@ -21,10 +21,13 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
+import ru.citeck.ecos.notifications.domain.notification.NotificationState
+import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitingNotificationDispatcher
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.stringJsonFromResource
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -42,6 +45,9 @@ import java.time.temporal.ChronoUnit
 class BulkMailDispatchTest : BaseMailTest() {
 
     @Autowired
+    private lateinit var notificationDao: NotificationDao
+
+    @Autowired
     private lateinit var bulkMailDao: BulkMailDao
 
     @Autowired
@@ -55,8 +61,8 @@ class BulkMailDispatchTest : BaseMailTest() {
 
     companion object {
 
-        private val harryRef = EntityRef.valueOf("alfresco/user@harry")
-        private val severusRef = EntityRef.valueOf("alfresco/user@severus")
+        private val harryRef = EntityRef.valueOf("emodel/person@harry")
+        private val severusRef = EntityRef.valueOf("emodel/person@severus")
         private val nimbusRef = EntityRef.valueOf("broom@nimbus")
         private val templateRef = EntityRef.valueOf(
             "notifications/template@bulk-notification-template"
@@ -74,14 +80,14 @@ class BulkMailDispatchTest : BaseMailTest() {
     @BeforeEach
     fun setUp() {
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/bulk/bulk-notification-template.json"),
+            stringFromResource("template/bulk/bulk-notification-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 
         notificationTemplateService.save(notificationTemplate)
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/user")
+            RecordsDaoBuilder.create("emodel/person")
                 .addRecord(
                     harryRef.getLocalId(),
                     PotterRecord()
@@ -121,7 +127,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -156,7 +162,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -314,7 +320,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -355,7 +361,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -398,7 +404,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -433,7 +439,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -470,7 +476,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -516,7 +522,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -555,7 +561,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -594,7 +600,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -625,7 +631,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -659,13 +665,48 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
         val emails = greenMail.receivedMessages
 
         assertThat(emails.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `deleting bulk mail with delayed send should cancel deferred notification`() {
+        val bulkMail = bulkMailDao.save(
+            BulkMailDto(
+                id = null,
+                recipientsData = BulkMailRecipientsDataDto(
+                    refs = listOf(
+                        harryRef,
+                    )
+                ),
+                record = nimbusRef,
+                template = templateRef,
+                type = NotificationType.EMAIL_NOTIFICATION,
+                config = BulkMailConfigDto(
+                    delayedSend = Instant.now().plus(30, ChronoUnit.MINUTES)
+                )
+            )
+        )
+
+        bulkMailOperator.calculateRecipients(bulkMail.extId!!)
+        bulkMailOperator.dispatch(bulkMail.extId)
+
+        var createdNotifications = notificationDao.findNotificationForBulkMail(bulkMail.recordRef.toString())
+
+        assertThat(createdNotifications).hasSize(1)
+        assertThat(createdNotifications[0].state).isEqualTo(NotificationState.WAIT_FOR_DISPATCH)
+
+        bulkMailDao.remove(bulkMail)
+
+        createdNotifications = notificationDao.findNotificationForBulkMail(bulkMail.recordRef.toString())
+
+        assertThat(createdNotifications).hasSize(1)
+        assertThat(createdNotifications[0].state).isEqualTo(NotificationState.CANCELLED)
     }
 
     private fun assertEnTitle(msg: MimeMessage) {

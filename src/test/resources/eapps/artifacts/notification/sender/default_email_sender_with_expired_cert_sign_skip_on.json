@@ -1,0 +1,19 @@
+{
+  "id": "default_email_sender_with_expired_cert_sign_skip_on",
+  "notificationType": "EMAIL_NOTIFICATION",
+  "condition": {
+    "t": "eq",
+    "a": "certSignExpiredSkipOn",
+    "v": "true"
+  },
+  "enabled": true,
+  "order": 1.0,
+  "senderType": "default",
+  "senderConfig": {
+    "certSignConfig": {
+      "enabled": true,
+      "certificate": "email-sign-expired-cert",
+      "skipSignIfCertificateNotValid": true
+    }
+  }
+}

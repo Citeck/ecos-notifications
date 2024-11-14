@@ -5,6 +5,7 @@ enum class NotificationState {
     SENT,
     EXPIRED,
     WAIT_FOR_DISPATCH,
+    CANCELLED,
     BLOCKED,
     RECIPIENTS_NOT_FOUND
 }

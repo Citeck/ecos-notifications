@@ -13,6 +13,7 @@ import ru.citeck.ecos.notifications.lib.Notification
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records3.RecordsService
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.*
@@ -33,6 +34,7 @@ class NotificationConverter(
     }
 }
 
+// TODO: Get rid of this global variable
 private lateinit var converter: NotificationConverter
 
 fun NotificationEntity.toDto(): NotificationDto {
@@ -107,7 +109,7 @@ fun Notification.toDtoWithState(
 }
 
 val BulkMailDto.recordRef: EntityRef
-    get() = EntityRef.create("notifications", BulkMailRecords.ID, extId)
+    get() = EntityRef.create(AppName.NOTIFICATIONS, BulkMailRecords.ID, extId)
 
 fun SendNotificationResult.toNotificationState(): NotificationState {
     if (this.result.isEmpty()) {

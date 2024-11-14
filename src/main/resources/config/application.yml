@@ -6,6 +6,11 @@ ecos:
         url: jdbc:postgresql://localhost:14523/ecos_notifications
         username: notifications
         password: notificationspassword
+      main-xa-aware:
+        url: ${ecos.webapp.dataSources.main.url}
+        username: ${ecos.webapp.dataSources.main.username}
+        password: ${ecos.webapp.dataSources.main.password}
+        xa: true
   x509:
     keys:
       application:

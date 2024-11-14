@@ -31,4 +31,10 @@ interface NotificationRepository :
     fun getNotificationStateSummaryForBulkMail(
         @Param("bulkMailRef") bulkMailRef: String
     ): List<BulkNotificationStateSummaryProjection>
+
+    fun findAllByBulkMailRef(bulkMailRef: String): List<NotificationEntity>
+
+    fun findByBulkMailRefAndStateIs(bulkMailRef: String, state: NotificationState): List<NotificationEntity>
+
+    fun findAllByRecord(recordRef: String): List<NotificationEntity>
 }

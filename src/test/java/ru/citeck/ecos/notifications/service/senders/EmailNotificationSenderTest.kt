@@ -1,4 +1,4 @@
-package ru.citeck.ecos.notifications.service.providers
+package ru.citeck.ecos.notifications.service.senders
 
 import jakarta.mail.Message
 import jakarta.mail.Session
@@ -10,8 +10,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mail.javamail.JavaMailSender
+import ru.citeck.ecos.ent.notifications.lib.email.sign.EmailSigner
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
@@ -20,9 +22,12 @@ import java.util.*
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])
-class EmailNotificationProviderTest {
+class EmailNotificationSenderTest {
 
-    private lateinit var notificationProvider: EmailNotificationProvider
+    @Autowired
+    private lateinit var emailSigner: EmailSigner
+
+    private lateinit var notificationProvider: EmailNotificationSender
     private val mailSenderMock: JavaMailSender = Mockito.mock(JavaMailSender::class.java)
     private val properties = ApplicationProperties()
 
@@ -40,7 +45,7 @@ class EmailNotificationProviderTest {
     private fun initProvider(emailProps: ApplicationProperties.Email?) {
         properties.email.setDataFromOther(emailProps)
         emails.clear()
-        notificationProvider = EmailNotificationProvider(mailSenderMock, properties)
+        notificationProvider = EmailNotificationSender(mailSenderMock, emailSigner, properties)
     }
 
     @Test
@@ -57,7 +62,7 @@ class EmailNotificationProviderTest {
             setOf("copy-to-0@email.ru", "copy-to-1@email.ru"),
             setOf("bcc-copy-to-0@email.ru", "bcc-copy-to-1@email.ru")
         )
-        notificationProvider.send(notification)
+        notificationProvider.sendNotification(notification)
         validateMessage(notification)
     }
 
@@ -77,7 +82,7 @@ class EmailNotificationProviderTest {
             setOf("bcc-copy-to-0@email.ru", "bcc-copy-to-1@email.ru")
         )
 
-        notificationProvider.send(notification)
+        notificationProvider.sendNotification(notification)
 
         val expectedNotification = notification.copy(from = props.from.fixed)
         validateMessage(expectedNotification)
@@ -108,7 +113,7 @@ class EmailNotificationProviderTest {
             setOf("bcc-copy-to-0@email.ru", "bcc-copy-to-1@email.ru")
         )
 
-        notificationProvider.send(notification)
+        notificationProvider.sendNotification(notification)
         validateMessage(notification)
 
         props.from.mapping.forEach {
@@ -118,7 +123,7 @@ class EmailNotificationProviderTest {
             val notificationWithMappingKey = notification.copy(from = it.key)
             val notificationWithMappingValue = notification.copy(from = it.value)
 
-            notificationProvider.send(notificationWithMappingKey)
+            notificationProvider.sendNotification(notificationWithMappingKey)
             validateMessage(notificationWithMappingValue)
         }
     }
@@ -140,7 +145,7 @@ class EmailNotificationProviderTest {
             "",
             mapOf("fileName.pdf" to dataSource)
         )
-        notificationProvider.send(notification)
+        notificationProvider.sendNotification(notification)
         validateMessage(notification)
     }
 

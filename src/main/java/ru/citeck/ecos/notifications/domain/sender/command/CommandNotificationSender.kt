@@ -7,8 +7,10 @@ import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.service.senders.NotificationSenderType
 
 /**
  * Send email notification to the command with type (config.commandType) at application (config.targetApp)
@@ -20,12 +22,11 @@ class CommandNotificationSender : NotificationSender<CommandSenderConfig> {
     private lateinit var commandsService: CommandsService
 
     companion object {
-        private const val SENDER_TYPE = "command"
         private val log = KotlinLogging.logger {}
     }
 
     override fun getSenderType(): String {
-        return SENDER_TYPE
+        return NotificationSenderType.COMMAND.type
     }
 
     override fun getNotificationType(): NotificationType {
@@ -39,7 +40,7 @@ class CommandNotificationSender : NotificationSender<CommandSenderConfig> {
     override fun sendNotification(
         notification: FitNotification,
         config: CommandSenderConfig
-    ): NotificationSenderSendStatus {
+    ): NotificationSenderResult {
         val result = commandsService.execute {
             targetApp = config.targetApp
             body = CmdFitNotification(notification)
@@ -50,10 +51,10 @@ class CommandNotificationSender : NotificationSender<CommandSenderConfig> {
             log.error("Command {} execution error: {}\n{}", config.commandType, it.message, it.stackTrace)
         }
 
-        val cmdResult = result.getResultAs(NotificationSenderSendStatus::class.java)
-
-        return cmdResult ?: throw NotificationException(
+        val cmdResult = result.getResultAs(NotificationSenderSendStatus::class.java) ?: throw NotificationException(
             "Failed to get notification send status from command '${config.commandType}' execution"
         )
+
+        return NotificationSenderResult(cmdResult, emptyMap())
     }
 }

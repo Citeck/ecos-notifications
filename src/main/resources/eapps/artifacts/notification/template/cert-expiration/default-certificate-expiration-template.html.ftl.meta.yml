@@ -1,0 +1,9 @@
+---
+id: default-certificate-expiration-template
+name: Стандартный шаблон уведомления о сроке действия сертификата
+notificationTitle:
+  ru: Уведомление о сроке действия сертификата
+model:
+  certName: "name"
+  certValidityTo: "certificateValidityTo"
+  doc_ref: "?id"

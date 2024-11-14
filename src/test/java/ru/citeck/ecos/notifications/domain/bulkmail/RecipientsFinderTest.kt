@@ -43,10 +43,10 @@ class RecipientsFinderTest {
     private lateinit var inMemConfigService: InMemConfigProvider
 
     companion object {
-        private val harryRef = EntityRef.valueOf("alfresco/people@harry")
-        private val severusRef = EntityRef.valueOf("alfresco/people@severus")
-        private val dobbyRef = EntityRef.valueOf("alfresco/people@dobby")
-        private val hogwartsRef = EntityRef.valueOf("alfresco/authority@GROUP_hogwarts")
+        private val harryRef = EntityRef.valueOf("emodel/person@harry")
+        private val severusRef = EntityRef.valueOf("emodel/person@severus")
+        private val dobbyRef = EntityRef.valueOf("emodel/person@dobby")
+        private val hogwartsRef = EntityRef.valueOf("emodel/authority-group@hogwarts")
 
         private val harryRecord = PotterRecord()
         private val severusRecord = SnapeRecord()
@@ -59,7 +59,7 @@ class RecipientsFinderTest {
         localAppService.deployLocalArtifacts()
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/people")
+            RecordsDaoBuilder.create("emodel/person")
                 .addRecord(
                     harryRef.getLocalId(),
                     harryRecord
@@ -76,7 +76,7 @@ class RecipientsFinderTest {
         )
 
         recordsService.register(
-            RecordsDaoBuilder.create("alfresco/authority")
+            RecordsDaoBuilder.create("emodel/authority-group")
                 .addRecord(
                     hogwartsRef.getLocalId(),
                     hogwartsRecord

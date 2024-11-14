@@ -50,8 +50,7 @@ class EmailNotificationTest : BaseMailTest() {
     private lateinit var rawNotification: RawNotification
 
     companion object {
-        const val DEFAULT_EMAIL_SENDER_ID = "default-email-sender"
-        const val RECIPIENT_EMAIL = TestUtils.RECIPIENT_EMAIL
+        private const val DEFAULT_EMAIL_SENDER_ID = "default-email-sender"
     }
 
     @BeforeEach
@@ -871,7 +870,7 @@ class EmailNotificationTest : BaseMailTest() {
     fun sendEmailThroughSenderWithCondition() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
-            stringJsonFromResource("sender/default_email_sender_with_condition.json"),
+            stringFromResource("sender/default_email_sender_with_condition.json"),
             NotificationsSenderDto::class.java
         )!!
 
@@ -886,7 +885,7 @@ class EmailNotificationTest : BaseMailTest() {
     fun sendEmailThroughSenderWithTemplates() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
-            stringJsonFromResource("sender/default_email_sender_with_template.json"),
+            stringFromResource("sender/default_email_sender_with_template.json"),
             NotificationsSenderDto::class.java
         )!!
 
@@ -901,7 +900,7 @@ class EmailNotificationTest : BaseMailTest() {
     fun sendEmailWithoutTemplate() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
-            stringJsonFromResource("sender/default_email_sender_with_template.json"),
+            stringFromResource("sender/default_email_sender_with_template.json"),
             NotificationsSenderDto::class.java
         )!!
 
@@ -924,7 +923,7 @@ class EmailNotificationTest : BaseMailTest() {
     fun sendEmailWithEmptyModel() {
         notificationsSenderService.delete(DEFAULT_EMAIL_SENDER_ID)
         val defaultSenderDto = Json.mapper.convert(
-            stringJsonFromResource("sender/default_email_sender_with_condition.json"),
+            stringFromResource("sender/default_email_sender_with_condition.json"),
             NotificationsSenderDto::class.java
         )!!
 
@@ -973,7 +972,7 @@ class EmailNotificationTest : BaseMailTest() {
     private fun String.saveTemplate(): NotificationTemplateWithMeta {
         return notificationTemplateService.save(
             Json.mapper.convert(
-                stringJsonFromResource(
+                stringFromResource(
                     this
                 ),
                 NotificationTemplateWithMeta::class.java

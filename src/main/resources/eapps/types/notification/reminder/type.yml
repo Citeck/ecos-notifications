@@ -1,0 +1,13 @@
+---
+modelVersion: "1.0"
+
+name:
+  ru: Напоминание
+  en: Reminder
+
+sourceId: "reminder"
+
+controller:
+  type: json
+  config:
+    format: yaml

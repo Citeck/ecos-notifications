@@ -1,0 +1,282 @@
+{
+  "id": "reminder-form",
+  "formKey": "",
+  "title": {
+    "en": "Reminder form"
+  },
+  "description": {},
+  "customModule": "",
+  "typeRef": "emodel/type@reminder",
+  "width": "",
+  "system": false,
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "scrollableContent": true,
+        "key": "panel2",
+        "type": "panel",
+        "input": false,
+        "components": [
+          {
+            "label": {
+              "ru": "Имя",
+              "en": "Name"
+            },
+            "key": "name",
+            "validate": {
+              "required": true
+            },
+            "defaultValue": "",
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "textfield",
+            "input": true,
+            "inputMasks": [
+              {}
+            ]
+          },
+          {
+            "label": {
+              "ru": "Включено",
+              "en": "Enabled"
+            },
+            "key": "enabled",
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "checkbox",
+            "input": true,
+            "defaultValue": true
+          },
+          {
+            "label": {
+              "ru": "Тип напоминания",
+              "en": "Reminder type"
+            },
+            "key": "reminderType",
+            "validate": {
+              "required": true
+            },
+            "data": {
+              "url": "/citeck/ecos/records/query",
+              "headers": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ]
+            },
+            "defaultValue": "",
+            "optionalWhenDisabled": false,
+            "logic": [
+              {
+                "name": "disable-for-non-create-form",
+                "trigger": {
+                  "type": "javascript",
+                  "javascript": "result = instance.options.formMode !== 'CREATE';"
+                },
+                "actions": [
+                  {
+                    "name": "disable-field",
+                    "type": "property",
+                    "property": {
+                      "label": "Disabled",
+                      "value": "disabled",
+                      "type": "boolean"
+                    },
+                    "state": "true"
+                  }
+                ]
+              }
+            ],
+            "type": "ecosSelect",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Шаблон уведомления",
+              "en": "Notifications template"
+            },
+            "key": "notificationTemplate",
+            "validate": {
+              "required": true
+            },
+            "modalTitle": "",
+            "journalId": "notification-templates",
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "selectJournal",
+            "input": true,
+            "queryData": ""
+          },
+          {
+            "label": {
+              "ru": "Получатели",
+              "en": "Recipients"
+            },
+            "key": "recipients",
+            "multiple": true,
+            "validate": {
+              "required": true
+            },
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "type": "selectOrgstruct",
+            "input": true,
+            "defaultValue": "",
+            "reorder": false
+          },
+          {
+            "label": {
+              "ru": "Сертификаты",
+              "en": "Certificates"
+            },
+            "key": "certificates",
+            "multiple": true,
+            "validate": {
+              "required": true
+            },
+            "modalTitle": "",
+            "journalId": "ecos-secrets",
+            "queryData": "",
+            "customPredicateJs": "value = {\n  \"att\": \"type\",\n  \"t\": \"eq\",\n  \"val\": \"CERTIFICATE\"\n}",
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "conditional": {
+              "show": "true",
+              "when": "reminderType",
+              "eq": "CERTIFICATE_EXPIRATION"
+            },
+            "type": "selectJournal",
+            "input": true
+          },
+          {
+            "label": {
+              "ru": "Пороговые значения напоминания",
+              "en": "Reminder threshold durations"
+            },
+            "key": "reminderThresholdDurations",
+            "tooltip": {
+              "ru": "Введите время для отправки уведомлений о приближении срока действия сертификата в формате Duration. Этот формат позволяет указать интервал времени, за который нужно отправить уведомление до истечения срока действия.\n\nПримеры формата:\n\n- 15d - уведомление будет отправлено за 15 дней до истечения.\n- 6h - уведомление будет отправлено за 6 часов до истечения.\n- 1h 30m - уведомление будет отправлено за 1 час 30 минут до истечения.\n\nВажно:\n- Используйте сокращения: d для дней, h для часов, m для минут.\n- Интервалы можно комбинировать, например, 2d 4h означает 2 дня и 4 часа.",
+              "en": "Enter the time to send notifications when the certificate is about to expire in Duration format. This format allows you to specify the time interval to send a notification before the expiration date.\n\nFormat examples:\n\n- 15d - notification will be sent 15 days before expiration.\n- 6h - the notice will be sent 6 hours before expiration.\n- 1h 30m - the notice will be sent 1h 30 minutes before expiration.\n\nImportant:\n- Use the abbreviations: d for days, h for hours, m for minutes.\n- Intervals can be combined, e.g. 2d 4h means 2 days and 4 hours."
+            },
+            "multiple": true,
+            "validate": {
+              "required": true,
+              "custom": "const pattern = /^(?:(\\d+w)?\\s?)?(?:(\\d+d)?\\s?)?(?:(\\d+h)?\\s?)?(?:(\\d+m)?)?$/;\n\nvalid = pattern.test(input) ? true : \"Use format: 3d 5h 45m\";"
+            },
+            "reorder": false,
+            "refreshOn": [],
+            "optionalWhenDisabled": false,
+            "conditional": {
+              "show": "true",
+              "when": "reminderType",
+              "eq": "CERTIFICATE_EXPIRATION"
+            },
+            "type": "textfield",
+            "input": true,
+            "inputMasks": [
+              {}
+            ]
+          }
+        ]
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "columns2",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": "Cancel",
+                "action": "event",
+                "state": "",
+                "showValidations": false,
+                "event": "cancel",
+                "block": true,
+                "type": "button",
+                "input": true,
+                "key": "submit2",
+                "conditional": {
+                  "show": null,
+                  "when": null
+                }
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "md": 3,
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 0
+          },
+          {
+            "components": [],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 1,
+            "md": 3
+          },
+          {
+            "md": 3,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "label": "Column",
+            "components": [],
+            "clearOnHide": true,
+            "conditional": {
+              "show": null,
+              "when": null
+            },
+            "index": 2
+          },
+          {
+            "md": 3,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 3,
+            "components": [
+              {
+                "label": {
+                  "ru": "Создать",
+                  "en": "Submit"
+                },
+                "key": "submit",
+                "state": "",
+                "theme": "primary",
+                "block": true,
+                "disableOnInvalid": true,
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "button",
+                "input": true
+              }
+            ]
+          }
+        ],
+        "oneColumnInViewMode": false,
+        "type": "columns",
+        "input": false
+      }
+    ],
+    "formId": "reminder-form"
+  },
+  "attributes": {},
+  "notExists": false
+}

@@ -17,7 +17,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.stringJsonFromResource
+import ru.citeck.ecos.notifications.stringFromResource
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
@@ -58,7 +58,7 @@ class BulkMailRecordsControllerTest {
     fun setUp() {
 
         val notificationTemplate = Json.mapper.convert(
-            stringJsonFromResource("template/test-template.json"),
+            stringFromResource("template/test-template.json"),
             NotificationTemplateWithMeta::class.java
         )!!
 

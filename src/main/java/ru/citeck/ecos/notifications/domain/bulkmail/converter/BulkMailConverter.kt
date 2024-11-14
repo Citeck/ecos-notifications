@@ -4,6 +4,7 @@ import org.apache.commons.lang3.LocaleUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.model.lib.authorities.AuthorityType
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.api.records.BulkMailRecords
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.*
@@ -17,8 +18,6 @@ import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import javax.annotation.PostConstruct
-
-private const val AUTHORITY_GROUP_PREFIX = "GROUP_"
 
 /**
  * @author Roman Makarskiy
@@ -209,5 +208,5 @@ fun BulkMailConfigDto.Companion.from(data: ObjectData): BulkMailConfigDto {
 }
 
 fun EntityRef.isAuthorityGroupRef(): Boolean {
-    return getLocalId().startsWith(AUTHORITY_GROUP_PREFIX)
+    return getSourceId() == AuthorityType.GROUP.sourceId
 }

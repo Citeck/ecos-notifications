@@ -21,7 +21,7 @@ import ru.citeck.ecos.notifications.domain.sender.command.CmdFitNotification
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.notifications.service.providers.EmailNotificationProvider
+import ru.citeck.ecos.notifications.service.senders.EmailNotificationSender
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
@@ -37,14 +37,13 @@ class CommandNotificationSenderTest : BaseMailTest() {
     private lateinit var commandsService: CommandsService
 
     @Autowired
-    private lateinit var emailProvider: EmailNotificationProvider
+    private lateinit var emailProvider: EmailNotificationSender
 
     private lateinit var rawNotification: RawNotification
 
     companion object {
         private const val COMMAND_TYPE = "send-email-handler"
         private const val TEST_SUBJECT = "Test command sender"
-        private const val RECIPIENT_EMAIL = TestUtils.RECIPIENT_EMAIL
         private const val CONDITIONAL_EMAIL_SENDER = "command-email-sender-with-condition"
 
         private const val ATTACHMENT_CONTENT =
@@ -66,7 +65,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         templateModel["process-definition"] = "flowable\$confirm"
 
         val commandSenderDto = Json.mapper.convert(
-            stringJsonFromResource("sender/command_sender_with_condition.json"),
+            stringFromResource("sender/command_sender_with_condition.json"),
             NotificationsSenderDto::class.java
         )!!
 
@@ -108,8 +107,8 @@ class CommandNotificationSenderTest : BaseMailTest() {
         model[NOTIFICATION_ATTACHMENTS] = mapOf(
             NOTIFICATION_ATTACHMENT_BYTES to ATTACHMENT_CONTENT,
             NOTIFICATION_ATTACHMENTS_PREVIEW_INFO to mapOf(
-                NOTIFICATION_ATTACHMENT_ORIGINAL_NAME to TestUtils.TEXT_TXT_FILENAME,
-                NOTIFICATION_ATTACHMENT_ORIGINAL_EXT to TestUtils.TEXT_TXT_EXT,
+                NOTIFICATION_ATTACHMENT_ORIGINAL_NAME to TEXT_TXT_FILENAME,
+                NOTIFICATION_ATTACHMENT_ORIGINAL_EXT to TEXT_TXT_EXT,
                 NOTIFICATION_ATTACHMENT_MIMETYPE to MimeTypeUtils.TEXT_PLAIN.toString()
             )
         )
@@ -117,7 +116,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = model,
             from = "test@mail.ru"
@@ -138,7 +137,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         val isHaveAttachment = hasAttachment(
             content,
             MimeTypeUtils.TEXT_PLAIN.toString(),
-            TestUtils.TEXT_TXT_FILENAME,
+            TEXT_TXT_FILENAME,
             "us-ascii",
             DECODED_ATTACHMENT_CONTENT
         )
@@ -152,8 +151,8 @@ class CommandNotificationSenderTest : BaseMailTest() {
         model[NOTIFICATION_ATTACHMENTS] = mapOf(
             NOTIFICATION_ATTACHMENT_BYTES to ATTACHMENT_CONTENT,
             NOTIFICATION_ATTACHMENT_META to mapOf(
-                NOTIFICATION_ATTACHMENT_NAME to TestUtils.TEXT_TXT_FILENAME,
-                NOTIFICATION_ATTACHMENT_EXT to TestUtils.TEXT_TXT_EXT,
+                NOTIFICATION_ATTACHMENT_NAME to TEXT_TXT_FILENAME,
+                NOTIFICATION_ATTACHMENT_EXT to TEXT_TXT_EXT,
                 NOTIFICATION_ATTACHMENT_MIMETYPE to MimeTypeUtils.TEXT_PLAIN.toString()
             )
         )
@@ -161,7 +160,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
             record = EntityRef.EMPTY,
             type = NotificationType.EMAIL_NOTIFICATION,
             locale = Locale.ENGLISH,
-            recipients = setOf(EmailNotificationTest.RECIPIENT_EMAIL),
+            recipients = setOf(RECIPIENT_EMAIL),
             template = notificationTemplate,
             model = model,
             from = "test@mail.ru"
@@ -182,7 +181,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         val isHaveAttachment = hasAttachment(
             content,
             MimeTypeUtils.TEXT_PLAIN.toString(),
-            TestUtils.TEXT_TXT_FILENAME,
+            TEXT_TXT_FILENAME,
             "us-ascii",
             DECODED_ATTACHMENT_CONTENT
         )
@@ -228,9 +227,8 @@ class CommandNotificationSenderTest : BaseMailTest() {
                         CmdFitNotification.convertAttachments(command.attachments),
                         command.data,
                         command.templateRef
-                    ),
-                    Unit
-                )
+                    )
+                ).status
             }
         }
     }

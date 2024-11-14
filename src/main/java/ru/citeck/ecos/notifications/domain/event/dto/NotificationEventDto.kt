@@ -10,5 +10,6 @@ data class NotificationEventDto(
     var notification: FitNotification,
     var model: Map<String, Any?>,
 
+    var sendingMeta: Map<String, Any?>,
     var error: ErrorInfo? = null
 )

@@ -28,7 +28,7 @@ model:
         ru: Ожидается отправка
     - id: trying-to-dispatch
       name:
-        en: Tryting to dispatch
+        en: Trying to dispatch
         ru: Осуществляются попытки отправки
     - id: sent
       name:

@@ -1,0 +1,13 @@
+{
+  "id": "test-cert-sign-template",
+  "name": "Test cert sign template",
+  "notificationTitle": {
+    "ru": "Подписанное письмо"
+  },
+  "templateData": {
+    "ru": {
+      "name": "test-template.html_ru.ftl",
+      "data": "0K3RgtC+INC/0L7QtNC/0LjRgdCw0L3QvdGL0Lkg0LrQvtC90YLQtdC90YI="
+    }
+  }
+}

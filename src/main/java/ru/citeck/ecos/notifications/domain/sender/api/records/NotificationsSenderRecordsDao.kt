@@ -2,8 +2,12 @@ package ru.citeck.ecos.notifications.domain.sender.api.records
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.license.EcosLicense
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
+import ru.citeck.ecos.notifications.lib.NotificationType
+import ru.citeck.ecos.notifications.service.senders.EmailNotificationSenderConfig
+import ru.citeck.ecos.notifications.service.senders.NotificationSenderType
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate
@@ -28,6 +32,10 @@ class NotificationsSenderRecordsDao(
     companion object {
         const val ID = "notifications-sender"
         private val log = KotlinLogging.logger {}
+    }
+
+    private val emailSignIsAllowed = EcosLicense.getForEntLib {
+        it.get("developer").asBoolean() || it.get("features").has("email-certificate-sign")
     }
 
     override fun getId(): String {
@@ -55,6 +63,8 @@ class NotificationsSenderRecordsDao(
     }
 
     override fun saveMutatedRec(record: NotificationsSenderRecord): String {
+        record.getEmailSenderConfig()?.validateForFastFail()
+
         return notificationsSenderService.save(record.toDto()).id!!
     }
 
@@ -74,6 +84,7 @@ class NotificationsSenderRecordsDao(
                 )
                 result.setTotalCount(notificationsSenderService.getCount(predicate))
             }
+
             else -> {
                 log.warn("Unsupported query language '{}'", recsQuery.language)
                 val types = if (maxItems < 0) {
@@ -86,5 +97,27 @@ class NotificationsSenderRecordsDao(
             }
         }
         return result
+    }
+
+    private fun NotificationsSenderRecord.getEmailSenderConfig(): EmailNotificationSenderConfig? {
+        if (NotificationSenderType.fromType(senderType) == NotificationSenderType.DEFAULT &&
+            notificationType == NotificationType.EMAIL_NOTIFICATION
+        ) {
+            return senderConfig.getAs(EmailNotificationSenderConfig::class.java)
+        }
+
+        return null
+    }
+
+    private fun EmailNotificationSenderConfig.validateForFastFail() {
+        if (certSignConfig.enabled) {
+            check(emailSignIsAllowed()) {
+                "Email certificate signing available only in Enterprise version with email-certificate-sign feature"
+            }
+
+            require(certSignConfig.certificate.isNotEmpty()) {
+                "Certificate is required for email certificate sign"
+            }
+        }
     }
 }
