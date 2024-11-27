@@ -150,8 +150,8 @@ class ReminderNotificationsMetaTest {
         @AttName("name")
         val name: MLText = MLText("Test certificate"),
 
-        @AttName("certificateValidityTo")
-        val certificateValidityTo: Instant = Instant.parse("3005-01-16T08:08:46Z")
+        @AttName("certValidityTo")
+        val certValidityTo: Instant = Instant.parse("3005-01-16T08:08:46Z")
 
     )
 }

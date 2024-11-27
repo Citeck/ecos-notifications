@@ -5,5 +5,5 @@ notificationTitle:
   ru: Уведомление о сроке действия сертификата
 model:
   certName: "name"
-  certValidityTo: "certificateValidityTo"
+  certValidityTo: "certValidityTo"
   doc_ref: "?id"
