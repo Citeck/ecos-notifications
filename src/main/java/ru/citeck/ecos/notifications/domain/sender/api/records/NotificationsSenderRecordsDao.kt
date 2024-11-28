@@ -112,11 +112,11 @@ class NotificationsSenderRecordsDao(
     private fun EmailNotificationSenderConfig.validateForFastFail() {
         if (certSignConfig.enabled) {
             check(emailSignIsAllowed()) {
-                "Email certificate signing available only in Enterprise version with email-certificate-sign feature"
+                "Подписание e-mail сертификатом доступно только в Enterprise версии, с функцией email-certificate-sign"
             }
 
             require(certSignConfig.certificate.isNotEmpty()) {
-                "Certificate is required for email certificate sign"
+                "Не указан сертификат для подписи e-mail"
             }
         }
     }
