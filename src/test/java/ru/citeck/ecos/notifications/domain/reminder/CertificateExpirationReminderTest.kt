@@ -13,6 +13,7 @@ import org.springframework.util.ResourceUtils
 import ru.citeck.ecos.apps.app.service.LocalAppService
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.NotificationsApp
+import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
@@ -161,7 +162,7 @@ class CertificateExpirationReminderTest {
     @Test
     fun `disable reminder should delete bulk mail`() {
 
-        var scheduledBulkMails = getBulkMailsForReminder(reminderRef)
+        var scheduledBulkMails = getBulkMailsForReminderByAssoc(reminderRef)
         assertThat(scheduledBulkMails).hasSize(8)
 
         val atts = RecordAtts(reminderRef)
@@ -206,6 +207,22 @@ class CertificateExpirationReminderTest {
 
         // 1h before
         assertThat(newNotifications).anyMatch { it.delayedSend == Instant.parse("3005-01-16T07:08:46Z") }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = [CERT_RECORD, CERT_RECORD_2])
+    fun `change reminder threshold check recalculate bulk mails`(certificateRecord: String) {
+
+        val sourceBulkMails = queryBulkMailsForRecord(certificateRecord.toEntityRef())
+        assertThat(sourceBulkMails).hasSize(4)
+
+        val atts = RecordAtts(reminderRef)
+        atts[REMINDER_ATT_THRESHOLD_DURATIONS] = listOf("15d", "3d", "1d", "1h")
+        recordsService.mutate(atts)
+
+        val bulkMailsAfterUpdate = queryBulkMailsForRecord(certificateRecord.toEntityRef())
+        assertThat(bulkMailsAfterUpdate).hasSize(4)
+        assertThat(bulkMailsAfterUpdate).allMatch { it.status == BulkMailStatus.WAIT_FOR_DISPATCH.status }
     }
 
     @ParameterizedTest
@@ -272,7 +289,7 @@ class CertificateExpirationReminderTest {
     @Test
     fun `remove reminder should delete all bulk mails`() {
 
-        val scheduledBulkMails = getBulkMailsForReminder(reminderRef)
+        val scheduledBulkMails = getBulkMailsForReminderByAssoc(reminderRef)
         assertThat(scheduledBulkMails).hasSize(8)
 
         recordsService.delete(reminderRef)
@@ -336,15 +353,19 @@ class CertificateExpirationReminderTest {
     }
 
     private fun getNotificationsForReminder(reminderRef: EntityRef): List<NotificationDto> {
-        return getBulkMailsForReminder(reminderRef)
+        return getBulkMailsForReminderByAssoc(reminderRef)
             .map { dto -> notificationDao.findNotificationForBulkMail(dto.recordRef.toString()) }
             .flatten()
     }
 
-    private fun getBulkMailsForReminder(reminderRef: EntityRef): List<BulkMailDto> {
+    private fun getBulkMailsForReminderByAssoc(reminderRef: EntityRef): List<BulkMailDto> {
         val currentDeferredBulkMails = recordsService.getAtt(reminderRef, "$REMINDER_ATT_DEFERRED_BULK_MAILS[]?id")
             .asList(EntityRef::class.java)
         return currentDeferredBulkMails.mapNotNull { bulkMailDao.findByExtId(it.getLocalId()) }
+    }
+
+    private fun queryBulkMailsForRecord(reminderRef: EntityRef): List<BulkMailDto> {
+        return bulkMailDao.getAll().filter { it.record == reminderRef }
     }
 
     private class IvanRecord(

@@ -173,21 +173,20 @@ class CertificateExpirationReminder(
                         return@forEach
                     }
 
-                    val deferredNotification = bulkMailDao.save(
-                        BulkMailDto(
-                            id = null,
-                            name = "Certificate expiration reminder",
-                            recipientsData = BulkMailRecipientsDataDto(
-                                refs = reminder.recipients
-                            ),
-                            record = certificate,
-                            template = reminder.notificationTemplate,
-                            type = NotificationType.EMAIL_NOTIFICATION,
-                            config = BulkMailConfigDto(
-                                delayedSend = timeToNotify
-                            )
+                    val deferredNotification = BulkMailDto(
+                        id = null,
+                        name = "Certificate expiration reminder",
+                        recipientsData = BulkMailRecipientsDataDto(
+                            refs = reminder.recipients
+                        ),
+                        record = certificate,
+                        template = reminder.notificationTemplate,
+                        type = NotificationType.EMAIL_NOTIFICATION,
+                        config = BulkMailConfigDto(
+                            delayedSend = timeToNotify
                         )
                     )
+
 
                     bulkMailFromNewConfig.add(deferredNotification.toWrapper())
 

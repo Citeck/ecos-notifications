@@ -41,11 +41,11 @@ class BulkMailDao(
         val entity = dto.toEntity()
 
         bulkMailRecipientRepository.deleteAllByBulkMail(entity)
-        cancelReferredNotifications(dto)
+        cancelDeferredNotifications(dto)
         bulkMailRepository.delete(entity)
     }
 
-    private fun cancelReferredNotifications(bulkMail: BulkMailDto) {
+    private fun cancelDeferredNotifications(bulkMail: BulkMailDto) {
         val waitToDispatchNotifications = notificationDao.findNotificationForBulkMail(
             bulkMail.recordRef.toString(),
             NotificationState.WAIT_FOR_DISPATCH

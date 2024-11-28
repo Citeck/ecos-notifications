@@ -119,12 +119,13 @@
             "validate": {
               "required": true
             },
+            "reorder": false,
+            "allowedGroupType": "ROLE, BRANCH, GROUP",
+            "defaultValue": [],
             "refreshOn": [],
             "optionalWhenDisabled": false,
             "type": "selectOrgstruct",
-            "input": true,
-            "defaultValue": "",
-            "reorder": false
+            "input": true
           },
           {
             "label": {
