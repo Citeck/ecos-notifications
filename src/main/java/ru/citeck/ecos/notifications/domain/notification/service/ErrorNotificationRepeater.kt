@@ -37,6 +37,8 @@ class ErrorNotificationRepeater(
             var page = 0
             val batchSize = 10
 
+            var totalReexecuted = 0
+
             while (true) {
                 val activeErrors = notificationDao.findAllEntitiesByState(
                     NotificationState.ERROR,
@@ -47,13 +49,18 @@ class ErrorNotificationRepeater(
                     break
                 }
 
-                log.info { "Found notification error. Count: ${activeErrors.size}" }
+                log.info { "Found notification error. Count: ${activeErrors.size}, Reexecuted: $totalReexecuted" }
 
                 AuthContext.runAsSystem {
                     activeErrors.forEach { error -> reexecuteCommand(error) }
                 }
 
+                totalReexecuted += activeErrors.size
                 page++
+            }
+
+            if (totalReexecuted > 0) {
+                log.info { "Total reexecuted notification errors: $totalReexecuted" }
             }
         }
     }
