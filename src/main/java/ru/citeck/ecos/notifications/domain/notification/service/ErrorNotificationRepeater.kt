@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.notification.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
@@ -32,14 +33,27 @@ class ErrorNotificationRepeater(
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.error-notification.delay}")
     fun handleErrors() {
         synchronized(handleErrorLock) {
-            val activeErrors = notificationDao.findAllEntitiesByState(NotificationState.ERROR)
 
-            if (activeErrors.isNotEmpty()) {
+            var page = 0
+            val batchSize = 10
+
+            while (true) {
+                val activeErrors = notificationDao.findAllEntitiesByState(
+                    NotificationState.ERROR,
+                    PageRequest.of(page, batchSize)
+                )
+
+                if (activeErrors.isEmpty()) {
+                    break
+                }
+
                 log.info { "Found notification error. Count: ${activeErrors.size}" }
-            }
 
-            AuthContext.runAsSystem {
-                activeErrors.forEach { error -> reexecuteCommand(error) }
+                AuthContext.runAsSystem {
+                    activeErrors.forEach { error -> reexecuteCommand(error) }
+                }
+
+                page++
             }
         }
     }
@@ -51,7 +65,7 @@ class ErrorNotificationRepeater(
         }
 
         try {
-            val currentTryCount = notification.tryingCount ?: 0
+            val currentTryCount = notification.tryingCount
 
             if (currentTryCount > props.errorNotification.minTryCount &&
                 props.errorNotification.ttl > INFINITY_TTL

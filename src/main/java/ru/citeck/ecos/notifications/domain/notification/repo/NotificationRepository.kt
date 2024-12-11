@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.repo
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
@@ -21,6 +22,8 @@ interface NotificationRepository :
     ): List<NotificationEntity>
 
     fun findAllByState(state: NotificationState): List<NotificationEntity>
+
+    fun findAllByState(state: NotificationState, pageable: Pageable): List<NotificationEntity>
 
     fun findOneByExtId(extId: String): Optional<NotificationEntity>
 

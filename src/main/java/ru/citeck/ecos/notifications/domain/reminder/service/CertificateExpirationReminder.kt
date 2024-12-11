@@ -187,7 +187,6 @@ class CertificateExpirationReminder(
                         )
                     )
 
-
                     bulkMailFromNewConfig.add(deferredNotification.toWrapper())
 
                     if (deferredNotification.toWrapper() !in currentBulkMailDtoWrapper) {

@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,8 +40,8 @@ class NotificationDao(
     }
 
     @Transactional(readOnly = true)
-    fun findAllEntitiesByState(notificationState: NotificationState): List<NotificationDto> {
-        return notificationRepository.findAllByState(notificationState).map { it.toDto() }.toList()
+    fun findAllEntitiesByState(notificationState: NotificationState, pageable: Pageable): List<NotificationDto> {
+        return notificationRepository.findAllByState(notificationState, pageable).map { it.toDto() }.toList()
     }
 
     @Transactional(readOnly = true)
