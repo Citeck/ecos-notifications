@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import mu.KotlinLogging
+import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
@@ -24,35 +25,46 @@ class BulkMailStatusSynchronizer(
 
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.bulk-mail.sync-status-delay}")
     fun sync() {
-        val bulkMails = bulkMailDao.findAllByStatuses(statusesToFind)
 
-        log.debug { "Found bulk mails size: ${bulkMails.size}" }
-        log.trace { "Found bulk mails: $bulkMails" }
+        var page = 0
+        val batchSize = 10
 
-        bulkMails.forEach { bulkMail ->
-            val notificationsSummary = notificationDao.getBulkMailStateSummary(bulkMail.recordRef.toString())
+        while (true) {
+            val bulkMails = bulkMailDao.findAllByStatuses(statusesToFind, PageRequest.of(page, batchSize))
+            if (bulkMails.isEmpty()) {
+                break
+            }
 
-            log.trace { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
+            log.debug { "Found bulk mails size: ${bulkMails.size}" }
+            log.trace { "Found bulk mails: $bulkMails" }
 
-            when {
-                notificationsSummary.containsKey(NotificationState.ERROR) -> {
-                    setBulkMailStatus(bulkMail, BulkMailStatus.TRYING_TO_DISPATCH)
-                }
+            bulkMails.forEach { bulkMail ->
+                val notificationsSummary = notificationDao.getBulkMailStateSummary(bulkMail.recordRef.toString())
 
-                notificationsSummary.containsKey(NotificationState.EXPIRED) -> {
-                    setBulkMailStatus(bulkMail, BulkMailStatus.ERROR)
-                }
+                log.trace { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
 
-                notificationsSummary.containsKey(NotificationState.WAIT_FOR_DISPATCH) -> {
-                    setBulkMailStatus(bulkMail, BulkMailStatus.WAIT_FOR_DISPATCH)
-                }
+                when {
+                    notificationsSummary.containsKey(NotificationState.ERROR) -> {
+                        setBulkMailStatus(bulkMail, BulkMailStatus.TRYING_TO_DISPATCH)
+                    }
 
-                notificationsSummary.containsKey(NotificationState.SENT) ||
-                    notificationsSummary.containsKey(NotificationState.RECIPIENTS_NOT_FOUND) ||
-                    notificationsSummary.containsKey(NotificationState.BLOCKED) -> {
-                    setBulkMailStatus(bulkMail, BulkMailStatus.SENT)
+                    notificationsSummary.containsKey(NotificationState.EXPIRED) -> {
+                        setBulkMailStatus(bulkMail, BulkMailStatus.ERROR)
+                    }
+
+                    notificationsSummary.containsKey(NotificationState.WAIT_FOR_DISPATCH) -> {
+                        setBulkMailStatus(bulkMail, BulkMailStatus.WAIT_FOR_DISPATCH)
+                    }
+
+                    notificationsSummary.containsKey(NotificationState.SENT) ||
+                        notificationsSummary.containsKey(NotificationState.RECIPIENTS_NOT_FOUND) ||
+                        notificationsSummary.containsKey(NotificationState.BLOCKED) -> {
+                        setBulkMailStatus(bulkMail, BulkMailStatus.SENT)
+                    }
                 }
             }
+
+            page++
         }
     }
 

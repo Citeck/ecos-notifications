@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -113,8 +114,8 @@ class BulkMailDao(
     }
 
     @Transactional(readOnly = true)
-    fun findAllByStatuses(statuses: List<BulkMailStatus>): List<BulkMailDto> {
-        return bulkMailRepository.findAllByStatusIn(statuses.map { it.status }).map { it.toDto() }
+    fun findAllByStatuses(statuses: List<BulkMailStatus>, pageable: Pageable): List<BulkMailDto> {
+        return bulkMailRepository.findAllByStatusIn(statuses.map { it.status }, pageable).map { it.toDto() }
     }
 
     @Transactional(readOnly = true)
