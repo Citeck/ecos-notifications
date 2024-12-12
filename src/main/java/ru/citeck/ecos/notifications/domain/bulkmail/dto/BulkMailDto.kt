@@ -2,7 +2,7 @@ package ru.citeck.ecos.notifications.domain.bulkmail.dto
 
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 data class BulkMailDto(
@@ -16,9 +16,9 @@ data class BulkMailDto(
 
     val config: BulkMailConfigDto = BulkMailConfigDto(),
 
-    val record: RecordRef = RecordRef.EMPTY,
+    val record: EntityRef = EntityRef.EMPTY,
 
-    val template: RecordRef = RecordRef.EMPTY,
+    val template: EntityRef = EntityRef.EMPTY,
 
     val type: NotificationType,
 

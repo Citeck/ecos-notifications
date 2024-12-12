@@ -7,7 +7,6 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
-import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.lib.api.GetTemplateDataExactTemplate
 import ru.citeck.ecos.notifications.lib.api.GetTemplateDataRes
 import ru.citeck.ecos.notifications.lib.api.GetTemplateDataTemplateVariants

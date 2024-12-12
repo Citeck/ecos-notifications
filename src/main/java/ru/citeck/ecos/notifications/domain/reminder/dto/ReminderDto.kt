@@ -1,7 +1,8 @@
 package ru.citeck.ecos.notifications.domain.reminder.dto
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import ecos.com.fasterxml.jackson210.annotation.JsonEnumDefaultValue
+import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import ecos.com.fasterxml.jackson210.databind.annotation.JsonPOJOBuilder
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -23,10 +24,12 @@ data class Reminder(
         @JvmField
         val EMPTY = create {}
 
+        @JvmStatic
         fun create(): Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit): Reminder {
             val builderObj = Builder()
             builder.invoke(builderObj)
@@ -48,6 +51,7 @@ data class Reminder(
         }
     }
 
+    @JsonPOJOBuilder
     class Builder() {
 
         var id: String = ""
@@ -62,6 +66,12 @@ data class Reminder(
         constructor(base: Reminder) : this() {
             this.id = base.id
             this.name = base.name
+            this.enabled = base.enabled
+            this.reminderType = base.reminderType
+            this.certificates = base.certificates
+            this.notificationTemplate = base.notificationTemplate
+            this.recipients = base.recipients
+            this.reminderThresholdDurations = base.reminderThresholdDurations
         }
 
         fun withId(id: String?): Builder {

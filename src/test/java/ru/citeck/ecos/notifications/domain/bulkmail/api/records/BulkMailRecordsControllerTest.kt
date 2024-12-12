@@ -28,12 +28,12 @@ import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWith
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.notifications.stringFromResource
-import ru.citeck.ecos.notifications.stringJsonFromResource
 import ru.citeck.ecos.notifications.web.rest.TestUtil
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.context.api.rest.RecordsRestApi
 import ru.citeck.ecos.webapp.lib.spring.context.records.RecordsServiceFactoryConfiguration
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension

@@ -8,7 +8,6 @@ system: true
 storageType: DEFAULT
 sourceId: notifications/reminder
 
-parentRef: emodel/type@ecos-vcs-object
 journalRef: uiserv/journal@reminders
 formRef: uiserv/form@reminder-form
 
@@ -44,18 +43,6 @@ model:
         ru: Тип напоминания
         en: Reminder type
       mandatory: true
-      type: OPTIONS
-      config:
-        source: values
-        values:
-          - value: CERTIFICATE_EXPIRATION
-            label:
-              ru: Истечение срока действия сертификата
-              en: Certificate expiration
-#          - value: CERTIFICATE_REVOCATION
-#            label:
-#              ru: Отзыв сертификата
-#              en: Certificate revocation
     - id: certificates
       name:
         ru: Сертификаты

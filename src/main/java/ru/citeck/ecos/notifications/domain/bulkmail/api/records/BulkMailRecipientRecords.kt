@@ -15,6 +15,7 @@ import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 
 /**
@@ -93,8 +94,8 @@ class BulkMailRecipientRecords(
     data class BulkMailRecipientRecord(
         var id: Long? = null,
         var extId: String? = null,
-        val bulkMailRef: RecordRef = RecordRef.EMPTY,
-        val record: RecordRef = RecordRef.EMPTY,
+        val bulkMailRef: EntityRef = EntityRef.EMPTY,
+        val record: EntityRef = EntityRef.EMPTY,
         val address: String = "",
         val name: String = "",
         val creator: String? = null,

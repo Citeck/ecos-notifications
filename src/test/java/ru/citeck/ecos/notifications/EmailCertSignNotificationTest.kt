@@ -2,8 +2,6 @@ package ru.citeck.ecos.notifications
 
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
-import jakarta.mail.internet.MimeBodyPart
-import jakarta.mail.internet.MimeMultipart
 import org.assertj.core.api.Assertions.assertThat
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.cms.CMSSignedData
@@ -33,6 +31,8 @@ import java.io.InputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.*
+import javax.mail.internet.MimeBodyPart
+import javax.mail.internet.MimeMultipart
 
 @ExtendWith(EcosSpringExtension::class)
 @SpringBootTest(classes = [NotificationsApp::class])

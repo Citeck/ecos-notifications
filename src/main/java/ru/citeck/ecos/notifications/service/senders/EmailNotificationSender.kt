@@ -13,6 +13,7 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.nio.charset.StandardCharsets
+import javax.mail.internet.MimeUtility
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator

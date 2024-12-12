@@ -1,6 +1,6 @@
 package ru.citeck.ecos.notifications.domain.reminder.service
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.context.lib.auth.AuthContext
@@ -68,7 +68,7 @@ class CertificateExpirationReminder(
             withFilter(
                 Predicates.and(
                     Predicates.eq("record._type?localId", REMINDER_TYPE_ID),
-                    Predicates.eq("record.reminderType.value", ReminderType.CERTIFICATE_EXPIRATION.name),
+                    Predicates.eq("record.reminderType", ReminderType.CERTIFICATE_EXPIRATION.name),
                     Predicates.eq("record.enabled?bool!", true),
                 )
             )
@@ -88,7 +88,7 @@ class CertificateExpirationReminder(
             withFilter(
                 Predicates.and(
                     Predicates.eq("record._type?localId", REMINDER_TYPE_ID),
-                    Predicates.eq("record.reminderType.value", ReminderType.CERTIFICATE_EXPIRATION.name),
+                    Predicates.eq("record.reminderType", ReminderType.CERTIFICATE_EXPIRATION.name),
                     Predicates.or(
                         Predicates.eq("diff._has.certificates?bool", true),
                         Predicates.eq("diff._has.notificationTemplate?bool", true),
@@ -114,7 +114,7 @@ class CertificateExpirationReminder(
             withFilter(
                 Predicates.and(
                     Predicates.eq("record._type?localId", REMINDER_TYPE_ID),
-                    Predicates.eq("record.reminderType.value", ReminderType.CERTIFICATE_EXPIRATION.name)
+                    Predicates.eq("record.reminderType", ReminderType.CERTIFICATE_EXPIRATION.name)
                 )
             )
             withAction { event ->
@@ -233,7 +233,7 @@ class CertificateExpirationReminder(
         if (secret.getType() != EcosSecretType.CERTIFICATE) {
             return
         }
-        val secretRef = EntityRef.create(AppName.EMODEL, SECRET_DAO_ID, secretId)
+        val secretRef = EntityRef.create(AppName.EMODEL, SECRET_DAO_ID, secretId).toString()
 
         val remindersWithSecret = recordsService.query(
             RecordsQuery.create {

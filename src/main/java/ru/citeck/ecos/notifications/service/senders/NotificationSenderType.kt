@@ -7,7 +7,7 @@ enum class NotificationSenderType(val type: String) {
 
     companion object {
         fun fromType(type: String?): NotificationSenderType {
-            return NotificationSenderType.entries.find { it.type == type } ?: UNKNOWN
+            return NotificationSenderType.values().firstOrNull { it.type == type } ?: UNKNOWN
         }
     }
 }

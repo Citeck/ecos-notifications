@@ -14,7 +14,7 @@ import ru.citeck.ecos.records3.record.dao.RecordsDao
 
 const val REMINDER_TYPE_ID = "reminder"
 const val REMINDER_SOURCE_ID = "reminder"
-const val REMINDER_REPO_SOURCE_ID = "${REMINDER_TYPE_ID}-repo"
+const val REMINDER_REPO_SOURCE_ID = "$REMINDER_TYPE_ID-repo"
 
 const val REMINDER_ATT_DEFERRED_BULK_MAILS = "deferredBulkMails"
 const val REMINDER_ATT_THRESHOLD_DURATIONS = "reminderThresholdDurations"

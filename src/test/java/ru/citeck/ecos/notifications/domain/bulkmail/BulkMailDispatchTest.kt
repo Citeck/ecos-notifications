@@ -1,10 +1,8 @@
 package ru.citeck.ecos.notifications.domain.bulkmail
 
 import com.icegreen.greenmail.util.GreenMailUtil
-import jakarta.mail.Message
-import jakarta.mail.internet.MimeMessage
 import org.apache.commons.lang3.LocaleUtils
-import org.apache.commons.mail2.jakarta.util.MimeMessageParser
+import org.apache.commons.mail.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,6 +33,8 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import javax.mail.Message
+import javax.mail.internet.MimeMessage
 
 /**
  * @author Roman Makarskiy
@@ -127,7 +127,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -162,7 +162,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -320,7 +320,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -361,7 +361,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -404,7 +404,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -439,7 +439,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -476,7 +476,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -522,7 +522,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -561,7 +561,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -600,7 +600,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -631,7 +631,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -665,7 +665,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         awaitNotificationDispatcher.dispatchNotifications()
 
@@ -694,7 +694,7 @@ class BulkMailDispatchTest : BaseMailTest() {
         )
 
         bulkMailOperator.calculateRecipients(bulkMail.extId!!)
-        bulkMailOperator.dispatch(bulkMail.extId)
+        bulkMailOperator.dispatch(bulkMail.extId!!)
 
         var createdNotifications = notificationDao.findNotificationForBulkMail(bulkMail.recordRef.toString())
 
