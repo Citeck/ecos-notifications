@@ -4,10 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
-import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
-import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.domain.notification.isExplicitMsgPayload
+import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
@@ -81,7 +78,13 @@ class UnsafeSendNotificationCommandExecutor(
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {
         if (command.isExplicitMsgPayload()) {
-            return TemplateModelData()
+            val filledModel = mutableMapOf<String, Any?>()
+            if (command.model.containsKey(NOTIFICATION_ATTACHMENTS)) {
+                filledModel[NOTIFICATION_ATTACHMENTS] = command.model[NOTIFICATION_ATTACHMENTS]
+            }
+            return TemplateModelData(
+                filledModel = filledModel
+            )
         }
 
         val baseTemplate = getTemplateMetaById(command.templateRef.getLocalId())
