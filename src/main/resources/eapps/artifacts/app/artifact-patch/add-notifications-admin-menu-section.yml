@@ -26,7 +26,6 @@ config:
             label:
               en: Notifications
               ru: Уведомления
-            icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
             config:
@@ -35,7 +34,6 @@ config:
             label:
               ru: Массовая рассылка
               en: Bulk mail
-            icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
             config:
@@ -44,7 +42,6 @@ config:
             label:
               ru: Шаблоны уведомлений
               en: Notification templates
-            icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
             config:
@@ -53,7 +50,6 @@ config:
             label:
               ru: Файлы уведомлений
               en: Notification files
-            icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
             config:
@@ -62,8 +58,15 @@ config:
             label:
               en: Senders
               ru: Отправители
-            icon: ui/icon@i-leftmenu-tools
             hidden: false
             type: JOURNAL
             config:
               recordRef: uiserv/journal@notifications-sender
+          - id: notifications-reminders
+            label:
+              ru: Напоминания
+              en: Reminders
+            hidden: false
+            type: JOURNAL
+            config:
+              recordRef: uiserv/journal@reminders
