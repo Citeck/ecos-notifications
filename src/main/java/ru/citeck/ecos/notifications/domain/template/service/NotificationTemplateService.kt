@@ -15,6 +15,7 @@ import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaEntityFieldType
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.util.*
@@ -39,7 +40,9 @@ class NotificationTemplateService(
 
     @PostConstruct
     fun init() {
-        searchConv = jpaSearchConverterFactory.createConverter(NotificationTemplateEntity::class.java).build()
+        searchConv = jpaSearchConverterFactory.createConverter(NotificationTemplateEntity::class.java)
+            .withFieldType("name", JpaEntityFieldType.TEXT)
+            .build()
     }
 
     fun update(dto: NotificationTemplateWithMeta) {
