@@ -8,6 +8,7 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords
+import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateAttsCalculator
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -50,6 +51,7 @@ class NotificationTemplateAttsCalculatorTest {
             "sub-template-1",
             setOf(
                 "text|presuf('','-sub-template-1')",
+                DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE,
                 SENDER_ATT
             )
         )
@@ -61,6 +63,7 @@ class NotificationTemplateAttsCalculatorTest {
                 "text|presuf('','-sub-template-0')",
                 "text|presuf('','-sub-template-1')",
                 "text|presuf('','-sub-cond-template-0')",
+                DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE,
                 SENDER_ATT
             )
         )
@@ -87,6 +90,7 @@ class NotificationTemplateAttsCalculatorTest {
         assertThat(simpleData.templateRef).isEqualTo("sub-template-1".asTemplateRef())
         assertThat(simpleData.requiredAtts).containsExactlyInAnyOrder(
             "text|presuf('','-sub-template-1')",
+            DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE,
             SENDER_ATT
         )
     }
@@ -108,6 +112,7 @@ class NotificationTemplateAttsCalculatorTest {
         assertThat(multiData0.requiredAtts).containsExactlyInAnyOrder(
             "text|presuf('','-multi-att')",
             "text|presuf('','-sub-template-0')",
+            DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE,
             SENDER_ATT
         )
     }
@@ -155,6 +160,7 @@ class NotificationTemplateAttsCalculatorTest {
         assertThat(multiData1.templateRef).isEqualTo("sub-template-conditional-0".asTemplateRef())
         assertThat(multiData1.requiredAtts).containsExactlyInAnyOrder(
             "text|presuf('','-sub-cond-template-0')",
+            DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE,
             SENDER_ATT
         )
     }

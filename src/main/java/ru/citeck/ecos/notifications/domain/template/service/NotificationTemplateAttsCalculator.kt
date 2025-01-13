@@ -119,6 +119,7 @@ class NotificationTemplateAttsCalculator(
         templateData.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
         addAttributesRecursive(templateData.multiTemplateConfig, attributes)
         attributes.addAll(sendersService.getModel())
+        attributes.add(DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE)
 
         return attributes
     }
