@@ -8,6 +8,7 @@ import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
+import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
@@ -183,6 +184,12 @@ class UnsafeSendNotificationCommandExecutor(
                 filledModel[attrKey] = it
                 prefilledModel.remove(attrValue)
             }
+        }
+
+        prefilledModel.remove(DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE)
+        if (!filledModel.containsKey(DefaultTplModelAtts.ATT_WORKSPACE)) {
+            val wsValue = incomeFilledModel[DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE] as? String ?: ""
+            filledModel[DefaultTplModelAtts.ATT_WORKSPACE] = wsValue
         }
 
         prefilledModel.forEach { (attrKey, attrValue) ->

@@ -5,6 +5,7 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
+import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.lib.api.GetTemplateDataExactTemplate
@@ -51,6 +52,7 @@ class NotificationTemplateAttsCalculator(
         baseTemplate?.model?.forEach { (_, v) -> requiredAtts.add(v) }
         template.model?.forEach { (_, v) -> requiredAtts.add(v) }
         requiredAtts.addAll(sendersService.getModel())
+        requiredAtts.add(DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE)
         val templateRef = EntityRef.create(
             AppName.NOTIFICATIONS,
             NOTIFICATION_TEMPLATE_RECORD_ID,
@@ -117,6 +119,7 @@ class NotificationTemplateAttsCalculator(
         templateData.model?.forEach { (_, dataValue) -> attributes.add(dataValue) }
         addAttributesRecursive(templateData.multiTemplateConfig, attributes)
         attributes.addAll(sendersService.getModel())
+        attributes.add(DefaultTplModelAtts.ATT_TO_LOAD_WORKSPACE)
 
         return attributes
     }

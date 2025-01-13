@@ -8,6 +8,7 @@ import org.springframework.boot.web.server.MimeMappings
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.context.lib.ctx.EcosContext
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.*
@@ -16,9 +17,10 @@ import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
+import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
-import ru.citeck.ecos.notifications.freemarker.beans.MetaAccessor
+import ru.citeck.ecos.notifications.freemarker.TemplateProcCtxKey
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -41,7 +43,9 @@ class NotificationSenderServiceImpl(
 
     private val notificationEventService: NotificationEventService,
     private val notificationsSenderService: NotificationsSenderService,
-    private val predicateService: PredicateService
+    private val predicateService: PredicateService,
+
+    private val ecosContext: EcosContext
 
 ) : NotificationSenderService {
 
@@ -218,7 +222,10 @@ class NotificationSenderServiceImpl(
         model: Map<String, Any?>,
         webUrl: String
     ): String {
-        return MetaAccessor.doWithCustomWebUrl(webUrl) {
+        return ecosContext.newScope().use { scope ->
+            scope[TemplateProcCtxKey.WORKSPACE] = model[DefaultTplModelAtts.ATT_WORKSPACE] as? String ?: ""
+            scope[TemplateProcCtxKey.CUSTOM_WEB_URL] = webUrl
+
             freemarkerService.process(template.id, locale, model)
         }
     }
