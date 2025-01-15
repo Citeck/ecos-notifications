@@ -32,6 +32,8 @@ public class ApplicationProperties {
 
     private final Email email = new Email();
 
+    private final StartupNotification startupNotification = new StartupNotification();
+
     public ErrorNotification getErrorNotification() {
         return this.errorNotification;
     }
@@ -58,6 +60,10 @@ public class ApplicationProperties {
 
     public BulkMail getBulkMail() {
         return bulkMail;
+    }
+
+    public StartupNotification getStartupNotification() {
+        return startupNotification;
     }
 
     public static class ErrorNotification {
@@ -488,5 +494,31 @@ public class ApplicationProperties {
     public static class EmailMapping {
         private String source;
         private String target;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class StartupNotification {
+        private boolean enabled;
+        private String body;
+        private String title;
+        private String recipient;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getRecipient() {
+            return recipient;
+        }
     }
 }

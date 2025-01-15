@@ -44,6 +44,11 @@ ecos-notifications:
     delay: 15000
   bulk-mail:
     sync-status-delay: 7000
+  startup-notification:
+    enabled: true
+    body: Microservice ecos-notifications successfully started and ready for operation. This is a test message – no reply is needed.
+    title: Microservice ecos-notifications successfully started and ready for operation
+    recipient: test@test.ru
 
 notifications:
   default:
