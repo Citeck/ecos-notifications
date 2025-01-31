@@ -38,6 +38,8 @@ server:
   port: 8013
 
 ecos-notifications:
+  event:
+    enabled: false
   error-notification:
     delay: 600000
   awaiting-dispatch:
