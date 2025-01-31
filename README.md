@@ -1,14 +1,14 @@
-![Citeck ECOS Logo](https://raw.githubusercontent.com/Citeck/ecos-ui/develop/public/img/logo/ecos-logo.png)
+![Citeck ECOS Logo](https://raw.githubusercontent.com/Citeck/ecos-ui/develop/public/img/logo/ecos-logo.svg)
 
 # `ecos-notifications`
 
 Welcome to the Citeck `ecos-notifications` repository! This repository contains the notification templates and
-configurations for the Citeck ECOS platform. Citeck ECOS is a powerful and comprehensive enterprise content and
+configurations for the Citeck platform. Citeck is a powerful and comprehensive enterprise content and
 operations system designed to streamline and automate business processes within organizations.
 
 ## Get started
 
-If you are new to ECOS platform and would like to run the software locally, we recommend you download the Dockerized
+If you are new to Citeck platform and would like to run the software locally, we recommend you download the Dockerized
 version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
 
 ## Useful Links
@@ -17,7 +17,7 @@ version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
 
 ## Dependencies
 
-To run this application the following applications from ECOS deployment are needed:
+To run this application the following applications from Citeck deployment are needed:
 
 * zookeeper
 * rabbitmq
@@ -81,7 +81,7 @@ Then, run a Sonar analysis:
 
 ## Contributing
 
-We welcome contributions from the community to make ECOS even better. Everyone interacting in the Citeck project’s
+We welcome contributions from the community to make Citeck even better. Everyone interacting in the Citeck project’s
 codebases, issue trackers, chat rooms, and forum is expected to follow
 the [contributor code of conduct](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
 
