@@ -48,7 +48,7 @@ class CommandNotificationSender : NotificationSender<CommandSenderConfig> {
         }.get()
 
         result.errors.forEach {
-            log.error("Command {} execution error: {}\n{}", config.commandType, it.message, it.stackTrace)
+            log.error { "Command ${config.commandType} execution error: ${it.message}\n${it.stackTrace}" }
         }
 
         val cmdResult = result.getResultAs(NotificationSenderSendStatus::class.java) ?: throw NotificationException(

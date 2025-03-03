@@ -35,8 +35,6 @@ columns:
   - id: record
     name: { ru: Рекорд, en: Record }
     sortable: false
-    searchable: false
-    searchableByText: false
 
   - id: template
     name: { ru: Шаблон, en: Template }
