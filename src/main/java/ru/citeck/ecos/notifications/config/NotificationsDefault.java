@@ -11,6 +11,7 @@ public class NotificationsDefault {
         private Event() {
         }
 
+        public static final boolean ENABLED = false;
         public static final String HOST = "localhost";
         public static final int PORT = 0;
         public static final String USERNAME = "admin";

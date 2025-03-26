@@ -148,6 +148,15 @@ public class ApplicationProperties {
     public static class Event {
 
         /**
+         * Enable legacy events integration.
+         * <p>
+         * This functionality is likely obsolete and may be removed in the future.
+         * However, to ensure backward compatibility, the option to enable it has been retained.
+         * Disabled by default.
+         */
+        private boolean enabled = NotificationsDefault.Event.ENABLED;
+
+        /**
          * Host for connect to ecos-events rabbitmq.
          */
         private String host = NotificationsDefault.Event.HOST;
@@ -167,6 +176,10 @@ public class ApplicationProperties {
          */
         private String password = NotificationsDefault.Event.PASSWORD;
 
+        public boolean isEnabled() {
+            return enabled;
+        }
+
         public String getHost() {
             return this.host;
         }
@@ -181,6 +194,10 @@ public class ApplicationProperties {
 
         public String getPassword() {
             return this.password;
+        }
+        
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
 
         public void setHost(String host) {

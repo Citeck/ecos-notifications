@@ -3,10 +3,10 @@ package ru.citeck.ecos.notifications.config;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import ru.citeck.ecos.events.EventConnection;
 import ru.citeck.ecos.notifications.domain.subscribe.handlers.AbstractEventHandlersRegistrar;
 import ru.citeck.ecos.notifications.domain.subscribe.repo.SubscriberRepository;
@@ -28,7 +28,7 @@ public class EventConfig {
     }
 
     @Bean
-    @Profile("!test")
+    @ConditionalOnProperty(value = "ecos-notifications.event.enabled")
     public EventConnection eventConnection() {
         return new EventConnection.Builder()
             .host(appProps.getEvent().getHost())
