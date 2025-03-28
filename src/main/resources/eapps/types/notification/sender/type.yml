@@ -9,3 +9,5 @@ sourceId: "sender"
 
 controller:
   type: json
+  config:
+    format: yaml
