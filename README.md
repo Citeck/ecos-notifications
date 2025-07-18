@@ -2,18 +2,15 @@
 
 # `ecos-notifications`
 
+**Read this in other languages: [Русский](README.RU.MD)**
+
 Welcome to the Citeck `ecos-notifications` repository! This repository contains the notification templates and
 configurations for the Citeck platform. Citeck is a powerful and comprehensive enterprise content and
 operations system designed to streamline and automate business processes within organizations.
 
 ## Get started
 
-If you are new to Citeck platform and would like to run the software locally, we recommend you download the Dockerized
-version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
-
-## Useful Links
-
-- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
+If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/citeck-community).
 
 ## Dependencies
 
@@ -78,6 +75,10 @@ Then, run a Sonar analysis:
 ```
 ./mvnw -Pprod clean test sonar:sonar
 ```
+
+## Useful Links
+
+- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
 
 ## Contributing
 
