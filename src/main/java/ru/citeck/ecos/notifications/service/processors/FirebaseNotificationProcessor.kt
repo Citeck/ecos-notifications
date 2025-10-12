@@ -10,6 +10,7 @@ import ru.citeck.ecos.events.data.dto.EventDto
 import ru.citeck.ecos.events.data.dto.pasrse.EventDtoFactory
 import ru.citeck.ecos.events.data.dto.task.TaskEventDto
 import ru.citeck.ecos.events.data.dto.task.TaskEventType
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.firebase.*
 import ru.citeck.ecos.notifications.domain.subscribe.repo.ActionEntity
@@ -32,7 +33,8 @@ class FirebaseNotificationProcessor(
     val notificationService: NotificationService,
     val actionService: ActionService,
     val notificationTemplateService: NotificationTemplateService,
-    val appProps: ApplicationProperties
+    val appProps: ApplicationProperties,
+    val workspaceService: WorkspaceService
 ) : ActionProcessor() {
 
     private val log = KotlinLogging.logger {}
@@ -72,13 +74,14 @@ class FirebaseNotificationProcessor(
         val notificationTransformer = NotificationTransformer(dto, config, action)
 
         val templateRef = notificationTransformer.template()
-        val templateWithMeta = notificationTemplateService.findById(templateRef.getLocalId())
+        val templateIdInWs = workspaceService.convertToIdInWs(templateRef.getLocalId())
+        val templateWithMeta = notificationTemplateService.findById(templateIdInWs)
         if (!templateWithMeta.isPresent) {
-            log.error(
+            log.error {
                 "Firebase notification not send, because template with id " +
                     "$templateRef not found. " +
                     "Action ${action.id} will be deleted."
-            )
+            }
             actionService.deleteById(action.id)
             return
         }

@@ -6,12 +6,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.util.Assert
+import ru.citeck.ecos.context.lib.auth.AuthContext
+import ru.citeck.ecos.model.lib.workspace.IdInWs
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.template.converter.TemplateConverter
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateEntity
 import ru.citeck.ecos.notifications.domain.template.repo.NotificationTemplateRepository
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.records2.predicate.model.VoidPredicate
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -28,7 +32,8 @@ import javax.annotation.PostConstruct
 class NotificationTemplateService(
     private val templateRepository: NotificationTemplateRepository,
     private val templateConverter: TemplateConverter,
-    private val jpaSearchConverterFactory: JpaSearchConverterFactory
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory,
+    private val workspaceService: WorkspaceService
 ) {
 
     private lateinit var searchConv: JpaSearchConverter<NotificationTemplateEntity>
@@ -54,9 +59,9 @@ class NotificationTemplateService(
         }
     }
 
-    fun deleteById(id: String?) {
-        require(!StringUtils.isBlank(id)) { "Id parameter is mandatory for template deletion" }
-        templateRepository.findOneByExtId(id)
+    fun deleteById(id: IdInWs) {
+        require(!id.isEmpty()) { "Id parameter is mandatory for template deletion" }
+        templateRepository.findOneByExtIdAndWorkspace(id.id, id.workspace)
             .ifPresent { entity: NotificationTemplateEntity -> templateRepository.delete(entity) }
     }
 
@@ -83,11 +88,11 @@ class NotificationTemplateService(
         return templates
     }
 
-    fun findById(id: String): Optional<NotificationTemplateWithMeta> {
-        return if (StringUtils.isBlank(id)) {
+    fun findById(id: IdInWs): Optional<NotificationTemplateWithMeta> {
+        return if (id.isEmpty()) {
             Optional.empty()
         } else {
-            templateRepository.findOneByExtId(id)
+            templateRepository.findOneByExtIdAndWorkspace(id.id, id.workspace)
                 .map { entity: NotificationTemplateEntity ->
                     templateConverter.entityToDto(
                         entity
@@ -132,8 +137,18 @@ class NotificationTemplateService(
         return resultDto
     }
 
-    fun getAll(max: Int, skip: Int, predicate: Predicate, sort: List<SortBy>): List<NotificationTemplateWithMeta> {
-        return searchConv.findAll(templateRepository, predicate, max, skip, sort)
+    fun getAll(
+        max: Int,
+        skip: Int,
+        predicate: Predicate,
+        workspaces: List<String>,
+        sort: List<SortBy>
+    ): List<NotificationTemplateWithMeta> {
+        val predicateWithWorkspaces = Predicates.and(
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            predicate
+        )
+        return searchConv.findAll(templateRepository, predicateWithWorkspaces, max, skip, sort)
             .map { entity: NotificationTemplateEntity ->
                 templateConverter.entityToDto(
                     entity

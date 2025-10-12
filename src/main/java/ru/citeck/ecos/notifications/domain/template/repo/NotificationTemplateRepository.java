@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface NotificationTemplateRepository extends JpaRepository<NotificationTemplateEntity, Long>,
     JpaSpecificationExecutor<NotificationTemplateEntity> {
 
-    Optional<NotificationTemplateEntity> findOneByExtId(String extId);
+    Optional<NotificationTemplateEntity> findOneByExtIdAndWorkspace(String extId, String workspace);
 
     @Query("SELECT T FROM NotificationTemplateEntity T WHERE T.multiTemplateConfig like '%emodel/type%'")
     List<NotificationTemplateEntity> findAllMultiTemplates();

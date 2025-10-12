@@ -16,6 +16,7 @@ class NotificationTemplateEntity @JvmOverloads constructor(
 
     @Column(name = "ext_id")
     var extId: String? = null,
+    var workspace: String = "",
 
     var name: String? = null,
 

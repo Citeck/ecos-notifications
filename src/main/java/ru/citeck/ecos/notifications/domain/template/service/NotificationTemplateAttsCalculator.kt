@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.template.service
 import org.springframework.stereotype.Service
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NOTIFICATION_TEMPLATE_RECORD_ID
 import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
@@ -24,7 +25,8 @@ import ru.citeck.ecos.webapp.api.entity.toEntityRef
 class NotificationTemplateAttsCalculator(
     val notificationTemplateService: NotificationTemplateService,
     val recordsService: RecordsService,
-    val sendersService: NotificationSenderService
+    val sendersService: NotificationSenderService,
+    val workspaceService: WorkspaceService
 ) : NotificationsAppApi {
 
     companion object {
@@ -32,7 +34,8 @@ class NotificationTemplateAttsCalculator(
     }
 
     private fun findRequiredTemplate(id: String): NotificationTemplateDto {
-        return notificationTemplateService.findById(id).orElseThrow {
+        val idInWs = workspaceService.convertToIdInWs(id)
+        return notificationTemplateService.findById(idInWs).orElseThrow {
             RuntimeException("Notification template does not exist: '$id'")
         }
     }
@@ -56,7 +59,7 @@ class NotificationTemplateAttsCalculator(
         val templateRef = EntityRef.create(
             AppName.NOTIFICATIONS,
             NOTIFICATION_TEMPLATE_RECORD_ID,
-            template.id
+            workspaceService.addWsPrefixToId(template.id, template.workspace)
         )
         return GetTemplateDataExactTemplate(templateRef, requiredAtts)
     }

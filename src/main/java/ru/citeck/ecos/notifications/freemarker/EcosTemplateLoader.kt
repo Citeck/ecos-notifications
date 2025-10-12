@@ -4,6 +4,7 @@ import freemarker.cache.TemplateLoader
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
@@ -18,7 +19,8 @@ const val LANG_SPECIFY_SEPARATOR = "_"
 @Component
 class EcosTemplateLoader(
     @Qualifier("domainNotificationTemplateService")
-    private val templateService: NotificationTemplateService
+    private val templateService: NotificationTemplateService,
+    private val workspaceService: WorkspaceService
 ) : TemplateLoader {
 
     override fun closeTemplateSource(templateSource: Any?) {
@@ -54,7 +56,7 @@ class EcosTemplateLoader(
         val ref = EntityRef.valueOf(cleanedName)
         val id = ref.getLocalId()
 
-        val found = templateService.findById(id)
+        val found = templateService.findById(workspaceService.convertToIdInWs(id))
         if (!found.isPresent) {
             return null
         }

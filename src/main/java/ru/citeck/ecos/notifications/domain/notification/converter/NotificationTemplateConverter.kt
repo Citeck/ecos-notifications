@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.DEFAULT_LOCALE
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
@@ -15,13 +16,14 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 class NotificationTemplateConverter(
     val notificationTemplateService: NotificationTemplateService,
     val notificationDao: NotificationDao,
+    val workspaceService: WorkspaceService,
     val freemarkerService: FreemarkerTemplateEngineService
 ) {
 
     private val log = KotlinLogging.logger {}
 
     fun convertToReadableNotification(notificationDbId: Long, templateRef: EntityRef): String {
-        val template = notificationTemplateService.findById(templateRef.getLocalId())
+        val template = notificationTemplateService.findById(workspaceService.convertToIdInWs(templateRef.getLocalId()))
         val notification = notificationDao.getById(notificationDbId)
         if (notification == null || !template.isPresent || notification.state != NotificationState.SENT) {
             return ""

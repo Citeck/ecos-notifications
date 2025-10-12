@@ -11,6 +11,8 @@ data class NotificationDto(
 
     val extId: String,
 
+    val workspace: String,
+
     val record: EntityRef,
 
     val template: EntityRef,
@@ -62,7 +64,7 @@ data class NotificationDto(
     }
 
     override fun toString(): String {
-        return "NotificationDto(id=$id, extId='$extId', record=$record, template=$template, webUrl='$webUrl', type=$type, " +
+        return "NotificationDto(id=$id, workspace=$workspace, extId='$extId', record=$record, template=$template, webUrl='$webUrl', type=$type, " +
             "errorMessage='$errorMessage', errorStackTrace='$errorStackTrace', bulkMailRef=$bulkMailRef, " +
             "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, createdFrom=$createdFrom, state=$state, " +
             "createdBy=$createdBy, createdDate=$createdDate, lastModifiedBy=$lastModifiedBy, " +

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.context.lib.ctx.EcosContext
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.*
@@ -44,6 +45,7 @@ class NotificationSenderServiceImpl(
     private val notificationEventService: NotificationEventService,
     private val notificationsSenderService: NotificationsSenderService,
     private val predicateService: PredicateService,
+    private val workspaceService: WorkspaceService,
 
     private val ecosContext: EcosContext
 
@@ -81,8 +83,12 @@ class NotificationSenderServiceImpl(
 
             if (sender.templates.isNotEmpty() && notification.template != null) {
                 var acceptable = false
+                val notificationTemplateRefLocalId = workspaceService.addWsPrefixToId(
+                    notification.template.id,
+                    notification.template.workspace
+                )
                 for (recordRef in sender.templates) {
-                    if (recordRef.getLocalId() == notification.template.id) {
+                    if (recordRef.getLocalId() == notificationTemplateRefLocalId) {
                         acceptable = true
                         break
                     }
@@ -197,7 +203,11 @@ class NotificationSenderServiceImpl(
             attachments = attachments,
             data = data,
             templateRef = rawNotification.template?.let {
-                EntityRef.create(AppName.NOTIFICATIONS, NOTIFICATION_TEMPLATE_RECORD_ID, rawNotification.template.id)
+                val localId = workspaceService.addWsPrefixToId(
+                    rawNotification.template.id,
+                    rawNotification.template.workspace
+                )
+                EntityRef.create(AppName.NOTIFICATIONS, NOTIFICATION_TEMPLATE_RECORD_ID, localId)
             }
         )
     }
@@ -226,7 +236,8 @@ class NotificationSenderServiceImpl(
             scope[TemplateProcCtxKey.WORKSPACE] = model[DefaultTplModelAtts.ATT_WORKSPACE] as? String ?: ""
             scope[TemplateProcCtxKey.CUSTOM_WEB_URL] = webUrl
 
-            freemarkerService.process(template.id, locale, model)
+            val templateKey = workspaceService.addWsPrefixToId(template.id, template.workspace)
+            freemarkerService.process(templateKey, locale, model)
         }
     }
 
@@ -236,7 +247,8 @@ class NotificationSenderServiceImpl(
         val titleTemplate = resolveAnyAvailableTitle(title, locale)
             ?: throw NotificationException("Notification title not found in template: $template")
 
-        return freemarkerService.process(template.id + "_title", titleTemplate, model)
+        val templateKey = workspaceService.addWsPrefixToId(template.id, template.workspace) + "_title"
+        return freemarkerService.process(templateKey, titleTemplate, model)
     }
 
     @Suppress("UNCHECKED_CAST")

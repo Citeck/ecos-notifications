@@ -8,7 +8,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
@@ -31,7 +31,7 @@ class NotificationTemplateConverterTest {
     @Autowired
     private lateinit var notificationTemplateService: NotificationTemplateService
 
-    @MockBean
+    @MockitoBean
     private lateinit var notificationDao: NotificationDao
 
     @BeforeEach
@@ -52,6 +52,7 @@ class NotificationTemplateConverterTest {
 
         val notification = NotificationDto(
             null,
+            "",
             "",
             EntityRef.EMPTY,
             EntityRef.EMPTY,

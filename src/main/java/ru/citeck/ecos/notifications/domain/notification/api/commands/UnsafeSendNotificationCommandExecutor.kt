@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
@@ -23,7 +24,8 @@ import java.util.*
 class UnsafeSendNotificationCommandExecutor(
     val notificationService: NotificationSenderService,
     val notificationTemplateService: NotificationTemplateService,
-    val predicateService: PredicateService
+    val predicateService: PredicateService,
+    val workspaceService: WorkspaceService
 ) {
 
     companion object {
@@ -106,7 +108,7 @@ class UnsafeSendNotificationCommandExecutor(
             getTemplateMetaById(ref.getLocalId()).model?.let { requiredModel.putAll(it) }
         }
         baseTemplate.model?.let { requiredModel.putAll(it) }
-        if (!Objects.equals(baseTemplate.id, template.id)) {
+        if (!compareTemplates(baseTemplate, template)) {
             template.model?.let { requiredModel.putAll(it) }
         }
 
@@ -122,12 +124,20 @@ class UnsafeSendNotificationCommandExecutor(
         )
     }
 
+    private fun compareTemplates(
+        template0: NotificationTemplateWithMeta,
+        template1: NotificationTemplateWithMeta
+    ): Boolean {
+        return template0.id == template1.id && template0.workspace == template1.workspace
+    }
+
     private fun recipientsNotSpecified(command: SendNotificationCommand): Boolean {
         return command.recipients.isEmpty() && command.cc.isEmpty() && command.bcc.isEmpty()
     }
 
     private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
-        return notificationTemplateService.findById(id).orElseThrow {
+        val idInWs = workspaceService.convertToIdInWs(id)
+        return notificationTemplateService.findById(idInWs).orElseThrow {
             NotificationException("Template with id: <$id> not found}")
         }
     }
@@ -141,7 +151,7 @@ class UnsafeSendNotificationCommandExecutor(
             return baseTemplate
         }
 
-        baseTemplate.multiTemplateConfig?.forEach { it ->
+        baseTemplate.multiTemplateConfig?.forEach {
             it.type?.let { typeRef ->
                 val checkType = EntityRef.valueOf(recordEcosTypeId) == typeRef
                 if (checkType && checkPredicate(it.condition, attributes)) {

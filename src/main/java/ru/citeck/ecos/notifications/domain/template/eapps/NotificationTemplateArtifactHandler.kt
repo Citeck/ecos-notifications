@@ -10,6 +10,7 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
+import ru.citeck.ecos.model.lib.workspace.IdInWs
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
@@ -35,16 +36,16 @@ class NotificationTemplateArtifactHandler(
     private fun toDto(module: BinArtifact): NotificationTemplateWithMeta {
         val meta = module.meta
 
-        val dto = NotificationTemplateWithMeta(meta.get("id").asText())
+        val dto = NotificationTemplateWithMeta(meta["id"].asText(), "")
         dto.notificationTitle = meta.get("notificationTitle", MLText::class.java)
-        dto.name = meta.get("name").asText()
-        dto.tags = meta.get("tags").asList(String::class.java)
+        dto.name = meta["name"].asText()
+        dto.tags = meta["tags"].asList(String::class.java)
 
         val memDir = extractZip(module.data)
         dto.templateData = TemplateDataFinder(memDir).find()
 
         dto.model = meta.get("model").asMap(String::class.java, String::class.java)
-        dto.multiTemplateConfig = meta.get("multiTemplateConfig").asList(MultiTemplateElementDto::class.java)
+        dto.multiTemplateConfig = meta["multiTemplateConfig"].asList(MultiTemplateElementDto::class.java)
 
         log.debug("Deploy new $ARTIFACT_TYPE module: $dto")
 
@@ -60,12 +61,12 @@ class NotificationTemplateArtifactHandler(
         templateService.addListener { dto ->
 
             val meta = ObjectData.create()
-            meta.set("id", dto.id)
-            meta.set("name", dto.name)
-            meta.set("tags", dto.tags)
-            meta.set("model", dto.model)
-            meta.set("multiTemplateConfig", dto.multiTemplateConfig)
-            meta.set("notificationTitle", dto.notificationTitle)
+            meta["id"] = dto.id
+            meta["name"] = dto.name
+            meta["tags"] = dto.tags
+            meta["model"] = dto.model
+            meta["multiTemplateConfig"] = dto.multiTemplateConfig
+            meta["notificationTitle"] = dto.notificationTitle
 
             val memDir = EcosMemDir()
             dto.templateData.values.forEach {
@@ -105,13 +106,13 @@ class NotificationTemplateArtifactHandler(
                     val dataDto = TemplateDataDto(it.getName(), it.readAsBytes())
                     templateData[langKey] = dataDto
 
-                    log.debug("Template data name: ${it.getName()} content: \n$${it.readAsString()}")
+                    log.debug { "Template data name: ${it.getName()} content: \n$${it.readAsString()}" }
                 }
             }
         }
     }
 
     override fun deleteArtifact(artifactId: String) {
-        templateService.deleteById(artifactId)
+        templateService.deleteById(IdInWs.create(artifactId))
     }
 }

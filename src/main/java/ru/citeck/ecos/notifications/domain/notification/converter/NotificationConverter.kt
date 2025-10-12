@@ -41,6 +41,7 @@ fun NotificationEntity.toDto(): NotificationDto {
     return NotificationDto(
         id = id!!,
         extId = extId ?: "",
+        workspace = workspace,
         record = EntityRef.valueOf(record),
         template = EntityRef.valueOf(template),
         webUrl = webUrl ?: "",
@@ -68,6 +69,7 @@ fun NotificationDto.toEntity(): NotificationEntity {
     return converter.notificationRepository.findOneByExtId(explicitExtId).orElse(NotificationEntity()).apply {
         id = dto.id
         extId = explicitExtId
+        workspace = dto.workspace
         record = dto.record.toString()
         template = dto.template.toString()
         webUrl = dto.webUrl
@@ -91,6 +93,7 @@ fun Notification.toDtoWithState(
 ): NotificationDto {
     return NotificationDto(
         extId = id,
+        workspace = "",
         type = type,
         record = if (record is EntityRef) {
             record as EntityRef

@@ -21,11 +21,13 @@ class TemplateConverter {
     private lateinit var templateRepository: NotificationTemplateRepository
 
     fun dtoToEntity(dto: NotificationTemplateWithMeta): NotificationTemplateEntity {
-        val entity = templateRepository.findOneByExtId(dto.id).orElse(NotificationTemplateEntity())
+        val entity = templateRepository.findOneByExtIdAndWorkspace(dto.id, dto.workspace)
+            .orElse(NotificationTemplateEntity())
         entity.name = dto.name
         entity.notificationTitle = mapper.toString(dto.notificationTitle)
         entity.tags = dto.tags.joinToString(TAGS_SEPARATOR)
         entity.extId = dto.id
+        entity.workspace = dto.workspace
         entity.model = mapper.toString(dto.model)
         entity.multiTemplateConfig = mapper.toString(dto.multiTemplateConfig)
 
@@ -48,6 +50,7 @@ class TemplateConverter {
     fun entityToDto(entity: NotificationTemplateEntity): NotificationTemplateWithMeta {
         val dto = NotificationTemplateWithMeta(
             id = entity.extId!!,
+            workspace = entity.workspace,
             name = entity.name,
             notificationTitle = mapper.read(entity.notificationTitle, MLText::class.java),
             tags = if (entity.tags.isNullOrBlank()) {

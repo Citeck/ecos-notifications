@@ -17,8 +17,9 @@ class NotificationEntity @JvmOverloads constructor(
     @SequenceGenerator(name = "sequenceGenerator")
     var id: Long? = null,
 
-    @Column(columnDefinition = "VARCHAR(255)", unique = true)
+    @Column(columnDefinition = "VARCHAR(255)")
     var extId: String? = null,
+    var workspace: String = "",
 
     @Enumerated(EnumType.STRING)
     var type: NotificationType? = null,

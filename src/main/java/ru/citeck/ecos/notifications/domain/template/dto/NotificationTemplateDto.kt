@@ -5,6 +5,7 @@ import ru.citeck.ecos.commons.data.MLText
 open class NotificationTemplateDto(
 
     var id: String,
+    var workspace: String = "",
     var name: String? = null,
     var notificationTitle: MLText? = null,
     var tags: List<String> = emptyList(),
@@ -14,6 +15,7 @@ open class NotificationTemplateDto(
 ) {
     constructor(dto: NotificationTemplateDto) : this(
         dto.id,
+        dto.workspace,
         dto.name,
         dto.notificationTitle,
         dto.tags,
@@ -33,6 +35,7 @@ open class NotificationTemplateDto(
         other as NotificationTemplateDto
 
         if (id != other.id ||
+            workspace != other.workspace ||
             name != other.name ||
             notificationTitle != other.notificationTitle ||
             model != other.model ||
@@ -46,6 +49,7 @@ open class NotificationTemplateDto(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
+        result = 31 * result + workspace.hashCode()
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (notificationTitle?.hashCode() ?: 0)
         result = 31 * result + (model?.hashCode() ?: 0)

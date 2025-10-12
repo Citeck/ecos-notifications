@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toNotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
@@ -14,6 +15,7 @@ import java.time.Instant
 @Component
 class NotificationCommandResultHolder(
     private val notificationDao: NotificationDao,
+    private val workspaceService: WorkspaceService
 ) {
 
     companion object {
@@ -24,6 +26,7 @@ class NotificationCommandResultHolder(
         log.debug { "hold error notification command:\n $command" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
+        val templateIdInWs = workspaceService.convertToIdInWs(command.templateRef.getLocalId())
 
         val toSave: NotificationDto = existsNotifications?.copy(
             type = command.type,
@@ -39,6 +42,7 @@ class NotificationCommandResultHolder(
         )
             ?: NotificationDto(
                 extId = command.id,
+                workspace = templateIdInWs.workspace,
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,
@@ -61,6 +65,7 @@ class NotificationCommandResultHolder(
 
         val existsNotifications = notificationDao.getByExtId(command.id)
         val state = result.toNotificationState()
+        val templateIdInWs = workspaceService.convertToIdInWs(command.templateRef.getLocalId())
 
         val toSave = existsNotifications?.copy(
             type = command.type,
@@ -76,6 +81,7 @@ class NotificationCommandResultHolder(
         )
             ?: NotificationDto(
                 extId = command.id,
+                workspace = templateIdInWs.workspace,
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,

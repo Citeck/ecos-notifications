@@ -7,6 +7,7 @@ import java.time.Instant
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 open class NotificationTemplateWithMeta(
     id: String,
+    workspace: String = "",
     name: String? = null,
     notificationTitle: MLText? = null,
     tags: List<String> = emptyList(),
@@ -17,9 +18,10 @@ open class NotificationTemplateWithMeta(
     var modified: Instant? = null,
     var creator: String? = null,
     var created: Instant? = null
-) : NotificationTemplateDto(id, name, notificationTitle, tags, model, multiTemplateConfig) {
+) : NotificationTemplateDto(id, workspace, name, notificationTitle, tags, model, multiTemplateConfig) {
     constructor(dto: NotificationTemplateWithMeta) : this(
         dto.id,
+        dto.workspace,
         dto.name,
         dto.notificationTitle,
         dto.tags,
@@ -33,6 +35,6 @@ open class NotificationTemplateWithMeta(
     )
 
     override fun toString(): String {
-        return "NotificationTemplateWithMeta(id=$id)"
+        return "NotificationTemplateWithMeta(id=$id,workspace=$workspace)"
     }
 }

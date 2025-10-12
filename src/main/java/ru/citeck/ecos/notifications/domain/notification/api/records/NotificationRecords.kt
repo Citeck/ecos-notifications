@@ -6,6 +6,7 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthRole
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.NotificationTemplateConverter
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
@@ -33,6 +34,7 @@ import java.util.*
 class NotificationRecords(
     private val notificationDao: NotificationDao,
     private val commandsService: CommandsService,
+    private val workspaceService: WorkspaceService,
     private val notificationTemplateService: NotificationTemplateService,
     private val notificationTemplateConverter: NotificationTemplateConverter
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDao {
@@ -64,6 +66,7 @@ class NotificationRecords(
                     max,
                     recsQuery.page.skipCount,
                     predicate,
+                    recsQuery.workspaces,
                     recsQuery.sortBy
                 )
 
@@ -130,6 +133,7 @@ class NotificationRecords(
     open inner class NotificationRecord(
         var id: Long? = null,
         var extId: String,
+        var workspace: String,
         val record: EntityRef,
         val template: EntityRef,
         val webUrl: String,
@@ -151,6 +155,7 @@ class NotificationRecords(
         constructor(dto: NotificationDto) : this(
             dto.id,
             dto.extId,
+            dto.workspace,
             dto.record,
             dto.template,
             dto.webUrl,
@@ -223,8 +228,8 @@ class NotificationRecords(
                 if (template.isEmpty()) {
                     return@let emptyMap()
                 }
-
-                val baseTemplate = notificationTemplateService.findById(template.getLocalId()).orElseThrow {
+                val idInWs = workspaceService.convertToIdInWs(template.getLocalId())
+                val baseTemplate = notificationTemplateService.findById(idInWs).orElseThrow {
                     NotificationException("Template with id: <$id> not found}")
                 }
                 val notificationCommand = mapper.read(data, SendNotificationCommand::class.java)

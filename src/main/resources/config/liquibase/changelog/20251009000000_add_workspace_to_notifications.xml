@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="citeck" id="20251009000000">
+
+        <!-- notification_template -->
+
+        <addColumn tableName="notification_template">
+            <column name="workspace" type="VARCHAR" />
+        </addColumn>
+
+        <sql>UPDATE notification_template SET workspace='' where workspace is null</sql>
+        <addNotNullConstraint tableName="notification_template" columnName="workspace" />
+        <addDefaultValue tableName="notification_template" columnName="workspace" defaultValue="" />
+
+        <!-- notification -->
+
+        <addColumn tableName="notification">
+            <column name="workspace" type="VARCHAR" />
+        </addColumn>
+
+        <sql>UPDATE notification SET workspace='' where workspace is null</sql>
+        <addNotNullConstraint tableName="notification" columnName="workspace" />
+        <addDefaultValue tableName="notification" columnName="workspace" defaultValue="" />
+
+    </changeSet>
+
+</databaseChangeLog>

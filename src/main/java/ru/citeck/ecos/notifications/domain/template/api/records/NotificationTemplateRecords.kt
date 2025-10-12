@@ -10,6 +10,7 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.commons.utils.ZipUtils
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords.NotTemplateRecord
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -22,6 +23,7 @@ import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplate
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records3.record.atts.schema.ScalarType
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
@@ -31,6 +33,7 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.time.Instant
 import java.util.stream.Collectors
@@ -42,7 +45,8 @@ const val NOTIFICATION_TEMPLATE_RECORD_ID = "template"
 @Component
 class NotificationTemplateRecords(
     val templateService: NotificationTemplateService,
-    val notificationTemplateAttsCalculator: NotificationTemplateAttsCalculator
+    val notificationTemplateAttsCalculator: NotificationTemplateAttsCalculator,
+    val workspaceService: WorkspaceService
 ) :
     AbstractRecordsDao(),
     RecordsQueryDao,
@@ -53,25 +57,29 @@ class NotificationTemplateRecords(
     override fun delete(recordIds: List<String>): List<DelStatus> {
         val result = ArrayList<DelStatus>()
         for (recordId in recordIds) {
-            templateService.deleteById(recordId)
+            templateService.deleteById(workspaceService.convertToIdInWs(recordId))
             result.add(DelStatus.OK)
         }
         return result
     }
 
     override fun getRecToMutate(recordId: String): NotTemplateRecord {
-        return getRecordAtts(recordId)
+        if (recordId.isEmpty()) {
+            return NotTemplateRecord(NotificationTemplateWithMeta("", ""))
+        }
+        return getRecordAtts(recordId) ?: error("Record with id '$recordId' is not found")
     }
 
     override fun saveMutatedRec(record: NotTemplateRecord): String {
-        return templateService.save(record).id
+        val saved = templateService.save(record)
+        return workspaceService.addWsPrefixToId(saved.id, saved.workspace)
     }
 
-    override fun getRecordAtts(recordId: String): NotTemplateRecord {
-        return NotTemplateRecord(
-            templateService.findById(recordId)
-                .orElseGet { NotificationTemplateWithMeta(recordId) }
-        )
+    override fun getRecordAtts(recordId: String): NotTemplateRecord? {
+        val idInWs = workspaceService.convertToIdInWs(recordId)
+        return templateService.findById(idInWs).orElse(null)?.let {
+            NotTemplateRecord(it)
+        }
     }
 
     override fun queryRecords(recsQuery: RecordsQuery): Any? {
@@ -89,11 +97,9 @@ class NotificationTemplateRecords(
                 max,
                 recsQuery.page.skipCount,
                 predicate,
+                recsQuery.workspaces,
                 recsQuery.sortBy
-            )
-                .stream()
-                .map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
-                .collect(Collectors.toList())
+            ).map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
             records.setRecords(ArrayList(types))
             records.setTotalCount(templateService.getCount(predicate))
             return records
@@ -122,11 +128,17 @@ class NotificationTemplateRecords(
                 id = value
             }
 
-        @get:AttName(".type")
+        @AttName(ScalarType.ID_SCHEMA)
+        fun getRef(): EntityRef {
+            val strId = workspaceService.addWsPrefixToId(id, workspace)
+            return EntityRef.create(AppName.NOTIFICATIONS, NOTIFICATION_TEMPLATE_RECORD_ID, strId)
+        }
+
+        @get:AttName("?type")
         val ecosType: EntityRef
             get() = EntityRef.create("emodel", "type", "notification-template")
 
-        @get:AttName(".disp")
+        @get:AttName("?disp")
         val displayName: String?
             get() = name
 
@@ -199,6 +211,7 @@ class NotificationTemplateRecords(
                 val memDir = EcosMemDir()
 
                 val metaDto = NotificationTemplateDto(this)
+                metaDto.workspace = ""
                 val prettyString = mapper.toPrettyString(metaDto)
 
                 var hasLangKeyInTemplateData = false
@@ -252,6 +265,11 @@ class NotificationTemplateRecords(
 
             mapper.applyData(this, data)
             this.templateData = templateData
+        }
+
+        @JsonProperty(RecordConstants.ATT_WORKSPACE)
+        fun setCtxWorkspace(workspace: String) {
+            this.workspace = workspaceService.getUpdatedWsInMutation(this.workspace, workspace)
         }
     }
 

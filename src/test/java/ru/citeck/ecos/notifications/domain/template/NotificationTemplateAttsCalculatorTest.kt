@@ -4,8 +4,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.mockito.kotlin.any
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.workspace.IdInWs
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords
 import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
@@ -34,13 +38,15 @@ class NotificationTemplateAttsCalculatorTest {
     private lateinit var calculator: NotificationTemplateAttsCalculator
     private lateinit var templateService: NotificationTemplateService
     private lateinit var recordsService: RecordsService
+    private lateinit var workspaceService: WorkspaceService
 
     @Test
     fun testAllRequiredAtts() {
 
         fun checkTemplate(template: String, expectedAtts: Set<String>) {
 
-            val calcAtts = calculator.getAllRequiredAtts(templateService.findById(template).orElse(null))
+            val idInWs = workspaceService.convertToIdInWs(template)
+            val calcAtts = calculator.getAllRequiredAtts(templateService.findById(idInWs).orElse(null))
             assertThat(calcAtts).containsExactlyInAnyOrderElementsOf(expectedAtts)
 
             val recAtts = recordsService.getAtt(template.asTemplateRef(), "multiModelAttributes[]").asStrList()
@@ -171,11 +177,13 @@ class NotificationTemplateAttsCalculatorTest {
         val templates = loadAllTemplates("template/attscalc").associateBy { it.id }
 
         templateService = Mockito.mock(NotificationTemplateService::class.java)
-        Mockito.`when`(templateService.findById(Mockito.anyString())).then { invocation ->
+        Mockito.`when`(templateService.findById(any())).then { invocation ->
+            val idInWs: IdInWs = invocation.getArgument(0)
             Optional.ofNullable(
-                templates[invocation.getArgument(0)]?.let { dto ->
+                templates[idInWs.id]?.let { dto ->
                     NotificationTemplateWithMeta(
                         dto.id,
+                        dto.workspace,
                         dto.name,
                         dto.notificationTitle,
                         dto.tags,
@@ -202,13 +210,17 @@ class NotificationTemplateAttsCalculatorTest {
             }
         }
         recordsService = recordsServices.recordsService
+        workspaceService = ModelServiceFactory().workspaceService
 
         calculator = NotificationTemplateAttsCalculator(
             templateService,
             recordsService,
-            notificationSendersService
+            notificationSendersService,
+            workspaceService
         )
 
-        recordsServices.recordsService.register(NotificationTemplateRecords(templateService, calculator))
+        recordsServices.recordsService.register(
+            NotificationTemplateRecords(templateService, calculator, workspaceService)
+        )
     }
 }

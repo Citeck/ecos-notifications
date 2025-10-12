@@ -1,0 +1,30 @@
+---
+id: add-notifications-admin-journals-to-ws-menu
+name:
+  ru: Добавить журналы администрирования notifications в меню рабочей области
+  en: Add notifications admin journals to default workspace menu
+
+target: 'ui/menu$default-ws-admin-menu-items'
+system: true
+order: 500
+
+type: json
+config:
+  operations:
+    - op: add
+      path: '$.subMenu.left.items'
+      value:
+        - id: notification-templates
+          label: { ru: Шаблоны уведомлений, en: Notification templates }
+          icon: ui/icon@i-leftmenu-correspondence
+          hidden: false
+          type: JOURNAL
+          config:
+            recordRef: uiserv/journal@notification-templates
+        - id: notification
+          label: { ru: Уведомления, en: Notifications }
+          icon: ui/icon@i-leftmenu-correspondence
+          hidden: false
+          type: JOURNAL
+          config:
+            recordRef: uiserv/journal@notification
