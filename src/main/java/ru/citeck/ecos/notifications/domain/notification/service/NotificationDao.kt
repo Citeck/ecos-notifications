@@ -131,8 +131,12 @@ class NotificationDao(
     }
 
     @Transactional(readOnly = true)
-    fun getCount(predicate: Predicate): Long {
-        return searchConv.getCount(notificationRepository, predicate)
+    fun getCount(predicate: Predicate, workspaces: List<String>): Long {
+        val predicateWithWorkspaces = Predicates.and(
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            predicate
+        )
+        return searchConv.getCount(notificationRepository, predicateWithWorkspaces)
     }
 
     private fun getCount(): Long {

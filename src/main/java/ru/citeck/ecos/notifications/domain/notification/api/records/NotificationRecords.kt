@@ -71,7 +71,7 @@ class NotificationRecords(
                 )
 
                 result.setRecords(types.map { NotificationRecord(it) })
-                result.setTotalCount(notificationDao.getCount(predicate))
+                result.setTotalCount(notificationDao.getCount(predicate, recsQuery.workspaces))
             }
 
             else -> {

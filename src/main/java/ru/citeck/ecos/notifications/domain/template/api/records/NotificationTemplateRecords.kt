@@ -101,7 +101,7 @@ class NotificationTemplateRecords(
                 recsQuery.sortBy
             ).map { dto: NotificationTemplateWithMeta -> NotTemplateRecord(dto) }
             records.setRecords(ArrayList(types))
-            records.setTotalCount(templateService.getCount(predicate))
+            records.setTotalCount(templateService.getCount(predicate, recsQuery.workspaces))
             return records
         }
         if ("criteria" == recsQuery.language) {
