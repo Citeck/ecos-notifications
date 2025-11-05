@@ -9,6 +9,7 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.json.Json.mapper
+import ru.citeck.ecos.commons.utils.FileUtils
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.template.api.records.NotificationTemplateRecords.NotTemplateRecord
@@ -241,6 +242,7 @@ class NotificationTemplateRecords(
             val contentBytes = getContentBytesFromBase64ObjectData(content[0])
 
             val memDir = ZipUtils.extractZip(contentBytes)
+            FileUtils.deleteHiddenAndSystemFiles(memDir)
             if (memDir.findFiles().isEmpty()) {
                 throw IllegalStateException("Failed load notification template, zip is empty")
             }
