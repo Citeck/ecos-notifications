@@ -62,7 +62,7 @@ class ResendNotificationTest : BaseMailTest() {
 
     @Test
     fun `Resend permissions test`() {
-        val ex = assertThrows<Exception> {
+        assertThrows<IllegalAccessException> {
             AuthContext.runAs(EmptyAuth) {
                 recordsService.mutate(
                     initialNotificationRef,
@@ -70,7 +70,6 @@ class ResendNotificationTest : BaseMailTest() {
                 )
             }
         }
-        assertThat(ex.message).contains("Permission denied")
 
         AuthContext.runAsFull(SimpleAuthData("admin", listOf(AuthRole.ADMIN))) {
             recordsService.mutate(

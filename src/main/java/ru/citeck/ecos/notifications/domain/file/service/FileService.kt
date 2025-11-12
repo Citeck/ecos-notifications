@@ -4,12 +4,16 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.notifications.common.NotificationsSystemArtifactPerms
+import ru.citeck.ecos.notifications.domain.file.api.records.FileRecords
 import ru.citeck.ecos.notifications.domain.file.converter.FileConverter
 import ru.citeck.ecos.notifications.domain.file.dto.FileWithMeta
 import ru.citeck.ecos.notifications.domain.file.repo.FileEntity
 import ru.citeck.ecos.notifications.domain.file.repo.FileRepository
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.api.constants.AppName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
 import java.util.*
@@ -18,9 +22,10 @@ import javax.annotation.PostConstruct
 
 @Service
 class FileService(
-    val fileRepository: FileRepository,
-    val fileConverter: FileConverter,
-    private val jpaSearchConverterFactory: JpaSearchConverterFactory
+    private val fileRepository: FileRepository,
+    private val fileConverter: FileConverter,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory,
+    private val perms: NotificationsSystemArtifactPerms
 ) {
 
     private lateinit var searchConv: JpaSearchConverter<FileEntity>
@@ -31,6 +36,8 @@ class FileService(
     }
 
     fun deleteById(id: String) {
+        perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, FileRecords.ID, id))
+
         if (StringUtils.isBlank(id)) {
             throw IllegalArgumentException("Id parameter is mandatory for template file deletion")
         }
@@ -49,6 +56,8 @@ class FileService(
     }
 
     fun save(dto: FileWithMeta): FileWithMeta {
+        perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, FileRecords.ID, dto.id))
+
         if (StringUtils.isBlank(dto.id)) {
             dto.id = UUID.randomUUID().toString()
         }

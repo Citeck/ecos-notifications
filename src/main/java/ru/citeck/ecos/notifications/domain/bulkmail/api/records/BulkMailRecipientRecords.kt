@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.bulkmail.api.records
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientDto
+import ru.citeck.ecos.notifications.domain.bulkmail.perms.BulkMailPerms
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailRecipientDao
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -14,7 +15,9 @@ import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.perms.RecordPerms
 import java.time.Instant
 
 /**
@@ -22,7 +25,8 @@ import java.time.Instant
  */
 @Component
 class BulkMailRecipientRecords(
-    private val bulkMailRecipientDao: BulkMailRecipientDao
+    private val bulkMailRecipientDao: BulkMailRecipientDao,
+    private val perms: BulkMailPerms
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordsDeleteDao {
 
     companion object {
@@ -82,15 +86,15 @@ class BulkMailRecipientRecords(
         }
     }
 
-    override fun delete(recordsId: List<String>): List<DelStatus> {
-        val result = generateSequence { DelStatus.OK }.take(recordsId.size).toMutableList()
+    override fun delete(recordIds: List<String>): List<DelStatus> {
+        val result = generateSequence { DelStatus.OK }.take(recordIds.size).toMutableList()
 
-        bulkMailRecipientDao.removeAllByExtId(recordsId)
+        bulkMailRecipientDao.removeAllByExtId(recordIds)
 
         return result
     }
 
-    data class BulkMailRecipientRecord(
+    open inner class BulkMailRecipientRecord(
         var id: Long? = null,
         var extId: String? = null,
         val bulkMailRef: EntityRef = EntityRef.EMPTY,
@@ -150,5 +154,9 @@ class BulkMailRecipientRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+
+        @get:AttName("permissions")
+        val permissions: RecordPerms
+            get() = perms.getPerms(EntityRef.create(AppName.NOTIFICATIONS, ID, extId))
     }
 }

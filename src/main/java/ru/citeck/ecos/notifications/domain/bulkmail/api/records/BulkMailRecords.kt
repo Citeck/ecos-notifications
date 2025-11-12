@@ -6,6 +6,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailConfigDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailRecipientsDataDto
+import ru.citeck.ecos.notifications.domain.bulkmail.perms.BulkMailPerms
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailDao
 import ru.citeck.ecos.notifications.domain.bulkmail.service.BulkMailOperator
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
@@ -22,14 +23,17 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.perms.RecordPerms
 import java.time.Instant
 
 @Component
 class BulkMailRecords(
     private val bulkMailDao: BulkMailDao,
     private val bulkMailOperator: BulkMailOperator,
-    private val notificationDao: NotificationDao
+    private val notificationDao: NotificationDao,
+    private val perms: BulkMailPerms
 ) : AbstractRecordsDao(),
     RecordsQueryDao,
     RecordAttsDao,
@@ -212,6 +216,10 @@ class BulkMailRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+
+        @get:AttName("permissions")
+        val permissions: RecordPerms
+            get() = perms.getPerms(EntityRef.create(AppName.NOTIFICATIONS, ID, extId))
     }
 
     enum class BulkMailAction {

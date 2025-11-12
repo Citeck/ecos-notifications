@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
-import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecord
+import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDto
 import ru.citeck.ecos.notifications.domain.sender.dto.NotificationsSenderDtoWithMeta
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
@@ -88,7 +88,7 @@ fun NotificationsSenderDtoWithMeta.toDto(): NotificationsSenderDto {
     )
 }
 
-fun NotificationsSenderRecord.toDto(): NotificationsSenderDto {
+fun NotificationsSenderRecordsDao.NotificationsSenderRecord.toDto(): NotificationsSenderDto {
     return NotificationsSenderDto(
         id ?: UUID.randomUUID().toString(),
         name,
@@ -106,6 +106,6 @@ fun NotificationsSenderRecord.toDto(): NotificationsSenderDto {
     )
 }
 
-fun NotificationsSenderRecord.toDtoWithMeta(): NotificationsSenderDtoWithMeta {
+fun NotificationsSenderRecordsDao.NotificationsSenderRecord.toDtoWithMeta(): NotificationsSenderDtoWithMeta {
     return NotificationsSenderDtoWithMeta(toDto())
 }

@@ -4,9 +4,8 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.commands.CommandsService
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
-import ru.citeck.ecos.context.lib.auth.AuthContext
-import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.model.lib.workspace.WorkspaceService
+import ru.citeck.ecos.notifications.common.NotificationsSystemArtifactPerms
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.NotificationTemplateConverter
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
@@ -26,7 +25,9 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.perms.RecordPerms
 import java.time.Instant
 import java.util.*
 
@@ -36,12 +37,12 @@ class NotificationRecords(
     private val commandsService: CommandsService,
     private val workspaceService: WorkspaceService,
     private val notificationTemplateService: NotificationTemplateService,
-    private val notificationTemplateConverter: NotificationTemplateConverter
+    private val notificationTemplateConverter: NotificationTemplateConverter,
+    private val perms: NotificationsSystemArtifactPerms
 ) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDao {
 
     companion object {
         const val ID = "notification"
-        private const val APP_NAME = "notifications"
     }
 
     override fun getId(): String {
@@ -101,7 +102,8 @@ class NotificationRecords(
     }
 
     override fun mutate(record: LocalRecordAtts): String {
-        checkMutatePermissions()
+        perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, ID, record.id))
+
         val action = record.attributes.get("action", "")
         if (action == "RESEND") {
             executeResendAction(record.id)
@@ -109,12 +111,6 @@ class NotificationRecords(
             error("Unknown action: $action")
         }
         return record.id
-    }
-
-    private fun checkMutatePermissions() {
-        if (!AuthContext.getCurrentAuthorities().contains(AuthRole.ADMIN) && !AuthContext.isRunAsSystem()) {
-            error("Permission denied")
-        }
     }
 
     private fun executeResendAction(recordId: String) {
@@ -125,7 +121,7 @@ class NotificationRecords(
             ?: error("Can't unmarshall notification data to SendNotificationCommand: $data")
         val newNotificationCommand = notificationCommand.copy(
             id = UUID.randomUUID().toString(),
-            createdFrom = EntityRef.create(APP_NAME, ID, notificationCommand.id)
+            createdFrom = EntityRef.create(AppName.NOTIFICATIONS, ID, notificationCommand.id)
         )
         commandsService.executeSync(newNotificationCommand)
     }
@@ -220,6 +216,10 @@ class NotificationRecords(
         @get:AttName(RecordConstants.ATT_CREATOR)
         val recordCreator: String?
             get() = creator
+
+        @get:AttName("permissions")
+        val permissions: RecordPerms
+            get() = perms.getPerms(EntityRef.create(AppName.NOTIFICATIONS, ID, extId))
 
         @get:AttName("filledModel")
         val filledModel: Map<String, Any>
