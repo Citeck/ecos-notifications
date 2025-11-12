@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.commons.collections4.CollectionUtils
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.notifications.common.NotificationsSystemArtifactPerms
 import ru.citeck.ecos.notifications.domain.file.dto.FileWithMeta
 import ru.citeck.ecos.notifications.domain.file.service.FileService
 import ru.citeck.ecos.notifications.domain.template.getContentBytesFromBase64ObjectData
@@ -19,19 +20,26 @@ import ru.citeck.ecos.records3.record.dao.mutate.RecordMutateDtoDao
 import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.records3.record.dao.query.dto.res.RecsQueryRes
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.lib.perms.RecordPerms
 import java.time.Instant
 import java.util.stream.Collectors
 
-const val ID = "file"
-
 @Component
-class FileRecords(val fileService: FileService) :
+class FileRecords(
+    private val fileService: FileService,
+    private val perms: NotificationsSystemArtifactPerms
+) :
     AbstractRecordsDao(),
     RecordsQueryDao,
     RecordAttsDao,
     RecordsDeleteDao,
     RecordMutateDtoDao<FileRecords.FileRecord> {
+
+    companion object {
+        const val ID = "file"
+    }
 
     override fun queryRecords(recsQuery: RecordsQuery): Any? {
 
@@ -109,7 +117,7 @@ class FileRecords(val fileService: FileService) :
             get() = EntityRef.create("emodel", "type", "notification-file")
 
         @get:AttName(".disp")
-        val displayName: String?
+        val displayName: String
             get() = id
 
         @get:AttName(RecordConstants.ATT_MODIFIED)
@@ -145,5 +153,9 @@ class FileRecords(val fileService: FileService) :
             this.id = fileName
             this.data = contentBytes
         }
+
+        @get:AttName("permissions")
+        val permissions: RecordPerms
+            get() = perms.getPerms(EntityRef.create(AppName.NOTIFICATIONS, ID, dto.id))
     }
 }

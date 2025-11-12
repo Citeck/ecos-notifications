@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import ru.citeck.ecos.notifications.common.NotificationsSystemArtifactPerms
+import ru.citeck.ecos.notifications.domain.sender.api.records.NotificationsSenderRecordsDao
 import ru.citeck.ecos.notifications.domain.sender.converter.toDto
 import ru.citeck.ecos.notifications.domain.sender.converter.toDtoWithMeta
 import ru.citeck.ecos.notifications.domain.sender.converter.toEntity
@@ -16,6 +18,7 @@ import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderRepository
 import ru.citeck.ecos.records2.predicate.model.*
 import ru.citeck.ecos.records3.record.dao.query.dto.query.SortBy
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverter
 import ru.citeck.ecos.webapp.lib.spring.hibernate.context.predicate.JpaSearchConverterFactory
@@ -26,8 +29,10 @@ import javax.annotation.PostConstruct
 
 @Service
 class NotificationsSenderServiceImpl(
-    val repository: NotificationsSenderRepository,
-    private val jpaSearchConverterFactory: JpaSearchConverterFactory
+    private val repository: NotificationsSenderRepository,
+    private val jpaSearchConverterFactory: JpaSearchConverterFactory,
+    private val perms: NotificationsSystemArtifactPerms
+
 ) : NotificationsSenderService {
 
     companion object {
@@ -69,16 +74,24 @@ class NotificationsSenderServiceImpl(
 
     @Transactional
     override fun delete(id: String) {
+        perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, NotificationsSenderRecordsDao.ID, id))
+
         repository.findOneByExtId(id).ifPresent(repository::delete)
     }
 
     @Transactional
     override fun removeAllByExtId(extIds: List<String>) {
+        extIds.forEach {
+            perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, NotificationsSenderRecordsDao.ID, it))
+        }
+
         repository.deleteAllByExtIdIn(extIds)
     }
 
     @Transactional
     override fun save(senderDto: NotificationsSenderDto): NotificationsSenderDtoWithMeta {
+        perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, NotificationsSenderRecordsDao.ID, senderDto.id))
+
         val beforeSenderDto = senderDto.id?.let { getSenderById(it)?.toDto() }
         val entity = repository.save(senderDto.toEntity())
         val afterSenderDto = entity.toDto()

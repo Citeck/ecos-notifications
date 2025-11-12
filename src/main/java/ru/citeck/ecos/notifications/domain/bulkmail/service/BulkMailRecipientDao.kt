@@ -3,8 +3,10 @@ package ru.citeck.ecos.notifications.domain.bulkmail.service
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toDto
 import ru.citeck.ecos.notifications.domain.bulkmail.converter.toEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
@@ -22,6 +24,7 @@ import javax.annotation.PostConstruct
  */
 @Service
 @Transactional
+@Secured(AuthRole.SYSTEM, AuthRole.ADMIN)
 class BulkMailRecipientDao(
     private val bulkMailRecipientRepository: BulkMailRecipientRepository,
     @Lazy private val bulkMailDao: BulkMailDao,

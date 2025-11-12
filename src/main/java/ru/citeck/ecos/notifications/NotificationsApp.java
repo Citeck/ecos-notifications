@@ -5,12 +5,14 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import ru.citeck.ecos.notifications.config.ApplicationProperties;
 import ru.citeck.ecos.webapp.lib.spring.EcosSpringApplication;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
 @EnableJpaRepositories("ru.citeck.ecos.notifications.domain.*.repo")
+@EnableMethodSecurity(securedEnabled = true)
 @EnableDiscoveryClient
 public class NotificationsApp {
 

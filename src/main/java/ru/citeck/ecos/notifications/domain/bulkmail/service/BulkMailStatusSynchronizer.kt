@@ -9,6 +9,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
+import ru.citeck.ecos.webapp.lib.spring.context.auth.RunAsSystem
 
 /**
  * @author Roman Makarskiy
@@ -23,6 +24,7 @@ class BulkMailStatusSynchronizer(
 
     private val statusesToFind = listOf(BulkMailStatus.WAIT_FOR_DISPATCH, BulkMailStatus.TRYING_TO_DISPATCH)
 
+    @RunAsSystem
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.bulk-mail.sync-status-delay}")
     fun sync() {
 

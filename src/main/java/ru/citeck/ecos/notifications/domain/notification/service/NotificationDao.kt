@@ -3,9 +3,11 @@ package ru.citeck.ecos.notifications.domain.notification.service
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.citeck.ecos.context.lib.auth.AuthContext
+import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toDto
@@ -35,10 +37,12 @@ class NotificationDao(
         searchConv = jpaSearchConverterFactory.createConverter(NotificationEntity::class.java).build()
     }
 
+    @Secured(AuthRole.ADMIN, AuthRole.SYSTEM)
     fun save(dto: NotificationDto): NotificationDto {
         return notificationRepository.save(dto.toEntity()).toDto()
     }
 
+    @Secured(AuthRole.ADMIN, AuthRole.SYSTEM)
     fun saveAll(dto: List<NotificationDto>): List<NotificationDto> {
         return notificationRepository.saveAll(dto.map { it.toEntity() }).map { it.toDto() }
     }
