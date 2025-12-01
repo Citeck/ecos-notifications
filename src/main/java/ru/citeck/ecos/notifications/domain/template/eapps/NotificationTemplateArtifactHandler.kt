@@ -10,6 +10,7 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.IdInWs
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
@@ -60,29 +61,31 @@ class NotificationTemplateArtifactHandler(
 
         templateService.addListener { dto ->
 
-            val meta = ObjectData.create()
-            meta["id"] = dto.id
-            meta["name"] = dto.name
-            meta["tags"] = dto.tags
-            meta["model"] = dto.model
-            meta["multiTemplateConfig"] = dto.multiTemplateConfig
-            meta["notificationTitle"] = dto.notificationTitle
+            if (dto.workspace.isBlank() || ModelUtils.DEFAULT_WORKSPACE_ID == dto.workspace) {
+                val meta = ObjectData.create()
+                meta["id"] = dto.id
+                meta["name"] = dto.name
+                meta["tags"] = dto.tags
+                meta["model"] = dto.model
+                meta["multiTemplateConfig"] = dto.multiTemplateConfig
+                meta["notificationTitle"] = dto.notificationTitle
 
-            val memDir = EcosMemDir()
-            dto.templateData.values.forEach {
-                memDir.createFile(it.name, it.data)
-            }
+                val memDir = EcosMemDir()
+                dto.templateData.values.forEach {
+                    memDir.createFile(it.name, it.data)
+                }
 
-            val archiveName = if (dto.templateData.isEmpty()) {
-                "empty.zip"
-            } else if (dto.templateData.size == 1) {
-                dto.templateData.values.first().name + ".zip"
-            } else {
-                val firstFileName = dto.templateData.values.first().name
-                firstFileName.substringBefore('.') + ".html.zip"
+                val archiveName = if (dto.templateData.isEmpty()) {
+                    "empty.zip"
+                } else if (dto.templateData.size == 1) {
+                    dto.templateData.values.first().name + ".zip"
+                } else {
+                    val firstFileName = dto.templateData.values.first().name
+                    firstFileName.substringBefore('.') + ".html.zip"
+                }
+                val path = archiveName.substringBefore('.') + "/" + archiveName
+                listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
             }
-            val path = archiveName.substringBefore('.') + "/" + archiveName
-            listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
         }
     }
 
