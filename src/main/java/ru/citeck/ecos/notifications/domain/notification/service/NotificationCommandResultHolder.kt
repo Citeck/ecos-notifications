@@ -8,8 +8,10 @@ import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.toNotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
+import ru.citeck.ecos.notifications.lib.NotificationConstants
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
+import ru.citeck.ecos.webapp.api.entity.toEntityRef
 import java.time.Instant
 
 @Component
@@ -20,13 +22,15 @@ class NotificationCommandResultHolder(
 
     companion object {
         private val log = KotlinLogging.logger {}
+
+        private const val DEFAULT_WORKSPACE_ID = "default"
+        private const val DEFAULT_WORKSPACE_PERSIST_VALUE = ""
     }
 
     fun holdError(command: SendNotificationCommand, throwable: Throwable) {
         log.debug { "hold error notification command:\n $command" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
-        val templateIdInWs = workspaceService.convertToIdInWs(command.templateRef.getLocalId())
 
         val toSave: NotificationDto = existsNotifications?.copy(
             type = command.type,
@@ -42,7 +46,7 @@ class NotificationCommandResultHolder(
         )
             ?: NotificationDto(
                 extId = command.id,
-                workspace = templateIdInWs.workspace,
+                workspace = command.calcNotificationWorkspacePersistValue(),
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,
@@ -65,7 +69,6 @@ class NotificationCommandResultHolder(
 
         val existsNotifications = notificationDao.getByExtId(command.id)
         val state = result.toNotificationState()
-        val templateIdInWs = workspaceService.convertToIdInWs(command.templateRef.getLocalId())
 
         val toSave = existsNotifications?.copy(
             type = command.type,
@@ -81,7 +84,7 @@ class NotificationCommandResultHolder(
         )
             ?: NotificationDto(
                 extId = command.id,
-                workspace = templateIdInWs.workspace,
+                workspace = command.calcNotificationWorkspacePersistValue(),
                 type = command.type,
                 record = command.record,
                 template = command.templateRef,
@@ -98,5 +101,36 @@ class NotificationCommandResultHolder(
         log.debug { "Save success notification:\n$toSave" }
 
         notificationDao.save(toSave)
+    }
+
+    /**
+     * In persistence layer, the default workspace should be stored as an empty string.
+     */
+    private fun SendNotificationCommand.calcNotificationWorkspacePersistValue(): String {
+        fun findWorkspaceFromDifferentSources(): String? {
+            val processWorkspace = model[NotificationConstants.PROCESS_WORKSPACE_ATT]
+            if (processWorkspace != null && processWorkspace is String) {
+                return processWorkspace
+            }
+
+            if (templateRef.isNotEmpty()) {
+                return workspaceService.convertToIdInWs(this.templateRef.getLocalId()).workspace
+            }
+
+            val recordTypeWorkspace = model[NotificationConstants.TYPE_WORKSPACE_ATT]
+            if (recordTypeWorkspace != null && recordTypeWorkspace is String) {
+                return recordTypeWorkspace.toEntityRef().getLocalId()
+            }
+
+            return null
+        }
+
+        val workspaceId = findWorkspaceFromDifferentSources() ?: DEFAULT_WORKSPACE_PERSIST_VALUE
+
+        return if (workspaceId == DEFAULT_WORKSPACE_ID) {
+            DEFAULT_WORKSPACE_PERSIST_VALUE
+        } else {
+            workspaceId
+        }
     }
 }
