@@ -75,8 +75,8 @@ class UnsafeSendNotificationCommandExecutor(
             bcc = command.bcc
         )
 
-        val status: NotificationSenderSendStatus? = notificationService.sendNotification(notification)
-        return SendNotificationResult(NotificationResultStatus.OK.value, status?.toString() ?: "")
+        val status: NotificationSenderSendStatus = notificationService.sendNotification(notification)
+        return SendNotificationResult(NotificationResultStatus.OK.value, status.toString())
     }
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {

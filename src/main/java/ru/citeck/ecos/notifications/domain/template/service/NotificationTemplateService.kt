@@ -145,7 +145,7 @@ class NotificationTemplateService(
         sort: List<SortBy>
     ): List<NotificationTemplateWithMeta> {
         val predicateWithWorkspaces = Predicates.and(
-            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentRunAsAuth(), workspaces),
             predicate
         )
         return searchConv.findAll(templateRepository, predicateWithWorkspaces, max, skip, sort)
@@ -159,7 +159,7 @@ class NotificationTemplateService(
 
     fun getCount(predicate: Predicate, workspaces: List<String>): Long {
         val predicateWithWorkspaces = Predicates.and(
-            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentRunAsAuth(), workspaces),
             predicate
         )
         return searchConv.getCount(templateRepository, predicateWithWorkspaces)

@@ -109,7 +109,7 @@ class NotificationDao(
         sort: List<SortBy>
     ): List<NotificationDto> {
         val predicateWithWorkspaces = Predicates.and(
-            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentRunAsAuth(), workspaces),
             predicate
         )
         return searchConv.findAll(notificationRepository, predicateWithWorkspaces, max, skip, sort).map {
@@ -137,7 +137,7 @@ class NotificationDao(
     @Transactional(readOnly = true)
     fun getCount(predicate: Predicate, workspaces: List<String>): Long {
         val predicateWithWorkspaces = Predicates.and(
-            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentUser(), workspaces),
+            workspaceService.buildAvailableWorkspacesPredicate(AuthContext.getCurrentRunAsAuth(), workspaces),
             predicate
         )
         return searchConv.getCount(notificationRepository, predicateWithWorkspaces)
