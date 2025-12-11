@@ -72,6 +72,13 @@ class NotificationTemplateRecords(
     }
 
     override fun saveMutatedRec(record: NotTemplateRecord): String {
+        if (record.dto.id.isBlank()) {
+            val existRecord = getRecordAtts(record.moduleId)
+            if (existRecord != null) {
+                error("Notification template with id '${record.moduleId}' already exists")
+            }
+        }
+
         val saved = templateService.save(record)
         return workspaceService.addWsPrefixToId(saved.id, saved.workspace)
     }

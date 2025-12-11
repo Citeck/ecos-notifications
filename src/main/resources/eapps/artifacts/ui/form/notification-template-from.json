@@ -13,15 +13,45 @@
   "definition": {
     "components": [
       {
-        "label": "Id",
-        "defaultValue": "",
+        "label": {
+          "ru": "Id"
+        },
+        "key": "moduleId",
         "validate": {
           "required": true,
           "pattern": "^[a-zA-Z0-9-*]+$"
         },
-        "key": "moduleId",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "logic": [
+          {
+            "name": "disabled",
+            "trigger": {
+              "type": "javascript",
+              "javascript": "result = _.get(instance, 'root.options.formMode') !== 'CREATE';"
+            },
+            "actions": [
+              {
+                "name": "setDisabled",
+                "type": "property",
+                "property": {
+                  "label": "Disabled",
+                  "value": "disabled",
+                  "type": "boolean"
+                },
+                "state": "true"
+              }
+            ]
+          }
+        ],
         "type": "textfield",
-        "input": true
+        "input": true,
+        "inputMasks": [
+          {}
+        ],
+        "reorder": false,
+        "dataSrc": ""
       },
       {
         "label": "Name",
@@ -509,5 +539,6 @@
     ],
     "formId": "notification-template"
   },
-  "attributes": {}
+  "attributes": {},
+  "notExists": false
 }
