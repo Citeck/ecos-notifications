@@ -73,7 +73,8 @@ class NotificationTemplateRecords(
 
     override fun saveMutatedRec(record: NotTemplateRecord): String {
         if (record.dto.id.isBlank()) {
-            val existRecord = getRecordAtts(record.moduleId)
+            val ref = record.getRef()
+            val existRecord = getRecordAtts(ref.getLocalId())
             if (existRecord != null) {
                 error("Notification template with id '${record.moduleId}' already exists")
             }
