@@ -27,7 +27,10 @@ import java.time.Instant
 class BulkMailRecipientRecords(
     private val bulkMailRecipientDao: BulkMailRecipientDao,
     private val perms: BulkMailPerms
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordsDeleteDao {
+) : AbstractRecordsDao(),
+    RecordsQueryDao,
+    RecordAttsDao,
+    RecordsDeleteDao {
 
     companion object {
         const val ID = "bulk-mail-recipient"

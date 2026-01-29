@@ -23,7 +23,8 @@ class FileEntity @JvmOverloads constructor(
     createdDate: Instant? = Instant.now(),
     lastModifiedBy: String? = null,
     lastModifiedDate: Instant? = Instant.now()
-) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate), Serializable {
+) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate),
+    Serializable {
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true

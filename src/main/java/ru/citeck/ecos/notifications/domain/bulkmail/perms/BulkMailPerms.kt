@@ -32,7 +32,9 @@ class BulkMailPerms(
     }
 }
 
-class BulkMailArtifactPermsComponent : RecordPermsComponent, RecordAttsPermsComponent {
+class BulkMailArtifactPermsComponent :
+    RecordPermsComponent,
+    RecordAttsPermsComponent {
 
     private val order = -300f
 
@@ -54,7 +56,8 @@ class BulkMailArtifactPermsComponent : RecordPermsComponent, RecordAttsPermsComp
 
     private class Perms(
         private val permsContext: RecordPermsContext
-    ) : RecordPermsData, RecordAttsPermsData {
+    ) : RecordPermsData,
+        RecordAttsPermsData {
 
         override fun getAdditionalPerms(): Set<String> {
             return permsContext.getAssignablePerms()

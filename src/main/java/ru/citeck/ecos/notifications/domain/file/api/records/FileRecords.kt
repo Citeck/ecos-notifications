@@ -30,8 +30,7 @@ import java.util.stream.Collectors
 class FileRecords(
     private val fileService: FileService,
     private val perms: NotificationsSystemArtifactPerms
-) :
-    AbstractRecordsDao(),
+) : AbstractRecordsDao(),
     RecordsQueryDao,
     RecordAttsDao,
     RecordsDeleteDao,

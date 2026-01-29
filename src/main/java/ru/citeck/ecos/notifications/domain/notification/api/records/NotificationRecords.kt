@@ -39,7 +39,10 @@ class NotificationRecords(
     private val notificationTemplateService: NotificationTemplateService,
     private val notificationTemplateConverter: NotificationTemplateConverter,
     private val perms: NotificationsSystemArtifactPerms
-) : AbstractRecordsDao(), RecordsQueryDao, RecordAttsDao, RecordMutateDao {
+) : AbstractRecordsDao(),
+    RecordsQueryDao,
+    RecordAttsDao,
+    RecordMutateDao {
 
     companion object {
         const val ID = "notification"

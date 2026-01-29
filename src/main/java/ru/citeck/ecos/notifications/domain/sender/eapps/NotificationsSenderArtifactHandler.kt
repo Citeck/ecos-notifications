@@ -7,8 +7,7 @@ import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderSer
 import java.util.function.Consumer
 
 @Component
-class NotificationsSenderArtifactHandler(var service: NotificationsSenderService) :
-    EcosArtifactHandler<NotificationsSenderDto> {
+class NotificationsSenderArtifactHandler(var service: NotificationsSenderService) : EcosArtifactHandler<NotificationsSenderDto> {
 
     override fun deleteArtifact(artifactId: String) {
         service.delete(artifactId)

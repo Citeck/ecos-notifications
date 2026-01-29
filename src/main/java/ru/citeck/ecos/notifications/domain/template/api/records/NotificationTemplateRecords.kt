@@ -48,8 +48,7 @@ class NotificationTemplateRecords(
     val templateService: NotificationTemplateService,
     val notificationTemplateAttsCalculator: NotificationTemplateAttsCalculator,
     val workspaceService: WorkspaceService
-) :
-    AbstractRecordsDao(),
+) : AbstractRecordsDao(),
     RecordsQueryDao,
     RecordAttsDao,
     RecordsDeleteDao,

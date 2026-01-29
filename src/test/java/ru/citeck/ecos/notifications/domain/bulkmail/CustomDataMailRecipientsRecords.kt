@@ -8,7 +8,9 @@ import ru.citeck.ecos.records3.record.dao.query.RecordsQueryDao
 import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 
 @Component
-class CustomDataMailRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
+class CustomDataMailRecipientsRecords :
+    AbstractRecordsDao(),
+    RecordsQueryDao {
 
     companion object {
         const val ID = "custom-mail-recipients"

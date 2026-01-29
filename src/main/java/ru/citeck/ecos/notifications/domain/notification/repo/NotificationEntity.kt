@@ -59,7 +59,8 @@ class NotificationEntity @JvmOverloads constructor(
     createdDate: Instant? = Instant.now(),
     lastModifiedBy: String? = null,
     lastModifiedDate: Instant? = Instant.now()
-) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate), Serializable {
+) : AbstractAuditingEntity(createdBy, createdDate, lastModifiedBy, lastModifiedDate),
+    Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

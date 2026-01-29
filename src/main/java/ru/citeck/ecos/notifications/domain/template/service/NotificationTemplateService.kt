@@ -105,8 +105,10 @@ class NotificationTemplateService(
         if (CollectionUtils.isNotEmpty(dto.multiTemplateConfig)) {
             val notEmptyMultiTemplateConfigs: MutableList<MultiTemplateElementDto> = ArrayList()
             for (template in dto.multiTemplateConfig!!) {
-                if (template.condition != null && template.condition !is VoidPredicate ||
-                    EntityRef.isNotEmpty(template.template) || EntityRef.isNotEmpty(template.type)
+                if (template.condition != null &&
+                    template.condition !is VoidPredicate ||
+                    EntityRef.isNotEmpty(template.template) ||
+                    EntityRef.isNotEmpty(template.type)
                 ) {
                     notEmptyMultiTemplateConfigs.add(template)
                 }

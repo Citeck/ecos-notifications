@@ -9,7 +9,9 @@ import ru.citeck.ecos.records3.record.dao.query.dto.query.RecordsQuery
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 @Component
-class CustomDataFixedRecipientsRecords : AbstractRecordsDao(), RecordsQueryDao {
+class CustomDataFixedRecipientsRecords :
+    AbstractRecordsDao(),
+    RecordsQueryDao {
 
     companion object {
         const val ID = "custom-fixed-recipients"
