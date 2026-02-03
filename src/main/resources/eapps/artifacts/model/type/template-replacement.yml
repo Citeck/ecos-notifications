@@ -1,0 +1,48 @@
+id: template-replacement
+name: { ru: Замена шаблона, en: Template replacement }
+
+sourceId: notifications/multi-template-config
+
+formRef: uiserv/form@template-replacement-form
+journalRef: uiserv/journal@ecos-template-replacements
+
+postCreateActionRef: uiserv/action@none
+
+defaultCreateVariant: true
+inheritForm: false
+inheritActions: false
+
+actions:
+  - uiserv/action@delete-replacement
+
+model:
+  attributes:
+    - id: typeValue
+      name:
+        ru: Тип данных
+        en: Type
+      type: ASSOC
+      config:
+        typeRef: emodel/type@type
+
+    - id: replacement
+      name:
+        ru: Заменяющий шаблон
+        en: Replacement
+      type: ASSOC
+      config:
+        typeRef: emodel/type@notification-template
+
+    - id: condition
+      name:
+        ru: Условие
+        en: Condition
+      type: JSON
+
+    - id: parentTemplate
+      name:
+        ru: parentTemplate
+        en: parentTemplate
+      type: ASSOC
+      config:
+        typeRef: emodel/type@notification-template
