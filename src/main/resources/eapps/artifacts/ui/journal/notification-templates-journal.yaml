@@ -8,7 +8,7 @@ actions:
   - uiserv/action@download-base64-data-zip
   - uiserv/action@edit
   - uiserv/action@delete
-  - uiserv/action@view-replacement
+  - uiserv/action@view-dashboard
 
 columns:
 

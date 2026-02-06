@@ -41,8 +41,8 @@ model:
 
     - id: parentTemplate
       name:
-        ru: parentTemplate
-        en: parentTemplate
+        ru: Базовый шаблон
+        en: Base template
       type: ASSOC
       config:
         typeRef: emodel/type@notification-template

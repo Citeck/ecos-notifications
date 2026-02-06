@@ -2,6 +2,7 @@ package ru.citeck.ecos.notifications.domain.template.api.records
 
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.commons.utils.NameUtils
 import ru.citeck.ecos.commons.utils.StringUtils
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
@@ -21,7 +22,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 const val NOTIFICATION_TEMPLATE_REPLACEMENT_ID = "multi-template-config"
 
 @Component
-class TemplateReplacementDao(val recordService: RecordsService) :
+class TemplateReplacementDao(private val recordService: RecordsService) :
     AbstractRecordsDao(), RecordsDeleteDao, RecordsQueryDao,
     RecordMutateDtoDao<TemplateReplacementDao.Replacement> {
 
@@ -31,10 +32,11 @@ class TemplateReplacementDao(val recordService: RecordsService) :
         private const val REPLACEMENT = "replacement"
         private const val MULTI_TEMPLATE_CONFIG = "multiTemplateConfig"
         private const val MULTI_CONFIG = "$MULTI_TEMPLATE_CONFIG[]?json"
-        private const val DELIMITER = "_"
+        private const val DELIMITER = "$"
         private const val PARENT_TEMPLATE_PART = 0
         private const val TYPE_PART = 1
         private const val REPLACEMENT_PART = 2
+        private val ESCAPER = NameUtils.getEscaper("\$")
     }
 
     override fun getId(): String {
@@ -48,7 +50,7 @@ class TemplateReplacementDao(val recordService: RecordsService) :
         }
         val firstRecordId = recordIds.first()
         val firstIdParts = firstRecordId.split(DELIMITER)
-        val parentTemplate = firstIdParts[PARENT_TEMPLATE_PART]
+        val parentTemplate = ESCAPER.unescape(firstIdParts[PARENT_TEMPLATE_PART])
         var templateConfig =
             recordService.getAtt(parentTemplate, MULTI_CONFIG).asList(MultiTemplateElementDto::class.java)
         templateConfig = filterConfig(templateConfig, firstIdParts)
@@ -58,7 +60,6 @@ class TemplateReplacementDao(val recordService: RecordsService) :
             templateConfig = filterConfig(templateConfig, idParts)
             result.add(DelStatus.OK)
         }
-        //val checkValue: JsonNode = mapper.toNonDefaultJson(templateConfig)
         recordService.mutate(parentTemplate, ObjectData.create().set(MULTI_TEMPLATE_CONFIG, templateConfig))
         return result
     }
@@ -69,7 +70,9 @@ class TemplateReplacementDao(val recordService: RecordsService) :
     ): MutableList<MultiTemplateElementDto> {
         return list.filter {
             if (it.type != null) {
-                it.type.toString() != parts[TYPE_PART] || it.template == null || it.template.toString() != parts[REPLACEMENT_PART]
+                it.type.toString() != ESCAPER.unescape(parts[TYPE_PART]) ||
+                    it.template == null ||
+                    it.template.toString() != ESCAPER.unescape(parts[REPLACEMENT_PART])
             } else true
         }.toMutableList()
     }
@@ -110,7 +113,11 @@ class TemplateReplacementDao(val recordService: RecordsService) :
             val result = RecsQueryRes<Replacement>()
             result.setTotalCount(resultRecs.size.toLong())
             val startIdx = recsQuery.page.skipCount
-            var endIdx = startIdx + recsQuery.page.maxItems
+            var maxItems = recsQuery.page.maxItems
+            if (maxItems <= 0){
+                maxItems = 100
+            }
+            var endIdx = startIdx + maxItems
             endIdx = if (endIdx <= resultRecs.size) endIdx else resultRecs.size
             val checkRange =
                 resultRecs.slice(startIdx..<endIdx)
@@ -137,10 +144,10 @@ class TemplateReplacementDao(val recordService: RecordsService) :
         }
         templateConfig.add(MultiTemplateElementDto(record.replacement, record.typeValue, record.condition))
         recordService.mutate(parentTemplate, ObjectData.create().set(MULTI_TEMPLATE_CONFIG, templateConfig))
-        return "OK"
+        return record.id
     }
 
-    inner class Replacement() {
+    class Replacement() {
         constructor(
             parentTemplate: EntityRef, replacement: EntityRef?,
             typeValue: EntityRef?, condition: Predicate?
@@ -153,7 +160,9 @@ class TemplateReplacementDao(val recordService: RecordsService) :
 
         @get:AttName("id")
         val id: String
-            get() = "${NotificationsApp.NAME}/$NOTIFICATION_TEMPLATE_REPLACEMENT_ID@$parentTemplate$DELIMITER$typeValue$DELIMITER$replacement"
+            get() = "${NotificationsApp.NAME}/$NOTIFICATION_TEMPLATE_REPLACEMENT_ID@" +
+                "${ESCAPER.escape(parentTemplate.toString())}$DELIMITER${ESCAPER.escape(typeValue.toString())}" +
+                "$DELIMITER${ESCAPER.escape(replacement.toString())}"
 
         var typeValue: EntityRef? = null
         var replacement: EntityRef? = null
