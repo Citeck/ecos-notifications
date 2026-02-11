@@ -50,6 +50,9 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         }
         val firstRecordId = recordIds.first()
         val firstIdParts = firstRecordId.split(DELIMITER)
+        if (firstIdParts.size != 3) {
+            throw IllegalArgumentException("Invalid replacement record ID: $firstRecordId")
+        }
         val parentTemplate = ESCAPER.unescape(firstIdParts[PARENT_TEMPLATE_PART])
         var templateConfig =
             recordService.getAtt(parentTemplate, MULTI_CONFIG).asList(MultiTemplateElementDto::class.java)
@@ -57,6 +60,9 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         result.add(DelStatus.OK)
         for (idx in 1 until recordIds.size) {
             val idParts = recordIds[idx].split(DELIMITER)
+            if (firstIdParts.size != 3) {
+                throw IllegalArgumentException("Invalid replacement record ID: ${recordIds[idx]}")
+            }
             templateConfig = filterConfig(templateConfig, idParts)
             result.add(DelStatus.OK)
         }
@@ -94,7 +100,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         if (StringUtils.isNotBlank(parentTemplateString)) {
             val parentTemplate = EntityRef.valueOf(parentTemplateString)
             if (parentTemplate.isEmpty()) {
-                throw IllegalArgumentException("Parent template must be defined in request")
+                throw IllegalArgumentException("Parent template must be defined in request $recsQuery")
             }
             val templateConfig =
                 recordService.getAtt(parentTemplate, MULTI_CONFIG).asList(MultiTemplateElementDto::class.java)
@@ -113,6 +119,10 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
             val result = RecsQueryRes<Replacement>()
             result.setTotalCount(resultRecs.size.toLong())
             val startIdx = recsQuery.page.skipCount
+            if (startIdx >= resultRecs.size) {
+                result.setRecords(emptyList())
+                return result
+            }
             var maxItems = recsQuery.page.maxItems
             if (maxItems <= 0){
                 maxItems = 100
@@ -124,7 +134,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
             result.setRecords(checkRange)
             return result
         } else {
-            throw IllegalArgumentException("Parent template was not defined in request")
+            throw IllegalArgumentException("Parent template was not defined in request $recsQuery")
         }
     }
 
@@ -135,7 +145,11 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
     override fun saveMutatedRec(record: Replacement): String {
         val parentTemplate: EntityRef? = record.parentTemplate
         if (parentTemplate == null || parentTemplate.isEmpty()) {
-            throw IllegalArgumentException("Parent template must be defined in creation request")
+            throw IllegalArgumentException("Parent template must be defined in replacement creation request")
+        }
+        if (record.replacement == null || record.replacement!!.isEmpty() ||
+            record.typeValue == null || record.typeValue!!.isEmpty()) {
+            throw IllegalArgumentException("Invalid replacement record data: $record")
         }
         val templateConfig = recordService.getAtt(parentTemplate, MULTI_CONFIG)
             .asList(MultiTemplateElementDto::class.java)
@@ -161,13 +175,16 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         @get:AttName("id")
         val id: String
             get() = "${NotificationsApp.NAME}/$NOTIFICATION_TEMPLATE_REPLACEMENT_ID@" +
-                "${ESCAPER.escape(parentTemplate.toString())}$DELIMITER${ESCAPER.escape(typeValue.toString())}" +
-                "$DELIMITER${ESCAPER.escape(replacement.toString())}"
+                "${ESCAPER.escape(parentTemplate?.toString() ?: "")}$DELIMITER${ESCAPER.escape(typeValue?.toString() ?: "")}" +
+                "$DELIMITER${ESCAPER.escape(replacement?.toString() ?: "")}"
 
         var typeValue: EntityRef? = null
         var replacement: EntityRef? = null
         var condition: Predicate? = null
         var parentTemplate: EntityRef? = null
-    }
 
+        override fun toString(): String {
+            return "Replacement(parentTemplate='$parentTemplate', typeValue='$typeValue', replacement='$replacement', condition='$condition')"
+        }
+    }
 }
