@@ -412,15 +412,13 @@ class BulkMailDispatchTest : BaseMailTest() {
 
         assertThat(emails.size).isEqualTo(2)
 
-        assertThat(emails[0].allRecipients.size).isEqualTo(1)
-        assertThat(emails[0].allRecipients[0].toString()).isEqualTo(harryRecord.email)
-        assertEnTitle(emails[0])
-        assertEnBody(emails[0])
-
-        assertThat(emails[1].allRecipients.size).isEqualTo(1)
-        assertThat(emails[1].allRecipients[0].toString()).isEqualTo(severusRecord.email)
-        assertEnTitle(emails[1])
-        assertEnBody(emails[1])
+        val recipients = emails.map {
+            assertThat(it.allRecipients.size).isEqualTo(1)
+            assertEnTitle(it)
+            assertEnBody(it)
+            it.allRecipients[0].toString()
+        }
+        assertThat(recipients).containsExactlyInAnyOrder(harryRecord.email, severusRecord.email)
     }
 
     @Test
