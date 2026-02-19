@@ -4,12 +4,14 @@ import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.utils.NameUtils
 import ru.citeck.ecos.commons.utils.StringUtils
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.records3.record.atts.value.AttValue
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.delete.DelStatus
 import ru.citeck.ecos.records3.record.dao.delete.RecordsDeleteDao
@@ -185,12 +187,26 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         var condition: Predicate? = null
         var parentTemplate: EntityRef? = null
 
+        fun getPermissions(): PermsValue {
+            return PermsValue()
+        }
+
         override fun toString(): String {
             return "Replacement(" +
                 "parentTemplate='$parentTemplate', " +
                 "typeValue='$typeValue', " +
                 "replacement='$replacement', " +
                 "condition='$condition')"
+        }
+
+        class PermsValue : AttValue {
+
+            override fun has(name: String): Boolean {
+                if (name.equals("read", ignoreCase = true)) {
+                    return true
+                }
+                return AuthContext.isRunAsSystemOrAdmin();
+            }
         }
     }
 }
