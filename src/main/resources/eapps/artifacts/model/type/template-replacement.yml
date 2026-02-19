@@ -13,7 +13,7 @@ inheritForm: false
 inheritActions: false
 
 actions:
-  - uiserv/action@delete-replacement
+  - uiserv/action@delete
 
 model:
   attributes:
