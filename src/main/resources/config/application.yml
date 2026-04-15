@@ -44,6 +44,7 @@ ecos-notifications:
     delay: 600000
   awaiting-dispatch:
     delay: 15000
+    batch-size: 1000
   bulk-mail:
     sync-status-delay: 7000
   startup-notification:

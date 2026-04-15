@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.context.lib.auth.AuthContext
+import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
 import ru.citeck.ecos.notifications.lib.Notification
@@ -16,7 +17,8 @@ import ru.citeck.ecos.notifications.lib.service.NotificationService
 @Component
 class AwaitingNotificationDispatcher(
     private val notificationDao: NotificationDao,
-    val notificationService: NotificationService,
+    private val notificationService: NotificationService,
+    private val applicationProperties: ApplicationProperties,
 ) {
 
     private val dispatchLock = Object()
@@ -28,12 +30,13 @@ class AwaitingNotificationDispatcher(
     @Scheduled(initialDelay = 10_000, fixedDelayString = "\${ecos-notifications.awaiting-dispatch.delay}")
     fun dispatchNotifications() {
         synchronized(dispatchLock) {
-            val toDispatch = notificationDao.findAllToDispatch()
+            val batchSize = applicationProperties.awaitingDispatch.batchSize
+            val toDispatch = notificationDao.findAllToDispatch(batchSize)
 
             log.debug { "Found notifications to dispatch: ${toDispatch.size}" }
 
             AuthContext.runAsSystem {
-                toDispatch.forEach { error -> dispatch(error) }
+                toDispatch.forEach { notification -> dispatch(notification) }
             }
         }
     }

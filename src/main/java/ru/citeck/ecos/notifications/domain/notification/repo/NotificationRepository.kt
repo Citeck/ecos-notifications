@@ -14,10 +14,13 @@ interface NotificationRepository :
     JpaSpecificationExecutor<NotificationEntity> {
 
     @Query(
-        value = "select * from notification where state = 'WAIT_FOR_DISPATCH' and (delayed_send is null or :now > delayed_send)",
+        value = "select * from notification where state = 'WAIT_FOR_DISPATCH' " +
+            "and (delayed_send is null or :now > delayed_send) " +
+            "limit :limit",
         nativeQuery = true
     )
     fun findAllToDispatch(
+        @Param("limit") limit: Int,
         @Param("now") now: Instant = Instant.now()
     ): List<NotificationEntity>
 
