@@ -136,12 +136,27 @@ public class ApplicationProperties {
          */
         private int delay = NotificationsDefault.AwaitingDispatch.DELAY;
 
+        /**
+         * Maximum number of notifications fetched and dispatched per scheduled tick. <br>
+         * Acts as backpressure against unbounded full-table fetches on the {@code notification}
+         * queue. Rows beyond the limit are picked up on the next tick.
+         */
+        private int batchSize = NotificationsDefault.AwaitingDispatch.BATCH_SIZE;
+
         public int getDelay() {
             return delay;
         }
 
         public void setDelay(int delay) {
             this.delay = delay;
+        }
+
+        public int getBatchSize() {
+            return batchSize;
+        }
+
+        public void setBatchSize(int batchSize) {
+            this.batchSize = batchSize;
         }
     }
 

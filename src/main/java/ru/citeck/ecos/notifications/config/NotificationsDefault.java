@@ -47,6 +47,7 @@ public class NotificationsDefault {
         }
 
         public static final int DELAY = 5_000;
+        public static final int BATCH_SIZE = 1_000;
 
     }
 

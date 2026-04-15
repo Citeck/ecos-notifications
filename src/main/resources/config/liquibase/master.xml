@@ -25,5 +25,6 @@
     <include file="changelog/20230711051515_add_created_from_to_notification.xml" relativeToChangelogFile="true"/>
     <include file="changelog/20240624000000_add_web_url_to_notification.xml" relativeToChangelogFile="true"/>
     <include file="changelog/20251009000000_add_workspace_to_notifications.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/20260415000000_add_notification_wait_for_dispatch_index.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

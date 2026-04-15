@@ -53,8 +53,8 @@ class NotificationDao(
     }
 
     @Transactional(readOnly = true)
-    fun findAllToDispatch(): List<NotificationDto> {
-        return notificationRepository.findAllToDispatch().map { it.toDto() }.toList()
+    fun findAllToDispatch(limit: Int): List<NotificationDto> {
+        return notificationRepository.findAllToDispatch(limit).map { it.toDto() }.toList()
     }
 
     @Transactional(readOnly = true)
