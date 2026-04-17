@@ -2,7 +2,7 @@ package ru.citeck.ecos.notifications.domain.template.eapps
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
-import ru.citeck.ecos.apps.app.domain.handler.EcosArtifactHandler
+import ru.citeck.ecos.apps.app.domain.handler.WsAwareArtifactHandler
 import ru.citeck.ecos.apps.artifact.controller.type.binary.BinArtifact
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
@@ -10,28 +10,29 @@ import ru.citeck.ecos.commons.io.file.EcosFile
 import ru.citeck.ecos.commons.io.file.mem.EcosMemDir
 import ru.citeck.ecos.commons.utils.ZipUtils
 import ru.citeck.ecos.commons.utils.ZipUtils.extractZip
-import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.IdInWs
 import ru.citeck.ecos.notifications.domain.template.dto.MultiTemplateElementDto
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.dto.TemplateDataDto
 import ru.citeck.ecos.notifications.domain.template.getLangKeyFromFileName
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import java.util.function.Consumer
+import java.util.function.BiConsumer
 
 private const val ARTIFACT_TYPE = "notification/template"
 
 @Component
 class NotificationTemplateArtifactHandler(
     val templateService: NotificationTemplateService
-) : EcosArtifactHandler<BinArtifact> {
+) : WsAwareArtifactHandler<BinArtifact> {
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
-    override fun deployArtifact(artifact: BinArtifact) {
-        templateService.update(toDto(artifact))
+    override fun deployArtifact(artifact: BinArtifact, workspace: String) {
+        val dto = toDto(artifact)
+        dto.workspace = workspace
+        templateService.update(dto)
     }
 
     private fun toDto(module: BinArtifact): NotificationTemplateWithMeta {
@@ -57,35 +58,34 @@ class NotificationTemplateArtifactHandler(
         return ARTIFACT_TYPE
     }
 
-    override fun listenChanges(listener: Consumer<BinArtifact>) {
+    override fun listenChanges(listener: BiConsumer<BinArtifact, String>) {
 
         templateService.addListener { dto ->
 
-            if (dto.workspace.isBlank() || ModelUtils.DEFAULT_WORKSPACE_ID == dto.workspace) {
-                val meta = ObjectData.create()
-                meta["id"] = dto.id
-                meta["name"] = dto.name
-                meta["tags"] = dto.tags
-                meta["model"] = dto.model
-                meta["multiTemplateConfig"] = dto.multiTemplateConfig
-                meta["notificationTitle"] = dto.notificationTitle
+            val workspace = dto.workspace
+            val meta = ObjectData.create()
+            meta["id"] = dto.id
+            meta["name"] = dto.name
+            meta["tags"] = dto.tags
+            meta["model"] = dto.model
+            meta["multiTemplateConfig"] = dto.multiTemplateConfig
+            meta["notificationTitle"] = dto.notificationTitle
 
-                val memDir = EcosMemDir()
-                dto.templateData.values.forEach {
-                    memDir.createFile(it.name, it.data)
-                }
-
-                val archiveName = if (dto.templateData.isEmpty()) {
-                    "empty.zip"
-                } else if (dto.templateData.size == 1) {
-                    dto.templateData.values.first().name + ".zip"
-                } else {
-                    val firstFileName = dto.templateData.values.first().name
-                    firstFileName.substringBefore('.') + ".html.zip"
-                }
-                val path = archiveName.substringBefore('.') + "/" + archiveName
-                listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)))
+            val memDir = EcosMemDir()
+            dto.templateData.values.forEach {
+                memDir.createFile(it.name, it.data)
             }
+
+            val archiveName = if (dto.templateData.isEmpty()) {
+                "empty.zip"
+            } else if (dto.templateData.size == 1) {
+                dto.templateData.values.first().name + ".zip"
+            } else {
+                val firstFileName = dto.templateData.values.first().name
+                firstFileName.substringBefore('.') + ".html.zip"
+            }
+            val path = archiveName.substringBefore('.') + "/" + archiveName
+            listener.accept(BinArtifact(path, meta, ZipUtils.writeZipAsBytes(memDir)), workspace)
         }
     }
 
@@ -115,7 +115,7 @@ class NotificationTemplateArtifactHandler(
         }
     }
 
-    override fun deleteArtifact(artifactId: String) {
-        templateService.deleteById(IdInWs.create(artifactId))
+    override fun deleteArtifact(artifactId: String, workspace: String) {
+        templateService.deleteById(IdInWs.create(workspace, artifactId))
     }
 }

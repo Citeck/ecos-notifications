@@ -42,16 +42,16 @@ class NotificationTemplateArtifactHandlerTest {
 
         val handler = NotificationTemplateArtifactHandler(service)
 
-        handler.deployArtifact(BinArtifact("NotificationTemplateArtifactHandlerTest", meta, data))
+        handler.deployArtifact(BinArtifact("NotificationTemplateArtifactHandlerTest", meta, data), "")
         assertEquals(1, updatedDto.size)
 
         val binArtifacts = mutableListOf<BinArtifact>()
-        handler.listenChanges {
-            binArtifacts.add(it)
+        handler.listenChanges { artifact, _ ->
+            binArtifacts.add(artifact)
         }
         onDtoChanged[0].accept(updatedDto[0])
 
-        handler.deployArtifact(binArtifacts[0])
+        handler.deployArtifact(binArtifacts[0], "")
         assertEquals(updatedDto[0], updatedDto[1])
     }
 }

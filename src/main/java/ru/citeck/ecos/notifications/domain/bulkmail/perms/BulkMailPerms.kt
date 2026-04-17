@@ -36,18 +36,12 @@ class BulkMailArtifactPermsComponent :
     RecordPermsComponent,
     RecordAttsPermsComponent {
 
-    private val order = -300f
-
     companion object {
         private val allowedWriteAuth = setOf(AuthRole.SYSTEM, AuthRole.ADMIN)
     }
 
     override fun getRecordPerms(context: RecordPermsContext): RecordPermsData {
         return Perms(context)
-    }
-
-    override fun getOrder(): Float {
-        return order
     }
 
     override fun getRecordAttsPerms(context: RecordPermsContext): RecordAttsPermsData {
