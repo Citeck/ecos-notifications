@@ -1,0 +1,205 @@
+{
+  "id": "template-replacement-form",
+  "formKey": "template-replacement-form",
+  "title": {
+    "en": "Template replacement",
+    "ru": "Перекрытие шаблона уведомления"
+  },
+  "description": {},
+  "customModule": "",
+  "typeRef": "emodel/type@template-replacement",
+  "width": "",
+  "system": false,
+  "i18n": {},
+  "definition": {
+    "components": [
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "objectObject3",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "Тип данных",
+                  "en": "Type"
+                },
+                "key": "typeValue",
+                "validate": {
+                  "required": true
+                },
+                "modalTitle": "",
+                "linkFormatter": "",
+                "journalId": "ecos-types",
+                "source": {
+                  "type": "journal",
+                  "custom": {
+                    "columns": []
+                  },
+                  "customValues": "",
+                  "viewMode": "default"
+                },
+                "refreshOn": [],
+                "optionalWhenDisabled": false,
+                "type": "selectJournal",
+                "input": true,
+                "queryData": ""
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0
+          },
+          {
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 1,
+            "components": [
+              {
+                "label": {
+                  "ru": "Шаблон-замена",
+                  "en": "Replacement"
+                },
+                "key": "replacement",
+                "modalTitle": "",
+                "linkFormatter": "",
+                "journalId": "notification-templates",
+                "source": {
+                  "type": "journal",
+                  "custom": {
+                    "columns": []
+                  },
+                  "customValues": "",
+                  "viewMode": "default"
+                },
+                "refreshOn": [],
+                "validate": {
+                  "required": true
+                },
+                "optionalWhenDisabled": false,
+                "type": "selectJournal",
+                "input": true,
+                "queryData": ""
+              }
+            ]
+          }
+        ],
+        "autoAdjust": true,
+        "type": "columns",
+        "input": false
+      },
+      {
+        "label": {
+          "ru": "Условие применимости",
+          "en": "Condition"
+        },
+        "key": "condition",
+        "editor": "ace",
+        "wysiwyg": "",
+        "defaultValue": "",
+        "refreshOn": [],
+        "optionalWhenDisabled": false,
+        "type": "textarea",
+        "input": true,
+        "as": "",
+        "uploadStorage": "",
+        "uploadUrl": "",
+        "uploadOptions": "",
+        "uploadDir": "",
+        "reorder": false
+      },
+      {
+        "label": {
+          "ru": "parentTemplate"
+        },
+        "key": "parentTemplate",
+        "disabled": true,
+        "hidden": true,
+        "defaultValue": "",
+        "refreshOn": [],
+        "customDefaultValue": "value = _.get(instance, 'options.initiator.dashboardRecordRef');",
+        "optionalWhenDisabled": false,
+        "type": "textfield",
+        "input": true,
+        "inputMasks": [
+          {}
+        ],
+        "reorder": false,
+        "dataSrc": ""
+      },
+      {
+        "label": {
+          "ru": "Columns"
+        },
+        "key": "columns2",
+        "columns": [
+          {
+            "components": [
+              {
+                "label": {
+                  "ru": "Отмена",
+                  "en": "Cancel"
+                },
+                "key": "objectObject",
+                "removeIndents": true,
+                "action": "event",
+                "state": "",
+                "block": true,
+                "refreshOn": [],
+                "type": "button",
+                "input": true,
+                "showValidations": false,
+                "event": "cancel"
+              }
+            ],
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "index": 0,
+            "md": 3
+          },
+          {
+            "index": 1,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": []
+          },
+          {
+            "md": 3,
+            "index": 2,
+            "type": "column",
+            "input": false,
+            "key": "column",
+            "components": [
+              {
+                "label": {
+                  "ru": "Сохранить",
+                  "en": "Save"
+                },
+                "key": "submit",
+                "removeIndents": true,
+                "state": "",
+                "theme": "primary",
+                "block": true,
+                "disableOnInvalid": true,
+                "refreshOn": [],
+                "type": "button",
+                "input": true
+              }
+            ]
+          }
+        ],
+        "type": "columns",
+        "input": false
+      }
+    ],
+    "formId": "template-replacement-form"
+  },
+  "attributes": {},
+  "notExists": false
+}

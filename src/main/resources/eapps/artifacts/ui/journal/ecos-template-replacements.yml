@@ -1,0 +1,49 @@
+---
+id: ecos-template-replacements
+name:
+  ru: Замены шаблона
+  en: Template replacements
+typeRef: emodel/type@template-replacement
+actionsFromType: true
+hideImportDataActions: true
+hideExportBtn: true
+editable: false
+
+columns:
+  - id: typeValue
+    name:
+      ru: Тип данных
+      en: Type
+    type: ASSOC
+    formatter:
+      type: assoc
+    groupable: false
+    sortable: false
+    editable: false
+  - id: replacement
+    name:
+      ru: Заменяющий шаблон
+      en: Replacement
+    type: ASSOC
+    formatter:
+      type: assoc
+    groupable: false
+    sortable: false
+    editable: false
+  - id: condition
+    name:
+      ru: Условие
+      en: Condition
+    searchable: false
+    searchableByText: false
+    sortable: false
+    groupable: false
+    editable: false
+  - id: parentTemplate
+    name:
+      en: Base template
+      ru: Базовый шаблон
+    type: ASSOC
+    formatter:
+      type: assoc
+    visible: false
