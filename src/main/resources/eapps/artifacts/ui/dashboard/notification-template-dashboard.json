@@ -1,0 +1,127 @@
+{
+  "id": "notification-template-dashboard",
+  "name": {
+    "en": "Notification template dashboard",
+    "ru": "Шаблон уведомления"
+  },
+  "typeRef": "emodel/type@notification-template",
+  "appliedToRef": "",
+  "authority": null,
+  "scope": "",
+  "priority": 0,
+  "workspace": "",
+  "config": {
+    "version": "v2",
+    "v2": {
+      "widgets": [
+        {
+          "name": "properties",
+          "label": "dashboard-settings.widget.properties",
+          "additionalProps": {},
+          "dndId": "c102dce1-d333-4646-88eb-7b16b098ee15",
+          "id": "09522c6d-07a7-47d0-b333-ce80b7020258",
+          "props": {
+            "id": "09522c6d-07a7-47d0-b333-ce80b7020258",
+            "config": {
+              "formId": "uiserv/form@notification-template-simple",
+              "widgetDisplayCondition": null,
+              "elementsDisplayCondition": {}
+            }
+          }
+        },
+        {
+          "name": "journal",
+          "label": "dashboard-settings.widget.journal",
+          "additionalProps": {},
+          "dndId": "e5445ba6-76a1-4124-bb64-305cc4eae1cb",
+          "id": "4d21721d-0601-4bb9-889b-5890de5466a4",
+          "props": {
+            "id": "4d21721d-0601-4bb9-889b-5890de5466a4",
+            "config": {
+              "widgetDisplayCondition": null,
+              "elementsDisplayCondition": {},
+              "version": "v2",
+              "v2": {
+                "onlyLinkedJournals": {
+                  "ecos-template-replacements": true
+                },
+                "attrsToLoad": {
+                  "ecos-template-replacements": [
+                    {
+                      "label": "parentTemplate",
+                      "value": "parentTemplate"
+                    }
+                  ]
+                },
+                "searchInWorkspacePolicy": "all",
+                "aggregateWorkspaces": [],
+                "isHideCreateVariants": false,
+                "isHideGoToButton": true,
+                "journalsListIds": [
+                  "uiserv/journal@ecos-template-replacements"
+                ],
+                "journalSettingId": "",
+                "journalId": "ecos-template-replacements",
+                "customJournalMode": false,
+                "customJournal": ""
+              }
+            }
+          }
+        }
+      ],
+      "desktop": [
+        {
+          "id": "layout_799ac5e5-9eab-4c08-af80-5ed48d768229",
+          "tab": {
+            "label": "Основное",
+            "idLayout": "layout_799ac5e5-9eab-4c08-af80-5ed48d768229"
+          },
+          "type": "1-column",
+          "columns": [
+            {
+              "widgets": [
+                "09522c6d-07a7-47d0-b333-ce80b7020258"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "layout_18a3a08f-e70d-476b-911e-0730c58f97ed",
+          "tab": {
+            "label": {
+              "ru": "Замены шаблона",
+              "en": "Template replacement"
+            },
+            "idLayout": "layout_18a3a08f-e70d-476b-911e-0730c58f97ed"
+          },
+          "type": "1-column",
+          "columns": [
+            {
+              "widgets": [
+                "4d21721d-0601-4bb9-889b-5890de5466a4"
+              ]
+            }
+          ]
+        }
+      ],
+      "mobile": [
+        {
+          "id": "layout_b4b01e70-e01c-457d-abfa-aaaf0a4ca691",
+          "tab": {
+            "label": "Свойства",
+            "idLayout": "layout_b4b01e70-e01c-457d-abfa-aaaf0a4ca691"
+          },
+          "type": "mobile",
+          "columns": [
+            {
+              "widgets": [
+                "09522c6d-07a7-47d0-b333-ce80b7020258"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "attributes": {}
+}
