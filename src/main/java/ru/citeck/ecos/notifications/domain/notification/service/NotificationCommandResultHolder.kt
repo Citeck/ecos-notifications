@@ -51,6 +51,7 @@ class NotificationCommandResultHolder(
                 record = command.record,
                 template = command.templateRef,
                 webUrl = command.webUrl,
+                createdFrom = command.createdFrom,
                 state = NotificationState.ERROR,
                 errorMessage = ExceptionUtils.getMessage(throwable),
                 errorStackTrace = ExceptionUtils.getStackTrace(throwable),

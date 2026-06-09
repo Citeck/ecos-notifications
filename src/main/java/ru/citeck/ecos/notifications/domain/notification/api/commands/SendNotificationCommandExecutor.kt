@@ -13,6 +13,7 @@ import ru.citeck.ecos.notifications.domain.notification.FitNotification
 import ru.citeck.ecos.notifications.domain.notification.NotificationResultStatus
 import ru.citeck.ecos.notifications.domain.notification.api.records.NotificationRecords
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationCommandResultHolder
+import ru.citeck.ecos.notifications.lib.RecipientsSendStrategy
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.predicate.model.Predicates
@@ -74,11 +75,27 @@ class SendNotificationCommandExecutor(
 
     private fun splitCommand(command: SendNotificationCommand): List<SendNotificationCommand> {
 
+        // The send strategy partitions the To list (recipients) only. cc/bcc are copies within a
+        // single (shared) message and are never partitioned by the strategy. Therefore PER_RECIPIENT
+        // is defined only when cc/bcc are empty; when cc/bcc are set the command is sent as a single
+        // COMBINED message regardless of the strategy. This is not a temporary limitation but a
+        // consequence of cc/bcc semantics.
         if (command.webUrl.isNotBlank() ||
             command.recipients.isEmpty() ||
             command.cc.isNotEmpty() ||
             command.bcc.isNotEmpty()
         ) {
+            if (command.recipientsSendStrategy == RecipientsSendStrategy.PER_RECIPIENT &&
+                (command.cc.isNotEmpty() || command.bcc.isNotEmpty())
+            ) {
+                // The only place where the strategy is intentionally ignored - make the contradiction
+                // observable instead of letting it silently fall back to a single message.
+                log.warn {
+                    "PER_RECIPIENT strategy is requested, but cc/bcc are not empty, " +
+                        "so the notification is sent as a single combined message. " +
+                        "commandId=${command.id}, record=${command.record}"
+                }
+            }
             // We can't universally split emails when cc and bcc is not empty
             // but in future we can add this logic based on strategy from configuration
             return listOf(command)
@@ -96,6 +113,29 @@ class SendNotificationCommandExecutor(
         }.filter {
             it.first.isNotBlank() && it.second.isNotBlank()
         }.toMap()
+
+        // CRITICAL INVARIANT: the split MUST happen here, in splitCommand (the safe executor),
+        // BEFORE NotificationCommandResultHolder persists the record (data = JSON of the sub-command,
+        // one record per sub-command with its own UUID). The split must NOT be pushed below the
+        // persist step (into UnsafeSendNotificationCommandExecutor / NotificationSenderService /
+        // EmailNotificationSender), because ErrorNotificationRepeater, on retry, reads the persisted
+        // command from notification.data and re-executes it DIRECTLY via
+        // UnsafeSendNotificationCommandExecutor, BYPASSING splitCommand. If data held a pre-split
+        // command with all recipients, a retry would send a single email to everyone and duplicate
+        // the already-delivered ones. Splitting here means each sub-command = its own record = its
+        // own retry unit, so a partial failure retries only the failed recipients, with no duplicates.
+        if (command.recipientsSendStrategy == RecipientsSendStrategy.PER_RECIPIENT) {
+            // PER_RECIPIENT is a finer partition than the webUrl one below, so it replaces it.
+            // A fresh UUID per sub-command and createdFrom mirror the existing webUrl branch.
+            return command.recipients.map { recipient ->
+                command.copy(
+                    id = UUID.randomUUID().toString(),
+                    webUrl = portalUrlByEmail[recipient] ?: "",
+                    recipients = setOf(recipient),
+                    createdFrom = EntityRef.create(AppName.NOTIFICATIONS, NotificationRecords.ID, command.id)
+                )
+            }
+        }
 
         val parts = LinkedHashMap<RecipientsPartKey, MutableSet<String>>()
         for (recipient in command.recipients) {

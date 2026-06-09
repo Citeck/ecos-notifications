@@ -25,7 +25,9 @@ const val NOTIFICATION_TEMPLATE_REPLACEMENT_ID = "multi-template-config"
 
 @Component
 class TemplateReplacementDao(private val recordService: RecordsService) :
-    AbstractRecordsDao(), RecordsDeleteDao, RecordsQueryDao,
+    AbstractRecordsDao(),
+    RecordsDeleteDao,
+    RecordsQueryDao,
     RecordMutateDtoDao<TemplateReplacementDao.Replacement> {
 
     companion object {
@@ -57,7 +59,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         }
         val parentTemplate = ESCAPER.unescape(firstIdParts[PARENT_TEMPLATE_PART])
         var templateConfig = recordService.getAtt(parentTemplate, MULTI_CONFIG)
-                .asList(MultiTemplateElementDto::class.java)
+            .asList(MultiTemplateElementDto::class.java)
         templateConfig = filterConfig(templateConfig, firstIdParts)
         result.add(DelStatus.OK)
         for (idx in 1 until recordIds.size) {
@@ -107,7 +109,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
                 throw IllegalArgumentException("Parent template must be defined in request $recsQuery")
             }
             val templateConfig = recordService.getAtt(parentTemplate, MULTI_CONFIG)
-                    .asList(MultiTemplateElementDto::class.java)
+                .asList(MultiTemplateElementDto::class.java)
             var resultRecs = templateConfig
                 .sortedWith(compareBy { it.type?.getLocalId() })
                 .map { Replacement(parentTemplate, it.template, it.type, it.condition) }
@@ -128,7 +130,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
                 return result
             }
             var maxItems = recsQuery.page.maxItems
-            if (maxItems <= 0){
+            if (maxItems <= 0) {
                 maxItems = 100
             }
             var endIdx = startIdx + maxItems
@@ -150,8 +152,11 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
         if (parentTemplate == null || parentTemplate.isEmpty()) {
             throw IllegalArgumentException("Parent template must be defined in replacement creation request")
         }
-        if (record.replacement == null || record.replacement!!.isEmpty() ||
-            record.typeValue == null || record.typeValue!!.isEmpty()) {
+        if (record.replacement == null ||
+            record.replacement!!.isEmpty() ||
+            record.typeValue == null ||
+            record.typeValue!!.isEmpty()
+        ) {
             throw IllegalArgumentException("Invalid replacement record data: $record")
         }
         val templateConfig = recordService.getAtt(parentTemplate, MULTI_CONFIG)
@@ -167,8 +172,10 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
     class Replacement() {
 
         constructor(
-            parentTemplate: EntityRef, replacement: EntityRef?,
-            typeValue: EntityRef?, condition: Predicate?
+            parentTemplate: EntityRef,
+            replacement: EntityRef?,
+            typeValue: EntityRef?,
+            condition: Predicate?
         ) : this() {
             this.parentTemplate = parentTemplate
             this.replacement = replacement
@@ -205,7 +212,7 @@ class TemplateReplacementDao(private val recordService: RecordsService) :
                 if (name.equals("read", ignoreCase = true)) {
                     return true
                 }
-                return AuthContext.isRunAsSystemOrAdmin();
+                return AuthContext.isRunAsSystemOrAdmin()
             }
         }
     }
