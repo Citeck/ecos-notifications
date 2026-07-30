@@ -4,10 +4,20 @@ spring:
     port: 3025
 
 ecos-notifications:
-  error-notification:
-    ttl: 30000
-    delay: 5000
-    min-try-count: 1
+  retry:
+    enabled: true
+    # effectively disables the scheduled tick: tests drive the repeater
+    # deterministically via ErrorNotificationRepeater.handleErrors()
+    poll-interval: 30m
+    batch-size: 50
+    max-attempts: 3
+    initial-interval: 1ms
+    multiplier: 1.0
+    max-interval: 10ms
+    retry-window: 30s
+    # deliberately shorter than batch-size * SMTP timeout: GreenMail answers instantly, so the
+    # lease-invariant WARN from RetryPropertiesValidator is expected in tests
+    lease-time: 1m
   awaiting-dispatch:
     delay: 15000
   bulk-mail:

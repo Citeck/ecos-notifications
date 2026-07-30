@@ -17,7 +17,10 @@ import java.time.Instant
 @Component
 class NotificationCommandResultHolder(
     private val notificationDao: NotificationDao,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val failureClassifier: NotificationFailureClassifier,
+    private val retryPolicy: NotificationRetryPolicy,
+    private val metrics: NotificationRetryMetrics
 ) {
 
     companion object {
@@ -32,17 +35,34 @@ class NotificationCommandResultHolder(
 
         val existsNotifications = notificationDao.getByExtId(command.id)
 
-        val toSave: NotificationDto = existsNotifications?.copy(
+        // a notification cancelled while this attempt was in flight (its bulk mail was deleted)
+        // must not be resurrected: writing ERROR here would put it back into the retry pipeline
+        // for the full budget. This early check only saves the work below - the authoritative
+        // guard is the conditional update at the end of this method, because the cancellation
+        // races with it. holdSuccess has no such guard on purpose - the message did go out,
+        // so recording the delivery is the truthful outcome and it schedules nothing
+        if (existsNotifications?.state == NotificationState.CANCELLED) {
+            log.info { "Notification ${command.id} was cancelled, its error result is dropped" }
+            return
+        }
+
+        val errorMessage = ExceptionUtils.getMessage(throwable)
+
+        // state/tryingCount/lastTryingDate/nextRetryAt/firstErrorAt/failureKind are decided
+        // by NotificationRetryPolicy below, tryingCount here must NOT include the failed attempt
+        val base: NotificationDto = existsNotifications?.copy(
             type = command.type,
             record = command.record,
             template = command.templateRef,
             webUrl = command.webUrl,
-            state = NotificationState.ERROR,
-            errorMessage = ExceptionUtils.getMessage(throwable),
-            errorStackTrace = ExceptionUtils.getStackTrace(throwable),
-            data = Json.mapper.toBytes(command),
-            tryingCount = existsNotifications.tryingCount.plus(1),
-            lastTryingDate = Instant.now()
+            errorMessage = errorMessage,
+            // identical multi-KB traces are not rewritten on every attempt
+            errorStackTrace = if (existsNotifications.errorMessage == errorMessage) {
+                existsNotifications.errorStackTrace
+            } else {
+                ExceptionUtils.getStackTrace(throwable)
+            },
+            data = Json.mapper.toBytes(command)
         )
             ?: NotificationDto(
                 extId = command.id,
@@ -53,35 +73,67 @@ class NotificationCommandResultHolder(
                 webUrl = command.webUrl,
                 createdFrom = command.createdFrom,
                 state = NotificationState.ERROR,
-                errorMessage = ExceptionUtils.getMessage(throwable),
+                errorMessage = errorMessage,
                 errorStackTrace = ExceptionUtils.getStackTrace(throwable),
                 data = Json.mapper.toBytes(command),
-                tryingCount = 1,
-                lastTryingDate = Instant.now()
+                tryingCount = 0
             )
+
+        val failureKind = failureClassifier.classify(throwable)
+        val toSave = retryPolicy.applyFailure(base, failureKind, Instant.now())
 
         log.debug { "Save error notification:\n$toSave" }
 
-        notificationDao.save(toSave)
+        // an existing row is updated conditionally: the row may have been cancelled after the
+        // read above (bulk mail deleted mid-attempt), and an unconditional save would revive it
+        if (toSave.id != null) {
+            if (!notificationDao.saveFailureIfNotCancelled(toSave)) {
+                log.info {
+                    "Notification ${command.id} was cancelled or removed concurrently, " +
+                        "its error result is dropped"
+                }
+                return
+            }
+        } else {
+            notificationDao.save(toSave)
+        }
+
+        // a permanent first failure never reaches the repeater, so the transition is counted here
+        metrics.recordTerminalState(toSave.state)
     }
 
-    fun holdSuccess(command: SendNotificationCommand, result: SendNotificationResult) {
+    /**
+     * @param partialDeliveryNote set when the message was accepted only for part of the
+     * recipients: the notification is still successful (no retry is scheduled), the note is kept
+     * as the error message to make the rejected recipients visible.
+     */
+    fun holdSuccess(
+        command: SendNotificationCommand,
+        result: SendNotificationResult,
+        partialDeliveryNote: String? = null
+    ) {
         log.debug { "Hold success notification command:\n $command \nwith result $result" }
 
         val existsNotifications = notificationDao.getByExtId(command.id)
         val state = result.toNotificationState()
 
+        // the row leaves the retry pipeline: clear the schedule, the failure verdict and the
+        // retry-window anchor. firstErrorAt must not survive a success - the same command id can
+        // be executed again later, and a stale anchor would expire its first failure immediately
         val toSave = existsNotifications?.copy(
             type = command.type,
             record = command.record,
             template = command.templateRef,
             webUrl = command.webUrl,
             state = state,
-            errorMessage = "",
+            errorMessage = partialDeliveryNote ?: "",
             errorStackTrace = "",
             data = Json.mapper.toBytes(command),
             tryingCount = existsNotifications.tryingCount.plus(1),
-            lastTryingDate = Instant.now()
+            lastTryingDate = Instant.now(),
+            nextRetryAt = null,
+            firstErrorAt = null,
+            failureKind = null
         )
             ?: NotificationDto(
                 extId = command.id,
@@ -92,7 +144,7 @@ class NotificationCommandResultHolder(
                 webUrl = command.webUrl,
                 createdFrom = command.createdFrom,
                 state = state,
-                errorMessage = "",
+                errorMessage = partialDeliveryNote ?: "",
                 errorStackTrace = "",
                 data = Json.mapper.toBytes(command),
                 tryingCount = 1,

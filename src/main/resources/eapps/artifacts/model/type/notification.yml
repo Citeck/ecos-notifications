@@ -13,6 +13,7 @@ formRef: uiserv/form@notification-form
 
 actions:
   - uiserv/action@resend-notification-action
+  - uiserv/action@retry-notification-action
 
 defaultCreateVariant: false
 

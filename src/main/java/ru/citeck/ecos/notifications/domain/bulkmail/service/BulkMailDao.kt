@@ -14,7 +14,6 @@ import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailEntity
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRecipientRepository
 import ru.citeck.ecos.notifications.domain.bulkmail.repo.BulkMailRepository
-import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.recordRef
 import ru.citeck.ecos.notifications.domain.notification.service.NotificationDao
 import ru.citeck.ecos.records2.predicate.model.Predicate
@@ -50,16 +49,7 @@ class BulkMailDao(
     }
 
     private fun cancelDeferredNotifications(bulkMail: BulkMailDto) {
-        val waitToDispatchNotifications = notificationDao.findNotificationForBulkMail(
-            bulkMail.recordRef.toString(),
-            NotificationState.WAIT_FOR_DISPATCH
-        )
-
-        val cancelledNotifications = waitToDispatchNotifications.map { dto ->
-            dto.copy(state = NotificationState.CANCELLED)
-        }
-
-        notificationDao.saveAll(cancelledNotifications)
+        notificationDao.cancelDeferredForBulkMail(bulkMail.recordRef.toString())
     }
 
     fun save(dto: BulkMailDto): BulkMailDto {

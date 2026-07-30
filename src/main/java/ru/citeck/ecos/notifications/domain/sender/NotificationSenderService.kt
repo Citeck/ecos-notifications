@@ -1,7 +1,6 @@
 package ru.citeck.ecos.notifications.domain.sender
 
 import ru.citeck.ecos.notifications.domain.notification.RawNotification
-import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 
 interface NotificationSenderService {
     /**
@@ -9,5 +8,9 @@ interface NotificationSenderService {
      */
     fun getModel(): Set<String>
 
-    fun sendNotification(notification: RawNotification): NotificationSenderSendStatus
+    /**
+     * @return result of the sender which processed the notification: its status and the meta
+     * it reported (sign result, partial delivery note, ...)
+     */
+    fun sendNotification(notification: RawNotification): NotificationSenderResult
 }

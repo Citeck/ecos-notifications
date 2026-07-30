@@ -202,7 +202,7 @@ class CommandNotificationSenderTest : BaseMailTest() {
         )
         assertEquals(
             NotificationSenderSendStatus.BLOCKED,
-            notificationSenderService.sendNotification(notification)
+            notificationSenderService.sendNotification(notification).status
         )
     }
 

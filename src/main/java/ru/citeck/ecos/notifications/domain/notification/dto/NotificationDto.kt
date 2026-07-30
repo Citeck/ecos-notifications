@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.domain.notification.dto
 
+import ru.citeck.ecos.notifications.domain.notification.FailureKind
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.lib.NotificationType
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -45,7 +46,13 @@ data class NotificationDto(
 
     val lastModifiedBy: String? = null,
 
-    val lastModifiedDate: Instant? = Instant.now()
+    val lastModifiedDate: Instant? = Instant.now(),
+
+    val nextRetryAt: Instant? = null,
+
+    val firstErrorAt: Instant? = null,
+
+    val failureKind: FailureKind? = null
 
 ) {
     override fun equals(other: Any?): Boolean {
@@ -66,7 +73,9 @@ data class NotificationDto(
     override fun toString(): String {
         return "NotificationDto(id=$id, workspace=$workspace, extId='$extId', record=$record, template=$template, webUrl='$webUrl', type=$type, " +
             "errorMessage='$errorMessage', errorStackTrace='$errorStackTrace', bulkMailRef=$bulkMailRef, " +
-            "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, createdFrom=$createdFrom, state=$state, " +
+            "delayedSend=$delayedSend, tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, " +
+            "nextRetryAt=$nextRetryAt, firstErrorAt=$firstErrorAt, failureKind=$failureKind, " +
+            "createdFrom=$createdFrom, state=$state, " +
             "createdBy=$createdBy, createdDate=$createdDate, lastModifiedBy=$lastModifiedBy, " +
             "lastModifiedDate=$lastModifiedDate)"
     }

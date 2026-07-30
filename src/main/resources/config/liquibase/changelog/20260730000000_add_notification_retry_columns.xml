@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="citeck" id="20260730000000-1">
+
+        <addColumn tableName="notification">
+            <column name="next_retry_at" type="TIMESTAMP"/>
+            <column name="first_error_at" type="TIMESTAMP"/>
+            <column name="failure_kind" type="VARCHAR(20)"/>
+        </addColumn>
+
+        <!--
+            Releases the ERROR backlog that predates the retry pipeline into it. These are
+            "timestamp without time zone" columns and Hibernate stores UTC wall clock in them,
+            while plain now() is cast through the session time zone (the JVM default, set by the
+            JDBC driver). On a stand running east of UTC that would schedule the whole migrated
+            backlog hours into the future, so the value is converted explicitly.
+        -->
+        <sql>
+            UPDATE notification
+            SET next_retry_at = now() AT TIME ZONE 'UTC',
+                first_error_at = COALESCE(last_trying_date, created_date)
+            WHERE state = 'ERROR'
+        </sql>
+
+    </changeSet>
+
+    <changeSet author="citeck" id="20260730000000-2" runInTransaction="false">
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_notification_next_retry_at
+            ON notification (next_retry_at)
+            WHERE state = 'ERROR'
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

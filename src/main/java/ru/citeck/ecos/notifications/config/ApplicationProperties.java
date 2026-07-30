@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import ru.citeck.ecos.commons.data.DataValue;
 
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,10 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "ecos-notifications", ignoreUnknownFields = false)
 public class ApplicationProperties {
 
+    @Deprecated
     private final ErrorNotification errorNotification = new ErrorNotification();
+
+    private final Retry retry = new Retry();
 
     private final AwaitingDispatch awaitingDispatch = new AwaitingDispatch();
 
@@ -34,8 +38,16 @@ public class ApplicationProperties {
 
     private final StartupNotification startupNotification = new StartupNotification();
 
+    /**
+     * @deprecated use {@link #getRetry()}
+     */
+    @Deprecated
     public ErrorNotification getErrorNotification() {
         return this.errorNotification;
+    }
+
+    public Retry getRetry() {
+        return this.retry;
     }
 
     public AwaitingDispatch getAwaitingDispatch() {
@@ -66,6 +78,13 @@ public class ApplicationProperties {
         return startupNotification;
     }
 
+    /**
+     * @deprecated replaced by {@link Retry} ({@code ecos-notifications.retry.*}).
+     * Values set here are accepted for backward compatibility but ignored
+     * ({@code ignoreUnknownFields = false} would crash stands that still set them).
+     * Overrides are reported with WARN at startup, see {@link RetryPropertiesDeprecationWarner}.
+     */
+    @Deprecated
     public static class ErrorNotification {
 
         /**
@@ -112,6 +131,141 @@ public class ApplicationProperties {
 
         public void setMinTryCount(int minTryCount) {
             this.minTryCount = minTryCount;
+        }
+    }
+
+    /**
+     * Retry pipeline for notifications that failed with a transient error
+     * ({@link ru.citeck.ecos.notifications.domain.notification.NotificationState#ERROR}).
+     * <p>
+     * Invariant: {@code leaseTime} must exceed {@code batchSize} × worst-case send timeout
+     * (SMTP timeouts are set in {@code application.yml} via
+     * {@code spring.mail.properties.mail.smtp.*}), otherwise a claim lease can expire while
+     * rows are still being sent and another replica may re-send them.
+     */
+    public static class Retry {
+
+        /**
+         * When disabled, the first failure goes straight to a terminal state (FAILED/EXPIRED)
+         * and rows already scheduled before the switch was flipped are expired without a send.
+         * The repeater tick itself keeps running, so manually re-driven notifications are still
+         * sent (exactly one attempt each).
+         */
+        private boolean enabled = NotificationsDefault.Retry.ENABLED;
+
+        /**
+         * Frequency of the retry job tick (cheap indexed query).
+         */
+        private Duration pollInterval = NotificationsDefault.Retry.POLL_INTERVAL;
+
+        /**
+         * Maximum rows claimed per tick — throttles the recovery storm after an outage.
+         * Leftover backlog waits for the next tick.
+         */
+        private int batchSize = NotificationsDefault.Retry.BATCH_SIZE;
+
+        /**
+         * Hard maximum of send attempts; whichever of {@code maxAttempts} / {@code retryWindow}
+         * hits first moves the notification to EXPIRED.
+         */
+        private int maxAttempts = NotificationsDefault.Retry.MAX_ATTEMPTS;
+
+        /**
+         * Backoff interval after the first failure.
+         */
+        private Duration initialInterval = NotificationsDefault.Retry.INITIAL_INTERVAL;
+
+        /**
+         * Exponential backoff multiplier: interval(n) = initialInterval * multiplier^(n-1).
+         */
+        private double multiplier = NotificationsDefault.Retry.MULTIPLIER;
+
+        /**
+         * Cap for the backoff interval.
+         */
+        private Duration maxInterval = NotificationsDefault.Retry.MAX_INTERVAL;
+
+        /**
+         * Retry budget counted from the first error ({@code first_error_at}).
+         */
+        private Duration retryWindow = NotificationsDefault.Retry.RETRY_WINDOW;
+
+        /**
+         * Claim lease: claimed rows become visible for other replicas again after this time
+         * (protects against a crashed instance losing its claimed batch).
+         */
+        private Duration leaseTime = NotificationsDefault.Retry.LEASE_TIME;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public Duration getPollInterval() {
+            return pollInterval;
+        }
+
+        public void setPollInterval(Duration pollInterval) {
+            this.pollInterval = pollInterval;
+        }
+
+        public int getBatchSize() {
+            return batchSize;
+        }
+
+        public void setBatchSize(int batchSize) {
+            this.batchSize = batchSize;
+        }
+
+        public int getMaxAttempts() {
+            return maxAttempts;
+        }
+
+        public void setMaxAttempts(int maxAttempts) {
+            this.maxAttempts = maxAttempts;
+        }
+
+        public Duration getInitialInterval() {
+            return initialInterval;
+        }
+
+        public void setInitialInterval(Duration initialInterval) {
+            this.initialInterval = initialInterval;
+        }
+
+        public double getMultiplier() {
+            return multiplier;
+        }
+
+        public void setMultiplier(double multiplier) {
+            this.multiplier = multiplier;
+        }
+
+        public Duration getMaxInterval() {
+            return maxInterval;
+        }
+
+        public void setMaxInterval(Duration maxInterval) {
+            this.maxInterval = maxInterval;
+        }
+
+        public Duration getRetryWindow() {
+            return retryWindow;
+        }
+
+        public void setRetryWindow(Duration retryWindow) {
+            this.retryWindow = retryWindow;
+        }
+
+        public Duration getLeaseTime() {
+            return leaseTime;
+        }
+
+        public void setLeaseTime(Duration leaseTime) {
+            this.leaseTime = leaseTime;
         }
     }
 

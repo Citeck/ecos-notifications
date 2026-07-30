@@ -30,9 +30,21 @@ spring:
     properties:
       mail:
         smtp:
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          # finite timeouts are required by the retry lease invariant:
+          # retry.lease-time > retry.batch-size * SMTP timeout
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+          # deliver to the accepted recipients instead of aborting the whole message when some
+          # of them are rejected. Required by PartialDeliveryDetector: JavaMail only reports
+          # SendFailedException.validSentAddresses when this is enabled
+          sendpartial: true
+  task:
+    scheduling:
+      pool:
+        # a retry tick may occupy its thread for the whole SMTP batch, the delayed-notification
+        # dispatcher and the bulk mail status sync must not wait behind it
+        size: 4
 
 server:
   port: 8013
@@ -40,8 +52,17 @@ server:
 ecos-notifications:
   event:
     enabled: false
-  error-notification:
-    delay: 600000
+  retry:
+    enabled: true
+    poll-interval: 30s
+    batch-size: 50
+    max-attempts: 20
+    initial-interval: 1m
+    multiplier: 3.0
+    max-interval: 2h
+    retry-window: 24h
+    # lease must exceed batch-size * worst-case send timeout (50 * 10s ~= 8.3m)
+    lease-time: 15m
   awaiting-dispatch:
     delay: 15000
     batch-size: 1000

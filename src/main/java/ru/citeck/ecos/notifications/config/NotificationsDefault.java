@@ -1,5 +1,6 @@
 package ru.citeck.ecos.notifications.config;
 
+import java.time.Duration;
 
 public class NotificationsDefault {
 
@@ -19,6 +20,10 @@ public class NotificationsDefault {
 
     }
 
+    /**
+     * @deprecated replaced by {@link Retry}, values are ignored
+     */
+    @Deprecated
     public class ErrorNotification {
 
         private ErrorNotification() {
@@ -29,6 +34,23 @@ public class NotificationsDefault {
         public static final int DELAY = 600000;
 
         public static final int MIN_TRY_COUNT = 10;
+
+    }
+
+    public static class Retry {
+
+        private Retry() {
+        }
+
+        public static final boolean ENABLED = true;
+        public static final Duration POLL_INTERVAL = Duration.ofSeconds(30);
+        public static final int BATCH_SIZE = 50;
+        public static final int MAX_ATTEMPTS = 20;
+        public static final Duration INITIAL_INTERVAL = Duration.ofMinutes(1);
+        public static final double MULTIPLIER = 3.0;
+        public static final Duration MAX_INTERVAL = Duration.ofHours(2);
+        public static final Duration RETRY_WINDOW = Duration.ofHours(24);
+        public static final Duration LEASE_TIME = Duration.ofMinutes(15);
 
     }
 

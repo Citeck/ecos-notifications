@@ -76,6 +76,56 @@ Then, run a Sonar analysis:
 ./mvnw -Pprod clean test sonar:sonar
 ```
 
+## Notification retry configuration
+
+A notification that fails to be sent is retried per row with exponential backoff:
+
+```yaml
+ecos-notifications:
+  retry:
+    enabled: true         # false => the first failure is terminal at once; manual retry still works
+    poll-interval: 30s    # how often the retry job looks for due notifications
+    batch-size: 50        # notifications taken per tick, throttles the drain after an outage
+    max-attempts: 20      # safety ceiling, retry-window is the primary limit
+    initial-interval: 1m  # delay before the first retry, then multiplied on every attempt
+    multiplier: 3.0
+    max-interval: 2h      # cap for the delay between attempts
+    retry-window: 24h     # counted from the first failure of the notification
+    lease-time: 15m       # how long a claimed batch belongs to one instance
+```
+
+Notification states:
+
+* `ERROR` — the last attempt failed, the next one is scheduled
+* `SENT` — delivered (possibly to part of the recipients, the rest is listed in the error message)
+* `FAILED` — permanently failed (invalid address, broken template, broken sender config): retrying
+  cannot help, so exactly one attempt is made
+* `EXPIRED` — the retry budget (`max-attempts` or `retry-window`) ran out
+
+Failed, expired and scheduled notifications can be put back into the retry pipeline from the
+notification journal ("Retry" action), which resets their retry budget.
+
+### Upgrading from `error-notification`
+
+The `ecos-notifications.error-notification` block is deprecated. Values set there are still accepted
+(so existing stands keep starting) but are **ignored**, and a WARN is logged at startup. Replace them:
+
+| old                                  | new                                                                    |
+|--------------------------------------|------------------------------------------------------------------------|
+| `error-notification.delay`           | `retry.poll-interval` plus the per-notification backoff settings        |
+| `error-notification.ttl`             | `retry.retry-window` (counted from the first failure, not from creation)|
+| `error-notification.ttl: -1`         | no longer supported — retries are always bounded                       |
+| `error-notification.min-try-count`   | `retry.max-attempts` (an upper bound now, not a lower one)              |
+
+Behaviour changes to be aware of:
+
+* permanently broken notifications are no longer resent — they end up in the new `FAILED` state after
+  a single attempt, so dashboards and journals filtering by state should include it
+* `spring.mail.properties.mail.smtp.*timeout` values must stay finite, and `mail.smtp.sendpartial` is
+  enabled so that a message rejected for some recipients is still delivered to the rest
+* `notifications.retry.attempts`, `notifications.retry.terminal` and `notifications.retry.backlog`
+  metrics are exported for monitoring
+
 ## Useful Links
 
 - [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.

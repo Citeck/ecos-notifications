@@ -1,22 +1,28 @@
 package ru.citeck.ecos.notifications.service.senders
 
 import jakarta.mail.Message
+import jakarta.mail.SendFailedException
 import jakarta.mail.Session
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
 import jakarta.mail.util.ByteArrayDataSource
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.mail.MailSendException
 import org.springframework.mail.javamail.JavaMailSender
 import ru.citeck.ecos.ent.notifications.lib.email.sign.EmailSigner
 import ru.citeck.ecos.notifications.NotificationsApp
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
+import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.webapp.lib.spring.test.extension.EcosSpringExtension
 import java.util.*
 
@@ -147,6 +153,65 @@ class EmailNotificationSenderTest {
         )
         notificationProvider.sendNotification(notification)
         validateMessage(notification)
+    }
+
+    @Test
+    fun `partially accepted send is successful and reports rejected recipients`() {
+        initProvider(ApplicationProperties.Email())
+
+        Mockito.doThrow(
+            partialSendFailure(
+                sent = arrayOf(InternetAddress("recepient0@email.ru")),
+                rejected = arrayOf(InternetAddress("recepient1@email.ru"))
+            )
+        ).`when`(mailSenderMock).send(Mockito.any(MimeMessage::class.java))
+
+        val result = notificationProvider.sendNotification(
+            FitNotification(
+                "body",
+                "title",
+                setOf("recepient0@email.ru", "recepient1@email.ru"),
+                "from@email.ru"
+            )
+        )
+
+        assertThat(result.status).isEqualTo(NotificationSenderSendStatus.SENT)
+        val note = result.meta[NotificationSenderResult.PARTIAL_DELIVERY_NOTE] as String
+        assertThat(note).contains("recepient0@email.ru")
+        assertThat(note).contains("Rejected: recepient1@email.ru")
+    }
+
+    @Test
+    fun `send rejected for all recipients fails`() {
+        initProvider(ApplicationProperties.Email())
+
+        Mockito.doThrow(
+            partialSendFailure(
+                sent = arrayOf(),
+                rejected = arrayOf(InternetAddress("recepient0@email.ru"))
+            )
+        ).`when`(mailSenderMock).send(Mockito.any(MimeMessage::class.java))
+
+        val notification = FitNotification(
+            "body",
+            "title",
+            setOf("recepient0@email.ru"),
+            "from@email.ru"
+        )
+
+        assertThatThrownBy { notificationProvider.sendNotification(notification) }
+            .isInstanceOf(MailSendException::class.java)
+    }
+
+    private fun partialSendFailure(sent: Array<InternetAddress>, rejected: Array<InternetAddress>): MailSendException {
+        val sendFailed = SendFailedException(
+            "Invalid Addresses",
+            SMTPAddressFailedException(rejected.first(), "RCPT TO", 550, "mailbox unavailable"),
+            sent,
+            emptyArray(),
+            rejected
+        )
+        return MailSendException(mapOf<Any, Exception>("msg" to sendFailed))
     }
 
     private fun validateMessage(notification: FitNotification) {

@@ -190,6 +190,23 @@
                 "type": "datetime",
                 "input": true,
                 "suffix": true
+              },
+              {
+                "label": {
+                  "ru": "Время следующей попытки",
+                  "en": "Next retry time"
+                },
+                "disabled": true,
+                "key": "nextRetryAt",
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
               }
             ]
           },
@@ -207,6 +224,35 @@
             "type": "panel",
             "input": false,
             "components": [
+              {
+                "label": {
+                  "ru": "Время первой ошибки",
+                  "en": "First error time"
+                },
+                "disabled": true,
+                "key": "firstErrorAt",
+                "datePicker": {
+                  "minDate": "",
+                  "maxDate": ""
+                },
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "datetime",
+                "input": true,
+                "suffix": true
+              },
+              {
+                "label": {
+                  "ru": "Тип ошибки",
+                  "en": "Failure kind"
+                },
+                "disabled": true,
+                "key": "failureKind",
+                "defaultValue": "",
+                "refreshOn": [],
+                "type": "textfield",
+                "input": true
+              },
               {
                 "label": {
                   "ru": "Сообщение ошибки",

@@ -10,7 +10,11 @@ data class BulkMailBatchConfigDto(
     /**
      * The size of the batching mail by recipients. <br>
      * If size = 0, one mail will be sent with all recipients.<br>
-     * This option can be useful if the mail server cannot handle a large number of recipients in one email.
+     * This option can be useful if the mail server cannot handle a large number of recipients in one email.<br>
+     * Note: the batch size is also the duplicate blast-radius on retry — if sending a batch
+     * fails after the server accepted it partially, the whole batch is retried and every
+     * recipient in it may receive the mail again. For important mailings prefer
+     * [personalizedMails] = true (one recipient per notification, no shared blast-radius).
      */
     val size: Int = 0,
 

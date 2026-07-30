@@ -45,28 +45,47 @@ class BulkMailStatusSynchronizer(
 
                 log.trace { "Found notification state summary for ${bulkMail.recordRef}: $notificationsSummary" }
 
-                when {
-                    notificationsSummary.containsKey(NotificationState.ERROR) -> {
-                        setBulkMailStatus(bulkMail, BulkMailStatus.TRYING_TO_DISPATCH)
-                    }
+                val newStatus = resolveStatus(notificationsSummary) ?: return@forEach
 
-                    notificationsSummary.containsKey(NotificationState.EXPIRED) -> {
-                        setBulkMailStatus(bulkMail, BulkMailStatus.ERROR)
-                    }
-
-                    notificationsSummary.containsKey(NotificationState.WAIT_FOR_DISPATCH) -> {
-                        setBulkMailStatus(bulkMail, BulkMailStatus.WAIT_FOR_DISPATCH)
-                    }
-
-                    notificationsSummary.containsKey(NotificationState.SENT) ||
-                        notificationsSummary.containsKey(NotificationState.RECIPIENTS_NOT_FOUND) ||
-                        notificationsSummary.containsKey(NotificationState.BLOCKED) -> {
-                        setBulkMailStatus(bulkMail, BulkMailStatus.SENT)
+                if (newStatus == BulkMailStatus.ERROR) {
+                    log.info {
+                        "Bulk mail ${bulkMail.recordRef} finished with failures: " +
+                            "sent=${notificationsSummary[NotificationState.SENT] ?: 0}, " +
+                            "failed=${notificationsSummary[NotificationState.FAILED] ?: 0}, " +
+                            "expired=${notificationsSummary[NotificationState.EXPIRED] ?: 0}, " +
+                            "cancelled=${notificationsSummary[NotificationState.CANCELLED] ?: 0}"
                     }
                 }
+
+                setBulkMailStatus(bulkMail, newStatus)
             }
 
             page++
+        }
+    }
+
+    /**
+     * Explicit priority chain:
+     * 1. any ERROR — retries are still in progress, keep TRYING_TO_DISPATCH;
+     * 2. any WAIT_FOR_DISPATCH — rows are still queued for sending;
+     * 3. only when nothing is in flight anymore do terminal failures (EXPIRED/FAILED)
+     *    flip the bulk mail to ERROR — a single EXPIRED row must not mark the whole
+     *    bulk mail ERROR while other rows are still being sent;
+     * 4. otherwise every row is settled (SENT/RECIPIENTS_NOT_FOUND/BLOCKED/CANCELLED) — SENT.
+     */
+    private fun resolveStatus(summary: Map<NotificationState, Long>): BulkMailStatus? {
+        if (summary.isEmpty()) {
+            return null
+        }
+        return when {
+            summary.containsKey(NotificationState.ERROR) -> BulkMailStatus.TRYING_TO_DISPATCH
+
+            summary.containsKey(NotificationState.WAIT_FOR_DISPATCH) -> BulkMailStatus.WAIT_FOR_DISPATCH
+
+            summary.containsKey(NotificationState.EXPIRED) ||
+                summary.containsKey(NotificationState.FAILED) -> BulkMailStatus.ERROR
+
+            else -> BulkMailStatus.SENT
         }
     }
 

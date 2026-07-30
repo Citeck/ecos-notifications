@@ -23,4 +23,13 @@ interface NotificationSender<T> {
 data class NotificationSenderResult(
     val status: NotificationSenderSendStatus,
     val meta: Map<String, Any> = emptyMap()
-)
+) {
+
+    companion object {
+        /**
+         * Meta key holding the partial-delivery note (String) of a send which was accepted
+         * only for part of the recipients. Such a send is reported as SENT and is not retried.
+         */
+        const val PARTIAL_DELIVERY_NOTE = "partialDeliveryNote"
+    }
+}

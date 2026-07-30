@@ -1,6 +1,7 @@
 package ru.citeck.ecos.notifications.service.senders
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeUtility
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -9,6 +10,8 @@ import ru.citeck.ecos.ent.notifications.lib.email.sign.EmailCertificateSignConfi
 import ru.citeck.ecos.ent.notifications.lib.email.sign.EmailSigner
 import ru.citeck.ecos.notifications.config.ApplicationProperties
 import ru.citeck.ecos.notifications.domain.notification.FitNotification
+import ru.citeck.ecos.notifications.domain.notification.service.PartialDelivery
+import ru.citeck.ecos.notifications.domain.notification.service.PartialDeliveryDetector
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
@@ -73,14 +76,33 @@ class EmailNotificationSender(
 
         val signResult = emailSigner.signMessageIfRequired(msg, config.certSignConfig)
 
-        emailSender.send(msg)
+        val partialDelivery = send(msg)
 
-        return NotificationSenderResult(
-            NotificationSenderSendStatus.SENT,
-            mapOf(
-                SIGN_RESULT to signResult.name
-            )
-        )
+        val meta = mutableMapOf<String, Any>(SIGN_RESULT to signResult.name)
+        partialDelivery?.let { meta[NotificationSenderResult.PARTIAL_DELIVERY_NOTE] = it.asNote() }
+
+        return NotificationSenderResult(NotificationSenderSendStatus.SENT, meta)
+    }
+
+    /**
+     * Sends the message and tolerates a partial SMTP acceptance: when the server took the
+     * message for some recipients and rejected the rest, the send counts as successful and the
+     * rejected addresses are reported back as a note instead of an error.
+     *
+     * Retrying such a send would re-send to everyone, including the already served recipients,
+     * so duplicated mail is traded for the missing part - see [PartialDeliveryDetector].
+     *
+     * @return partial delivery info, or null when everything was accepted.
+     */
+    private fun send(msg: MimeMessage): PartialDelivery? {
+        try {
+            emailSender.send(msg)
+            return null
+        } catch (e: Exception) {
+            val partialDelivery = PartialDeliveryDetector.detect(e) ?: throw e
+            log.warn(e) { "Email notification was delivered partially. ${partialDelivery.asNote()}" }
+            return partialDelivery
+        }
     }
 
     override fun getConfigClass(): Class<EmailNotificationSenderConfig> {

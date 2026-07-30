@@ -1,8 +1,13 @@
 package ru.citeck.ecos.notifications.domain.notification.service
 
+import freemarker.core.ParseException
+import freemarker.template.MalformedTemplateNameException
+import freemarker.template.TemplateException
+import freemarker.template.TemplateNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.activation.DataSource
 import jakarta.mail.util.ByteArrayDataSource
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.web.server.MimeMappings
 import org.springframework.stereotype.Component
@@ -14,6 +19,7 @@ import ru.citeck.ecos.notifications.domain.event.dto.NotificationEventDto
 import ru.citeck.ecos.notifications.domain.event.service.NotificationEventService
 import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.sender.NotificationSender
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.sender.repo.NotificationsSenderEntity
 import ru.citeck.ecos.notifications.domain.sender.service.NotificationsSenderService
@@ -22,7 +28,6 @@ import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtt
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.freemarker.FreemarkerTemplateEngineService
 import ru.citeck.ecos.notifications.freemarker.TemplateProcCtxKey
-import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus.*
 import ru.citeck.ecos.records2.predicate.PredicateService
 import ru.citeck.ecos.records2.predicate.PredicateUtils
@@ -63,7 +68,7 @@ class NotificationSenderServiceImpl(
             .toSet()
     }
 
-    override fun sendNotification(notification: RawNotification): NotificationSenderSendStatus {
+    override fun sendNotification(notification: RawNotification): NotificationSenderResult {
         log.debug { "Send notification raw $notification" }
 
         val senders = notificationsSenderService.getEnabled(
@@ -71,6 +76,8 @@ class NotificationSenderServiceImpl(
             null
         )
         if (senders.isEmpty()) {
+            // Deliberately transient (plain NotificationException): the sender artifact may be
+            // deployed later, and retrying lets queued notifications go out once it appears.
             throw NotificationException("Failed to find notifications sender for type '${notification.type}'")
         }
         val fitNotification = convertRawNotificationToFit(notification)
@@ -143,9 +150,21 @@ class NotificationSenderServiceImpl(
                 log.debug { "Send notification through sender '${sender.id}' with type '${sender.senderType}'" }
 
                 val configClass = senderBean.getConfigClass()
-                val config = sender.senderConfig.getAs(configClass) ?: error(
-                    "Failed to get sender config. " +
-                        "Config: ${sender.senderConfig} as class $configClass"
+                // the config body is deliberately left out of both messages: they are persisted in
+                // notification.error_message and shown in the UI, while a sender config holds
+                // channel credentials (SMTP/Firebase). The sender id and the target class are
+                // enough to find the broken artifact
+                val config = try {
+                    sender.senderConfig.getAs(configClass)
+                } catch (e: Exception) {
+                    throw NotificationPermanentException(
+                        "Failed to parse config of '${sender.id}' notifications sender " +
+                            "(type '${sender.senderType}') as class ${configClass.name}",
+                        e
+                    )
+                } ?: throw NotificationPermanentException(
+                    "Failed to get config of '${sender.id}' notifications sender " +
+                        "(type '${sender.senderType}') as class ${configClass.name}"
                 )
 
                 val result = senderBean.sendNotification(fitNotification, config)
@@ -156,7 +175,7 @@ class NotificationSenderServiceImpl(
                     BLOCKED -> notificationEventService.emitSendBlocked(eventDtoWithResultMeta)
                     SKIPPED -> continue
                 }
-                return result.status
+                return result
             }
         }
 
@@ -237,7 +256,9 @@ class NotificationSenderServiceImpl(
             scope[TemplateProcCtxKey.CUSTOM_WEB_URL] = webUrl
 
             val templateKey = workspaceService.addWsPrefixToId(template.id, template.workspace)
-            freemarkerService.process(templateKey, locale, model)
+            wrapTemplateDefects(templateKey) {
+                freemarkerService.process(templateKey, locale, model)
+            }
         }
     }
 
@@ -245,10 +266,54 @@ class NotificationSenderServiceImpl(
         val title = template.notificationTitle ?: return ""
 
         val titleTemplate = resolveAnyAvailableTitle(title, locale)
-            ?: throw NotificationException("Notification title not found in template: $template")
+            ?: throw NotificationPermanentException("Notification title not found in template: $template")
 
         val templateKey = workspaceService.addWsPrefixToId(template.id, template.workspace) + "_title"
-        return freemarkerService.process(templateKey, titleTemplate, model)
+        return wrapTemplateDefects(templateKey) {
+            freemarkerService.process(templateKey, titleTemplate, model)
+        }
+    }
+
+    /**
+     * Template defects (bad markup, references to missing model attributes) cannot be fixed
+     * by retrying — they surface as [TemplateException] (render time) or [ParseException]
+     * (parse time; extends IOException but is a defect, not an IO failure) and are marked
+     * permanent. True IO/loading errors are left as-is and stay transient.
+     *
+     * [TemplateNotFoundException] / [MalformedTemplateNameException] are defects too, even though
+     * they are IOExceptions: [ru.citeck.ecos.notifications.freemarker.EcosTemplateLoader] returns
+     * null only when the name resolves to no template at all — a typo'd `<#import>`/`<#include>`
+     * target is the realistic case. A DB outage inside the loader propagates as a thrown exception
+     * instead, whose root is then a SQL failure and stays transient. This matches the verdict a
+     * missing template row already gets in
+     * [ru.citeck.ecos.notifications.domain.notification.api.commands.UnsafeSendNotificationCommandExecutor];
+     * without it the very defect the retry redesign targets (broken template → exactly one attempt)
+     * would burn the whole retry budget.
+     *
+     * The verdict is taken from the ROOT of the cause chain, not from the first [TemplateException]
+     * in it: FreeMarker wraps whatever an injected bean throws into a [TemplateException] too
+     * (`EcosConfigAccessor` calls the config service, `ImageAccessor` reads files from the DB),
+     * and such a failure is a transient outage, not a broken template. Keeping it transient
+     * follows the classification asymmetry — a false-permanent verdict loses mail forever,
+     * a false-transient one costs a few cheap attempts.
+     */
+    private fun <T> wrapTemplateDefects(templateKey: String, render: () -> T): T {
+        try {
+            return render()
+        } catch (e: Exception) {
+            val root = ExceptionUtils.getThrowableList(e).last()
+            val defect = root is TemplateException ||
+                root is ParseException ||
+                root is TemplateNotFoundException ||
+                root is MalformedTemplateNameException
+            if (defect) {
+                throw NotificationPermanentException(
+                    "Failed to render notification template '$templateKey'",
+                    e
+                )
+            }
+            throw e
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

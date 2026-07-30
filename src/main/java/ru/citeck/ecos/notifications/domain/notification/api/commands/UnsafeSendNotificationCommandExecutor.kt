@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service
 import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.domain.notification.*
 import ru.citeck.ecos.notifications.domain.notification.predicate.MapElement
-import ru.citeck.ecos.notifications.domain.notification.service.NotificationException
+import ru.citeck.ecos.notifications.domain.notification.service.NotificationPermanentException
+import ru.citeck.ecos.notifications.domain.sender.NotificationSenderResult
 import ru.citeck.ecos.notifications.domain.sender.NotificationSenderService
 import ru.citeck.ecos.notifications.domain.template.constants.DefaultTplModelAtts
 import ru.citeck.ecos.notifications.domain.template.dto.NotificationTemplateWithMeta
 import ru.citeck.ecos.notifications.domain.template.service.NotificationTemplateService
-import ru.citeck.ecos.notifications.lib.NotificationSenderSendStatus
 import ru.citeck.ecos.notifications.lib.command.SendNotificationCommand
 import ru.citeck.ecos.notifications.lib.command.SendNotificationResult
 import ru.citeck.ecos.records2.predicate.PredicateService
@@ -36,7 +36,7 @@ class UnsafeSendNotificationCommandExecutor(
         private val log = KotlinLogging.logger {}
     }
 
-    fun execute(command: SendNotificationCommand): SendNotificationResult {
+    fun execute(command: SendNotificationCommand): NotificationExecutionResult {
         log.debug { "Execute notification command:\n$command" }
 
         if (recipientsNotSpecified(command)) {
@@ -44,9 +44,11 @@ class UnsafeSendNotificationCommandExecutor(
                 "Notification was not sent, no recipients found. " +
                     "Template: ${command.templateRef}, record: ${command.record}"
             }
-            return SendNotificationResult(
-                NotificationResultStatus.RECIPIENTS_NOT_FOUND.value,
-                "Notification was not sent, no recipients found"
+            return NotificationExecutionResult(
+                SendNotificationResult(
+                    NotificationResultStatus.RECIPIENTS_NOT_FOUND.value,
+                    "Notification was not sent, no recipients found"
+                )
             )
         }
 
@@ -75,8 +77,14 @@ class UnsafeSendNotificationCommandExecutor(
             bcc = command.bcc
         )
 
-        val status: NotificationSenderSendStatus = notificationService.sendNotification(notification)
-        return SendNotificationResult(NotificationResultStatus.OK.value, status.toString())
+        val senderResult = notificationService.sendNotification(notification)
+        return NotificationExecutionResult(
+            commandResult = SendNotificationResult(
+                NotificationResultStatus.OK.value,
+                senderResult.status.toString()
+            ),
+            partialDeliveryNote = senderResult.meta[NotificationSenderResult.PARTIAL_DELIVERY_NOTE] as? String
+        )
     }
 
     fun resolveTemplateModelData(command: SendNotificationCommand): TemplateModelData {
@@ -138,7 +146,7 @@ class UnsafeSendNotificationCommandExecutor(
     private fun getTemplateMetaById(id: String): NotificationTemplateWithMeta {
         val idInWs = workspaceService.convertToIdInWs(id)
         return notificationTemplateService.findById(idInWs).orElseThrow {
-            NotificationException("Template with id: <$id> not found}")
+            NotificationPermanentException("Template with id: <$id> not found")
         }
     }
 
@@ -155,7 +163,7 @@ class UnsafeSendNotificationCommandExecutor(
             it.type?.let { typeRef ->
                 val checkType = EntityRef.valueOf(recordEcosTypeId) == typeRef
                 if (checkType && checkPredicate(it.condition, attributes)) {
-                    val template = it.template ?: throw NotificationException(
+                    val template = it.template ?: throw NotificationPermanentException(
                         "Multi template ref is null. Base template ref: $baseTemplate"
                     )
                     return resolveMultiTemplate(
@@ -215,3 +223,19 @@ class UnsafeSendNotificationCommandExecutor(
         val filledModel: Map<String, Any?> = emptyMap()
     )
 }
+
+/**
+ * Internal result of a notification command execution.
+ *
+ * [SendNotificationResult] is the payload returned to the command caller and cannot carry
+ * anything else, so delivery details which have to be persisted with the notification row
+ * travel next to it.
+ *
+ * @param partialDeliveryNote set when the message was accepted only for part of the recipients:
+ * the notification counts as sent, the note is persisted as its error message and no retry is
+ * scheduled (see PartialDeliveryDetector).
+ */
+data class NotificationExecutionResult(
+    val commandResult: SendNotificationResult,
+    val partialDeliveryNote: String? = null
+)

@@ -4,6 +4,7 @@ import jakarta.mail.internet.MimeMultipart
 import org.apache.commons.lang3.LocaleUtils
 import org.apache.commons.mail2.jakarta.util.MimeMessageParser
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,6 +52,19 @@ class EmailNotificationTest : BaseMailTest() {
 
     companion object {
         private const val DEFAULT_EMAIL_SENDER_ID = "default-email-sender"
+        private const val DEFAULT_EMAIL_SENDER_ARTIFACT =
+            "eapps/artifacts/notification/sender/default_email_sender.json"
+
+        /**
+         * Senders saved by the tests below. They are removed after each test: senders are
+         * context-wide, and a leftover sender with `order = 1.0` competes with the senders
+         * other test classes rely on (e.g. the conditional command sender of
+         * CommandNotificationSenderTest, which shares both the order and the condition).
+         */
+        private val TEMPORARY_SENDER_IDS = listOf(
+            "default-email-sender-with-condition",
+            "default-email-sender-with-template"
+        )
     }
 
     @BeforeEach
@@ -77,6 +91,19 @@ class EmailNotificationTest : BaseMailTest() {
             model = templateModel,
             from = "test@mail.ru"
         )
+    }
+
+    @AfterEach
+    fun restoreSenders() {
+        TEMPORARY_SENDER_IDS.forEach { notificationsSenderService.delete(it) }
+        if (notificationsSenderService.getSenderById(DEFAULT_EMAIL_SENDER_ID) == null) {
+            notificationsSenderService.save(
+                Json.mapper.convert(
+                    stringFromResource(DEFAULT_EMAIL_SENDER_ARTIFACT),
+                    NotificationsSenderDto::class.java
+                )!!
+            )
+        }
     }
 
     @Test

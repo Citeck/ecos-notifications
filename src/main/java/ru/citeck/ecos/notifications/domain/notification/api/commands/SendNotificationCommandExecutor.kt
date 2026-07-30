@@ -56,8 +56,13 @@ class SendNotificationCommandExecutor(
         var result = SendNotificationResult(NotificationResultStatus.ERROR.value, "DEFAULT_RESULT")
         for (command in splitCommand(srcCommand)) {
             try {
-                result = unsafeSendNotificationCommandExecutor.execute(command)
-                notificationCommandResultHolder.holdSuccess(command, result)
+                val executionResult = unsafeSendNotificationCommandExecutor.execute(command)
+                result = executionResult.commandResult
+                notificationCommandResultHolder.holdSuccess(
+                    command,
+                    result,
+                    executionResult.partialDeliveryNote
+                )
             } catch (e: Exception) {
 
                 log.error(e) { "Failed execute notification command" }

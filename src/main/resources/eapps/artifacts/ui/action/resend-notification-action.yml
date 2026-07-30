@@ -28,3 +28,13 @@ evaluator:
           att: bulkMailRef
         - t: empty
           att: delayedSend
+        # failed rows are re-driven through retry-notification-action instead:
+        # it reuses the existing row, while RESEND creates a brand new notification
+        - t: not
+          val:
+            t: in
+            att: state
+            val:
+              - ERROR
+              - FAILED
+              - EXPIRED

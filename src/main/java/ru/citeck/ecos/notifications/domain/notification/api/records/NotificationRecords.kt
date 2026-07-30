@@ -6,6 +6,7 @@ import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json.mapper
 import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.notifications.common.NotificationsSystemArtifactPerms
+import ru.citeck.ecos.notifications.domain.notification.FailureKind
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.domain.notification.converter.NotificationTemplateConverter
 import ru.citeck.ecos.notifications.domain.notification.dto.NotificationDto
@@ -108,12 +109,35 @@ class NotificationRecords(
         perms.checkWrite(EntityRef.create(AppName.NOTIFICATIONS, ID, record.id))
 
         val action = record.attributes.get("action", "")
-        if (action == "RESEND") {
-            executeResendAction(record.id)
-        } else {
-            error("Unknown action: $action")
+        when (action) {
+            "RESEND" -> executeResendAction(record.id)
+            "RETRY" -> executeRetryAction(record.id)
+            else -> error("Unknown action: $action")
         }
         return record.id
+    }
+
+    /**
+     * Manual re-drive of a failed notification: instead of sending a brand new notification
+     * (RESEND), the existing row is put back into the retry pipeline with a fresh budget and
+     * is picked up by `ErrorNotificationRepeater` on its next tick.
+     */
+    private fun executeRetryAction(recordId: String) {
+        val dto = notificationDao.getByExtId(recordId)
+            ?: recordId.toLongOrNull()?.let { notificationDao.getById(it) }
+            ?: error("Notification record is not found: $recordId")
+
+        if (!NotificationDao.RETRYABLE_STATES.contains(dto.state)) {
+            error(
+                "Notification '$recordId' in state ${dto.state} can't be retried. " +
+                    "Allowed states: ${NotificationDao.RETRYABLE_STATES}"
+            )
+        }
+
+        val id = dto.id ?: error("Notification without id can't be retried: $recordId")
+        if (!notificationDao.redriveForRetry(id)) {
+            error("Notification '$recordId' left state ${dto.state} concurrently, retry is not applied")
+        }
     }
 
     private fun executeResendAction(recordId: String) {
@@ -149,7 +173,10 @@ class NotificationRecords(
         val creator: String?,
         val created: Instant?,
         val modifier: String?,
-        val modified: Instant?
+        val modified: Instant?,
+        val nextRetryAt: Instant?,
+        val firstErrorAt: Instant?,
+        val failureKind: FailureKind?
     ) {
         constructor(dto: NotificationDto) : this(
             dto.id,
@@ -171,7 +198,10 @@ class NotificationRecords(
             dto.createdBy,
             dto.createdDate,
             dto.lastModifiedBy,
-            dto.lastModifiedDate
+            dto.lastModifiedDate,
+            dto.nextRetryAt,
+            dto.firstErrorAt,
+            dto.failureKind
         )
 
         var moduleId: String

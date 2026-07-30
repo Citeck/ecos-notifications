@@ -3,6 +3,7 @@ package ru.citeck.ecos.notifications.domain.notification.repo
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import ru.citeck.ecos.notifications.domain.AbstractAuditingEntity
+import ru.citeck.ecos.notifications.domain.notification.FailureKind
 import ru.citeck.ecos.notifications.domain.notification.NotificationState
 import ru.citeck.ecos.notifications.lib.NotificationType
 import java.io.Serializable
@@ -47,6 +48,14 @@ class NotificationEntity @JvmOverloads constructor(
 
     var lastTryingDate: Instant? = null,
 
+    var nextRetryAt: Instant? = null,
+
+    var firstErrorAt: Instant? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(20)")
+    var failureKind: FailureKind? = null,
+
     @Column(name = "created_from", columnDefinition = "VARCHAR(255)")
     var createdFrom: String? = null,
 
@@ -79,6 +88,7 @@ class NotificationEntity @JvmOverloads constructor(
 
     override fun toString(): String {
         return "NotificationEntity(id=$id," +
-            " tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state)"
+            " tryingCount=$tryingCount, lastTryingDate=$lastTryingDate, state=$state," +
+            " nextRetryAt=$nextRetryAt, firstErrorAt=$firstErrorAt, failureKind=$failureKind)"
     }
 }
