@@ -1,7 +1,9 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import org.apache.commons.collections4.ListUtils
+import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
+import ru.citeck.ecos.context.lib.i18n.I18nContext
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificationService
@@ -12,8 +14,13 @@ class BulkMailOperator(
     private val bulkMailDao: BulkMailDao,
     private val awaitNotificationService: AwaitNotificationService,
     private val recipientsFinder: RecipientsFinder,
-    private val bulkMailRecipientDao: BulkMailRecipientDao
+    private val bulkMailRecipientDao: BulkMailRecipientDao,
+    private val messageSource: MessageSource
 ) {
+
+    companion object {
+        private const val NO_NOTIFICATIONS_GENERATED_MSG_KEY = "bulk-mail.error.no-notifications-generated"
+    }
 
     fun dispatch(extId: String) {
         val bulkMail = bulkMailDao.findByExtId(extId)
@@ -26,7 +33,11 @@ class BulkMailOperator(
 
     private fun dispatchNotificationToAwait(bulkMailDto: BulkMailDto) {
         val notifications = buildNotifications(bulkMailDto)
-        if (notifications.isEmpty()) throw IllegalStateException("No notifications generated. Check recipients.")
+        if (notifications.isEmpty()) {
+            throw IllegalStateException(
+                messageSource.getMessage(NO_NOTIFICATIONS_GENERATED_MSG_KEY, null, I18nContext.getLocale())
+            )
+        }
 
         awaitNotificationService.sendToAwait(notifications, bulkMailDto)
     }
