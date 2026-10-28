@@ -1,21 +1,19 @@
 package ru.citeck.ecos.notifications.domain.bulkmail.service
 
 import org.apache.commons.collections4.ListUtils
-import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
-import ru.citeck.ecos.context.lib.i18n.I18nContext
 import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificationService
 import ru.citeck.ecos.notifications.lib.Notification
+import ru.citeck.ecos.commons.exception.I18nRuntimeException
 
 @Service
 class BulkMailOperator(
     private val bulkMailDao: BulkMailDao,
     private val awaitNotificationService: AwaitNotificationService,
     private val recipientsFinder: RecipientsFinder,
-    private val bulkMailRecipientDao: BulkMailRecipientDao,
-    private val messageSource: MessageSource
+    private val bulkMailRecipientDao: BulkMailRecipientDao
 ) {
 
     companion object {
@@ -34,9 +32,7 @@ class BulkMailOperator(
     private fun dispatchNotificationToAwait(bulkMailDto: BulkMailDto) {
         val notifications = buildNotifications(bulkMailDto)
         if (notifications.isEmpty()) {
-            throw IllegalStateException(
-                messageSource.getMessage(NO_NOTIFICATIONS_GENERATED_MSG_KEY, null, I18nContext.getLocale())
-            )
+            throw I18nRuntimeException(NO_NOTIFICATIONS_GENERATED_MSG_KEY)
         }
 
         awaitNotificationService.sendToAwait(notifications, bulkMailDto)
