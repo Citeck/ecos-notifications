@@ -6,6 +6,7 @@ import ru.citeck.ecos.notifications.domain.bulkmail.BulkMailStatus
 import ru.citeck.ecos.notifications.domain.bulkmail.dto.BulkMailDto
 import ru.citeck.ecos.notifications.domain.notification.service.AwaitNotificationService
 import ru.citeck.ecos.notifications.lib.Notification
+import ru.citeck.ecos.commons.exception.I18nRuntimeException
 
 @Service
 class BulkMailOperator(
@@ -14,6 +15,10 @@ class BulkMailOperator(
     private val recipientsFinder: RecipientsFinder,
     private val bulkMailRecipientDao: BulkMailRecipientDao
 ) {
+
+    companion object {
+        private const val NO_NOTIFICATIONS_GENERATED_MSG_KEY = "bulk-mail.error.no-notifications-generated"
+    }
 
     fun dispatch(extId: String) {
         val bulkMail = bulkMailDao.findByExtId(extId)
@@ -26,7 +31,9 @@ class BulkMailOperator(
 
     private fun dispatchNotificationToAwait(bulkMailDto: BulkMailDto) {
         val notifications = buildNotifications(bulkMailDto)
-        if (notifications.isEmpty()) throw IllegalStateException("No notifications generated. Check recipients.")
+        if (notifications.isEmpty()) {
+            throw I18nRuntimeException(NO_NOTIFICATIONS_GENERATED_MSG_KEY)
+        }
 
         awaitNotificationService.sendToAwait(notifications, bulkMailDto)
     }

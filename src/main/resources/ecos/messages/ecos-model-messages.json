@@ -1,0 +1,13 @@
+{
+  "id": "ecos-model-messages",
+  "locales": [
+    "en",
+    "ru"
+  ],
+  "messages": {
+    "bulk-mail.error.no-notifications-generated": [
+      "No notifications generated. Check recipients",
+      "Уведомления не были сформированы. Проверьте получателей"
+    ]
+  }
+}
