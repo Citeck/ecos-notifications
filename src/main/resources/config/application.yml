@@ -39,10 +39,6 @@ spring:
           # of them are rejected. Required by PartialDeliveryDetector: JavaMail only reports
           # SendFailedException.validSentAddresses when this is enabled
           sendpartial: true
-  messages:
-    # the bundle basename (i18n/messages) comes from the platform defaults; without this a locale
-    # that has no bundle of its own would get the server's system locale instead of the default one
-    fallback-to-system-locale: false
   task:
     scheduling:
       pool:
